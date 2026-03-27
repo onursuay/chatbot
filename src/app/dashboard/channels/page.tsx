@@ -22,7 +22,7 @@ interface WAStatus {
 }
 
 declare global {
-  interface Window { FB: any }
+  interface Window { FB: any; fbAsyncInit: () => void }
 }
 
 // WhatsApp gerçek logo
@@ -60,6 +60,27 @@ export default function ChannelsPage() {
   const [loading, setLoading] = useState(true)
   const [connecting, setConnecting] = useState<string | null>(null)
   const [disconnecting, setDisconnecting] = useState<string | null>(null)
+
+  // Facebook SDK init
+  useEffect(() => {
+    if (window.FB) return
+    window.fbAsyncInit = () => {
+      window.FB.init({
+        appId: META_APP_ID,
+        cookie: true,
+        xfbml: true,
+        version: "v21.0",
+      })
+    }
+    if (!document.getElementById("fb-sdk")) {
+      const script = document.createElement("script")
+      script.id = "fb-sdk"
+      script.src = "https://connect.facebook.net/tr_TR/sdk.js"
+      script.async = true
+      script.defer = true
+      document.body.appendChild(script)
+    }
+  }, [])
 
   const reload = async () => {
     const token = getToken()

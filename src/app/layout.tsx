@@ -12,7 +12,15 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="tr" className="dark">
-      <body>{children}</body>
+      <body>
+        {children}
+        <script
+          async
+          defer
+          crossOrigin="anonymous"
+          src="https://connect.facebook.net/tr_TR/sdk.js#xfbml=1&version=v21.0&appId=4385939431652235"
+        />
+      </body>
     </html>
   )
 }
