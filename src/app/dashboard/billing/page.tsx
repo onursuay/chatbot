@@ -17,11 +17,52 @@ const PLAN_FEATURES: Record<string, string[]> = {
   business: ["20 kullanici", "Sinirsiz mesaj", "Instagram + FB DM", "Shopify", "API erisimi", "Ozel entegrasyon", "Dedicated destek"],
 }
 
+// SVG Logolar
+function StripeLogo() {
+  return (
+    <svg viewBox="0 0 60 25" className="h-6">
+      <path d="M5 10.2c0-.7.6-1 1.5-1 1.3 0 3 .4 4.3 1.1V6.5c-1.5-.6-2.9-.8-4.3-.8C3.2 5.7.8 7.5.8 10.4c0 4.5 6.2 3.8 6.2 5.7 0 .8-.7 1.1-1.7 1.1-1.5 0-3.4-.6-4.9-1.4v3.9c1.7.7 3.3 1 4.9 1 3.4 0 5.7-1.7 5.7-4.6-.1-4.8-6-4-6-5.9z" fill="#635bff"/>
+      <path d="M14.6 16.2l-1 .5v3h4.2V8.3h-4.2v6.2c-1 1.2-2.5 1-3.3.4v-4.3c.8-.6 2.3-.8 3.3.4v5.2z" fill="#635bff"/>
+      <path d="M23.5 5.7l-4.1.9v3.2l4.1-.9V5.7zM19.4 8.3h4.1v11.4h-4.1V8.3z" fill="#635bff"/>
+      <path d="M29 8l-.3 1.5c-.5-.3-1.7-.5-2.4.2-.2.3-.4.7-.4 1.3v8.7h-4.2V8.3h4.2v1.2c.6-1 1.8-1.8 3.1-1.5z" fill="#635bff"/>
+      <path d="M37.3 14.3c0-3.7-1.8-6.3-5.2-6.3-3.5 0-5.6 2.6-5.6 6.3 0 4.1 2.4 6.2 5.8 6.2 1.7 0 2.9-.4 3.9-1l-1-2.8c-.8.4-1.7.6-2.8.6-1.1 0-2.1-.4-2.2-1.7h5.1v-1.3zm-5.2-3.8c.8 0 1.3.6 1.3 1.6h-3c.1-1 .7-1.6 1.7-1.6z" fill="#635bff"/>
+    </svg>
+  )
+}
+
+function IyzicoLogo() {
+  return (
+    <svg viewBox="0 0 80 25" className="h-6">
+      <rect width="80" height="25" rx="4" fill="#1E64FF" opacity="0.1"/>
+      <text x="40" y="17" textAnchor="middle" fontFamily="system-ui" fontWeight="700" fontSize="13" fill="#1E64FF">iyzico</text>
+    </svg>
+  )
+}
+
+function PayTRLogo() {
+  return (
+    <svg viewBox="0 0 80 25" className="h-6">
+      <rect width="80" height="25" rx="4" fill="#00C853" opacity="0.1"/>
+      <text x="40" y="17" textAnchor="middle" fontFamily="system-ui" fontWeight="700" fontSize="13" fill="#00C853">PayTR</text>
+    </svg>
+  )
+}
+
+function ParafLogo() {
+  return (
+    <svg viewBox="0 0 80 25" className="h-6">
+      <rect width="80" height="25" rx="4" fill="#FF6F00" opacity="0.1"/>
+      <text x="40" y="17" textAnchor="middle" fontFamily="system-ui" fontWeight="700" fontSize="13" fill="#FF6F00">Param</text>
+    </svg>
+  )
+}
+
 export default function BillingPage() {
   const { getToken } = useAuth()
   const [data, setData] = useState<BillingData | null>(null)
   const [loading, setLoading] = useState(true)
   const [subscribing, setSubscribing] = useState<string | null>(null)
+  const [paymentMethod, setPaymentMethod] = useState<"stripe" | "iyzico" | "paytr">("stripe")
 
   useEffect(() => {
     const token = getToken()
@@ -39,7 +80,7 @@ export default function BillingPage() {
     try {
       const { url } = await api<{ url: string }>("/billing", {
         method: "POST", token,
-        body: JSON.stringify({ plan: planId }),
+        body: JSON.stringify({ plan: planId, payment_method: paymentMethod }),
       })
       if (url) window.location.href = url
     } catch (err: any) {
@@ -78,6 +119,39 @@ export default function BillingPage() {
         )}
       </p>
 
+      {/* Ödeme Yöntemi Seçimi */}
+      <div className="bg-dark-900 border border-dark-800 rounded-xl p-6 mb-8">
+        <h3 className="text-white font-medium mb-4">Odeme Yontemi</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { id: "stripe" as const, label: "Stripe", desc: "Uluslararasi kredi karti", logo: <StripeLogo /> },
+            { id: "iyzico" as const, label: "iyzico", desc: "Turkiye kredi karti & banka", logo: <IyzicoLogo /> },
+            { id: "paytr" as const, label: "PayTR", desc: "Turkiye kredi karti & havale", logo: <PayTRLogo /> },
+            { id: "param" as const, label: "Param", desc: "Turkiye dijital odeme", logo: <ParafLogo /> },
+          ].map((pm) => (
+            <button
+              key={pm.id}
+              onClick={() => setPaymentMethod(pm.id === "param" ? "iyzico" : pm.id)}
+              className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition ${
+                paymentMethod === pm.id || (pm.id === "param" && paymentMethod === "iyzico")
+                  ? "border-brand-500 bg-brand-500/5"
+                  : "border-dark-800 bg-dark-800/50 hover:border-dark-700"
+              }`}
+            >
+              {pm.logo}
+              <span className="text-xs text-dark-400">{pm.desc}</span>
+            </button>
+          ))}
+        </div>
+        <div className="mt-4 flex items-center gap-3 text-xs text-dark-500">
+          <svg className="w-4 h-4 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          <span>256-bit SSL ile guvenli odeme. Kart bilgileriniz sunucularimizda saklanmaz.</span>
+        </div>
+      </div>
+
+      {/* Plan kartları */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
           { id: "starter", name: "Baslangic", price: "$29", priceTL: "999 TL", popular: false },
@@ -133,8 +207,91 @@ export default function BillingPage() {
         })}
       </div>
 
-      {/* Ücretsiz plan bilgisi */}
+      {/* Desteklenen ödeme yöntemleri */}
       <div className="mt-8 bg-dark-900 border border-dark-800 rounded-xl p-6">
+        <h3 className="text-white font-medium mb-4">Desteklenen Odeme Yontemleri</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {/* Stripe */}
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-16 h-10 bg-[#635bff]/10 rounded-lg flex items-center justify-center">
+              <svg viewBox="0 0 24 24" className="w-8 h-5" fill="#635bff">
+                <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-7.076-2.19l-.893 5.575C4.746 22.81 7.489 24 10.725 24c2.6 0 4.507-.484 5.966-1.624 1.627-1.274 2.477-3.26 2.477-5.756 0-4.115-2.543-5.834-5.192-6.87z"/>
+              </svg>
+            </div>
+            <div className="text-center">
+              <p className="text-xs text-white font-medium">Stripe</p>
+              <p className="text-[10px] text-dark-500">Visa, Mastercard, Amex</p>
+            </div>
+          </div>
+
+          {/* iyzico */}
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-16 h-10 bg-[#1E64FF]/10 rounded-lg flex items-center justify-center">
+              <span className="text-[#1E64FF] font-bold text-sm">iyzico</span>
+            </div>
+            <div className="text-center">
+              <p className="text-xs text-white font-medium">iyzico</p>
+              <p className="text-[10px] text-dark-500">Kredi karti, BKM Express</p>
+            </div>
+          </div>
+
+          {/* PayTR */}
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-16 h-10 bg-[#00C853]/10 rounded-lg flex items-center justify-center">
+              <span className="text-[#00C853] font-bold text-sm">PayTR</span>
+            </div>
+            <div className="text-center">
+              <p className="text-xs text-white font-medium">PayTR</p>
+              <p className="text-[10px] text-dark-500">Kredi karti, Havale/EFT</p>
+            </div>
+          </div>
+
+          {/* Param */}
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-16 h-10 bg-[#FF6F00]/10 rounded-lg flex items-center justify-center">
+              <span className="text-[#FF6F00] font-bold text-sm">Param</span>
+            </div>
+            <div className="text-center">
+              <p className="text-xs text-white font-medium">Param</p>
+              <p className="text-[10px] text-dark-500">Dijital cuzdan, QR odeme</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Kart logoları */}
+        <div className="mt-6 pt-4 border-t border-dark-800 flex items-center justify-center gap-4">
+          {/* Visa */}
+          <div className="w-12 h-8 bg-white/5 rounded flex items-center justify-center">
+            <svg viewBox="0 0 48 16" className="w-10 h-4">
+              <path d="M19.5 1.3L12.7 14.7H8.5L5.1 4.2C4.9 3.4 4.7 3.1 4.1 2.8 3.1 2.3 1.5 1.8 0 1.5L.1 1.3H6.8C7.7 1.3 8.5 1.9 8.7 2.9L10.3 11.2L14.4 1.3H19.5Z" fill="#1A1F71"/>
+              <path d="M34.5 10.1C34.5 6.5 29.5 6.3 29.5 4.7C29.6 4.2 30 3.7 31.1 3.5C31.6 3.5 33.1 3.4 34.7 4.1L35.4 1.6C34.5 1.3 33.4 1 32 1C27.2 1 23.8 3.6 23.8 7.2C23.7 9.8 26.1 11.2 27.8 12.1C29.6 13 30.2 13.5 30.2 14.2C30.1 15.3 28.8 15.7 27.6 15.7C25.8 15.8 24.8 15.3 24 14.9L23.3 17.5C24.1 17.9 25.7 18.2 27.3 18.2C32.5 18.2 35.8 15.7 34.5 10.1Z" fill="#1A1F71"/>
+            </svg>
+          </div>
+          {/* Mastercard */}
+          <div className="w-12 h-8 bg-white/5 rounded flex items-center justify-center">
+            <svg viewBox="0 0 32 20" className="w-8 h-5">
+              <circle cx="11" cy="10" r="8" fill="#EB001B" opacity="0.9"/>
+              <circle cx="21" cy="10" r="8" fill="#F79E1B" opacity="0.9"/>
+              <path d="M16 3.8A8 8 0 0013 10a8 8 0 003 6.2A8 8 0 0019 10a8 8 0 00-3-6.2z" fill="#FF5F00"/>
+            </svg>
+          </div>
+          {/* Amex */}
+          <div className="w-12 h-8 bg-white/5 rounded flex items-center justify-center">
+            <span className="text-[#006FCF] font-bold text-[9px]">AMEX</span>
+          </div>
+          {/* Troy */}
+          <div className="w-12 h-8 bg-white/5 rounded flex items-center justify-center">
+            <span className="text-[#00A3E0] font-bold text-[9px]">TROY</span>
+          </div>
+          {/* BKM */}
+          <div className="w-12 h-8 bg-white/5 rounded flex items-center justify-center">
+            <span className="text-[#E31E24] font-bold text-[8px]">BKM</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Ücretsiz plan */}
+      <div className="mt-6 bg-dark-900 border border-dark-800 rounded-xl p-6">
         <h3 className="text-white font-medium mb-2">Ucretsiz Deneme</h3>
         <p className="text-dark-400 text-sm">
           Tum yeni hesaplar 7 gun ucretsiz deneme ile baslar. Deneme suresi dolmadan plan secerseniz
