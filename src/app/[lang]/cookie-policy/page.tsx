@@ -2,12 +2,11 @@
 
 import { useParams } from "next/navigation"
 import Image from "next/image"
-import { useI18n, type Lang } from "@/lib/i18n"
+import { useI18n } from "@/lib/i18n"
 
 export default function CookiePolicyPage() {
   const { lang: urlLang } = useParams()
-  const { lang, setLang } = useI18n()
-  if (urlLang && urlLang !== lang && (urlLang === "tr" || urlLang === "en")) setLang(urlLang as Lang)
+  const { lang } = useI18n()
 
   const isTR = lang === "tr"
 

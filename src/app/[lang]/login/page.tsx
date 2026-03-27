@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -19,10 +19,12 @@ export default function LoginPage() {
   const { lang, t, setLang } = useI18n()
 
   // URL'deki dili sync et
-  const urlLang = (params.lang as string) || "tr"
-  if (urlLang !== lang && (urlLang === "tr" || urlLang === "en")) {
-    setLang(urlLang as Lang)
-  }
+  useEffect(() => {
+    const urlLang = (params.lang as string) || "tr"
+    if (urlLang !== lang && (urlLang === "tr" || urlLang === "en")) {
+      setLang(urlLang as Lang)
+    }
+  }, [params.lang])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
