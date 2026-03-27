@@ -337,6 +337,12 @@ const translations: Record<string, Record<Lang, string>> = {
   "productivity": { tr: "Verimlilik", en: "Productivity" },
   "developer": { tr: "Geliştirici", en: "Developer" },
   "disconnect": { tr: "Bağlantıyı Kes", en: "Disconnect" },
+
+  // Footer
+  "footer_privacy": { tr: "Gizlilik Politikası", en: "Privacy Policy" },
+  "footer_cookie": { tr: "Çerez Politikası", en: "Cookie Policy" },
+  "footer_terms": { tr: "Kullanım Koşulları", en: "Terms of Service" },
+  "footer_data_deletion": { tr: "Veri Silme", en: "Data Deletion" },
   "disconnecting": { tr: "Kesiliyor...", en: "Disconnecting..." },
   "disconnect_confirm": { tr: "Bu kanalın bağlantısını kesmek istediğinize emin misiniz?", en: "Are you sure you want to disconnect this channel?" },
   "disconnected": { tr: "Bağlantı kesildi", en: "Disconnected" },
@@ -561,6 +567,11 @@ export const SLUG_MAP: Record<string, Record<Lang, string>> = {
   "custom-fields": { tr: "ozel-alanlar",    en: "custom-fields" },
   "tags-management": { tr: "etiket-yonetimi", en: "tags-management" },
   "lead-scoring":  { tr: "lead-puanlama",   en: "lead-scoring" },
+  // Legal
+  "privacy-policy":  { tr: "privacy-policy",     en: "privacy-policy" },
+  "cookie-policy":   { tr: "cookie-policy",      en: "cookie-policy" },
+  "terms-of-service": { tr: "terms-of-service",  en: "terms-of-service" },
+  "data-deletion":   { tr: "data-deletion",      en: "data-deletion" },
 }
 
 // Herhangi bir slug'dan (TR veya EN) -> canonical key bul
