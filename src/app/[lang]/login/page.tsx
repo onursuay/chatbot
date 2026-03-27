@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -8,6 +8,131 @@ import { api } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
 import { useI18n, localePath, type Lang } from "@/lib/i18n"
 
+// ===== NEURAL NETWORK CANVAS =====
+function NeuralCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+
+    let animId: number
+    let nodes: { x: number; y: number; vx: number; vy: number; r: number }[] = []
+    let pulses: { from: number; to: number; progress: number; speed: number }[] = []
+
+    const NODE_COUNT = 35
+    const CONNECT_DIST = 180
+    const MAX_PULSES = 15
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth * window.devicePixelRatio
+      canvas.height = canvas.offsetHeight * window.devicePixelRatio
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio)
+    }
+
+    const init = () => {
+      resize()
+      const w = canvas.offsetWidth
+      const h = canvas.offsetHeight
+      nodes = Array.from({ length: NODE_COUNT }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        r: 1.5 + Math.random() * 2,
+      }))
+    }
+
+    const draw = () => {
+      const w = canvas.offsetWidth
+      const h = canvas.offsetHeight
+      ctx.clearRect(0, 0, w, h)
+
+      // Move nodes
+      for (const n of nodes) {
+        n.x += n.vx
+        n.y += n.vy
+        if (n.x < 0 || n.x > w) n.vx *= -1
+        if (n.y < 0 || n.y > h) n.vy *= -1
+      }
+
+      // Draw connections
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x
+          const dy = nodes[i].y - nodes[j].y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          if (dist < CONNECT_DIST) {
+            const alpha = (1 - dist / CONNECT_DIST) * 0.35
+            ctx.beginPath()
+            ctx.moveTo(nodes[i].x, nodes[i].y)
+            ctx.lineTo(nodes[j].x, nodes[j].y)
+            ctx.strokeStyle = `rgba(255,255,255,${alpha})`
+            ctx.lineWidth = 0.8
+            ctx.stroke()
+          }
+        }
+      }
+
+      // Draw nodes
+      for (const n of nodes) {
+        ctx.beginPath()
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2)
+        ctx.fillStyle = "rgba(255,255,255,0.25)"
+        ctx.fill()
+      }
+
+      // Create pulses
+      if (pulses.length < MAX_PULSES && Math.random() < 0.008) {
+        const from = Math.floor(Math.random() * NODE_COUNT)
+        let to = Math.floor(Math.random() * NODE_COUNT)
+        if (to === from) to = (to + 1) % NODE_COUNT
+        pulses.push({ from, to, progress: 0, speed: 0.005 + Math.random() * 0.01 })
+      }
+
+      // Draw pulses
+      pulses = pulses.filter((p) => {
+        p.progress += p.speed
+        if (p.progress >= 1) return false
+
+        const fromN = nodes[p.from]
+        const toN = nodes[p.to]
+        const x = fromN.x + (toN.x - fromN.x) * p.progress
+        const y = fromN.y + (toN.y - fromN.y) * p.progress
+        const alpha = Math.sin(p.progress * Math.PI) * 0.8
+
+        ctx.beginPath()
+        ctx.arc(x, y, 2, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(16,185,129,${alpha})`
+        ctx.fill()
+
+        // Glow
+        ctx.beginPath()
+        ctx.arc(x, y, 6, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(16,185,129,${alpha * 0.2})`
+        ctx.fill()
+
+        return true
+      })
+
+      animId = requestAnimationFrame(draw)
+    }
+
+    init()
+    draw()
+    window.addEventListener("resize", resize)
+    return () => {
+      cancelAnimationFrame(animId)
+      window.removeEventListener("resize", resize)
+    }
+  }, [])
+
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
+}
+
+// ===== LOGIN PAGE =====
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -18,7 +143,6 @@ export default function LoginPage() {
   const { setAuth } = useAuth()
   const { lang, t, setLang } = useI18n()
 
-  // URL'deki dili sync et
   useEffect(() => {
     const urlLang = (params.lang as string) || "tr"
     if (urlLang !== lang && (urlLang === "tr" || urlLang === "en")) {
@@ -40,7 +164,7 @@ export default function LoginPage() {
       setAuth(user, tokens.access_token, tokens.refresh_token)
       router.push(localePath("inbox", lang))
     } catch (err: any) {
-      setError(err.message || (lang === "tr" ? "Giriş başarısız" : "Login failed"))
+      setError(err.message || (lang === "tr" ? "Giris basarisiz" : "Login failed"))
     } finally {
       setLoading(false)
     }
@@ -49,27 +173,29 @@ export default function LoginPage() {
   const isTR = lang === "tr"
 
   return (
-    <div className="min-h-screen bg-dark-950 flex flex-col">
-      <div className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
+    <div className="min-h-screen bg-[#060609] flex flex-col relative overflow-hidden">
+      {/* Neural Network Canvas */}
+      <NeuralCanvas />
+
+      {/* Content */}
+      <div className="flex-1 flex items-center justify-center p-4 relative z-10">
+        <div className="w-full max-w-md" style={{ fontSize: "16px" }}>
           {/* Logo */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center">
-                <span className="text-dark-950 font-bold text-lg">Y</span>
-              </div>
+              <Image src="/logo.png" alt="YoChat" width={40} height={40} className="invert rounded-xl" />
               <h1 className="text-3xl font-bold">
                 <span className="text-white">Yo</span>
-                <span className="text-brand-400">Chat</span>
+                <span className="text-primary">Chat</span>
               </h1>
             </div>
-            <p className="text-dark-400 mt-2">WhatsApp Business Platform</p>
+            <p className="text-gray-500 mt-2 text-sm">WhatsApp Business Platform</p>
           </div>
 
-          {/* Form */}
-          <div className="bg-dark-900 border border-dark-800 rounded-2xl p-8">
+          {/* Glassmorphism Card */}
+          <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
             <h2 className="text-xl font-semibold text-white mb-6">
-              {isTR ? "Giriş Yap" : "Sign In"}
+              {isTR ? "Giris Yap" : "Sign In"}
             </h2>
 
             {error && (
@@ -80,28 +206,28 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm text-dark-300 mb-1.5">
+                <label className="block text-sm text-gray-400 mb-1.5">
                   {isTR ? "E-posta" : "Email"}
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-2.5 text-white placeholder-dark-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition"
-                  placeholder={isTR ? "örnek@sirket.com" : "example@company.com"}
+                  className="w-full bg-white/[0.04] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 transition-all duration-150"
+                  placeholder={isTR ? "ornek@sirket.com" : "example@company.com"}
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm text-dark-300 mb-1.5">
-                  {isTR ? "Şifre" : "Password"}
+                <label className="block text-sm text-gray-400 mb-1.5">
+                  {isTR ? "Sifre" : "Password"}
                 </label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-2.5 text-white placeholder-dark-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition"
+                  className="w-full bg-white/[0.04] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 transition-all duration-150"
                   placeholder="********"
                   required
                 />
@@ -110,18 +236,18 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold rounded-lg py-2.5 transition disabled:opacity-50"
+                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-lg py-2.5 transition-all duration-150 shadow-lg shadow-emerald-500/20 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading
-                  ? (isTR ? "Giriş yapılıyor..." : "Signing in...")
-                  : (isTR ? "Giriş Yap" : "Sign In")}
+                  ? (isTR ? "Giris yapiliyor..." : "Signing in...")
+                  : (isTR ? "Giris Yap" : "Sign In")}
               </button>
             </form>
 
-            <p className="text-center text-dark-400 text-sm mt-6">
-              {isTR ? "Hesabın yok mu? " : "Don't have an account? "}
-              <Link href={`/${lang}/register`} className="text-brand-400 hover:text-brand-300">
-                {isTR ? "Kayıt Ol" : "Sign Up"}
+            <p className="text-center text-gray-500 text-sm mt-6">
+              {isTR ? "Hesabin yok mu? " : "Don't have an account? "}
+              <Link href={`/${lang}/register`} className="text-primary hover:text-primary-light transition-colors duration-150">
+                {isTR ? "Kayit Ol" : "Sign Up"}
               </Link>
             </p>
           </div>
@@ -129,16 +255,16 @@ export default function LoginPage() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-dark-800/40 bg-dark-950 px-6 py-4 flex items-center justify-between">
+      <footer className="relative z-10 border-t border-white/5 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Image src="/logo.png" alt="YO Dijital" width={24} height={24} className="rounded" />
-          <span className="text-dark-600 text-xs">2025 YO Dijital. All rights reserved.</span>
+          <Image src="/logo.png" alt="YO Dijital" width={20} height={20} className="invert opacity-50" />
+          <span className="text-gray-600 text-xs">2025 YO Dijital. All rights reserved.</span>
         </div>
         <div className="flex items-center gap-4">
-          <a href={`/${lang}/privacy-policy`} className="text-dark-500 hover:text-dark-300 text-xs transition">{t("footer_privacy")}</a>
-          <a href={`/${lang}/cookie-policy`} className="text-dark-500 hover:text-dark-300 text-xs transition">{t("footer_cookie")}</a>
-          <a href={`/${lang}/terms-of-service`} className="text-dark-500 hover:text-dark-300 text-xs transition">{t("footer_terms")}</a>
-          <a href={`/${lang}/data-deletion`} className="text-dark-500 hover:text-dark-300 text-xs transition">{t("footer_data_deletion")}</a>
+          <a href={`/${lang}/privacy-policy`} className="text-gray-600 hover:text-gray-400 text-xs transition-colors duration-150">{t("footer_privacy")}</a>
+          <a href={`/${lang}/cookie-policy`} className="text-gray-600 hover:text-gray-400 text-xs transition-colors duration-150">{t("footer_cookie")}</a>
+          <a href={`/${lang}/terms-of-service`} className="text-gray-600 hover:text-gray-400 text-xs transition-colors duration-150">{t("footer_terms")}</a>
+          <a href={`/${lang}/data-deletion`} className="text-gray-600 hover:text-gray-400 text-xs transition-colors duration-150">{t("footer_data_deletion")}</a>
         </div>
       </footer>
     </div>

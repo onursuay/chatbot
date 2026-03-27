@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth"
@@ -17,6 +17,14 @@ export default function LangLayout({ children, params }: { children: React.React
   const { t, lang, setLang } = useI18n()
   const [loading, setLoading] = useState(true)
 
+  // ===== SIDEBAR STATE =====
+  const [collapsed, setCollapsed] = useState(false)
+  const [ready, setReady] = useState(false)
+  const [animate, setAnimate] = useState(false)
+  const [openGroups, setOpenGroups] = useState<string[]>([])
+  const [hintPhase, setHintPhase] = useState<"logo" | "button">("logo")
+  const hintTimer = useRef<NodeJS.Timeout | null>(null)
+
   // Login, register ve legal sayfalarda sidebar gosterme
   const isNoLayoutPage = NO_LAYOUT_PAGES.some((p) => pathname.endsWith(p))
   if (isNoLayoutPage) {
@@ -31,6 +39,51 @@ export default function LangLayout({ children, params }: { children: React.React
     }
   }, [params.lang])
 
+  // ===== HYDRATION FLASH ONLEME =====
+  useEffect(() => {
+    const saved = localStorage.getItem("sidebar_collapsed")
+    if (saved === "true") setCollapsed(true)
+    setReady(true)
+    // Cift requestAnimationFrame ile transition'i geciktir
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setAnimate(true)
+      })
+    })
+  }, [])
+
+  // Collapsed state'i localStorage'a kaydet
+  useEffect(() => {
+    if (ready) localStorage.setItem("sidebar_collapsed", String(collapsed))
+  }, [collapsed, ready])
+
+  // ===== COLLAPSED HINT ANIMASYONU =====
+  useEffect(() => {
+    if (!collapsed) return
+    const runHint = () => {
+      setHintPhase("logo")
+      hintTimer.current = setTimeout(() => {
+        setHintPhase("button")
+        hintTimer.current = setTimeout(() => {
+          runHint()
+        }, 1000)
+      }, 5000)
+    }
+    runHint()
+    return () => { if (hintTimer.current) clearTimeout(hintTimer.current) }
+  }, [collapsed])
+
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed((p) => !p)
+  }, [])
+
+  const toggleGroup = useCallback((group: string) => {
+    setOpenGroups((prev) =>
+      prev.includes(group) ? prev.filter((g) => g !== group) : [...prev, group]
+    )
+  }, [])
+
+  // ===== NAV ITEMS =====
   const NAV_ITEMS = [
     {
       group: t("nav_dashboard"),
@@ -90,10 +143,11 @@ export default function LangLayout({ children, params }: { children: React.React
     },
   ]
 
+  // ===== AUTH CHECK =====
   useEffect(() => {
     const token = localStorage.getItem("access_token")
     if (!token) {
-      router.push("/auth/login")
+      router.push(`/${lang}/login`)
       return
     }
     if (!user) {
@@ -105,14 +159,14 @@ export default function LangLayout({ children, params }: { children: React.React
         })
         .catch(() => {
           logout()
-          router.push("/auth/login")
+          router.push(`/${lang}/login`)
         })
     } else {
       setLoading(false)
     }
   }, [user, router, setAuth, logout])
 
-  if (loading) {
+  if (loading || !ready) {
     return (
       <div className="min-h-screen bg-dark-950 flex items-center justify-center">
         <div className="animate-pulse text-brand-400 text-lg">{t("loading")}</div>
@@ -120,75 +174,160 @@ export default function LangLayout({ children, params }: { children: React.React
     )
   }
 
+  const sidebarWidth = collapsed ? "w-[72px]" : "w-[260px]"
+
   return (
-    <div className="min-h-screen bg-dark-950 flex">
-      {/* Sidebar */}
-      <aside className="w-[220px] bg-dark-900/80 backdrop-blur-sm border-r border-dark-800/60 flex flex-col shrink-0">
-        {/* Logo */}
-        <div className="px-5 py-4 flex items-center gap-3">
-          <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center">
-            <span className="text-dark-950 font-bold text-sm">Y</span>
-          </div>
-          <div>
-            <h1 className="text-base font-bold leading-none">
-              <span className="text-white">Yo</span>
-              <span className="text-brand-400">Chat</span>
-            </h1>
-          </div>
+    <div className="h-screen bg-dark-950 flex overflow-hidden">
+      {/* ===== SIDEBAR ===== */}
+      <aside
+        className={`${sidebarWidth} ${animate ? "transition-[width] duration-300" : ""} bg-dark-900/80 backdrop-blur-sm border-r border-dark-800/60 flex flex-col shrink-0 overflow-hidden`}
+      >
+        {/* Logo + Toggle */}
+        <div className="px-3 py-4 flex items-center gap-3 relative group">
+          {collapsed ? (
+            /* Collapsed: Logo with glow hint */
+            <button
+              onClick={toggleCollapsed}
+              className="w-10 h-10 mx-auto relative flex items-center justify-center"
+            >
+              {/* Glow parcaciklari */}
+              <div className={`absolute inset-0 transition-opacity duration-500 ${hintPhase === "logo" ? "opacity-100" : "opacity-0"} group-hover:opacity-0`}>
+                <span className="absolute top-0 left-1 w-2 h-2 bg-emerald-400/40 rounded-full animate-ping" style={{ animationDuration: "1.6s" }} />
+                <span className="absolute top-1 right-0 w-1.5 h-1.5 bg-emerald-500/30 rounded-full animate-ping" style={{ animationDuration: "2s", animationDelay: "0.3s" }} />
+                <span className="absolute bottom-0 left-2 w-1.5 h-1.5 bg-emerald-300/30 rounded-full animate-ping" style={{ animationDuration: "1.8s", animationDelay: "0.6s" }} />
+                <span className="absolute bottom-1 right-1 w-2 h-2 bg-emerald-400/20 rounded-full animate-ping" style={{ animationDuration: "2.2s", animationDelay: "0.9s" }} />
+              </div>
+              {/* Logo */}
+              <div className={`w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center ring-1 ring-emerald-400/40 shadow-[0_0_8px_rgba(16,185,129,0.3)] transition-opacity duration-500 ${hintPhase === "logo" ? "opacity-100" : "opacity-0"} group-hover:opacity-0`}>
+                <span className="text-dark-950 font-bold text-sm">Y</span>
+              </div>
+              {/* "Ac" butonu */}
+              <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-500 ${hintPhase === "button" ? "opacity-100" : "opacity-0"} group-hover:opacity-100`}>
+                <div className="w-8 h-8 bg-dark-800 rounded-lg flex items-center justify-center border border-dark-700 hover:border-brand-500/50">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4 text-dark-400">
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </div>
+              </div>
+            </button>
+          ) : (
+            /* Expanded: Logo + brand + close button */
+            <>
+              <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center shrink-0">
+                <span className="text-dark-950 font-bold text-sm">Y</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h1 className="text-base font-bold leading-none">
+                  <span className="text-white">Yo</span>
+                  <span className="text-brand-400">Chat</span>
+                </h1>
+              </div>
+              <button
+                onClick={toggleCollapsed}
+                className="w-6 h-6 flex items-center justify-center text-dark-500 hover:text-white transition rounded"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+              </button>
+            </>
+          )}
         </div>
 
         {/* Nav Groups */}
-        <nav className="flex-1 px-3 py-2 overflow-y-auto">
-          {NAV_ITEMS.map((group) => (
-            <div key={group.group} className="mb-4">
-              <p className="text-[10px] font-semibold text-dark-600 uppercase tracking-wider px-3 mb-1.5">
-                {group.group}
-              </p>
-              <div className="space-y-0.5">
-                {group.items.map((item) => {
-                  const active = pathname.startsWith(item.href)
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-all duration-150 ${
-                        active
-                          ? "bg-brand-500/10 text-brand-400"
-                          : "text-dark-400 hover:text-white hover:bg-dark-800/60"
-                      }`}
+        <nav className="flex-1 px-2 py-1 overflow-y-auto overflow-x-hidden">
+          {NAV_ITEMS.map((group) => {
+            const isOpen = openGroups.includes(group.group) || !collapsed
+            return (
+              <div key={group.group} className="mb-3">
+                {/* Grup basligi */}
+                {collapsed ? (
+                  <div className="h-px bg-dark-800/60 mx-2 my-2" />
+                ) : (
+                  <button
+                    onClick={() => toggleGroup(group.group)}
+                    className="w-full flex items-center justify-between px-3 mb-1"
+                  >
+                    <p className="text-[10px] font-semibold text-dark-600 uppercase tracking-wider">
+                      {group.group}
+                    </p>
+                    <svg
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
+                      className={`w-3 h-3 text-dark-600 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
                     >
-                      <span className={`w-4 h-4 ${active ? "text-brand-400" : "text-dark-500"}`}>
-                        {item.icon}
-                      </span>
-                      <span>{item.label}</span>
-                      {"badge" in item && item.badge && (
-                        <span className="ml-auto text-[9px] font-bold bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded">
-                          {item.badge}
-                        </span>
-                      )}
-                    </Link>
-                  )
-                })}
+                      <path d="M6 9l6 6 6-6" />
+                    </svg>
+                  </button>
+                )}
+
+                {/* Nav itemlari */}
+                {(collapsed || isOpen) && (
+                  <div className="space-y-0.5">
+                    {group.items.map((item) => {
+                      const active = pathname.startsWith(item.href)
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          title={collapsed ? item.label : undefined}
+                          className={`flex items-center gap-2.5 rounded-lg text-[13px] transition-all duration-150 relative ${
+                            collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2"
+                          } ${
+                            active
+                              ? "bg-brand-500/10 text-brand-400 font-bold"
+                              : "text-dark-400 hover:text-white hover:bg-dark-800/60"
+                          }`}
+                        >
+                          {/* Aktif bar */}
+                          {active && (
+                            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-brand-400 rounded-r" />
+                          )}
+                          <span className={`w-4 h-4 shrink-0 ${active ? "text-brand-400" : "text-dark-500"}`}>
+                            {item.icon}
+                          </span>
+                          {!collapsed && (
+                            <>
+                              <span className="truncate">{item.label}</span>
+                              {"badge" in item && item.badge && (
+                                <span className="ml-auto text-[9px] font-bold bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded">
+                                  {item.badge}
+                                </span>
+                              )}
+                            </>
+                          )}
+                        </Link>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            )
+          })}
         </nav>
 
         {/* User */}
-        <div className="px-3 py-3 border-t border-dark-800/60">
-          <div className="flex items-center gap-2.5 px-2">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-dark-950 text-xs font-bold shrink-0">
-              {user?.full_name?.charAt(0) || "U"}
+        <div className="px-2 py-3 border-t border-dark-800/60">
+          {collapsed ? (
+            <div className="flex justify-center">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-dark-950 text-xs font-bold" title={user?.full_name}>
+                {user?.full_name?.charAt(0) || "U"}
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-white truncate">{user?.full_name}</p>
-              <p className="text-[10px] text-brand-500 capitalize">{user?.org_plan === "trial" ? t("trial_plan") : user?.org_plan}</p>
+          ) : (
+            <div className="flex items-center gap-2.5 px-2">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-dark-950 text-xs font-bold shrink-0">
+                {user?.full_name?.charAt(0) || "U"}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-white truncate">{user?.full_name}</p>
+                <p className="text-[10px] text-brand-500 capitalize">{user?.org_plan === "trial" ? t("trial_plan") : user?.org_plan}</p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* ===== MAIN CONTENT ===== */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header */}
         <header className="h-12 border-b border-dark-800/60 bg-dark-900/40 backdrop-blur-sm flex items-center justify-between px-5 shrink-0">
@@ -202,7 +341,6 @@ export default function LangLayout({ children, params }: { children: React.React
               onClick={() => {
                 const newLang = lang === "tr" ? "en" : "tr"
                 setLang(newLang)
-                // URL'deki slug'ı yeni dile çevir
                 const parts = pathname.split("/").filter(Boolean)
                 if (parts.length >= 2) {
                   const currentSlug = parts[1]
@@ -220,7 +358,7 @@ export default function LangLayout({ children, params }: { children: React.React
               <span>{lang === "tr" ? "TR" : "EN"}</span>
             </button>
             <button
-              onClick={() => { logout(); router.push("/auth/login") }}
+              onClick={() => { logout(); router.push(`/${lang}/login`) }}
               className="text-xs text-dark-500 hover:text-red-400 transition"
             >
               {t("logout")}
@@ -281,7 +419,8 @@ function IconForm() {
 function IconWebhook() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
-      <path d="M18 16.98h-5.99c-1.1 0-1.95.94-2.48 1.9A4 4 0 012 17c.01-.7.2-1.4.57-2" /><path d="M6 17a4 4 0 014-4h.01" /><path d="M14 13.98h4a2 2 0 012 2v0a2 2 0 01-2 2" /><circle cx="12" cy="6" r="4" />
+      <circle cx="6" cy="18" r="3" /><circle cx="18" cy="18" r="3" /><circle cx="12" cy="6" r="3" />
+      <path d="M12 9v4l-4 5M12 13l4 5" />
     </svg>
   )
 }
