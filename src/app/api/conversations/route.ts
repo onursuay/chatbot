@@ -44,6 +44,7 @@ export async function GET(request: Request) {
       last_message_preview: conv.last_message_preview,
       unread_count: conv.unread_count,
       is_bot_active: conv.is_bot_active,
+      channel: conv.metadata?.channel || conv.channel || "whatsapp",
       created_at: conv.created_at,
     }))
   )
