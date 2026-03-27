@@ -44,7 +44,7 @@ export default function BroadcastPage() {
   }, [getToken])
 
   const handleSend = async () => {
-    if (!form.template_name) return alert("Sablon secin")
+    if (!form.template_name) return alert("Şablon seçin")
     const token = getToken()
     if (!token) return
     setSending(true)
@@ -55,15 +55,15 @@ export default function BroadcastPage() {
       setBroadcasts((prev) => [result, ...prev])
       setShowCreate(false)
       setForm({ name: "", template_name: "", language: "tr", tag_filter: "" })
-    } catch (err: any) { alert(err.message || "Gonderim hatasi") }
+    } catch (err: any) { alert(err.message || "Gönderim hatası") }
     setSending(false)
   }
 
   const statusMap: Record<string, { text: string; color: string }> = {
     draft: { text: "Taslak", color: "text-dark-400" },
-    scheduled: { text: "Zamanlanmis", color: "text-yellow-400" },
+    scheduled: { text: "Zamanlanmış", color: "text-yellow-400" },
     sending: { text: "Gonderiliyor", color: "text-blue-400" },
-    completed: { text: "Tamamlandi", color: "text-brand-400" },
+    completed: { text: "Tamamlandı", color: "text-brand-400" },
   }
 
   return (
@@ -87,10 +87,10 @@ export default function BroadcastPage() {
                 placeholder="Ornek: Yilbasi Kampanyasi" />
             </div>
             <div>
-              <label className="block text-sm text-dark-400 mb-1">Mesaj Sablonu</label>
+              <label className="block text-sm text-dark-400 mb-1">Mesaj Şablonu</label>
               <select value={form.template_name} onChange={(e) => setForm({ ...form, template_name: e.target.value })}
                 className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
-                <option value="">Sablon Secin</option>
+                <option value="">Şablon Secin</option>
                 {templates.map((t) => (
                   <option key={t.name} value={t.name}>{t.name} ({t.category})</option>
                 ))}
@@ -100,7 +100,7 @@ export default function BroadcastPage() {
               <label className="block text-sm text-dark-400 mb-1">Dil</label>
               <select value={form.language} onChange={(e) => setForm({ ...form, language: e.target.value })}
                 className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
-                <option value="tr">Turkce</option>
+                <option value="tr">Türkçe</option>
                 <option value="en_US">English</option>
               </select>
             </div>
@@ -108,24 +108,24 @@ export default function BroadcastPage() {
               <label className="block text-sm text-dark-400 mb-1">Hedef Etiket (opsiyonel)</label>
               <input type="text" value={form.tag_filter} onChange={(e) => setForm({ ...form, tag_filter: e.target.value })}
                 className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
-                placeholder="Bos birakirsaniz tum kisilere gider" />
+                placeholder="Boş bırakırsanız tüm kişilere gider" />
             </div>
           </div>
           <div className="flex gap-2 mt-4">
             <button onClick={handleSend} disabled={sending}
               className="bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-6 py-2 rounded-lg text-sm transition disabled:opacity-50">
-              {sending ? "Gonderiliyor..." : "Hemen Gonder"}
+              {sending ? "Gönderiliyor..." : "Hemen Gönder"}
             </button>
             <button onClick={() => setShowCreate(false)}
-              className="bg-dark-800 text-dark-300 hover:text-white px-4 py-2 rounded-lg text-sm transition">Iptal</button>
+              className="bg-dark-800 text-dark-300 hover:text-white px-4 py-2 rounded-lg text-sm transition">İptal</button>
           </div>
         </div>
       )}
 
-      {loading ? <p className="text-dark-400 text-sm">Yukleniyor...</p> : broadcasts.length === 0 ? (
+      {loading ? <p className="text-dark-400 text-sm">Yükleniyor...</p> : broadcasts.length === 0 ? (
         <div className="bg-dark-900 border border-dark-800 rounded-xl p-12 text-center">
-          <p className="text-dark-400">Henuz kampanya yok</p>
-          <p className="text-dark-600 text-sm mt-1">Yeni kampanya olusturup toplu mesaj gonderin</p>
+          <p className="text-dark-400">Henüz kampanya yok</p>
+          <p className="text-dark-600 text-sm mt-1">Yeni kampanya oluşturup toplu mesaj gönderin</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -140,10 +140,10 @@ export default function BroadcastPage() {
                 <div className="grid grid-cols-5 gap-4 text-center">
                   {[
                     { v: b.total_recipients, l: "Alici", c: "text-white" },
-                    { v: b.sent_count, l: "Gonderildi", c: "text-brand-400" },
+                    { v: b.sent_count, l: "Gönderildi", c: "text-brand-400" },
                     { v: b.delivered_count, l: "Teslim", c: "text-blue-400" },
                     { v: b.read_count, l: "Okundu", c: "text-purple-400" },
-                    { v: b.failed_count, l: "Basarisiz", c: "text-red-400" },
+                    { v: b.failed_count, l: "Başarısız", c: "text-red-400" },
                   ].map((stat) => (
                     <div key={stat.l}>
                       <p className={`text-2xl font-bold ${stat.c}`}>{stat.v}</p>

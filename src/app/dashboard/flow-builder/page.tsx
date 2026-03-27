@@ -20,7 +20,7 @@ interface Flow {
 
 const NODE_TYPES = [
   { type: "trigger", label: "Tetikleyici", color: "bg-purple-500", icon: "⚡" },
-  { type: "message", label: "Mesaj Gonder", color: "bg-brand-500", icon: "💬" },
+  { type: "message", label: "Mesaj Gönder", color: "bg-brand-500", icon: "💬" },
   { type: "condition", label: "Kosul (If/Else)", color: "bg-yellow-500", icon: "🔀" },
   { type: "delay", label: "Bekle", color: "bg-blue-500", icon: "⏱" },
   { type: "action", label: "Aksiyon", color: "bg-red-500", icon: "🎯" },
@@ -103,7 +103,7 @@ export default function FlowBuilderPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-semibold text-white">Flow Builder</h2>
-          <p className="text-dark-400 text-sm mt-1">Surukle-birak ile otomasyon akislari olusturun</p>
+          <p className="text-dark-400 text-sm mt-1">Sürükle-bırak ile otomasyon akışları oluşturun</p>
         </div>
         {!showBuilder && (
           <button onClick={createNewFlow}
@@ -122,7 +122,7 @@ export default function FlowBuilderPage() {
               value={currentFlow.name}
               onChange={(e) => setCurrentFlow({ ...currentFlow, name: e.target.value })}
               className="bg-transparent text-white font-medium text-lg focus:outline-none"
-              placeholder="Akis adi..."
+              placeholder="Akış adı..."
             />
             <div className="flex gap-2">
               <button onClick={saveFlow} disabled={saving}
@@ -131,14 +131,14 @@ export default function FlowBuilderPage() {
               </button>
               <button onClick={() => { setShowBuilder(false); setCurrentFlow(null) }}
                 className="bg-dark-800 text-dark-300 hover:text-white px-4 py-2 rounded-lg text-sm transition">
-                Iptal
+                İptal
               </button>
             </div>
           </div>
 
           {/* Node palette */}
           <div className="bg-dark-900 border border-dark-800 rounded-xl p-4">
-            <p className="text-sm text-dark-400 mb-3">Dugum Ekle:</p>
+            <p className="text-sm text-dark-400 mb-3">Düğüm Ekle:</p>
             <div className="flex gap-2 flex-wrap">
               {NODE_TYPES.filter((t) => t.type !== "trigger").map((nt) => (
                 <button key={nt.type} onClick={() => addNode(nt.type)}
@@ -184,7 +184,7 @@ export default function FlowBuilderPage() {
                             onChange={(e) => updateNode(node.id, { trigger_type: e.target.value })}
                             className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-brand-500">
                             <option value="keyword">Anahtar Kelime</option>
-                            <option value="first_message">Ilk Mesaj</option>
+                            <option value="first_message">İlk Mesaj</option>
                             <option value="business_hours">Mesai Disi</option>
                           </select>
                         </div>
@@ -219,9 +219,9 @@ export default function FlowBuilderPage() {
                         <select value={node.data.operator || "contains"}
                           onChange={(e) => updateNode(node.id, { operator: e.target.value })}
                           className="bg-dark-800 border border-dark-700 rounded-lg px-2 py-1.5 text-sm text-white focus:outline-none focus:border-brand-500">
-                          <option value="contains">Icerir</option>
-                          <option value="equals">Esittir</option>
-                          <option value="starts_with">Ile baslar</option>
+                          <option value="contains">İçerir</option>
+                          <option value="equals">Eşittir</option>
+                          <option value="starts_with">İle başlar</option>
                         </select>
                         <input type="text" value={node.data.value || ""}
                           onChange={(e) => updateNode(node.id, { value: e.target.value })}
@@ -267,11 +267,11 @@ export default function FlowBuilderPage() {
       ) : (
         <div className="bg-dark-900 border border-dark-800 rounded-xl p-12 text-center">
           <div className="text-4xl mb-3">🔄</div>
-          <p className="text-dark-400">Henuz akis olusturulmamis</p>
-          <p className="text-dark-600 text-sm mt-1">Gorsel akis olusturucu ile karmasik otomasyonlar kurgulayin</p>
+          <p className="text-dark-400">Henüz akis oluşturulmamış</p>
+          <p className="text-dark-600 text-sm mt-1">Görsel akış oluşturucu ile karmasik otomasyonlar kurgulayın</p>
           <button onClick={createNewFlow}
             className="mt-4 bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-6 py-2 rounded-lg text-sm transition">
-            Ilk Akisi Olustur
+            Ilk Akisi Oluştur
           </button>
         </div>
       )}

@@ -4,10 +4,20 @@ import { useEffect, useState } from "react"
 import { api } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
 
+const META_APP_ID = process.env.NEXT_PUBLIC_META_APP_ID || ""
+const META_CONFIG_ID = process.env.NEXT_PUBLIC_META_CONFIG_ID || ""
+
 interface ChannelStatus {
   whatsapp: { connected: boolean }
   instagram: { connected: boolean; page_id: string | null; page_name: string | null }
   facebook: { connected: boolean; page_id: string | null; page_name: string | null }
+}
+
+interface WAStatus {
+  connected: boolean
+  waba_id?: string
+  waba_name?: string
+  phone_numbers?: { id: string; number: string; verified_name: string | null }[]
 }
 
 declare global {
@@ -17,49 +27,86 @@ declare global {
 export default function ChannelsPage() {
   const { getToken } = useAuth()
   const [channels, setChannels] = useState<ChannelStatus | null>(null)
+  const [waStatus, setWaStatus] = useState<WAStatus | null>(null)
   const [loading, setLoading] = useState(true)
   const [connecting, setConnecting] = useState<string | null>(null)
 
   useEffect(() => {
     const token = getToken()
     if (!token) return
-    api<ChannelStatus>("/channels", { token })
-      .then(setChannels)
-      .catch(() => {})
-      .finally(() => setLoading(false))
+    Promise.all([
+      api<ChannelStatus>("/channels", { token }),
+      api<WAStatus>("/embedded-signup/status", { token }),
+    ]).then(([ch, wa]) => {
+      setChannels(ch)
+      setWaStatus(wa)
+    }).catch(() => {}).finally(() => setLoading(false))
   }, [getToken])
 
+  // WhatsApp Embedded Signup
+  const connectWhatsApp = () => {
+    if (!window.FB) return alert("Facebook SDK yüklenemedi. Sayfayı yenileyin.")
+    setConnecting("whatsapp")
+
+    window.FB.login(
+      (response: any) => {
+        if (response.authResponse?.code) {
+          sendWhatsAppCode(response.authResponse.code)
+        } else {
+          setConnecting(null)
+        }
+      },
+      {
+        config_id: META_CONFIG_ID,
+        response_type: "code",
+        override_default_response_type: true,
+        extras: { setup: {}, featureType: "", sessionInfoVersion: "3" },
+      }
+    )
+  }
+
+  const sendWhatsAppCode = async (code: string) => {
+    try {
+      const token = getToken()
+      if (!token) return
+      await api("/embedded-signup/connect", {
+        method: "POST", token,
+        body: JSON.stringify({ code }),
+      })
+      const wa = await api<WAStatus>("/embedded-signup/status", { token })
+      setWaStatus(wa)
+    } catch (err: any) {
+      alert(err.message || "Bağlantı sırasında bir hata oluştu.")
+    } finally {
+      setConnecting(null)
+    }
+  }
+
+  // Instagram / Facebook bağla
   const connectChannel = (channel: "instagram" | "facebook") => {
-    if (!window.FB) return alert("Facebook SDK yuklenemedi")
+    if (!window.FB) return alert("Facebook SDK yüklenemedi")
     setConnecting(channel)
 
     window.FB.login(
       (response: any) => {
         if (response.authResponse) {
-          // Sayfa listesini al
           window.FB.api("/me/accounts", { access_token: response.authResponse.accessToken }, async (pagesRes: any) => {
             if (pagesRes.data && pagesRes.data.length > 0) {
-              const page = pagesRes.data[0] // İlk sayfayı bağla
+              const page = pagesRes.data[0]
               const token = getToken()
               if (!token) return
-
               try {
                 await api("/channels", {
                   method: "POST", token,
-                  body: JSON.stringify({
-                    channel,
-                    page_access_token: page.access_token,
-                    page_id: page.id,
-                  }),
+                  body: JSON.stringify({ channel, page_access_token: page.access_token, page_id: page.id }),
                 })
-                // Yenile
                 const updated = await api<ChannelStatus>("/channels", { token })
                 setChannels(updated)
               } catch (err: any) {
-                alert(err.message || "Baglanti hatasi")
+                alert(err.message || "Bağlantı hatası")
               }
             } else {
-              alert("Bagli Facebook sayfasi bulunamadi")
+              alert("Bağlı Facebook sayfası bulunamadı")
             }
             setConnecting(null)
           })
@@ -79,7 +126,7 @@ export default function ChannelsPage() {
     {
       id: "whatsapp" as const,
       name: "WhatsApp",
-      desc: "WhatsApp Business API ile mesajlasma",
+      desc: "WhatsApp Business API ile mesajlaşma",
       color: "bg-green-500",
       icon: (
         <svg className="w-6 h-6" viewBox="0 0 24 24" fill="white">
@@ -90,7 +137,7 @@ export default function ChannelsPage() {
     {
       id: "instagram" as const,
       name: "Instagram DM",
-      desc: "Instagram Direct mesajlarini yonetin",
+      desc: "Instagram Direct mesajlarını yönetin",
       color: "bg-gradient-to-br from-purple-500 to-pink-500",
       icon: (
         <svg className="w-6 h-6" viewBox="0 0 24 24" fill="white">
@@ -103,7 +150,7 @@ export default function ChannelsPage() {
     {
       id: "facebook" as const,
       name: "Facebook Messenger",
-      desc: "Facebook sayfa mesajlarini yonetin",
+      desc: "Facebook sayfa mesajlarını yönetin",
       color: "bg-blue-500",
       icon: (
         <svg className="w-6 h-6" viewBox="0 0 24 24" fill="white">
@@ -113,21 +160,22 @@ export default function ChannelsPage() {
     },
   ]
 
-  if (loading) return <div className="p-6 text-dark-400 text-sm">Yukleniyor...</div>
+  if (loading) return <div className="p-6 text-dark-400 text-sm">Yükleniyor...</div>
 
   return (
     <div className="p-6">
-      <h2 className="text-xl font-semibold text-white mb-2">Kanal Yonetimi</h2>
-      <p className="text-dark-400 text-sm mb-6">WhatsApp, Instagram ve Facebook mesajlarini tek yerden yonetin</p>
+      <h2 className="text-xl font-semibold text-white mb-2">Kanal Yönetimi</h2>
+      <p className="text-dark-400 text-sm mb-6">WhatsApp, Instagram ve Facebook mesajlarını tek yerden yönetin</p>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {channelList.map((ch) => {
-          const status = channels?.[ch.id]
-          const connected = status?.connected || false
-          const pageName = ch.id !== "whatsapp" ? (status as any)?.page_name : null
+          const isWhatsApp = ch.id === "whatsapp"
+          const waConnected = waStatus?.connected || false
+          const igFbConnected = channels?.[ch.id]?.connected || false
+          const connected = isWhatsApp ? waConnected : igFbConnected
 
           return (
-            <div key={ch.id} className="bg-dark-900 border border-dark-800 rounded-xl p-6">
+            <div key={ch.id} className={`bg-dark-900 border rounded-xl p-6 ${connected ? "border-brand-500/30" : "border-dark-800"}`}>
               <div className="flex items-center gap-3 mb-4">
                 <div className={`w-10 h-10 ${ch.color} rounded-lg flex items-center justify-center`}>
                   {ch.icon}
@@ -140,24 +188,27 @@ export default function ChannelsPage() {
 
               {connected ? (
                 <div>
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center gap-2 mb-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full" />
-                    <span className="text-green-400 text-sm">Bagli</span>
+                    <span className="text-green-400 text-sm">Bağlı</span>
                   </div>
-                  {pageName && <p className="text-xs text-dark-400">{pageName}</p>}
+                  {isWhatsApp && waStatus?.waba_name && (
+                    <p className="text-xs text-dark-400">{waStatus.waba_name}</p>
+                  )}
+                  {isWhatsApp && waStatus?.phone_numbers?.map((p) => (
+                    <p key={p.id} className="text-xs text-dark-300 mt-1">{p.number} {p.verified_name && `(${p.verified_name})`}</p>
+                  ))}
+                  {!isWhatsApp && (channels?.[ch.id] as any)?.page_name && (
+                    <p className="text-xs text-dark-400">{(channels?.[ch.id] as any).page_name}</p>
+                  )}
                 </div>
               ) : (
                 <button
-                  onClick={() => ch.id !== "whatsapp" && connectChannel(ch.id as "instagram" | "facebook")}
-                  disabled={connecting === ch.id || ch.id === "whatsapp"}
-                  className={`w-full py-2 rounded-lg text-sm font-medium transition ${
-                    ch.id === "whatsapp"
-                      ? "bg-dark-800 text-dark-500 cursor-default"
-                      : "bg-dark-800 hover:bg-dark-700 text-white"
-                  }`}
+                  onClick={() => isWhatsApp ? connectWhatsApp() : connectChannel(ch.id as "instagram" | "facebook")}
+                  disabled={connecting === ch.id}
+                  className="w-full bg-dark-800 hover:bg-dark-700 text-white py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50"
                 >
-                  {ch.id === "whatsapp" ? "Ayarlardan baglayin" :
-                   connecting === ch.id ? "Baglaniyor..." : "Bagla"}
+                  {connecting === ch.id ? "Bağlanıyor..." : "Bağla"}
                 </button>
               )}
             </div>
@@ -166,12 +217,12 @@ export default function ChannelsPage() {
       </div>
 
       <div className="mt-8 bg-dark-900 border border-dark-800 rounded-xl p-6">
-        <h3 className="text-white font-medium mb-2">Nasil Calisir?</h3>
+        <h3 className="text-white font-medium mb-2">Nasıl Çalışır?</h3>
         <ul className="text-sm text-dark-400 space-y-2">
-          <li>1. Instagram veya Facebook sayfanizi baglayin</li>
-          <li>2. Gelen DM'ler otomatik olarak Inbox'a duser</li>
-          <li>3. AI Bot tum kanallarda ayni sekilde calisir</li>
-          <li>4. Tek panelden tum mesajlari yonetin</li>
+          <li>1. WhatsApp, Instagram veya Facebook sayfanızı bağlayın</li>
+          <li>2. Gelen mesajlar otomatik olarak Inbox'a düşer</li>
+          <li>3. AI Bot tüm kanallarda aynı şekilde çalışır</li>
+          <li>4. Tek panelden tüm mesajları yönetin</li>
         </ul>
       </div>
     </div>

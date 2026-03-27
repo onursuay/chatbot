@@ -31,7 +31,7 @@ export default function TemplatesPage() {
   }, [getToken])
 
   const handleCreate = async () => {
-    if (!form.name || !form.text) return alert("Sablon adi ve metin zorunlu")
+    if (!form.name || !form.text) return alert("Şablon adi ve metin zorunlu")
     const token = getToken()
     if (!token) return
     setCreating(true)
@@ -46,7 +46,7 @@ export default function TemplatesPage() {
       setShowCreate(false)
       setForm({ name: "", text: "", category: "MARKETING", language: "tr" })
     } catch (err: any) {
-      alert(err.message || "Sablon olusturulamadi")
+      alert(err.message || "Şablon oluşturulamadı")
     }
     setCreating(false)
   }
@@ -62,26 +62,26 @@ export default function TemplatesPage() {
   }
 
   const categoryLabel = (c: string) => {
-    const map: Record<string, string> = { MARKETING: "Pazarlama", UTILITY: "Bildirim", AUTHENTICATION: "Dogrulama" }
+    const map: Record<string, string> = { MARKETING: "Pazarlama", UTILITY: "Bildirim", AUTHENTICATION: "Doğrulama" }
     return map[c] || c
   }
 
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-white">Mesaj Sablonlari</h2>
+        <h2 className="text-xl font-semibold text-white">Mesaj Şablonlari</h2>
         <button onClick={() => setShowCreate(!showCreate)}
           className="bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-4 py-2 rounded-lg text-sm transition">
-          + Yeni Sablon
+          + Yeni Şablon
         </button>
       </div>
 
       {showCreate && (
         <div className="bg-dark-900 border border-dark-800 rounded-xl p-6 mb-6">
-          <h3 className="text-white font-medium mb-4">Yeni Sablon Olustur</h3>
+          <h3 className="text-white font-medium mb-4">Yeni Şablon Oluştur</h3>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm text-dark-400 mb-1">Sablon Adi (kucuk harf, alt cizgi)</label>
+              <label className="block text-sm text-dark-400 mb-1">Şablon Adi (küçük harf, alt çizgi)</label>
               <input type="text" value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "") })}
                 className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
@@ -93,7 +93,7 @@ export default function TemplatesPage() {
                 className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
                 <option value="MARKETING">Pazarlama</option>
                 <option value="UTILITY">Bildirim</option>
-                <option value="AUTHENTICATION">Dogrulama</option>
+                <option value="AUTHENTICATION">Doğrulama</option>
               </select>
             </div>
           </div>
@@ -102,23 +102,23 @@ export default function TemplatesPage() {
             <textarea value={form.text} onChange={(e) => setForm({ ...form, text: e.target.value })}
               className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500 h-24 resize-none"
               placeholder="Merhaba {{1}}, size ozel kampanyamiz var!" />
-            <p className="text-xs text-dark-600 mt-1">Degiskenler icin {"{{1}}"}, {"{{2}}"} kullanin</p>
+            <p className="text-xs text-dark-600 mt-1">Değişkenler için {"{{1}}"}, {"{{2}}"} kullanin</p>
           </div>
           <div className="flex gap-2">
             <button onClick={handleCreate} disabled={creating}
               className="bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-6 py-2 rounded-lg text-sm transition disabled:opacity-50">
-              {creating ? "Gonderiliyor..." : "Meta'ya Gonder"}
+              {creating ? "Gönderiliyor..." : "Meta'ya Gönder"}
             </button>
             <button onClick={() => setShowCreate(false)}
-              className="bg-dark-800 text-dark-300 hover:text-white px-4 py-2 rounded-lg text-sm transition">Iptal</button>
+              className="bg-dark-800 text-dark-300 hover:text-white px-4 py-2 rounded-lg text-sm transition">İptal</button>
           </div>
         </div>
       )}
 
-      {loading ? <p className="text-dark-400 text-sm">Yukleniyor...</p> : templates.length === 0 ? (
+      {loading ? <p className="text-dark-400 text-sm">Yükleniyor...</p> : templates.length === 0 ? (
         <div className="bg-dark-900 border border-dark-800 rounded-xl p-12 text-center">
-          <p className="text-dark-400">Henuz sablon yok</p>
-          <p className="text-dark-600 text-sm mt-1">Broadcast gonderimi icin onaylanmis sablon gereklidir</p>
+          <p className="text-dark-400">Henüz şablon yok</p>
+          <p className="text-dark-600 text-sm mt-1">Broadcast gonderimi için onaylanmis şablon gereklidir</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

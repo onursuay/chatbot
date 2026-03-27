@@ -118,7 +118,7 @@ export default function InboxPage() {
       })
     } catch (err: any) {
       setNewMessage(text)
-      alert("Mesaj gonderilemedi: " + (err.message || "Bilinmeyen hata"))
+      alert("Mesaj gönderilemedi: " + (err.message || "Bilinmeyen hata"))
     }
     setSending(false)
   }
@@ -210,7 +210,7 @@ export default function InboxPage() {
                     conv.status === "open" ? "text-brand-400" :
                     conv.status === "resolved" ? "text-dark-500" : "text-yellow-400"
                   }`}>
-                    {conv.status === "open" ? "Acik" : conv.status === "resolved" ? "Cozuldu" : "Atandi"}
+                    {conv.status === "open" ? "Açık" : conv.status === "resolved" ? "Çözüldü" : "Atandı"}
                   </span>
                   <span className="text-[10px] text-dark-600">
                     {conv.last_message_at ? formatTime(conv.last_message_at) : ""}
@@ -237,8 +237,8 @@ export default function InboxPage() {
                     selectedConv.status === "open" ? "text-brand-400" :
                     selectedConv.status === "resolved" ? "text-dark-500" : "text-yellow-400"
                   }`}>
-                    {selectedConv.status === "open" ? "Acik" :
-                     selectedConv.status === "resolved" ? "Cozuldu" : "Atandi"}
+                    {selectedConv.status === "open" ? "Açık" :
+                     selectedConv.status === "resolved" ? "Çözüldü" : "Atandı"}
                   </span>
                   {selectedConv.contact_phone && (
                     <span className="text-xs text-dark-500">{selectedConv.contact_phone}</span>
@@ -256,7 +256,7 @@ export default function InboxPage() {
                       : "bg-dark-800 text-dark-300 hover:text-white"
                   }`}
                 >
-                  {selectedConv.status === "resolved" ? "Yeniden Ac" : "Cozuldu"}
+                  {selectedConv.status === "resolved" ? "Yeniden Aç" : "Çözüldü"}
                 </button>
                 <button
                   onClick={() => updateConversation({ is_bot_active: !selectedConv.is_bot_active })}
@@ -266,7 +266,7 @@ export default function InboxPage() {
                       : "bg-dark-800 text-dark-300 hover:text-white"
                   }`}
                 >
-                  Bot {selectedConv.is_bot_active ? "Kapat" : "Ac"}
+                  Bot {selectedConv.is_bot_active ? "Kapat" : "Aç"}
                 </button>
               </div>
             </div>
@@ -344,7 +344,7 @@ export default function InboxPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                  ) : "Gonder"}
+                  ) : "Gönder"}
                 </button>
               </div>
             </div>
@@ -357,8 +357,8 @@ export default function InboxPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
-              <p className="text-lg font-medium text-dark-400">Bir konusma secin</p>
-              <p className="text-sm text-dark-600 mt-1">Soldan bir konusma secip mesajlari gorun</p>
+              <p className="text-lg font-medium text-dark-400">Bir konusma seçin</p>
+              <p className="text-sm text-dark-600 mt-1">Soldan bir konuşma seçip mesajlari gorun</p>
             </div>
           </div>
         )}

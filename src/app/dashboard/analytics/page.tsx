@@ -41,7 +41,7 @@ export default function AnalyticsPage() {
     { label: "Gelen Mesaj", value: o.inbound_messages, color: "text-blue-400" },
     { label: "Giden Mesaj", value: o.outbound_messages, color: "text-brand-400" },
     { label: "Aktif Konusmalar", value: o.open_conversations, color: "text-yellow-400" },
-    { label: "Cozulen Konusmalar", value: o.resolved_conversations, color: "text-green-400" },
+    { label: "Çözülen Konusmalar", value: o.resolved_conversations, color: "text-green-400" },
     { label: "Toplam Kisiler", value: o.total_contacts, color: "text-purple-400" },
     { label: "Bot Mesajlari", value: o.bot_messages, color: "text-brand-400" },
     { label: "Agent Mesajlari", value: o.agent_messages, color: "text-orange-400" },
@@ -56,9 +56,9 @@ export default function AnalyticsPage() {
       <h2 className="text-xl font-semibold text-white mb-6">Raporlar ve Analitik</h2>
 
       {loading ? (
-        <p className="text-dark-400 text-sm">Yukleniyor...</p>
+        <p className="text-dark-400 text-sm">Yükleniyor...</p>
       ) : !data ? (
-        <p className="text-dark-400 text-sm">Veri yuklenemedi</p>
+        <p className="text-dark-400 text-sm">Veri yüklenemedi</p>
       ) : (
         <>
           {/* KPI kartları */}
@@ -74,7 +74,7 @@ export default function AnalyticsPage() {
           {/* Bot performansı */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <div className="bg-dark-900 border border-dark-800 rounded-xl p-6">
-              <p className="text-sm text-dark-400 mb-2">Bot Cozum Orani</p>
+              <p className="text-sm text-dark-400 mb-2">Bot Çözüm Oranı</p>
               <p className="text-3xl font-bold text-brand-400">{botRate}%</p>
               <div className="w-full bg-dark-800 rounded-full h-2 mt-3">
                 <div className="bg-brand-500 h-2 rounded-full" style={{ width: `${botRate}%` }} />
@@ -84,8 +84,8 @@ export default function AnalyticsPage() {
               <p className="text-sm text-dark-400 mb-2">Toplam Konusmalar</p>
               <p className="text-3xl font-bold text-white">{o?.total_conversations}</p>
               <div className="flex gap-4 mt-2 text-xs">
-                <span className="text-yellow-400">{o?.open_conversations} acik</span>
-                <span className="text-green-400">{o?.resolved_conversations} cozuldu</span>
+                <span className="text-yellow-400">{o?.open_conversations} açık</span>
+                <span className="text-green-400">{o?.resolved_conversations} çözüldü</span>
               </div>
             </div>
             <div className="bg-dark-900 border border-dark-800 rounded-xl p-6">

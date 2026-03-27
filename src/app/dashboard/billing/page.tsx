@@ -13,7 +13,7 @@ interface BillingData {
 const PLAN_FEATURES: Record<string, string[]> = {
   trial: ["1 kullanici", "100 mesaj/ay", "Temel bot"],
   starter: ["2 kullanici", "1.000 mesaj/ay", "AI Chatbot", "Broadcast", "Otomasyon"],
-  pro: ["5 kullanici", "Sinirsiz mesaj", "Flow Builder", "Analytics", "Template yonetimi", "Oncelikli destek"],
+  pro: ["5 kullanici", "Sinirsiz mesaj", "Flow Builder", "Analytics", "Template yönetimi", "Oncelikli destek"],
   business: ["20 kullanici", "Sinirsiz mesaj", "Instagram + FB DM", "Shopify", "API erisimi", "Ozel entegrasyon", "Dedicated destek"],
 }
 
@@ -84,7 +84,7 @@ export default function BillingPage() {
       })
       if (url) window.location.href = url
     } catch (err: any) {
-      alert(err.message || "Odeme sayfasi acilamadi")
+      alert(err.message || "Ödeme sayfasi acilamadi")
     }
     setSubscribing(null)
   }
@@ -101,11 +101,11 @@ export default function BillingPage() {
   }
 
   const planLabel = (p: string) => {
-    const map: Record<string, string> = { trial: "Deneme", starter: "Baslangic", pro: "Profesyonel", business: "Isletme" }
+    const map: Record<string, string> = { trial: "Deneme", starter: "Başlangıç", pro: "Profesyonel", business: "İşletme" }
     return map[p] || p
   }
 
-  if (loading) return <div className="p-6 text-dark-400 text-sm">Yukleniyor...</div>
+  if (loading) return <div className="p-6 text-dark-400 text-sm">Yükleniyor...</div>
 
   return (
     <div className="p-6">
@@ -114,20 +114,20 @@ export default function BillingPage() {
         Mevcut plan: <span className="text-brand-400 font-medium">{planLabel(data?.plan || "trial")}</span>
         {data?.stripe_customer_id && (
           <button onClick={handlePortal} className="text-brand-400 hover:text-brand-300 ml-4 underline text-sm">
-            Fatura yonetimi
+            Fatura yönetimi
           </button>
         )}
       </p>
 
       {/* Ödeme Yöntemi Seçimi */}
       <div className="bg-dark-900 border border-dark-800 rounded-xl p-6 mb-8">
-        <h3 className="text-white font-medium mb-4">Odeme Yontemi</h3>
+        <h3 className="text-white font-medium mb-4">Ödeme Yöntemi</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { id: "stripe" as const, label: "Stripe", desc: "Uluslararasi kredi karti", logo: <StripeLogo /> },
-            { id: "iyzico" as const, label: "iyzico", desc: "Turkiye kredi karti & banka", logo: <IyzicoLogo /> },
-            { id: "paytr" as const, label: "PayTR", desc: "Turkiye kredi karti & havale", logo: <PayTRLogo /> },
-            { id: "param" as const, label: "Param", desc: "Turkiye dijital odeme", logo: <ParafLogo /> },
+            { id: "stripe" as const, label: "Stripe", desc: "Uluslararasi kredi kartı", logo: <StripeLogo /> },
+            { id: "iyzico" as const, label: "iyzico", desc: "Türkiye kredi kartı & banka", logo: <IyzicoLogo /> },
+            { id: "paytr" as const, label: "PayTR", desc: "Türkiye kredi kartı & havale", logo: <PayTRLogo /> },
+            { id: "param" as const, label: "Param", desc: "Türkiye dijital ödeme", logo: <ParafLogo /> },
           ].map((pm) => (
             <button
               key={pm.id}
@@ -147,16 +147,16 @@ export default function BillingPage() {
           <svg className="w-4 h-4 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
-          <span>256-bit SSL ile guvenli odeme. Kart bilgileriniz sunucularimizda saklanmaz.</span>
+          <span>256-bit SSL ile güvenli ödeme. Kart bilgileriniz sunucularımızda saklanmaz.</span>
         </div>
       </div>
 
       {/* Plan kartları */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { id: "starter", name: "Baslangic", price: "$29", priceTL: "999 TL", popular: false },
+          { id: "starter", name: "Başlangıç", price: "$29", priceTL: "999 TL", popular: false },
           { id: "pro", name: "Profesyonel", price: "$79", priceTL: "2.999 TL", popular: true },
-          { id: "business", name: "Isletme", price: "$199", priceTL: "6.999 TL", popular: false },
+          { id: "business", name: "İşletme", price: "$199", priceTL: "6.999 TL", popular: false },
         ].map((plan) => {
           const isActive = data?.plan === plan.id
           const features = PLAN_FEATURES[plan.id] || []
@@ -166,7 +166,7 @@ export default function BillingPage() {
             }`}>
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-500 text-dark-950 text-xs font-bold px-3 py-1 rounded-full">
-                  En Populer
+                  En Popüler
                 </div>
               )}
               <h3 className="text-white font-semibold text-lg">{plan.name}</h3>
@@ -199,7 +199,7 @@ export default function BillingPage() {
                       : "bg-dark-800 hover:bg-dark-700 text-white"
                   }`}
                 >
-                  {subscribing === plan.id ? "Yonlendiriliyor..." : "Plani Sec"}
+                  {subscribing === plan.id ? "Yönlendiriliyor..." : "Planı Seç"}
                 </button>
               )}
             </div>
@@ -209,7 +209,7 @@ export default function BillingPage() {
 
       {/* Desteklenen ödeme yöntemleri */}
       <div className="mt-8 bg-dark-900 border border-dark-800 rounded-xl p-6">
-        <h3 className="text-white font-medium mb-4">Desteklenen Odeme Yontemleri</h3>
+        <h3 className="text-white font-medium mb-4">Desteklenen Ödeme Yöntemleri</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {/* Stripe */}
           <div className="flex flex-col items-center gap-2">
@@ -231,7 +231,7 @@ export default function BillingPage() {
             </div>
             <div className="text-center">
               <p className="text-xs text-white font-medium">iyzico</p>
-              <p className="text-[10px] text-dark-500">Kredi karti, BKM Express</p>
+              <p className="text-[10px] text-dark-500">Kredi kartı, BKM Express</p>
             </div>
           </div>
 
@@ -242,7 +242,7 @@ export default function BillingPage() {
             </div>
             <div className="text-center">
               <p className="text-xs text-white font-medium">PayTR</p>
-              <p className="text-[10px] text-dark-500">Kredi karti, Havale/EFT</p>
+              <p className="text-[10px] text-dark-500">Kredi kartı, Havale/EFT</p>
             </div>
           </div>
 
@@ -253,7 +253,7 @@ export default function BillingPage() {
             </div>
             <div className="text-center">
               <p className="text-xs text-white font-medium">Param</p>
-              <p className="text-[10px] text-dark-500">Dijital cuzdan, QR odeme</p>
+              <p className="text-[10px] text-dark-500">Dijital cüzdan, QR ödeme</p>
             </div>
           </div>
         </div>
@@ -292,10 +292,10 @@ export default function BillingPage() {
 
       {/* Ücretsiz plan */}
       <div className="mt-6 bg-dark-900 border border-dark-800 rounded-xl p-6">
-        <h3 className="text-white font-medium mb-2">Ucretsiz Deneme</h3>
+        <h3 className="text-white font-medium mb-2">Ücretsiz Deneme</h3>
         <p className="text-dark-400 text-sm">
-          Tum yeni hesaplar 7 gun ucretsiz deneme ile baslar. Deneme suresi dolmadan plan secerseniz
-          kesintisiz devam edersiniz. Kredi karti olmadan baslayabilirsiniz.
+          Tum yeni hesaplar 7 gun ücretsiz deneme ile baslar. Deneme suresi dolmadan plan secerseniz
+          kesintisiz devam edersiniz. Kredi kartı olmadan baslayabilirsiniz.
         </p>
       </div>
     </div>

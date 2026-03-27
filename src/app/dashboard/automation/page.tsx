@@ -17,13 +17,13 @@ interface Automation {
 
 const TRIGGER_TYPES = [
   { value: "keyword", label: "Anahtar Kelime", desc: "Belirli kelime iceren mesajlarda tetiklenir" },
-  { value: "first_message", label: "Ilk Mesaj", desc: "Yeni konusma basladiginda tetiklenir" },
+  { value: "first_message", label: "İlk Mesaj", desc: "Yeni konusma başladığında tetiklenir" },
   { value: "business_hours", label: "Mesai Disi", desc: "Mesai saatleri disinda tetiklenir" },
 ]
 
 const ACTION_TYPES = [
-  { value: "send_message", label: "Mesaj Gonder" },
-  { value: "send_template", label: "Sablon Gonder" },
+  { value: "send_message", label: "Mesaj Gönder" },
+  { value: "send_template", label: "Şablon Gönder" },
   { value: "assign_agent", label: "Agent'a Ata" },
   { value: "add_tag", label: "Etiket Ekle" },
   { value: "enable_bot", label: "Bot'u Ac" },
@@ -60,7 +60,7 @@ export default function AutomationPage() {
   useEffect(() => { loadAutomations() }, [user])
 
   const handleCreate = async () => {
-    if (!form.name) return alert("Otomasyon adi zorunlu")
+    if (!form.name) return alert("Otomasyon adı zorunlu")
     if (!user?.org_id) return
     setSaving(true)
     const triggerConfig = form.trigger_type === "keyword"
@@ -87,7 +87,7 @@ export default function AutomationPage() {
   }
 
   const deleteAutomation = async (id: string) => {
-    if (!confirm("Bu otomasyonu silmek istediginize emin misiniz?")) return
+    if (!confirm("Bu otomasyonu silmek istediğinize emin misiniz?")) return
     await supabase.from("automations").delete().eq("id", id)
     loadAutomations()
   }
@@ -146,7 +146,7 @@ export default function AutomationPage() {
                 <textarea value={form.action_config.message}
                   onChange={(e) => setForm({ ...form, action_config: { message: e.target.value } })}
                   className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500 h-20 resize-none"
-                  placeholder="Merhaba! Fiyat bilgisi icin..." />
+                  placeholder="Merhaba! Fiyat bilgisi için..." />
               </div>
             )}
             {form.action_type === "add_tag" && (
@@ -162,18 +162,18 @@ export default function AutomationPage() {
           <div className="flex gap-2 mt-4">
             <button onClick={handleCreate} disabled={saving}
               className="bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-6 py-2 rounded-lg text-sm transition disabled:opacity-50">
-              {saving ? "Kaydediliyor..." : "Olustur"}
+              {saving ? "Kaydediliyor..." : "Oluştur"}
             </button>
             <button onClick={() => setShowCreate(false)}
-              className="bg-dark-800 text-dark-300 hover:text-white px-4 py-2 rounded-lg text-sm transition">Iptal</button>
+              className="bg-dark-800 text-dark-300 hover:text-white px-4 py-2 rounded-lg text-sm transition">İptal</button>
           </div>
         </div>
       )}
 
-      {loading ? <p className="text-dark-400 text-sm">Yukleniyor...</p> : automations.length === 0 ? (
+      {loading ? <p className="text-dark-400 text-sm">Yükleniyor...</p> : automations.length === 0 ? (
         <div className="bg-dark-900 border border-dark-800 rounded-xl p-12 text-center">
-          <p className="text-dark-400">Henuz otomasyon kurali yok</p>
-          <p className="text-dark-600 text-sm mt-1">Keyword tetikleyiciler, hosgeldin mesajlari ve daha fazlasi</p>
+          <p className="text-dark-400">Henüz otomasyon kuralı yok</p>
+          <p className="text-dark-600 text-sm mt-1">Keyword tetikleyiciler, hoşgeldin mesajları ve daha fazlasi</p>
         </div>
       ) : (
         <div className="space-y-3">

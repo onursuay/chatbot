@@ -61,8 +61,8 @@ export default function ChatbotPage() {
     setTimeout(() => setSaved(false), 3000)
   }
 
-  if (loading) return <div className="p-6 text-dark-400 text-sm">Yukleniyor...</div>
-  if (!config) return <div className="p-6 text-dark-400 text-sm">Chatbot yapilandirmasi bulunamadi</div>
+  if (loading) return <div className="p-6 text-dark-400 text-sm">Yükleniyor...</div>
+  if (!config) return <div className="p-6 text-dark-400 text-sm">Chatbot yapılandırması bulunamadı</div>
 
   return (
     <div className="p-6">
@@ -96,7 +96,7 @@ export default function ChatbotPage() {
         {/* System Prompt */}
         <div className="bg-dark-900 border border-dark-800 rounded-xl p-6">
           <h3 className="text-white font-medium mb-3">Sistem Promptu</h3>
-          <p className="text-sm text-dark-400 mb-3">Bot'un kisiligini ve davranisini belirleyin</p>
+          <p className="text-sm text-dark-400 mb-3">Bot'un kişiliğini ve davranışını belirleyin</p>
           <textarea
             value={config.system_prompt}
             onChange={(e) => setConfig({ ...config, system_prompt: e.target.value })}
@@ -105,10 +105,10 @@ export default function ChatbotPage() {
           />
         </div>
 
-        {/* Karsilama Mesaji */}
+        {/* Karşılama Mesajı */}
         <div className="bg-dark-900 border border-dark-800 rounded-xl p-6">
-          <h3 className="text-white font-medium mb-3">Karsilama Mesaji</h3>
-          <p className="text-sm text-dark-400 mb-3">Yeni konusma basladiginda gonderilecek ilk mesaj (opsiyonel)</p>
+          <h3 className="text-white font-medium mb-3">Karşılama Mesajı</h3>
+          <p className="text-sm text-dark-400 mb-3">Yeni konusma başladığında gönderilecek ilk mesaj (opsiyonel)</p>
           <textarea
             value={config.welcome_message || ""}
             onChange={(e) => setConfig({ ...config, welcome_message: e.target.value || null })}
@@ -132,7 +132,7 @@ export default function ChatbotPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm text-dark-400 mb-1">Sicaklik: {config.temperature}</label>
+              <label className="block text-sm text-dark-400 mb-1">Sıcaklık: {config.temperature}</label>
               <input type="range" min="0" max="1" step="0.1" value={config.temperature}
                 onChange={(e) => setConfig({ ...config, temperature: parseFloat(e.target.value) })}
                 className="w-full accent-brand-500" />

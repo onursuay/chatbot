@@ -18,7 +18,7 @@ const INTEGRATIONS: Omit<Integration, "connected">[] = [
   {
     id: "shopify",
     name: "Shopify",
-    description: "Siparis bildirimleri, sepet hatirlatma, kargo takibi",
+    description: "Sipariş bildirimleri, sepet hatırlatma, kargo takibi",
     icon: "🛍",
     category: "E-Ticaret",
   },
@@ -32,21 +32,21 @@ const INTEGRATIONS: Omit<Integration, "connected">[] = [
   {
     id: "stripe",
     name: "Stripe",
-    description: "Odeme bildirimleri ve fatura takibi",
+    description: "Ödeme bildirimleri ve fatura takibi",
     icon: "💳",
-    category: "Odeme",
+    category: "Ödeme",
   },
   {
     id: "iyzico",
     name: "Iyzico",
-    description: "Turkiye odeme altyapisi entegrasyonu",
+    description: "Türkiye ödeme altyapisi entegrasyonu",
     icon: "🏦",
-    category: "Odeme",
+    category: "Ödeme",
   },
   {
     id: "hubspot",
     name: "HubSpot",
-    description: "CRM senkronizasyonu ve lead yonetimi",
+    description: "CRM senkronizasyonu ve lead yönetimi",
     icon: "🔶",
     category: "CRM",
   },
@@ -67,35 +67,35 @@ const INTEGRATIONS: Omit<Integration, "connected">[] = [
   {
     id: "make",
     name: "Make (Integromat)",
-    description: "Gelismis otomasyon akislari",
+    description: "Gelişmiş otomasyon akışları",
     icon: "🔄",
     category: "Otomasyon",
   },
   {
     id: "google_sheets",
     name: "Google Sheets",
-    description: "Kisi ve mesaj verilerini tabloya aktar",
+    description: "Kişi ve mesaj verilerini tabloya aktar",
     icon: "📊",
     category: "Verimlilik",
   },
   {
     id: "google_calendar",
     name: "Google Calendar",
-    description: "Randevu olusturma ve hatirlatma",
+    description: "Randevu oluşturma ve hatirlatma",
     icon: "📅",
     category: "Verimlilik",
   },
   {
     id: "ctwa_ads",
     name: "Click-to-WhatsApp Ads",
-    description: "Facebook/Instagram reklamlarindan direkt WhatsApp'a lead dusurme",
+    description: "Facebook/Instagram reklamlarından direkt WhatsApp'a lead düşürme",
     icon: "📢",
     category: "Pazarlama",
   },
   {
     id: "webhook",
     name: "Custom Webhook",
-    description: "Ozel webhook URL ile herhangi bir servise baglanin",
+    description: "Ozel webhook URL ile herhangi bir servise bağlanın",
     icon: "🔗",
     category: "Gelistirici",
   },
@@ -133,7 +133,7 @@ export default function IntegrationsPage() {
       window.open("https://make.com", "_blank")
       return
     }
-    alert(`${integrationId} entegrasyonu yaklasimda!`)
+    alert(`${integrationId} entegrasyonu yaklaşımda!`)
   }
 
   const saveShopifyConfig = async () => {
@@ -152,13 +152,13 @@ export default function IntegrationsPage() {
       .eq("id", user.org_id)
 
     setConfiguring(null)
-    alert("Shopify baglandi!")
+    alert("Shopify bağlandı!")
   }
 
   return (
     <div className="p-6">
       <h2 className="text-xl font-semibold text-white mb-2">Entegrasyonlar</h2>
-      <p className="text-dark-400 text-sm mb-6">E-ticaret, CRM, otomasyon ve daha fazlasini baglayin</p>
+      <p className="text-dark-400 text-sm mb-6">E-ticaret, CRM, otomasyon ve daha fazlasini bağlayın</p>
 
       {/* Filtreler */}
       <div className="flex items-center gap-3 mb-6">
@@ -190,11 +190,11 @@ export default function IntegrationsPage() {
               placeholder="magazam.myshopify.com" />
             <button onClick={saveShopifyConfig}
               className="bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-4 py-2 rounded-lg text-sm transition">
-              Bagla
+              Bağla
             </button>
             <button onClick={() => setConfiguring(null)}
               className="bg-dark-800 text-dark-300 hover:text-white px-4 py-2 rounded-lg text-sm transition">
-              Iptal
+              İptal
             </button>
           </div>
         </div>
@@ -214,7 +214,7 @@ export default function IntegrationsPage() {
             <p className="text-xs text-dark-400 flex-1 mb-4">{integration.description}</p>
             <button onClick={() => handleConnect(integration.id)}
               className="w-full bg-dark-800 hover:bg-dark-700 text-white py-2 rounded-lg text-sm font-medium transition">
-              Bagla
+              Bağla
             </button>
           </div>
         ))}
