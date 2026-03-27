@@ -27,9 +27,6 @@ export default function LangLayout({ children, params }: { children: React.React
 
   // Login, register ve legal sayfalarda sidebar gosterme
   const isNoLayoutPage = NO_LAYOUT_PAGES.some((p) => pathname.endsWith(p))
-  if (isNoLayoutPage) {
-    return <>{children}</>
-  }
 
   // URL'deki dil parametresine göre i18n sync
   useEffect(() => {
@@ -165,6 +162,11 @@ export default function LangLayout({ children, params }: { children: React.React
       setLoading(false)
     }
   }, [user, router, setAuth, logout])
+
+  // No-layout sayfalar (login, register, legal)
+  if (isNoLayoutPage) {
+    return <>{children}</>
+  }
 
   if (loading || !ready) {
     return (
