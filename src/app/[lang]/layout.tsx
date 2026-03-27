@@ -24,12 +24,27 @@ export default function LangLayout({ children, params }: { children: React.React
 
   const NAV_ITEMS = [
     {
+      group: t("nav_dashboard"),
+      items: [
+        { href: localePath("dashboard", lang), label: t("dashboard"), icon: <IconDashboard /> },
+      ],
+    },
+    {
       group: t("nav_messaging"),
       items: [
         { href: localePath("inbox", lang), label: t("inbox"), icon: <IconInbox /> },
         { href: localePath("contacts", lang), label: t("nav_contacts"), icon: <IconContacts /> },
         { href: localePath("templates", lang), label: t("nav_templates"), icon: <IconTemplates /> },
         { href: localePath("broadcast", lang), label: t("nav_broadcast"), icon: <IconBroadcast /> },
+      ],
+    },
+    {
+      group: t("nav_crm"),
+      items: [
+        { href: localePath("pipeline", lang), label: t("nav_pipeline"), icon: <IconPipeline /> },
+        { href: localePath("leads", lang), label: t("nav_leads"), icon: <IconLeads /> },
+        { href: localePath("companies", lang), label: t("nav_companies"), icon: <IconCompany /> },
+        { href: localePath("tasks", lang), label: t("nav_tasks"), icon: <IconTasks /> },
       ],
     },
     {
@@ -45,17 +60,21 @@ export default function LangLayout({ children, params }: { children: React.React
       items: [
         { href: localePath("channels", lang), label: t("nav_channels"), icon: <IconChannels /> },
         { href: localePath("integrations", lang), label: t("nav_integrations"), icon: <IconIntegration /> },
+        { href: localePath("web-forms", lang), label: t("nav_web_forms"), icon: <IconForm /> },
+        { href: localePath("webhooks", lang), label: t("nav_webhooks"), icon: <IconWebhook /> },
       ],
     },
     {
       group: t("nav_analytics"),
       items: [
         { href: localePath("analytics", lang), label: t("nav_reports"), icon: <IconAnalytics /> },
+        { href: localePath("activity-log", lang), label: t("nav_activity_log"), icon: <IconActivity /> },
       ],
     },
     {
       group: t("nav_account"),
       items: [
+        { href: localePath("team", lang), label: t("nav_team"), icon: <IconTeam /> },
         { href: localePath("billing", lang), label: t("nav_billing"), icon: <IconBilling /> },
         { href: localePath("settings", lang), label: t("nav_settings"), icon: <IconSettings /> },
       ],
@@ -208,6 +227,69 @@ export default function LangLayout({ children, params }: { children: React.React
 }
 
 /* ---- SVG Icons ---- */
+function IconDashboard() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
+      <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
+    </svg>
+  )
+}
+function IconPipeline() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
+      <path d="M3 3h5v18H3zM10 3h5v18h-5zM17 3h5v18h-5z" />
+    </svg>
+  )
+}
+function IconLeads() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
+      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+    </svg>
+  )
+}
+function IconCompany() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
+      <rect x="4" y="2" width="16" height="20" rx="2" /><path d="M9 22V12h6v10" /><path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01" />
+    </svg>
+  )
+}
+function IconTasks() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
+      <path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+    </svg>
+  )
+}
+function IconForm() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
+      <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M7 7h10M7 12h10M7 17h6" />
+    </svg>
+  )
+}
+function IconWebhook() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
+      <path d="M18 16.98h-5.99c-1.1 0-1.95.94-2.48 1.9A4 4 0 012 17c.01-.7.2-1.4.57-2" /><path d="M6 17a4 4 0 014-4h.01" /><path d="M14 13.98h4a2 2 0 012 2v0a2 2 0 01-2 2" /><circle cx="12" cy="6" r="4" />
+    </svg>
+  )
+}
+function IconActivity() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
+      <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+    </svg>
+  )
+}
+function IconTeam() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
+      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" />
+    </svg>
+  )
+}
 function IconInbox() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">

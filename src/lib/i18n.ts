@@ -305,6 +305,174 @@ const translations: Record<string, Record<Lang, string>> = {
   "channel_step1_v2": { tr: "1. WhatsApp, Instagram veya Facebook sayfanızı bağlayın", en: "1. Connect your WhatsApp, Instagram or Facebook page" },
   "channel_step2_v2": { tr: "2. Gelen mesajlar otomatik olarak Inbox'a düşer", en: "2. Incoming messages automatically appear in Inbox" },
 
+  // Pipeline & Leads (Kommo)
+  "nav_crm": { tr: "CRM", en: "CRM" },
+  "nav_pipeline": { tr: "Pipeline", en: "Pipeline" },
+  "nav_leads": { tr: "Lead'ler", en: "Leads" },
+  "nav_companies": { tr: "Şirketler", en: "Companies" },
+  "nav_tasks": { tr: "Görevler", en: "Tasks" },
+  "nav_team": { tr: "Ekip", en: "Team" },
+  "nav_web_forms": { tr: "Web Formları", en: "Web Forms" },
+  "nav_webhooks": { tr: "Webhook'lar", en: "Webhooks" },
+  "nav_custom_fields": { tr: "Özel Alanlar", en: "Custom Fields" },
+  "nav_activity_log": { tr: "Aktivite", en: "Activity" },
+  "nav_tags": { tr: "Etiketler", en: "Tags" },
+  "nav_scoring": { tr: "Lead Puanlama", en: "Lead Scoring" },
+  "nav_dashboard": { tr: "Dashboard", en: "Dashboard" },
+
+  // Pipeline
+  "pipeline": { tr: "Satış Pipeline", en: "Sales Pipeline" },
+  "new_pipeline": { tr: "+ Yeni Pipeline", en: "+ New Pipeline" },
+  "pipeline_name": { tr: "Pipeline Adı", en: "Pipeline Name" },
+  "stages": { tr: "Aşamalar", en: "Stages" },
+  "new_stage": { tr: "Aşama Ekle", en: "Add Stage" },
+  "won": { tr: "Kazanıldı", en: "Won" },
+  "lost": { tr: "Kaybedildi", en: "Lost" },
+  "no_pipelines": { tr: "Henüz pipeline yok", en: "No pipelines yet" },
+  "no_pipelines_desc": { tr: "Satış sürecinizi takip etmek için pipeline oluşturun", en: "Create a pipeline to track your sales process" },
+
+  // Leads
+  "leads": { tr: "Lead'ler", en: "Leads" },
+  "new_lead": { tr: "+ Yeni Lead", en: "+ New Lead" },
+  "lead_title": { tr: "Lead Başlığı", en: "Lead Title" },
+  "lead_value": { tr: "Tahmini Değer", en: "Estimated Value" },
+  "lead_source": { tr: "Kaynak", en: "Source" },
+  "lead_score": { tr: "Puan", en: "Score" },
+  "assign_to": { tr: "Sorumlu", en: "Assign To" },
+  "no_leads": { tr: "Bu pipeline'da henüz lead yok", en: "No leads in this pipeline yet" },
+  "move_lead": { tr: "Lead Taşı", en: "Move Lead" },
+
+  // Companies
+  "companies": { tr: "Şirketler", en: "Companies" },
+  "new_company": { tr: "+ Yeni Şirket", en: "+ New Company" },
+  "industry": { tr: "Sektör", en: "Industry" },
+  "company_size": { tr: "Şirket Büyüklüğü", en: "Company Size" },
+  "website": { tr: "Web Sitesi", en: "Website" },
+  "address": { tr: "Adres", en: "Address" },
+  "city": { tr: "Şehir", en: "City" },
+  "country": { tr: "Ülke", en: "Country" },
+  "tax_id": { tr: "Vergi No", en: "Tax ID" },
+  "no_companies": { tr: "Henüz şirket yok", en: "No companies yet" },
+
+  // Tasks
+  "tasks": { tr: "Görevler", en: "Tasks" },
+  "new_task": { tr: "+ Yeni Görev", en: "+ New Task" },
+  "task_title": { tr: "Görev Başlığı", en: "Task Title" },
+  "task_desc": { tr: "Açıklama", en: "Description" },
+  "task_type": { tr: "Tür", en: "Type" },
+  "priority": { tr: "Öncelik", en: "Priority" },
+  "due_date": { tr: "Bitiş Tarihi", en: "Due Date" },
+  "status": { tr: "Durum", en: "Status" },
+  "pending": { tr: "Beklemede", en: "Pending" },
+  "in_progress": { tr: "Devam Ediyor", en: "In Progress" },
+  "cancelled": { tr: "İptal Edildi", en: "Cancelled" },
+  "low": { tr: "Düşük", en: "Low" },
+  "normal": { tr: "Normal", en: "Normal" },
+  "high": { tr: "Yüksek", en: "High" },
+  "urgent": { tr: "Acil", en: "Urgent" },
+  "task_call": { tr: "Arama", en: "Call" },
+  "task_meeting": { tr: "Toplantı", en: "Meeting" },
+  "task_email": { tr: "E-posta", en: "Email" },
+  "task_follow_up": { tr: "Takip", en: "Follow-up" },
+  "no_tasks": { tr: "Henüz görev yok", en: "No tasks yet" },
+
+  // Team
+  "team": { tr: "Ekip Yönetimi", en: "Team Management" },
+  "invite_member": { tr: "+ Davet Gönder", en: "+ Invite Member" },
+  "member_email": { tr: "E-posta Adresi", en: "Email Address" },
+  "member_role": { tr: "Rol", en: "Role" },
+  "owner": { tr: "Sahip", en: "Owner" },
+  "admin": { tr: "Yönetici", en: "Admin" },
+  "pending_invitations": { tr: "Bekleyen Davetler", en: "Pending Invitations" },
+  "no_invitations": { tr: "Bekleyen davet yok", en: "No pending invitations" },
+
+  // Web Forms
+  "web_forms": { tr: "Web Formları", en: "Web Forms" },
+  "new_form": { tr: "+ Yeni Form", en: "+ New Form" },
+  "form_name": { tr: "Form Adı", en: "Form Name" },
+  "form_slug": { tr: "Form URL Slug", en: "Form URL Slug" },
+  "submissions": { tr: "Gönderimler", en: "Submissions" },
+  "no_forms": { tr: "Henüz form yok", en: "No forms yet" },
+
+  // Webhooks
+  "webhooks": { tr: "Webhook'lar", en: "Webhooks" },
+  "new_webhook": { tr: "+ Yeni Webhook", en: "+ New Webhook" },
+  "webhook_url": { tr: "Webhook URL", en: "Webhook URL" },
+  "webhook_events": { tr: "Olaylar", en: "Events" },
+  "no_webhooks": { tr: "Henüz webhook yok", en: "No webhooks yet" },
+
+  // Activity Log
+  "activity_log": { tr: "Aktivite Geçmişi", en: "Activity History" },
+  "no_activity": { tr: "Henüz aktivite yok", en: "No activity yet" },
+
+  // Custom Fields
+  "custom_fields": { tr: "Özel Alanlar", en: "Custom Fields" },
+  "new_field": { tr: "+ Yeni Alan", en: "+ New Field" },
+  "field_name": { tr: "Alan Adı", en: "Field Name" },
+  "field_label": { tr: "Görünen Ad", en: "Display Name" },
+  "field_type": { tr: "Alan Tipi", en: "Field Type" },
+  "no_custom_fields": { tr: "Henüz özel alan yok", en: "No custom fields yet" },
+
+  // Tags Management
+  "tags_management": { tr: "Etiket Yönetimi", en: "Tag Management" },
+  "new_tag": { tr: "+ Yeni Etiket", en: "+ New Tag" },
+  "tag_name": { tr: "Etiket Adı", en: "Tag Name" },
+  "tag_color": { tr: "Renk", en: "Color" },
+  "entity_type": { tr: "İlişkili Tür", en: "Entity Type" },
+
+  // Dashboard
+  "dashboard": { tr: "Dashboard", en: "Dashboard" },
+  "add_widget": { tr: "+ Widget Ekle", en: "+ Add Widget" },
+  "widget_type": { tr: "Widget Türü", en: "Widget Type" },
+  "kpi_card": { tr: "KPI Kartı", en: "KPI Card" },
+  "bar_chart": { tr: "Çubuk Grafik", en: "Bar Chart" },
+  "line_chart": { tr: "Çizgi Grafik", en: "Line Chart" },
+  "pie_chart": { tr: "Pasta Grafik", en: "Pie Chart" },
+  "pipeline_summary": { tr: "Pipeline Özeti", en: "Pipeline Summary" },
+  "leaderboard": { tr: "Sıralama", en: "Leaderboard" },
+
+  // Lead Scoring
+  "lead_scoring": { tr: "Lead Puanlama Kuralları", en: "Lead Scoring Rules" },
+  "new_scoring_rule": { tr: "+ Yeni Kural", en: "+ New Rule" },
+  "score_delta": { tr: "Puan Değişimi", en: "Score Change" },
+  "no_scoring_rules": { tr: "Henüz puanlama kuralı yok", en: "No scoring rules yet" },
+
+  // Lead Detail Card (Kommo style)
+  "lead_detail": { tr: "Lead Detay", en: "Lead Detail" },
+  "responsible_user": { tr: "Sorumlu kullanıcı", en: "Responsible user" },
+  "sales_value": { tr: "Satış", en: "Sales" },
+  "add_connection": { tr: "Bağlantı ekle", en: "Add connection" },
+  "company_name_label": { tr: "Şirket adı", en: "Company name" },
+  "work_phone": { tr: "İş telefonu", en: "Work phone" },
+  "work_email": { tr: "İş e-postası", en: "Work email" },
+  "position": { tr: "Pozisyon", en: "Position" },
+  "add_company": { tr: "Şirket ekle", en: "Add company" },
+  "add_note": { tr: "Not ekle", en: "Add note" },
+  "note_placeholder": { tr: "Not: buraya yazın", en: "Note: type here" },
+  "add_tag": { tr: "#ETİKET EKLE", en: "#ADD TAG" },
+  "main_tab": { tr: "Ana", en: "Main" },
+  "setup_tab": { tr: "Kurulum", en: "Setup" },
+  "feed_tab": { tr: "Akış", en: "Feed" },
+  "statistics_tab": { tr: "İstatistik", en: "Statistics" },
+  "stage_changed": { tr: "Aşama değiştirildi", en: "Stage changed" },
+  "note_added": { tr: "Not eklendi", en: "Note added" },
+  "task_created": { tr: "Görev oluşturuldu", en: "Task created" },
+  "lead_created_log": { tr: "Lead oluşturuldu", en: "Lead created" },
+  "add_task_btn": { tr: "Görev Ekle", en: "Add Task" },
+  "send_email_btn": { tr: "E-posta Gönder", en: "Send Email" },
+  "back_to_pipeline": { tr: "Pipeline'a Dön", en: "Back to Pipeline" },
+  "all_customers": { tr: "Tüm Müşteriler", en: "All Customers" },
+  "customer_list": { tr: "Müşteri Listesi", en: "Customer List" },
+  "no_stages": { tr: "Aşama bulunamadı", en: "No stages found" },
+  "link_contact": { tr: "Kişi Bağla", en: "Link Contact" },
+  "link_company": { tr: "Şirket Bağla", en: "Link Company" },
+  "unassigned": { tr: "Atanmamış", en: "Unassigned" },
+  "close_won": { tr: "Kazanıldı olarak kapat", en: "Close as won" },
+  "close_lost": { tr: "Kaybedildi olarak kapat", en: "Close as lost" },
+  "lead_score_label": { tr: "Lead Puanı", en: "Lead Score" },
+  "created_date": { tr: "Oluşturulma", en: "Created" },
+  "last_activity": { tr: "Son Aktivite", en: "Last Activity" },
+
   // Plan features
   "feat_1_user": { tr: "1 kullanıcı", en: "1 user" },
   "feat_100_msg": { tr: "100 mesaj/ay", en: "100 messages/month" },
@@ -323,18 +491,38 @@ const translations: Record<string, Record<Lang, string>> = {
 
 // URL slug mapping — TR sluglar ↔ EN sluglar
 export const SLUG_MAP: Record<string, Record<Lang, string>> = {
+  // Dashboard
+  dashboard:      { tr: "panel",            en: "dashboard" },
+  // Messaging
   inbox:          { tr: "gelen-kutusu",     en: "inbox" },
   contacts:       { tr: "kisiler",          en: "contacts" },
   templates:      { tr: "sablonlar",        en: "templates" },
   broadcast:      { tr: "toplu-mesaj",      en: "broadcast" },
+  // CRM
+  pipeline:       { tr: "pipeline",         en: "pipeline" },
+  leads:          { tr: "leadler",          en: "leads" },
+  companies:      { tr: "sirketler",        en: "companies" },
+  tasks:          { tr: "gorevler",         en: "tasks" },
+  // AI
   chatbot:        { tr: "sohbet-botu",      en: "chatbot" },
   automation:     { tr: "otomasyon",        en: "automation" },
   "flow-builder": { tr: "akis-olusturucu",  en: "flow-builder" },
+  // Integration
   channels:       { tr: "kanallar",         en: "channels" },
   integrations:   { tr: "entegrasyonlar",   en: "integrations" },
+  "web-forms":    { tr: "web-formlari",     en: "web-forms" },
+  webhooks:       { tr: "webhooklar",       en: "webhooks" },
+  // Analytics
   analytics:      { tr: "raporlar",         en: "analytics" },
+  "activity-log": { tr: "aktivite",         en: "activity-log" },
+  // Account
+  team:           { tr: "ekip",             en: "team" },
   billing:        { tr: "abonelik",         en: "billing" },
   settings:       { tr: "ayarlar",          en: "settings" },
+  // CRM extras
+  "custom-fields": { tr: "ozel-alanlar",    en: "custom-fields" },
+  "tags-management": { tr: "etiket-yonetimi", en: "tags-management" },
+  "lead-scoring":  { tr: "lead-puanlama",   en: "lead-scoring" },
 }
 
 // Herhangi bir slug'dan (TR veya EN) -> canonical key bul

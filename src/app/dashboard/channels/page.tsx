@@ -266,19 +266,9 @@ export default function ChannelsPage() {
                   {isWhatsApp && waStatus?.waba_name && (
                     <p className="text-xs text-dark-400">{waStatus.waba_name}</p>
                   )}
-                  {isWhatsApp && waStatus?.phone_numbers?.map((p) => (
-                    <p key={p.id} className="text-xs text-dark-300">{p.number} {p.verified_name && `(${p.verified_name})`}</p>
-                  ))}
                   {!isWhatsApp && (channels?.[ch.id] as any)?.page_name && (
                     <p className="text-xs text-dark-400">{(channels?.[ch.id] as any).page_name}</p>
                   )}
-                  <button
-                    onClick={() => disconnectChannel(ch.id)}
-                    disabled={disconnecting === ch.id}
-                    className="text-xs text-red-400/60 hover:text-red-400 transition mt-2"
-                  >
-                    {disconnecting === ch.id ? t("disconnecting") : t("disconnect")}
-                  </button>
                 </div>
               ) : (
                 <button
