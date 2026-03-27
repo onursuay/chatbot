@@ -27,14 +27,17 @@ export default function ChatbotPage() {
 
   useEffect(() => {
     if (!user?.org_id) return
-    supabase
-      .from("chatbot_configs")
-      .select("*")
-      .eq("org_id", user.org_id)
-      .eq("is_active", true)
-      .single()
-      .then(({ data }) => { if (data) setConfig(data as ChatbotConfig) })
-      .finally(() => setLoading(false))
+    const load = async () => {
+      const { data } = await supabase
+        .from("chatbot_configs")
+        .select("*")
+        .eq("org_id", user.org_id)
+        .eq("is_active", true)
+        .single()
+      if (data) setConfig(data as ChatbotConfig)
+      setLoading(false)
+    }
+    load()
   }, [user])
 
   const handleSave = async () => {

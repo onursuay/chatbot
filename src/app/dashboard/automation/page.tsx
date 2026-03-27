@@ -36,7 +36,13 @@ export default function AutomationPage() {
   const [loading, setLoading] = useState(true)
   const [showCreate, setShowCreate] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    name: string
+    trigger_type: string
+    trigger_config: Record<string, any>
+    action_type: string
+    action_config: Record<string, any>
+  }>({
     name: "",
     trigger_type: "keyword",
     trigger_config: { keywords: "" },
@@ -44,11 +50,11 @@ export default function AutomationPage() {
     action_config: { message: "" },
   })
 
-  const loadAutomations = () => {
+  const loadAutomations = async () => {
     if (!user?.org_id) return
-    supabase.from("automations").select("*").eq("org_id", user.org_id).order("priority", { ascending: false })
-      .then(({ data }) => setAutomations(data || []))
-      .finally(() => setLoading(false))
+    const { data } = await supabase.from("automations").select("*").eq("org_id", user.org_id).order("priority", { ascending: false })
+    setAutomations(data || [])
+    setLoading(false)
   }
 
   useEffect(() => { loadAutomations() }, [user])
