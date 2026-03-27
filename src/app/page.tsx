@@ -8,7 +8,7 @@ export default function Home() {
   useEffect(() => {
     const token = localStorage.getItem("access_token")
     if (token) {
-      router.push("/dashboard/inbox")
+      router.push("/tr/gelen-kutusu")
     } else {
       router.push("/auth/login")
     }
@@ -16,7 +16,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-dark-950 flex items-center justify-center">
-      <div className="animate-pulse text-brand-400 text-xl">Yukleniyor...</div>
+      <div className="animate-pulse text-brand-400 text-xl">Yükleniyor...</div>
     </div>
   )
 }

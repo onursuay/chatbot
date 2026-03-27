@@ -32,7 +32,7 @@ const translations: Record<string, Record<Lang, string>> = {
   "no": { tr: "Hayır", en: "No" },
 
   // Inbox
-  "inbox": { tr: "Inbox", en: "Inbox" },
+  "inbox": { tr: "Gelen Kutusu", en: "Inbox" },
   "write_message": { tr: "Mesaj yaz...", en: "Type a message..." },
   "select_conversation": { tr: "Bir konuşma seçin", en: "Select a conversation" },
   "select_conversation_desc": { tr: "Soldan bir konuşma seçip mesajları görün", en: "Select a conversation from the left to view messages" },
@@ -48,7 +48,7 @@ const translations: Record<string, Record<Lang, string>> = {
   "msg_send_error": { tr: "Mesaj gönderilemedi", en: "Failed to send message" },
 
   // Broadcast
-  "broadcast": { tr: "Broadcast / Kampanya", en: "Broadcast / Campaign" },
+  "broadcast": { tr: "Toplu Mesaj / Kampanya", en: "Broadcast / Campaign" },
   "new_campaign": { tr: "+ Yeni Kampanya", en: "+ New Campaign" },
   "campaign_name": { tr: "Kampanya Adı", en: "Campaign Name" },
   "message_template": { tr: "Mesaj Şablonu", en: "Message Template" },
@@ -81,7 +81,11 @@ const translations: Record<string, Record<Lang, string>> = {
   "variables_hint": { tr: "Değişkenler için {{1}}, {{2}} kullanın", en: "Use {{1}}, {{2}} for variables" },
   "send_to_meta": { tr: "Meta'ya Gönder", en: "Submit to Meta" },
   "no_templates": { tr: "Henüz şablon yok", en: "No templates yet" },
-  "no_templates_desc": { tr: "Broadcast gönderimi için onaylanmış şablon gereklidir", en: "Approved templates are required for broadcast" },
+  "no_templates_desc": { tr: "Toplu mesaj gönderimi için onaylanmış şablon gereklidir", en: "Approved templates are required for broadcast" },
+  "status_approved": { tr: "ONAYLANDI", en: "APPROVED" },
+  "status_pending": { tr: "BEKLEMEDE", en: "PENDING" },
+  "status_rejected": { tr: "REDDEDİLDİ", en: "REJECTED" },
+  "status_draft": { tr: "TASLAK", en: "DRAFT" },
 
   // Chatbot
   "chatbot_settings": { tr: "AI Chatbot Ayarları", en: "AI Chatbot Settings" },
@@ -108,7 +112,7 @@ const translations: Record<string, Record<Lang, string>> = {
   "business_hours_desc": { tr: "Mesai saatleri dışında tetiklenir", en: "Triggered outside business hours" },
   "send_message_action": { tr: "Mesaj Gönder", en: "Send Message" },
   "send_template_action": { tr: "Şablon Gönder", en: "Send Template" },
-  "assign_agent_action": { tr: "Agent'a Ata", en: "Assign to Agent" },
+  "assign_agent_action": { tr: "Temsilciye Ata", en: "Assign to Agent" },
   "add_tag_action": { tr: "Etiket Ekle", en: "Add Tag" },
   "enable_bot_action": { tr: "Bot'u Aç", en: "Enable Bot" },
   "disable_bot_action": { tr: "Bot'u Kapat", en: "Disable Bot" },
@@ -120,7 +124,7 @@ const translations: Record<string, Record<Lang, string>> = {
   "confirm_delete": { tr: "Bu otomasyonu silmek istediğinize emin misiniz?", en: "Are you sure you want to delete this automation?" },
 
   // Flow Builder
-  "flow_builder": { tr: "Flow Builder", en: "Flow Builder" },
+  "flow_builder": { tr: "Akış Oluşturucu", en: "Flow Builder" },
   "flow_builder_desc": { tr: "Sürükle-bırak ile otomasyon akışları oluşturun", en: "Create automation flows with drag & drop" },
   "new_flow": { tr: "+ Yeni Akış", en: "+ New Flow" },
   "flow_name": { tr: "Akış adı...", en: "Flow name..." },
@@ -208,7 +212,7 @@ const translations: Record<string, Record<Lang, string>> = {
   "resolved_conversations": { tr: "Çözülen Konuşmalar", en: "Resolved Conversations" },
   "total_contacts": { tr: "Toplam Kişiler", en: "Total Contacts" },
   "bot_messages": { tr: "Bot Mesajları", en: "Bot Messages" },
-  "agent_messages": { tr: "Agent Mesajları", en: "Agent Messages" },
+  "agent_messages": { tr: "Temsilci Mesajları", en: "Agent Messages" },
   "bot_resolution_rate": { tr: "Bot Çözüm Oranı", en: "Bot Resolution Rate" },
   "total_conversations": { tr: "Toplam Konuşmalar", en: "Total Conversations" },
   "campaigns": { tr: "Kampanyalar", en: "Campaigns" },
@@ -238,11 +242,11 @@ const translations: Record<string, Record<Lang, string>> = {
   "nav_messaging": { tr: "MESAJLAŞMA", en: "MESSAGING" },
   "nav_contacts": { tr: "Kişiler", en: "Contacts" },
   "nav_templates": { tr: "Şablonlar", en: "Templates" },
-  "nav_broadcast": { tr: "Broadcast", en: "Broadcast" },
+  "nav_broadcast": { tr: "Toplu Mesaj", en: "Broadcast" },
   "nav_ai": { tr: "YAPAY ZEKA", en: "AI" },
-  "nav_chatbot": { tr: "AI Chatbot", en: "AI Chatbot" },
-  "nav_automation": { tr: "Otomasyon", en: "Automation" },
-  "nav_flow_builder": { tr: "Flow Builder", en: "Flow Builder" },
+  "nav_chatbot": { tr: "AI Sohbet Botu", en: "AI Chatbot" },
+  "nav_automation": { tr: "Otomasyonlar", en: "Automation" },
+  "nav_flow_builder": { tr: "Akış Oluşturucu", en: "Flow Builder" },
   "nav_integration": { tr: "ENTEGRASYON", en: "INTEGRATION" },
   "nav_channels": { tr: "Kanallar", en: "Channels" },
   "nav_integrations": { tr: "Entegrasyonlar", en: "Integrations" },
@@ -268,7 +272,7 @@ const translations: Record<string, Record<Lang, string>> = {
   "unknown": { tr: "Bilinmeyen", en: "Unknown" },
   "no_message": { tr: "Mesaj yok", en: "No messages" },
   "ai_bot": { tr: "AI Bot", en: "AI Bot" },
-  "agent": { tr: "Agent", en: "Agent" },
+  "agent": { tr: "Temsilci", en: "Agent" },
   "new_campaign_form": { tr: "Yeni Kampanya", en: "New Campaign" },
   "new_template_form": { tr: "Yeni Şablon Oluştur", en: "Create New Template" },
   "new_automation_form": { tr: "Yeni Otomasyon Kuralı", en: "New Automation Rule" },
@@ -315,6 +319,40 @@ const translations: Record<string, Record<Lang, string>> = {
   "feat_api_access": { tr: "API erişimi", en: "API access" },
   "feat_custom_integration": { tr: "Özel entegrasyon", en: "Custom integration" },
   "feat_dedicated_support": { tr: "Dedicated destek", en: "Dedicated support" },
+}
+
+// URL slug mapping — TR sluglar ↔ EN sluglar
+export const SLUG_MAP: Record<string, Record<Lang, string>> = {
+  inbox:          { tr: "gelen-kutusu",     en: "inbox" },
+  contacts:       { tr: "kisiler",          en: "contacts" },
+  templates:      { tr: "sablonlar",        en: "templates" },
+  broadcast:      { tr: "toplu-mesaj",      en: "broadcast" },
+  chatbot:        { tr: "sohbet-botu",      en: "chatbot" },
+  automation:     { tr: "otomasyon",        en: "automation" },
+  "flow-builder": { tr: "akis-olusturucu",  en: "flow-builder" },
+  channels:       { tr: "kanallar",         en: "channels" },
+  integrations:   { tr: "entegrasyonlar",   en: "integrations" },
+  analytics:      { tr: "raporlar",         en: "analytics" },
+  billing:        { tr: "abonelik",         en: "billing" },
+  settings:       { tr: "ayarlar",          en: "settings" },
+}
+
+// Herhangi bir slug'dan (TR veya EN) -> canonical key bul
+export function slugToKey(slug: string): string {
+  for (const [key, map] of Object.entries(SLUG_MAP)) {
+    if (map.tr === slug || map.en === slug) return key
+  }
+  return slug
+}
+
+// Canonical key -> mevcut dilde slug
+export function keyToSlug(key: string, lang: Lang): string {
+  return SLUG_MAP[key]?.[lang] || key
+}
+
+// Mevcut dilde path oluştur
+export function localePath(key: string, lang: Lang): string {
+  return `/${lang}/${keyToSlug(key, lang)}`
 }
 
 export const useI18n = create<I18nState>((set, get) => ({

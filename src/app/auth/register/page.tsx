@@ -33,7 +33,7 @@ export default function RegisterPage() {
       })
       const user = await api("/auth/me", { token: tokens.access_token })
       setAuth(user, tokens.access_token, tokens.refresh_token)
-      router.push("/dashboard/inbox")
+      router.push("/tr/gelen-kutusu")
     } catch (err: any) {
       setError(err.message || "Kayıt başarısız")
     } finally {
