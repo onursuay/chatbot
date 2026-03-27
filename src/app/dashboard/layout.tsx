@@ -21,12 +21,26 @@ const NAV_ITEMS = [
     items: [
       { href: "/dashboard/chatbot", label: "AI Chatbot", icon: <IconBot />, badge: "AI" },
       { href: "/dashboard/automation", label: "Otomasyon", icon: <IconAutomation /> },
+      { href: "/dashboard/flow-builder", label: "Flow Builder", icon: <IconFlow /> },
+    ],
+  },
+  {
+    group: "Entegrasyon",
+    items: [
+      { href: "/dashboard/channels", label: "Kanallar", icon: <IconChannels /> },
+      { href: "/dashboard/integrations", label: "Entegrasyonlar", icon: <IconIntegration /> },
     ],
   },
   {
     group: "Analiz",
     items: [
       { href: "/dashboard/analytics", label: "Raporlar", icon: <IconAnalytics /> },
+    ],
+  },
+  {
+    group: "Hesap",
+    items: [
+      { href: "/dashboard/billing", label: "Abonelik", icon: <IconBilling /> },
       { href: "/dashboard/settings", label: "Ayarlar", icon: <IconSettings /> },
     ],
   },
@@ -217,6 +231,34 @@ function IconAnalytics() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
       <path d="M18 20V10" /><path d="M12 20V4" /><path d="M6 20v-6" />
+    </svg>
+  )
+}
+function IconFlow() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
+      <path d="M6 3v6M18 15v6M6 9a3 3 0 100 6 3 3 0 000-6zM18 9a3 3 0 100 6 3 3 0 000-6z" /><path d="M9 12h6" />
+    </svg>
+  )
+}
+function IconChannels() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
+      <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
+    </svg>
+  )
+}
+function IconIntegration() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
+      <path d="M4 11a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4z" /><path d="M14 11a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" /><path d="M10 13h4" /><path d="M12 7v3" /><path d="M12 16v3" />
+    </svg>
+  )
+}
+function IconBilling() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
+      <rect x="1" y="4" width="22" height="16" rx="2" /><path d="M1 10h22" />
     </svg>
   )
 }
