@@ -309,7 +309,7 @@ export default function LangLayout({ children, params }: { children: React.React
         <div className="px-2 py-3 border-t border-dark-800/60">
           {collapsed ? (
             <div className="flex justify-center">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-dark-950 text-xs font-bold" title={user?.full_name}>
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-dark-950 text-xs font-bold" title={user?.full_name || undefined}>
                 {user?.full_name?.charAt(0) || "U"}
               </div>
             </div>
