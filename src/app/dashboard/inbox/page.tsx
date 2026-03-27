@@ -125,7 +125,10 @@ export default function InboxPage() {
       })
       setMessages((prev) => [...prev, msg])
       setNewMessage("")
-    } catch {}
+    } catch (err: any) {
+      console.error("Mesaj gonderme hatasi:", err)
+      alert("Mesaj gonderilemedi: " + (err.message || "Bilinmeyen hata"))
+    }
     setSending(false)
   }
 
