@@ -155,12 +155,12 @@ export default function LeadDetailPage() {
       await api("/crm/activity-logs", {
         token,
         method: "POST",
-        body: {
+        body: JSON.stringify({
           entity_type: "lead",
           entity_id: lead.id,
           action: "note_added",
           new_value: { content: noteText },
-        },
+        }),
       }).catch(() => {})
       setNoteText("")
       // Refresh activities
