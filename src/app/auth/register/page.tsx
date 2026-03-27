@@ -49,11 +49,11 @@ export default function RegisterPage() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-3">
             <div className="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center">
-              <span className="text-dark-950 font-bold text-lg">W</span>
+              <span className="text-dark-950 font-bold text-lg">Y</span>
             </div>
             <h1 className="text-3xl font-bold">
-              <span className="text-white">Wa</span>
-              <span className="text-brand-400">API</span>
+              <span className="text-white">Yo</span>
+              <span className="text-brand-400">Chat</span>
             </h1>
           </div>
           <p className="text-dark-400 mt-2">7 gün ücretsiz deneyin</p>

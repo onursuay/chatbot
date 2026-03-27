@@ -76,12 +76,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Logo */}
         <div className="px-5 py-4 flex items-center gap-3">
           <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center">
-            <span className="text-dark-950 font-bold text-sm">W</span>
+            <span className="text-dark-950 font-bold text-sm">Y</span>
           </div>
           <div>
             <h1 className="text-base font-bold leading-none">
-              <span className="text-white">Wa</span>
-              <span className="text-brand-400">API</span>
+              <span className="text-white">Yo</span>
+              <span className="text-brand-400">Chat</span>
             </h1>
           </div>
         </div>
