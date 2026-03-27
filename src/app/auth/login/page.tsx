@@ -35,7 +35,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-dark-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-dark-950 flex flex-col">
+      <div className="flex-1 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -103,6 +104,23 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="border-t border-dark-800/40 bg-dark-950 px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-6 h-6 bg-brand-500 rounded flex items-center justify-center">
+            <span className="text-dark-950 font-bold text-[10px]">Y</span>
+          </div>
+          <span className="text-dark-600 text-xs">2025 YO Dijital. All rights reserved.</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <a href="/en/privacy-policy" className="text-dark-500 hover:text-dark-300 text-xs transition">Privacy Policy</a>
+          <a href="/en/cookie-policy" className="text-dark-500 hover:text-dark-300 text-xs transition">Cookie Policy</a>
+          <a href="/en/terms-of-service" className="text-dark-500 hover:text-dark-300 text-xs transition">Terms of Service</a>
+          <a href="/en/data-deletion" className="text-dark-500 hover:text-dark-300 text-xs transition">Data Deletion</a>
+        </div>
+      </footer>
     </div>
   )
 }
