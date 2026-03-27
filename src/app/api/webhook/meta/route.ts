@@ -4,6 +4,7 @@ import { sendTextMessage, markAsRead } from "@/lib/whatsapp"
 import { getAIResponse } from "@/lib/gemini"
 
 const VERIFY_TOKEN = process.env.META_WEBHOOK_VERIFY_TOKEN || "waapi_webhook_verify_2026"
+const GRAPH_API = "https://graph.facebook.com/v21.0"
 
 // GET — Meta webhook doğrulama (challenge)
 export async function GET(request: Request) {
@@ -18,11 +19,20 @@ export async function GET(request: Request) {
   return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 }
 
-// POST — Gelen webhook'ları işle
+// POST — Gelen webhook'ları işle (WhatsApp + Instagram + Facebook)
 export async function POST(request: Request) {
   try {
     const payload = await request.json()
-    await routeWebhook(payload)
+    const object = payload.object
+
+    if (object === "whatsapp_business_account") {
+      await handleWhatsAppWebhook(payload)
+    } else if (object === "instagram") {
+      await handleInstagramWebhook(payload)
+    } else if (object === "page") {
+      await handleFacebookWebhook(payload)
+    }
+
     return NextResponse.json({ status: "ok" })
   } catch (e) {
     console.error("Webhook error:", e)
@@ -30,31 +40,29 @@ export async function POST(request: Request) {
   }
 }
 
-async function routeWebhook(payload: any) {
+// ============================================
+// WHATSAPP WEBHOOK (mevcut — değişiklik yok)
+// ============================================
+async function handleWhatsAppWebhook(payload: any) {
   const supabase = getServiceSupabase()
 
   for (const entry of payload.entry || []) {
     const wabaIdStr = entry.id
     if (!wabaIdStr) continue
 
-    // WABA ile tenant bul
     const { data: waba } = await supabase
       .from("waba_accounts")
       .select("*")
       .eq("waba_id", wabaIdStr)
       .single()
 
-    if (!waba) {
-      console.warn(`Bilinmeyen WABA: ${wabaIdStr}`)
-      continue
-    }
+    if (!waba) continue
 
     for (const change of entry.changes || []) {
       const value = change.value || {}
       const phoneNumberId = value.metadata?.phone_number_id
       if (!phoneNumberId) continue
 
-      // Phone number doğrula
       const { data: phone } = await supabase
         .from("phone_numbers")
         .select("*")
@@ -66,12 +74,10 @@ async function routeWebhook(payload: any) {
 
       const contactsData = value.contacts || []
 
-      // Gelen mesajları işle
       for (const msg of value.messages || []) {
-        await processInboundMessage(supabase, waba, phone, msg, contactsData)
+        await processWhatsAppMessage(supabase, waba, phone, msg, contactsData)
       }
 
-      // Status update'leri işle
       for (const statusUpdate of value.statuses || []) {
         await processStatusUpdate(supabase, waba.org_id, statusUpdate)
       }
@@ -79,40 +85,305 @@ async function routeWebhook(payload: any) {
   }
 }
 
-async function processInboundMessage(
-  supabase: any,
-  waba: any,
-  phone: any,
-  msg: any,
-  contactsData: any[]
+// ============================================
+// INSTAGRAM WEBHOOK
+// ============================================
+async function handleInstagramWebhook(payload: any) {
+  const supabase = getServiceSupabase()
+
+  for (const entry of payload.entry || []) {
+    const igAccountId = entry.id
+    if (!igAccountId) continue
+
+    // Instagram account ID ile org bul
+    const org = await findOrgByChannelId(supabase, "instagram_account_id", igAccountId)
+    if (!org) continue
+
+    for (const messaging of entry.messaging || []) {
+      const senderId = messaging.sender?.id
+      const messageData = messaging.message
+      if (!senderId || !messageData || senderId === igAccountId) continue
+
+      const text = messageData.text || messageData.attachments?.[0]?.type || "[medya]"
+      const msgId = messageData.mid || `ig_${Date.now()}`
+
+      // Deduplikasyon
+      const { data: existing } = await supabase
+        .from("messages")
+        .select("id")
+        .eq("wa_message_id", msgId)
+        .single()
+      if (existing) continue
+
+      // Gönderen bilgisi al
+      const senderName = await getInstagramUsername(supabase, org, senderId)
+
+      // Contact bul/oluştur
+      const contact = await getOrCreateContact(supabase, org.id, `ig_${senderId}`, senderName, "instagram")
+
+      // Conversation bul/oluştur
+      const conversation = await getOrCreateConversation(supabase, org.id, contact.id, null, "instagram")
+
+      // Mesajı kaydet
+      await supabase.from("messages").insert({
+        org_id: org.id,
+        conversation_id: conversation.id,
+        contact_id: contact.id,
+        wa_message_id: msgId,
+        direction: "inbound",
+        type: "text",
+        content: { body: text },
+        status: "received",
+        sender_type: "contact",
+      })
+
+      // Conversation güncelle
+      await supabase
+        .from("conversations")
+        .update({
+          last_message_at: new Date().toISOString(),
+          last_message_preview: text.slice(0, 200),
+          unread_count: (conversation.unread_count || 0) + 1,
+        })
+        .eq("id", conversation.id)
+
+      // Bot aktifse yanıt
+      if (conversation.is_bot_active) {
+        const aiResponse = await getAIResponse(org.id, conversation.id, text)
+        const cleanResponse = aiResponse.replace("[TRANSFER_SALES]", "").replace("[NOT_INTERESTED]", "").trim()
+
+        // Instagram ile yanıt gönder
+        const replyMsgId = await sendInstagramReply(supabase, org, senderId, cleanResponse)
+
+        await supabase.from("messages").insert({
+          org_id: org.id,
+          conversation_id: conversation.id,
+          contact_id: contact.id,
+          wa_message_id: replyMsgId,
+          direction: "outbound",
+          type: "text",
+          content: { body: cleanResponse },
+          status: "sent",
+          sender_type: "bot",
+        })
+
+        const convUpdate: any = {
+          last_message_at: new Date().toISOString(),
+          last_message_preview: cleanResponse.slice(0, 200),
+        }
+        if (aiResponse.includes("[TRANSFER_SALES]")) { convUpdate.status = "open"; convUpdate.is_bot_active = false }
+        if (aiResponse.includes("[NOT_INTERESTED]")) { convUpdate.status = "resolved"; convUpdate.is_bot_active = false }
+
+        await supabase.from("conversations").update(convUpdate).eq("id", conversation.id)
+      }
+    }
+  }
+}
+
+// ============================================
+// FACEBOOK MESSENGER WEBHOOK
+// ============================================
+async function handleFacebookWebhook(payload: any) {
+  const supabase = getServiceSupabase()
+
+  for (const entry of payload.entry || []) {
+    const pageId = entry.id
+    if (!pageId) continue
+
+    // Facebook page ID ile org bul
+    const org = await findOrgByChannelId(supabase, "facebook_page_id", pageId)
+    if (!org) continue
+
+    for (const messaging of entry.messaging || []) {
+      const senderId = messaging.sender?.id
+      const messageData = messaging.message
+      if (!senderId || !messageData || senderId === pageId) continue
+
+      const text = messageData.text || messageData.attachments?.[0]?.type || "[medya]"
+      const msgId = messageData.mid || `fb_${Date.now()}`
+
+      // Deduplikasyon
+      const { data: existing } = await supabase
+        .from("messages")
+        .select("id")
+        .eq("wa_message_id", msgId)
+        .single()
+      if (existing) continue
+
+      // Gönderen bilgisi al
+      const senderName = await getFacebookUsername(supabase, org, senderId)
+
+      // Contact bul/oluştur
+      const contact = await getOrCreateContact(supabase, org.id, `fb_${senderId}`, senderName, "facebook")
+
+      // Conversation bul/oluştur
+      const conversation = await getOrCreateConversation(supabase, org.id, contact.id, null, "facebook")
+
+      // Mesajı kaydet
+      await supabase.from("messages").insert({
+        org_id: org.id,
+        conversation_id: conversation.id,
+        contact_id: contact.id,
+        wa_message_id: msgId,
+        direction: "inbound",
+        type: "text",
+        content: { body: text },
+        status: "received",
+        sender_type: "contact",
+      })
+
+      // Conversation güncelle
+      await supabase
+        .from("conversations")
+        .update({
+          last_message_at: new Date().toISOString(),
+          last_message_preview: text.slice(0, 200),
+          unread_count: (conversation.unread_count || 0) + 1,
+        })
+        .eq("id", conversation.id)
+
+      // Bot aktifse yanıt
+      if (conversation.is_bot_active) {
+        const aiResponse = await getAIResponse(org.id, conversation.id, text)
+        const cleanResponse = aiResponse.replace("[TRANSFER_SALES]", "").replace("[NOT_INTERESTED]", "").trim()
+
+        // Facebook Messenger ile yanıt gönder
+        const replyMsgId = await sendFacebookReply(supabase, org, senderId, cleanResponse)
+
+        await supabase.from("messages").insert({
+          org_id: org.id,
+          conversation_id: conversation.id,
+          contact_id: contact.id,
+          wa_message_id: replyMsgId,
+          direction: "outbound",
+          type: "text",
+          content: { body: cleanResponse },
+          status: "sent",
+          sender_type: "bot",
+        })
+
+        const convUpdate: any = {
+          last_message_at: new Date().toISOString(),
+          last_message_preview: cleanResponse.slice(0, 200),
+        }
+        if (aiResponse.includes("[TRANSFER_SALES]")) { convUpdate.status = "open"; convUpdate.is_bot_active = false }
+        if (aiResponse.includes("[NOT_INTERESTED]")) { convUpdate.status = "resolved"; convUpdate.is_bot_active = false }
+
+        await supabase.from("conversations").update(convUpdate).eq("id", conversation.id)
+      }
+    }
+  }
+}
+
+// ============================================
+// HELPER: Org bul (settings'ten channel ID ile)
+// ============================================
+async function findOrgByChannelId(supabase: any, settingsKey: string, channelId: string) {
+  const { data: orgs } = await supabase
+    .from("organizations")
+    .select("*")
+    .eq("is_active", true)
+
+  if (!orgs) return null
+
+  for (const org of orgs) {
+    if (org.settings?.[settingsKey] === channelId) return org
+  }
+  return null
+}
+
+// ============================================
+// HELPER: Instagram kullanıcı adı al
+// ============================================
+async function getInstagramUsername(supabase: any, org: any, igUserId: string): Promise<string> {
+  try {
+    const token = org.settings?.instagram_page_token
+    if (!token) return ""
+    const res = await fetch(`${GRAPH_API}/${igUserId}?fields=name,username&access_token=${token}`)
+    const data = await res.json()
+    return data.username || data.name || ""
+  } catch { return "" }
+}
+
+// ============================================
+// HELPER: Facebook kullanıcı adı al
+// ============================================
+async function getFacebookUsername(supabase: any, org: any, fbUserId: string): Promise<string> {
+  try {
+    const token = org.settings?.facebook_page_token
+    if (!token) return ""
+    const res = await fetch(`${GRAPH_API}/${fbUserId}?fields=name&access_token=${token}`)
+    const data = await res.json()
+    return data.name || ""
+  } catch { return "" }
+}
+
+// ============================================
+// HELPER: Instagram'a yanıt gönder
+// ============================================
+async function sendInstagramReply(supabase: any, org: any, recipientId: string, text: string): Promise<string | null> {
+  try {
+    const token = org.settings?.instagram_page_token
+    const igAccountId = org.settings?.instagram_account_id
+    if (!token || !igAccountId) return null
+
+    const res = await fetch(`${GRAPH_API}/${igAccountId}/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        recipient: { id: recipientId },
+        message: { text },
+      }),
+    })
+    const data = await res.json()
+    return data.message_id || `ig_reply_${Date.now()}`
+  } catch { return null }
+}
+
+// ============================================
+// HELPER: Facebook Messenger'a yanıt gönder
+// ============================================
+async function sendFacebookReply(supabase: any, org: any, recipientId: string, text: string): Promise<string | null> {
+  try {
+    const token = org.settings?.facebook_page_token
+    const pageId = org.settings?.facebook_page_id
+    if (!token || !pageId) return null
+
+    const res = await fetch(`${GRAPH_API}/${pageId}/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        recipient: { id: recipientId },
+        message: { text },
+        messaging_type: "RESPONSE",
+      }),
+    })
+    const data = await res.json()
+    return data.message_id || `fb_reply_${Date.now()}`
+  } catch { return null }
+}
+
+// ============================================
+// WHATSAPP: Gelen mesaj işle (mevcut mantık)
+// ============================================
+async function processWhatsAppMessage(
+  supabase: any, waba: any, phone: any, msg: any, contactsData: any[]
 ) {
   const msgId = msg.id || ""
   const senderWaId = msg.from || ""
   const msgType = msg.type || ""
 
-  // Deduplikasyon
   const { data: existing } = await supabase
-    .from("messages")
-    .select("id")
-    .eq("wa_message_id", msgId)
-    .single()
-
+    .from("messages").select("id").eq("wa_message_id", msgId).single()
   if (existing) return
 
-  // Mesaj içeriğini çıkar
   const text = extractText(msg, msgType)
   if (text === null) return
 
-  // Gönderenin profil bilgisi
   const senderName = contactsData[0]?.profile?.name || ""
+  const contact = await getOrCreateContact(supabase, waba.org_id, senderWaId, senderName, "whatsapp")
+  const conversation = await getOrCreateConversation(supabase, waba.org_id, contact.id, phone.id, "whatsapp")
 
-  // Contact bul veya oluştur
-  const contact = await getOrCreateContact(supabase, waba.org_id, senderWaId, senderName)
-
-  // Conversation bul veya oluştur
-  const conversation = await getOrCreateConversation(supabase, waba.org_id, contact.id, phone.id)
-
-  // Mesajı DB'ye kaydet
   const validTypes = ["text", "image", "video", "audio", "document", "location"]
   await supabase.from("messages").insert({
     org_id: waba.org_id,
@@ -126,42 +397,23 @@ async function processInboundMessage(
     sender_type: "contact",
   })
 
-  // Conversation güncelle
-  await supabase
-    .from("conversations")
-    .update({
-      last_message_at: new Date().toISOString(),
-      last_message_preview: text.slice(0, 200),
-      unread_count: (conversation.unread_count || 0) + 1,
-    })
-    .eq("id", conversation.id)
+  await supabase.from("conversations").update({
+    last_message_at: new Date().toISOString(),
+    last_message_preview: text.slice(0, 200),
+    unread_count: (conversation.unread_count || 0) + 1,
+  }).eq("id", conversation.id)
 
-  // Okundu bilgisi gönder
   await markAsRead(phone.phone_number_id, waba.access_token, msgId)
 
-  // AI chatbot aktifse yanıt üret
   if (conversation.is_bot_active) {
     const aiResponse = await getAIResponse(waba.org_id, conversation.id, text)
-
-    // Etiketleri temizle
     const transferToSales = aiResponse.includes("[TRANSFER_SALES]")
     const notInterested = aiResponse.includes("[NOT_INTERESTED]")
-    const cleanResponse = aiResponse
-      .replace("[TRANSFER_SALES]", "")
-      .replace("[NOT_INTERESTED]", "")
-      .trim()
+    const cleanResponse = aiResponse.replace("[TRANSFER_SALES]", "").replace("[NOT_INTERESTED]", "").trim()
 
-    // Yanıtı gönder
-    const result = await sendTextMessage(
-      phone.phone_number_id,
-      waba.access_token,
-      senderWaId,
-      cleanResponse
-    )
-
+    const result = await sendTextMessage(phone.phone_number_id, waba.access_token, senderWaId, cleanResponse)
     const waMessageId = result?.messages?.[0]?.id || null
 
-    // Yanıtı DB'ye kaydet
     await supabase.from("messages").insert({
       org_id: waba.org_id,
       conversation_id: conversation.id,
@@ -178,20 +430,16 @@ async function processInboundMessage(
       last_message_at: new Date().toISOString(),
       last_message_preview: cleanResponse.slice(0, 200),
     }
-
-    if (transferToSales) {
-      convUpdate.status = "open"
-      convUpdate.is_bot_active = false
-    }
-    if (notInterested) {
-      convUpdate.status = "resolved"
-      convUpdate.is_bot_active = false
-    }
+    if (transferToSales) { convUpdate.status = "open"; convUpdate.is_bot_active = false }
+    if (notInterested) { convUpdate.status = "resolved"; convUpdate.is_bot_active = false }
 
     await supabase.from("conversations").update(convUpdate).eq("id", conversation.id)
   }
 }
 
+// ============================================
+// Status update (WhatsApp — delivered/read/failed)
+// ============================================
 async function processStatusUpdate(supabase: any, orgId: string, statusUpdate: any) {
   const waMsgId = statusUpdate.id
   const newStatus = statusUpdate.status
@@ -206,16 +454,15 @@ async function processStatusUpdate(supabase: any, orgId: string, statusUpdate: a
 
   if (msg) {
     await supabase.from("messages").update({ status: newStatus }).eq("id", msg.id)
-
     if (newStatus === "read") {
-      await supabase
-        .from("conversations")
-        .update({ unread_count: 0 })
-        .eq("id", msg.conversation_id)
+      await supabase.from("conversations").update({ unread_count: 0 }).eq("id", msg.conversation_id)
     }
   }
 }
 
+// ============================================
+// Text çıkarıcı (WhatsApp mesaj tipleri)
+// ============================================
 function extractText(msg: any, msgType: string): string | null {
   if (msgType === "text") return msg.text?.body || ""
   if (msgType === "button") return msg.button?.text || ""
@@ -228,11 +475,11 @@ function extractText(msg: any, msgType: string): string | null {
   return null
 }
 
+// ============================================
+// Contact bul/oluştur (tüm kanallar için)
+// ============================================
 async function getOrCreateContact(
-  supabase: any,
-  orgId: string,
-  waId: string,
-  name: string
+  supabase: any, orgId: string, waId: string, name: string, channel: string = "whatsapp"
 ) {
   const { data: existing } = await supabase
     .from("contacts")
@@ -242,26 +489,20 @@ async function getOrCreateContact(
     .single()
 
   if (existing) {
-    if (name && !existing.name) {
-      await supabase
-        .from("contacts")
-        .update({ name, profile_name: name, last_message_at: new Date().toISOString() })
-        .eq("id", existing.id)
-    } else {
-      await supabase
-        .from("contacts")
-        .update({ last_message_at: new Date().toISOString() })
-        .eq("id", existing.id)
-    }
+    const updates: any = { last_message_at: new Date().toISOString() }
+    if (name && !existing.name) { updates.name = name; updates.profile_name = name }
+    await supabase.from("contacts").update(updates).eq("id", existing.id)
     return existing
   }
+
+  const phone = channel === "whatsapp" ? `+${waId}` : null
 
   const { data: newContact } = await supabase
     .from("contacts")
     .insert({
       org_id: orgId,
       wa_id: waId,
-      phone: `+${waId}`,
+      phone: phone || waId,
       name: name || null,
       profile_name: name || null,
       last_message_at: new Date().toISOString(),
@@ -272,11 +513,11 @@ async function getOrCreateContact(
   return newContact
 }
 
+// ============================================
+// Conversation bul/oluştur (kanal bilgisiyle)
+// ============================================
 async function getOrCreateConversation(
-  supabase: any,
-  orgId: string,
-  contactId: string,
-  phoneNumberId: string
+  supabase: any, orgId: string, contactId: string, phoneNumberId: string | null, channel: string = "whatsapp"
 ) {
   const { data: existing } = await supabase
     .from("conversations")
@@ -288,15 +529,18 @@ async function getOrCreateConversation(
 
   if (existing) return existing
 
+  const insert: any = {
+    org_id: orgId,
+    contact_id: contactId,
+    status: "open",
+    is_bot_active: true,
+    channel: channel,
+  }
+  if (phoneNumberId) insert.phone_number_id = phoneNumberId
+
   const { data: newConv } = await supabase
     .from("conversations")
-    .insert({
-      org_id: orgId,
-      contact_id: contactId,
-      phone_number_id: phoneNumberId,
-      status: "open",
-      is_bot_active: true,
-    })
+    .insert(insert)
     .select()
     .single()
 

@@ -220,33 +220,7 @@ export default function LangLayout({ children, params }: { children: React.React
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto">
-          {children}
-
-          {/* Footer */}
-          <footer className="border-t border-dark-800/40 bg-dark-950 px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 bg-brand-500 rounded flex items-center justify-center">
-                <span className="text-dark-950 font-bold text-[10px]">Y</span>
-              </div>
-              <span className="text-dark-600 text-xs">2025 YO Dijital. All rights reserved.</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <a href={`/${lang}/privacy-policy`} className="text-dark-500 hover:text-dark-300 text-xs transition">
-                {t("footer_privacy")}
-              </a>
-              <a href={`/${lang}/cookie-policy`} className="text-dark-500 hover:text-dark-300 text-xs transition">
-                {t("footer_cookie")}
-              </a>
-              <a href={`/${lang}/terms-of-service`} className="text-dark-500 hover:text-dark-300 text-xs transition">
-                {t("footer_terms")}
-              </a>
-              <a href={`/${lang}/data-deletion`} className="text-dark-500 hover:text-dark-300 text-xs transition">
-                {t("footer_data_deletion")}
-              </a>
-            </div>
-          </footer>
-        </main>
+        <main className="flex-1 overflow-hidden">{children}</main>
       </div>
     </div>
   )

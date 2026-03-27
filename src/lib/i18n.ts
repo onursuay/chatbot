@@ -567,6 +567,9 @@ export const SLUG_MAP: Record<string, Record<Lang, string>> = {
   "custom-fields": { tr: "ozel-alanlar",    en: "custom-fields" },
   "tags-management": { tr: "etiket-yonetimi", en: "tags-management" },
   "lead-scoring":  { tr: "lead-puanlama",   en: "lead-scoring" },
+  // Auth
+  "login":           { tr: "login",              en: "login" },
+  "register":        { tr: "register",           en: "register" },
   // Legal
   "privacy-policy":  { tr: "privacy-policy",     en: "privacy-policy" },
   "cookie-policy":   { tr: "cookie-policy",      en: "cookie-policy" },

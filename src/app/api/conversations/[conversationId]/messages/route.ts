@@ -80,26 +80,63 @@ export async function POST(
     return NextResponse.json({ detail: "Konusma bulunamadi" }, { status: 404 })
   }
 
-  // Phone number + WABA token
-  const { data: phone } = await supabase
-    .from("phone_numbers")
-    .select("*, waba:waba_accounts(*)")
-    .eq("id", conv.phone_number_id)
-    .single()
+  const channel = conv.channel || conv.metadata?.channel || "whatsapp"
+  let waMessageId: string | null = null
 
-  if (!phone) {
-    return NextResponse.json({ detail: "Telefon numarasi bulunamadi" }, { status: 400 })
+  if (channel === "instagram") {
+    // Instagram DM ile gönder
+    const { data: org } = await supabase
+      .from("organizations").select("settings").eq("id", auth.org_id).single()
+    const igToken = org?.settings?.instagram_page_token
+    const igAccountId = org?.settings?.instagram_account_id
+    const recipientId = conv.contact.wa_id?.replace("ig_", "")
+
+    if (igToken && igAccountId && recipientId) {
+      const res = await fetch(`https://graph.facebook.com/v21.0/${igAccountId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${igToken}` },
+        body: JSON.stringify({ recipient: { id: recipientId }, message: { text } }),
+      })
+      const data = await res.json()
+      waMessageId = data.message_id || null
+    }
+  } else if (channel === "facebook") {
+    // Facebook Messenger ile gönder
+    const { data: org } = await supabase
+      .from("organizations").select("settings").eq("id", auth.org_id).single()
+    const fbToken = org?.settings?.facebook_page_token
+    const pageId = org?.settings?.facebook_page_id
+    const recipientId = conv.contact.wa_id?.replace("fb_", "")
+
+    if (fbToken && pageId && recipientId) {
+      const res = await fetch(`https://graph.facebook.com/v21.0/${pageId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${fbToken}` },
+        body: JSON.stringify({ recipient: { id: recipientId }, message: { text }, messaging_type: "RESPONSE" }),
+      })
+      const data = await res.json()
+      waMessageId = data.message_id || null
+    }
+  } else {
+    // WhatsApp ile gönder
+    const { data: phone } = await supabase
+      .from("phone_numbers")
+      .select("*, waba:waba_accounts(*)")
+      .eq("id", conv.phone_number_id)
+      .single()
+
+    if (!phone) {
+      return NextResponse.json({ detail: "Telefon numarasi bulunamadi" }, { status: 400 })
+    }
+
+    const result = await sendTextMessage(
+      phone.phone_number_id,
+      phone.waba.access_token,
+      conv.contact.wa_id,
+      text
+    )
+    waMessageId = result?.messages?.[0]?.id || null
   }
-
-  // WhatsApp'a gönder
-  const result = await sendTextMessage(
-    phone.phone_number_id,
-    phone.waba.access_token,
-    conv.contact.wa_id,
-    text
-  )
-
-  const waMessageId = result?.messages?.[0]?.id || null
 
   // DB'ye kaydet
   const { data: msg } = await supabase
