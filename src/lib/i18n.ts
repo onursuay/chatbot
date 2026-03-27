@@ -294,6 +294,10 @@ const translations: Record<string, Record<Lang, string>> = {
   "automation_cat": { tr: "Otomasyon", en: "Automation" },
   "productivity": { tr: "Verimlilik", en: "Productivity" },
   "developer": { tr: "Geliştirici", en: "Developer" },
+  "disconnect": { tr: "Bağlantıyı Kes", en: "Disconnect" },
+  "disconnecting": { tr: "Kesiliyor...", en: "Disconnecting..." },
+  "disconnect_confirm": { tr: "Bu kanalın bağlantısını kesmek istediğinize emin misiniz?", en: "Are you sure you want to disconnect this channel?" },
+  "disconnected": { tr: "Bağlantı kesildi", en: "Disconnected" },
   "channel_step1_v2": { tr: "1. WhatsApp, Instagram veya Facebook sayfanızı bağlayın", en: "1. Connect your WhatsApp, Instagram or Facebook page" },
   "channel_step2_v2": { tr: "2. Gelen mesajlar otomatik olarak Inbox'a düşer", en: "2. Incoming messages automatically appear in Inbox" },
 
