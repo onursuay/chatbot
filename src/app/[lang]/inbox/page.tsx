@@ -68,8 +68,8 @@ const CHANNELS: { id: Channel; label: string; color: string; icon: JSX.Element }
     label: "Messenger",
     color: "text-[#0084FF]",
     icon: (
-      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2C6.477 2 2 6.145 2 11.243c0 2.908 1.434 5.503 3.678 7.2V22l3.378-1.855c.9.25 1.855.384 2.944.384 5.523 0 10-4.144 10-9.243C22 6.145 17.523 2 12 2z"/>
+      <svg className="w-4 h-4" viewBox="0 0 28 28" fill="currentColor">
+        <path d="M14 0C6.268 0 0 5.87 0 13.125c0 4.128 2.05 7.81 5.25 10.208V28l4.48-2.46c1.19.33 2.45.51 3.77.51C21.732 0 28 5.87 28 13.125S21.732 26.25 14 26.25c-1.32 0-2.58-.18-3.77-.51L5.75 28v-4.667C2.05 20.935 0 17.253 0 13.125 0 5.87 6.268 0 14 0zm1.4 17.65l-3.57-3.82L4.55 17.65l8.04-8.57 3.66 3.82 7.18-3.82-8.03 8.57z"/>
       </svg>
     ),
   },
@@ -230,7 +230,7 @@ export default function InboxPage() {
   }
 
   return (
-    <div className="h-screen flex">
+    <div className="h-full flex overflow-hidden">
       {/* Sol Panel — Kanal sekmeleri + Konuşma listesi */}
       <div className="w-80 border-r border-dark-800 flex flex-col">
         {/* Başlık */}

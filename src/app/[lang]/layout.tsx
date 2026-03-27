@@ -7,12 +7,21 @@ import { useAuth } from "@/lib/auth"
 import { api } from "@/lib/api"
 import { useI18n, localePath, SLUG_MAP, type Lang } from "@/lib/i18n"
 
+// Sidebar olmadan gosterilecek sayfalar
+const NO_LAYOUT_PAGES = ["/login", "/register", "/privacy-policy", "/cookie-policy", "/terms-of-service", "/data-deletion"]
+
 export default function LangLayout({ children, params }: { children: React.ReactNode; params: { lang: string } }) {
   const router = useRouter()
   const pathname = usePathname()
   const { user, setAuth, logout } = useAuth()
   const { t, lang, setLang } = useI18n()
   const [loading, setLoading] = useState(true)
+
+  // Login, register ve legal sayfalarda sidebar gosterme
+  const isNoLayoutPage = NO_LAYOUT_PAGES.some((p) => pathname.endsWith(p))
+  if (isNoLayoutPage) {
+    return <>{children}</>
+  }
 
   // URL'deki dil parametresine göre i18n sync
   useEffect(() => {
