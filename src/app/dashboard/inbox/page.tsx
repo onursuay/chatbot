@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react"
 import { api } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
+import { useI18n } from "@/lib/i18n"
 import { supabase } from "@/lib/supabase"
 
 interface Conversation {
@@ -28,6 +29,7 @@ interface Message {
 
 export default function InboxPage() {
   const { getToken } = useAuth()
+  const { t } = useI18n()
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -118,7 +120,7 @@ export default function InboxPage() {
       })
     } catch (err: any) {
       setNewMessage(text)
-      alert("Mesaj gönderilemedi: " + (err.message || "Bilinmeyen hata"))
+      alert(t("msg_send_error") + ": " + (err.message || t("unknown")))
     }
     setSending(false)
   }
@@ -163,13 +165,13 @@ export default function InboxPage() {
       {/* Sol Panel — Konuşma listesi */}
       <div className="w-80 border-r border-dark-800 flex flex-col">
         <div className="p-4 border-b border-dark-800">
-          <h2 className="text-lg font-semibold text-white">Inbox</h2>
+          <h2 className="text-lg font-semibold text-white">{t("inbox")}</h2>
           <div className="mt-2">
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Ara..."
+              placeholder={t("search")}
               className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2.5 text-sm text-white placeholder-dark-500 focus:outline-none focus:border-brand-500"
             />
           </div>
@@ -178,7 +180,7 @@ export default function InboxPage() {
         <div className="flex-1 overflow-y-auto">
           {filteredConversations.length === 0 ? (
             <div className="p-8 text-center text-dark-500 text-sm">
-              {search ? "Sonuç bulunamadı." : "Henüz konuşma yok."}
+              {search ? t("no_results") : t("no_conversations")}
             </div>
           ) : (
             filteredConversations.map((conv) => (
@@ -191,7 +193,7 @@ export default function InboxPage() {
               >
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-white truncate">
-                    {conv.contact_name || conv.contact_phone || "Bilinmeyen"}
+                    {conv.contact_name || conv.contact_phone || t("unknown")}
                   </span>
                   {conv.unread_count > 0 && (
                     <span className="bg-brand-500 text-dark-950 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
@@ -200,7 +202,7 @@ export default function InboxPage() {
                   )}
                 </div>
                 <p className="text-xs text-dark-400 truncate mt-1">
-                  {conv.last_message_preview || "Mesaj yok"}
+                  {conv.last_message_preview || t("no_message")}
                 </p>
                 <div className="flex items-center gap-2 mt-1">
                   {conv.is_bot_active && (
@@ -210,7 +212,7 @@ export default function InboxPage() {
                     conv.status === "open" ? "text-brand-400" :
                     conv.status === "resolved" ? "text-dark-500" : "text-yellow-400"
                   }`}>
-                    {conv.status === "open" ? "Açık" : conv.status === "resolved" ? "Çözüldü" : "Atandı"}
+                    {conv.status === "open" ? t("open") : conv.status === "resolved" ? t("resolved") : t("assigned")}
                   </span>
                   <span className="text-[10px] text-dark-600">
                     {conv.last_message_at ? formatTime(conv.last_message_at) : ""}
@@ -237,8 +239,8 @@ export default function InboxPage() {
                     selectedConv.status === "open" ? "text-brand-400" :
                     selectedConv.status === "resolved" ? "text-dark-500" : "text-yellow-400"
                   }`}>
-                    {selectedConv.status === "open" ? "Açık" :
-                     selectedConv.status === "resolved" ? "Çözüldü" : "Atandı"}
+                    {selectedConv.status === "open" ? t("open") :
+                     selectedConv.status === "resolved" ? t("resolved") : t("assigned")}
                   </span>
                   {selectedConv.contact_phone && (
                     <span className="text-xs text-dark-500">{selectedConv.contact_phone}</span>
@@ -256,7 +258,7 @@ export default function InboxPage() {
                       : "bg-dark-800 text-dark-300 hover:text-white"
                   }`}
                 >
-                  {selectedConv.status === "resolved" ? "Yeniden Aç" : "Çözüldü"}
+                  {selectedConv.status === "resolved" ? t("reopen") : t("mark_resolved")}
                 </button>
                 <button
                   onClick={() => updateConversation({ is_bot_active: !selectedConv.is_bot_active })}
@@ -266,7 +268,7 @@ export default function InboxPage() {
                       : "bg-dark-800 text-dark-300 hover:text-white"
                   }`}
                 >
-                  Bot {selectedConv.is_bot_active ? "Kapat" : "Aç"}
+                  {selectedConv.is_bot_active ? t("bot_off") : t("bot_on")}
                 </button>
               </div>
             </div>
@@ -288,10 +290,10 @@ export default function InboxPage() {
                     }`}
                   >
                     {msg.sender_type === "bot" && msg.direction === "outbound" && (
-                      <span className="text-[10px] text-brand-400 block mb-1">AI Bot</span>
+                      <span className="text-[10px] text-brand-400 block mb-1">{t("ai_bot")}</span>
                     )}
                     {msg.sender_type === "agent" && msg.direction === "outbound" && (
-                      <span className="text-[10px] text-dark-950/60 block mb-1">Agent</span>
+                      <span className="text-[10px] text-dark-950/60 block mb-1">{t("agent")}</span>
                     )}
                     <p className="text-[14px] whitespace-pre-wrap">{msg.content?.body}</p>
                     <div className={`flex items-center gap-1 mt-1 ${
@@ -331,7 +333,7 @@ export default function InboxPage() {
                     }
                   }}
                   className="flex-1 bg-dark-800 border border-dark-700 rounded-xl px-4 py-2.5 text-[14px] text-white placeholder-dark-500 focus:outline-none focus:border-brand-500 transition"
-                  placeholder="Mesaj yaz..."
+                  placeholder={t("write_message")}
                   disabled={sending}
                 />
                 <button
@@ -344,7 +346,7 @@ export default function InboxPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                  ) : "Gönder"}
+                  ) : t("send")}
                 </button>
               </div>
             </div>
@@ -357,8 +359,8 @@ export default function InboxPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
-              <p className="text-lg font-medium text-dark-400">Bir konusma seçin</p>
-              <p className="text-sm text-dark-600 mt-1">Soldan bir konuşma seçip mesajlari gorun</p>
+              <p className="text-lg font-medium text-dark-400">{t("select_conversation")}</p>
+              <p className="text-sm text-dark-600 mt-1">{t("select_conversation_desc")}</p>
             </div>
           </div>
         )}

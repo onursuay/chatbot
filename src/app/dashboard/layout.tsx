@@ -5,53 +5,54 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth"
 import { api } from "@/lib/api"
-
-const NAV_ITEMS = [
-  {
-    group: "Mesajlaşma",
-    items: [
-      { href: "/dashboard/inbox", label: "Inbox", icon: <IconInbox /> },
-      { href: "/dashboard/contacts", label: "Kişiler", icon: <IconContacts /> },
-      { href: "/dashboard/templates", label: "Şablonlar", icon: <IconTemplates /> },
-      { href: "/dashboard/broadcast", label: "Broadcast", icon: <IconBroadcast /> },
-    ],
-  },
-  {
-    group: "Yapay Zeka",
-    items: [
-      { href: "/dashboard/chatbot", label: "AI Chatbot", icon: <IconBot />, badge: "AI" },
-      { href: "/dashboard/automation", label: "Otomasyon", icon: <IconAutomation /> },
-      { href: "/dashboard/flow-builder", label: "Flow Builder", icon: <IconFlow /> },
-    ],
-  },
-  {
-    group: "Entegrasyon",
-    items: [
-      { href: "/dashboard/channels", label: "Kanallar", icon: <IconChannels /> },
-      { href: "/dashboard/integrations", label: "Entegrasyonlar", icon: <IconIntegration /> },
-    ],
-  },
-  {
-    group: "Analiz",
-    items: [
-      { href: "/dashboard/analytics", label: "Raporlar", icon: <IconAnalytics /> },
-    ],
-  },
-  {
-    group: "Hesap",
-    items: [
-      { href: "/dashboard/billing", label: "Abonelik", icon: <IconBilling /> },
-      { href: "/dashboard/settings", label: "Ayarlar", icon: <IconSettings /> },
-    ],
-  },
-]
+import { useI18n } from "@/lib/i18n"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
   const { user, setAuth, logout } = useAuth()
+  const { t, lang, setLang } = useI18n()
   const [loading, setLoading] = useState(true)
-  const [lang, setLang] = useState<"TR" | "EN">("TR")
+
+  const NAV_ITEMS = [
+    {
+      group: t("nav_messaging"),
+      items: [
+        { href: "/dashboard/inbox", label: t("inbox"), icon: <IconInbox /> },
+        { href: "/dashboard/contacts", label: t("nav_contacts"), icon: <IconContacts /> },
+        { href: "/dashboard/templates", label: t("nav_templates"), icon: <IconTemplates /> },
+        { href: "/dashboard/broadcast", label: t("nav_broadcast"), icon: <IconBroadcast /> },
+      ],
+    },
+    {
+      group: t("nav_ai"),
+      items: [
+        { href: "/dashboard/chatbot", label: t("nav_chatbot"), icon: <IconBot />, badge: "AI" },
+        { href: "/dashboard/automation", label: t("nav_automation"), icon: <IconAutomation /> },
+        { href: "/dashboard/flow-builder", label: t("nav_flow_builder"), icon: <IconFlow /> },
+      ],
+    },
+    {
+      group: t("nav_integration"),
+      items: [
+        { href: "/dashboard/channels", label: t("nav_channels"), icon: <IconChannels /> },
+        { href: "/dashboard/integrations", label: t("nav_integrations"), icon: <IconIntegration /> },
+      ],
+    },
+    {
+      group: t("nav_analytics"),
+      items: [
+        { href: "/dashboard/analytics", label: t("nav_reports"), icon: <IconAnalytics /> },
+      ],
+    },
+    {
+      group: t("nav_account"),
+      items: [
+        { href: "/dashboard/billing", label: t("nav_billing"), icon: <IconBilling /> },
+        { href: "/dashboard/settings", label: t("nav_settings"), icon: <IconSettings /> },
+      ],
+    },
+  ]
 
   useEffect(() => {
     const token = localStorage.getItem("access_token")
@@ -78,7 +79,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (loading) {
     return (
       <div className="min-h-screen bg-dark-950 flex items-center justify-center">
-        <div className="animate-pulse text-brand-400 text-lg">Yükleniyor...</div>
+        <div className="animate-pulse text-brand-400 text-lg">{t("loading")}</div>
       </div>
     )
   }
@@ -145,7 +146,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-medium text-white truncate">{user?.full_name}</p>
-              <p className="text-[10px] text-brand-500 capitalize">{user?.org_plan === "trial" ? "Deneme Sürümü" : user?.org_plan}</p>
+              <p className="text-[10px] text-brand-500 capitalize">{user?.org_plan === "trial" ? t("trial_plan") : user?.org_plan}</p>
             </div>
           </div>
         </div>
@@ -157,22 +158,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <header className="h-12 border-b border-dark-800/60 bg-dark-900/40 backdrop-blur-sm flex items-center justify-between px-5 shrink-0">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
-            <span className="text-xs text-dark-400">WhatsApp Hesabı</span>
-            <span className="text-xs font-medium text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded">Bağlı</span>
+            <span className="text-xs text-dark-400">{t("wa_account")}</span>
+            <span className="text-xs font-medium text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded">{t("wa_connected")}</span>
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setLang(lang === "TR" ? "EN" : "TR")}
+              onClick={() => setLang(lang === "tr" ? "en" : "tr")}
               className="flex items-center gap-1.5 text-xs text-dark-400 hover:text-white bg-dark-800/60 px-2.5 py-1.5 rounded-lg transition"
             >
-              <span>{lang === "TR" ? "\uD83C\uDDF9\uD83C\uDDF7" : "\uD83C\uDDEC\uD83C\uDDE7"}</span>
-              <span>{lang}</span>
+              <span>{lang === "tr" ? "\uD83C\uDDF9\uD83C\uDDF7" : "\uD83C\uDDEC\uD83C\uDDE7"}</span>
+              <span>{lang === "tr" ? "TR" : "EN"}</span>
             </button>
             <button
               onClick={() => { logout(); router.push("/auth/login") }}
               className="text-xs text-dark-500 hover:text-red-400 transition"
             >
-              Çıkış
+              {t("logout")}
             </button>
           </div>
         </header>

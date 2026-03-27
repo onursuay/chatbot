@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useAuth } from "@/lib/auth"
 import { supabase } from "@/lib/supabase"
+import { useI18n } from "@/lib/i18n"
 
 interface FlowNode {
   id: string
@@ -18,24 +19,25 @@ interface Flow {
   is_active: boolean
 }
 
-const NODE_TYPES = [
-  { type: "trigger", label: "Tetikleyici", color: "bg-purple-500", icon: "⚡" },
-  { type: "message", label: "Mesaj Gönder", color: "bg-brand-500", icon: "💬" },
-  { type: "condition", label: "Kosul (If/Else)", color: "bg-yellow-500", icon: "🔀" },
-  { type: "delay", label: "Bekle", color: "bg-blue-500", icon: "⏱" },
-  { type: "action", label: "Aksiyon", color: "bg-red-500", icon: "🎯" },
-]
-
 export default function FlowBuilderPage() {
   const { user } = useAuth()
+  const { t } = useI18n()
   const [flows, setFlows] = useState<Flow[]>([])
   const [currentFlow, setCurrentFlow] = useState<Flow | null>(null)
   const [showBuilder, setShowBuilder] = useState(false)
   const [saving, setSaving] = useState(false)
 
+  const NODE_TYPES = [
+    { type: "trigger", label: t("trigger_node"), color: "bg-purple-500", icon: "⚡" },
+    { type: "message", label: t("message_node"), color: "bg-brand-500", icon: "💬" },
+    { type: "condition", label: t("condition_node"), color: "bg-yellow-500", icon: "🔀" },
+    { type: "delay", label: t("delay_node"), color: "bg-blue-500", icon: "⏱" },
+    { type: "action", label: t("action_node"), color: "bg-red-500", icon: "🎯" },
+  ]
+
   const createNewFlow = () => {
     setCurrentFlow({
-      name: "Yeni Akis",
+      name: "",
       nodes: [
         { id: "1", type: "trigger", data: { trigger_type: "keyword", keywords: [] } },
       ],
@@ -95,20 +97,20 @@ export default function FlowBuilderPage() {
     setShowBuilder(false)
     setCurrentFlow(null)
     setSaving(false)
-    alert("Akis kaydedildi!")
+    alert(t("flow_saved"))
   }
 
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-semibold text-white">Flow Builder</h2>
-          <p className="text-dark-400 text-sm mt-1">Sürükle-bırak ile otomasyon akışları oluşturun</p>
+          <h2 className="text-xl font-semibold text-white">{t("flow_builder")}</h2>
+          <p className="text-dark-400 text-sm mt-1">{t("flow_builder_desc")}</p>
         </div>
         {!showBuilder && (
           <button onClick={createNewFlow}
             className="bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-4 py-2 rounded-lg text-sm transition">
-            + Yeni Akis
+            {t("new_flow")}
           </button>
         )}
       </div>
@@ -122,25 +124,25 @@ export default function FlowBuilderPage() {
               value={currentFlow.name}
               onChange={(e) => setCurrentFlow({ ...currentFlow, name: e.target.value })}
               className="bg-transparent text-white font-medium text-lg focus:outline-none"
-              placeholder="Akış adı..."
+              placeholder={t("flow_name")}
             />
             <div className="flex gap-2">
               <button onClick={saveFlow} disabled={saving}
                 className="bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-4 py-2 rounded-lg text-sm transition disabled:opacity-50">
-                {saving ? "Kaydediliyor..." : "Kaydet"}
+                {saving ? t("saving") : t("save")}
               </button>
               <button onClick={() => { setShowBuilder(false); setCurrentFlow(null) }}
                 className="bg-dark-800 text-dark-300 hover:text-white px-4 py-2 rounded-lg text-sm transition">
-                İptal
+                {t("cancel")}
               </button>
             </div>
           </div>
 
           {/* Node palette */}
           <div className="bg-dark-900 border border-dark-800 rounded-xl p-4">
-            <p className="text-sm text-dark-400 mb-3">Düğüm Ekle:</p>
+            <p className="text-sm text-dark-400 mb-3">{t("add_node")}</p>
             <div className="flex gap-2 flex-wrap">
-              {NODE_TYPES.filter((t) => t.type !== "trigger").map((nt) => (
+              {NODE_TYPES.filter((nt) => nt.type !== "trigger").map((nt) => (
                 <button key={nt.type} onClick={() => addNode(nt.type)}
                   className="flex items-center gap-2 bg-dark-800 hover:bg-dark-700 text-white px-3 py-2 rounded-lg text-sm transition">
                   <span>{nt.icon}</span>
@@ -171,7 +173,7 @@ export default function FlowBuilderPage() {
                       </div>
                       {node.type !== "trigger" && (
                         <button onClick={() => removeNode(node.id)}
-                          className="text-dark-600 hover:text-red-400 text-xs transition">Sil</button>
+                          className="text-dark-600 hover:text-red-400 text-xs transition">{t("delete")}</button>
                       )}
                     </div>
 
@@ -179,18 +181,18 @@ export default function FlowBuilderPage() {
                     {node.type === "trigger" && (
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-xs text-dark-500 mb-1">Tetikleyici Tipi</label>
+                          <label className="block text-xs text-dark-500 mb-1">{t("trigger_type")}</label>
                           <select value={node.data.trigger_type || "keyword"}
                             onChange={(e) => updateNode(node.id, { trigger_type: e.target.value })}
                             className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-brand-500">
-                            <option value="keyword">Anahtar Kelime</option>
-                            <option value="first_message">İlk Mesaj</option>
-                            <option value="business_hours">Mesai Disi</option>
+                            <option value="keyword">{t("keyword")}</option>
+                            <option value="first_message">{t("first_message")}</option>
+                            <option value="business_hours">{t("business_hours")}</option>
                           </select>
                         </div>
                         {node.data.trigger_type === "keyword" && (
                           <div>
-                            <label className="block text-xs text-dark-500 mb-1">Kelimeler (virgul ile)</label>
+                            <label className="block text-xs text-dark-500 mb-1">{t("keywords_label")}</label>
                             <input type="text" value={node.data.keywords_text || ""}
                               onChange={(e) => updateNode(node.id, { keywords_text: e.target.value, keywords: e.target.value.split(",").map((k: string) => k.trim()) })}
                               className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-brand-500"
@@ -204,7 +206,7 @@ export default function FlowBuilderPage() {
                       <textarea value={node.data.text || ""}
                         onChange={(e) => updateNode(node.id, { text: e.target.value })}
                         className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500 h-16 resize-none"
-                        placeholder="Gonderilecek mesaj..." />
+                        placeholder={t("message_to_send") + "..."} />
                     )}
 
                     {node.type === "condition" && (
@@ -212,21 +214,21 @@ export default function FlowBuilderPage() {
                         <select value={node.data.field || "message"}
                           onChange={(e) => updateNode(node.id, { field: e.target.value })}
                           className="bg-dark-800 border border-dark-700 rounded-lg px-2 py-1.5 text-sm text-white focus:outline-none focus:border-brand-500">
-                          <option value="message">Mesaj</option>
-                          <option value="contact_name">Kisi Adi</option>
-                          <option value="tag">Etiket</option>
+                          <option value="message">{t("condition_message")}</option>
+                          <option value="contact_name">{t("condition_contact_name")}</option>
+                          <option value="tag">{t("condition_tag")}</option>
                         </select>
                         <select value={node.data.operator || "contains"}
                           onChange={(e) => updateNode(node.id, { operator: e.target.value })}
                           className="bg-dark-800 border border-dark-700 rounded-lg px-2 py-1.5 text-sm text-white focus:outline-none focus:border-brand-500">
-                          <option value="contains">İçerir</option>
-                          <option value="equals">Eşittir</option>
-                          <option value="starts_with">İle başlar</option>
+                          <option value="contains">{t("contains")}</option>
+                          <option value="equals">{t("equals")}</option>
+                          <option value="starts_with">{t("starts_with")}</option>
                         </select>
                         <input type="text" value={node.data.value || ""}
                           onChange={(e) => updateNode(node.id, { value: e.target.value })}
                           className="bg-dark-800 border border-dark-700 rounded-lg px-2 py-1.5 text-sm text-white focus:outline-none focus:border-brand-500"
-                          placeholder="Deger" />
+                          placeholder={t("condition_value")} />
                       </div>
                     )}
 
@@ -235,7 +237,7 @@ export default function FlowBuilderPage() {
                         <input type="number" value={node.data.minutes || 5}
                           onChange={(e) => updateNode(node.id, { minutes: parseInt(e.target.value) })}
                           className="w-20 bg-dark-800 border border-dark-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-brand-500" />
-                        <span className="text-sm text-dark-400">dakika bekle</span>
+                        <span className="text-sm text-dark-400">{t("minutes_wait")}</span>
                       </div>
                     )}
 
@@ -244,17 +246,17 @@ export default function FlowBuilderPage() {
                         <select value={node.data.action || "add_tag"}
                           onChange={(e) => updateNode(node.id, { action: e.target.value })}
                           className="bg-dark-800 border border-dark-700 rounded-lg px-2 py-1.5 text-sm text-white focus:outline-none focus:border-brand-500">
-                          <option value="add_tag">Etiket Ekle</option>
-                          <option value="assign_agent">Agent'a Ata</option>
-                          <option value="close_conversation">Konusmayi Kapat</option>
-                          <option value="enable_bot">Bot'u Ac</option>
-                          <option value="disable_bot">Bot'u Kapat</option>
+                          <option value="add_tag">{t("add_tag_action")}</option>
+                          <option value="assign_agent">{t("assign_agent_action")}</option>
+                          <option value="close_conversation">{t("close_conversation")}</option>
+                          <option value="enable_bot">{t("enable_bot_action")}</option>
+                          <option value="disable_bot">{t("disable_bot_action")}</option>
                         </select>
                         {(node.data.action === "add_tag" || node.data.action === "assign_agent") && (
                           <input type="text" value={node.data.value || ""}
                             onChange={(e) => updateNode(node.id, { value: e.target.value })}
                             className="bg-dark-800 border border-dark-700 rounded-lg px-2 py-1.5 text-sm text-white focus:outline-none focus:border-brand-500"
-                            placeholder={node.data.action === "add_tag" ? "Etiket" : "Agent email"} />
+                            placeholder={node.data.action === "add_tag" ? t("condition_tag") : "Agent email"} />
                         )}
                       </div>
                     )}
@@ -267,11 +269,11 @@ export default function FlowBuilderPage() {
       ) : (
         <div className="bg-dark-900 border border-dark-800 rounded-xl p-12 text-center">
           <div className="text-4xl mb-3">🔄</div>
-          <p className="text-dark-400">Henüz akis oluşturulmamış</p>
-          <p className="text-dark-600 text-sm mt-1">Görsel akış oluşturucu ile karmasik otomasyonlar kurgulayın</p>
+          <p className="text-dark-400">{t("no_flows")}</p>
+          <p className="text-dark-600 text-sm mt-1">{t("no_flows_desc")}</p>
           <button onClick={createNewFlow}
             className="mt-4 bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-6 py-2 rounded-lg text-sm transition">
-            Ilk Akisi Oluştur
+            {t("create_first_flow")}
           </button>
         </div>
       )}

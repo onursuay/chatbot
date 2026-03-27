@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { api } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
+import { useI18n } from "@/lib/i18n"
 
 interface Contact {
   id: string
@@ -14,6 +15,7 @@ interface Contact {
 
 export default function ContactsPage() {
   const { getToken } = useAuth()
+  const { t } = useI18n()
   const [contacts, setContacts] = useState<Contact[]>([])
   const [search, setSearch] = useState("")
 
@@ -27,17 +29,17 @@ export default function ContactsPage() {
   return (
     <div className="h-screen flex flex-col">
       <div className="p-6 border-b border-dark-800 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-white">Kişiler</h2>
+        <h2 className="text-xl font-semibold text-white">{t("contacts")}</h2>
         <div className="flex gap-3">
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Ara..."
+            placeholder={t("search")}
             className="bg-dark-800 border border-dark-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-dark-500 focus:outline-none focus:border-brand-500"
           />
           <button className="bg-brand-500 hover:bg-brand-600 text-dark-950 text-sm font-semibold px-4 py-2.5 rounded-lg transition">
-            + Kişi Ekle
+            {t("add_contact")}
           </button>
         </div>
       </div>
@@ -46,10 +48,10 @@ export default function ContactsPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-dark-800 text-dark-400 text-xs uppercase">
-              <th className="text-left p-4">İsim</th>
-              <th className="text-left p-4">Telefon</th>
-              <th className="text-left p-4">Etiketler</th>
-              <th className="text-left p-4">Son Mesaj</th>
+              <th className="text-left p-4">{t("contact_name")}</th>
+              <th className="text-left p-4">{t("phone")}</th>
+              <th className="text-left p-4">{t("tags")}</th>
+              <th className="text-left p-4">{t("last_message")}</th>
             </tr>
           </thead>
           <tbody>
@@ -58,8 +60,8 @@ export default function ContactsPage() {
                 <td className="p-4 text-[14px] text-white">{c.name || "—"}</td>
                 <td className="p-4 text-[14px] text-dark-300">{c.phone}</td>
                 <td className="p-4">
-                  {c.tags.map((t) => (
-                    <span key={t} className="bg-brand-500/10 text-brand-400 text-xs px-2 py-0.5 rounded mr-1">{t}</span>
+                  {c.tags.map((tag) => (
+                    <span key={tag} className="bg-brand-500/10 text-brand-400 text-xs px-2 py-0.5 rounded mr-1">{tag}</span>
                   ))}
                 </td>
                 <td className="p-4 text-xs text-dark-500">
@@ -69,7 +71,7 @@ export default function ContactsPage() {
             ))}
             {contacts.length === 0 && (
               <tr>
-                <td colSpan={4} className="p-8 text-center text-dark-600 text-[14px]">Henüz kişi yok</td>
+                <td colSpan={4} className="p-8 text-center text-dark-600 text-[14px]">{t("no_contacts")}</td>
               </tr>
             )}
           </tbody>

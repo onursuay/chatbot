@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { api } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
+import { useI18n } from "@/lib/i18n"
 
 const META_APP_ID = process.env.NEXT_PUBLIC_META_APP_ID || ""
 const META_CONFIG_ID = process.env.NEXT_PUBLIC_META_CONFIG_ID || ""
@@ -26,6 +27,7 @@ declare global {
 
 export default function ChannelsPage() {
   const { getToken } = useAuth()
+  const { t } = useI18n()
   const [channels, setChannels] = useState<ChannelStatus | null>(null)
   const [waStatus, setWaStatus] = useState<WAStatus | null>(null)
   const [loading, setLoading] = useState(true)
@@ -126,7 +128,7 @@ export default function ChannelsPage() {
     {
       id: "whatsapp" as const,
       name: "WhatsApp",
-      desc: "WhatsApp Business API ile mesajlaşma",
+      desc: t("whatsapp_desc"),
       color: "bg-green-500",
       icon: (
         <svg className="w-6 h-6" viewBox="0 0 24 24" fill="white">
@@ -137,7 +139,7 @@ export default function ChannelsPage() {
     {
       id: "instagram" as const,
       name: "Instagram DM",
-      desc: "Instagram Direct mesajlarını yönetin",
+      desc: t("instagram_desc"),
       color: "bg-gradient-to-br from-purple-500 to-pink-500",
       icon: (
         <svg className="w-6 h-6" viewBox="0 0 24 24" fill="white">
@@ -150,7 +152,7 @@ export default function ChannelsPage() {
     {
       id: "facebook" as const,
       name: "Facebook Messenger",
-      desc: "Facebook sayfa mesajlarını yönetin",
+      desc: t("facebook_desc"),
       color: "bg-blue-500",
       icon: (
         <svg className="w-6 h-6" viewBox="0 0 24 24" fill="white">
@@ -160,22 +162,22 @@ export default function ChannelsPage() {
     },
   ]
 
-  if (loading) return <div className="p-6 text-dark-400 text-sm">Yükleniyor...</div>
+  if (loading) return <div className="p-6 text-dark-400 text-sm">{t("loading")}</div>
 
   return (
     <div className="p-6">
-      <h2 className="text-xl font-semibold text-white mb-2">Kanal Yönetimi</h2>
-      <p className="text-dark-400 text-sm mb-6">WhatsApp, Instagram ve Facebook mesajlarını tek yerden yönetin</p>
+      <h2 className="text-xl font-semibold text-white mb-2">{t("channel_management")}</h2>
+      <p className="text-dark-400 text-sm mb-6">{t("channel_management_desc")}</p>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {channelList.map((ch) => {
           const isWhatsApp = ch.id === "whatsapp"
           const waConnected = waStatus?.connected || false
           const igFbConnected = channels?.[ch.id]?.connected || false
-          const connected = isWhatsApp ? waConnected : igFbConnected
+          const isConnected = isWhatsApp ? waConnected : igFbConnected
 
           return (
-            <div key={ch.id} className={`bg-dark-900 border rounded-xl p-6 ${connected ? "border-brand-500/30" : "border-dark-800"}`}>
+            <div key={ch.id} className={`bg-dark-900 border rounded-xl p-6 ${isConnected ? "border-brand-500/30" : "border-dark-800"}`}>
               <div className="flex items-center gap-3 mb-4">
                 <div className={`w-10 h-10 ${ch.color} rounded-lg flex items-center justify-center`}>
                   {ch.icon}
@@ -186,11 +188,11 @@ export default function ChannelsPage() {
                 </div>
               </div>
 
-              {connected ? (
+              {isConnected ? (
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full" />
-                    <span className="text-green-400 text-sm">Bağlı</span>
+                    <span className="text-green-400 text-sm">{t("connected")}</span>
                   </div>
                   {isWhatsApp && waStatus?.waba_name && (
                     <p className="text-xs text-dark-400">{waStatus.waba_name}</p>
@@ -208,7 +210,7 @@ export default function ChannelsPage() {
                   disabled={connecting === ch.id}
                   className="w-full bg-dark-800 hover:bg-dark-700 text-white py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50"
                 >
-                  {connecting === ch.id ? "Bağlanıyor..." : "Bağla"}
+                  {connecting === ch.id ? t("connecting") : t("connect")}
                 </button>
               )}
             </div>
@@ -217,12 +219,12 @@ export default function ChannelsPage() {
       </div>
 
       <div className="mt-8 bg-dark-900 border border-dark-800 rounded-xl p-6">
-        <h3 className="text-white font-medium mb-2">Nasıl Çalışır?</h3>
+        <h3 className="text-white font-medium mb-2">{t("how_it_works")}</h3>
         <ul className="text-sm text-dark-400 space-y-2">
-          <li>1. WhatsApp, Instagram veya Facebook sayfanızı bağlayın</li>
-          <li>2. Gelen mesajlar otomatik olarak Inbox'a düşer</li>
-          <li>3. AI Bot tüm kanallarda aynı şekilde çalışır</li>
-          <li>4. Tek panelden tüm mesajları yönetin</li>
+          <li>{t("channel_step1_v2")}</li>
+          <li>{t("channel_step2_v2")}</li>
+          <li>{t("channel_step3")}</li>
+          <li>{t("channel_step4")}</li>
         </ul>
       </div>
     </div>

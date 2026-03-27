@@ -3,18 +3,12 @@
 import { useEffect, useState } from "react"
 import { api } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
+import { useI18n } from "@/lib/i18n"
 
 interface BillingData {
   plan: string
   stripe_customer_id: string | null
   plans: { id: string; name: string; price: number }[]
-}
-
-const PLAN_FEATURES: Record<string, string[]> = {
-  trial: ["1 kullanici", "100 mesaj/ay", "Temel bot"],
-  starter: ["2 kullanici", "1.000 mesaj/ay", "AI Chatbot", "Broadcast", "Otomasyon"],
-  pro: ["5 kullanici", "Sinirsiz mesaj", "Flow Builder", "Analytics", "Template yönetimi", "Oncelikli destek"],
-  business: ["20 kullanici", "Sinirsiz mesaj", "Instagram + FB DM", "Shopify", "API erisimi", "Ozel entegrasyon", "Dedicated destek"],
 }
 
 // SVG Logolar
@@ -59,6 +53,7 @@ function ParafLogo() {
 
 export default function BillingPage() {
   const { getToken } = useAuth()
+  const { t } = useI18n()
   const [data, setData] = useState<BillingData | null>(null)
   const [loading, setLoading] = useState(true)
   const [subscribing, setSubscribing] = useState<string | null>(null)
@@ -84,7 +79,7 @@ export default function BillingPage() {
       })
       if (url) window.location.href = url
     } catch (err: any) {
-      alert(err.message || "Ödeme sayfasi acilamadi")
+      alert(err.message || t("payment_error"))
     }
     setSubscribing(null)
   }
@@ -101,33 +96,40 @@ export default function BillingPage() {
   }
 
   const planLabel = (p: string) => {
-    const map: Record<string, string> = { trial: "Deneme", starter: "Başlangıç", pro: "Profesyonel", business: "İşletme" }
+    const map: Record<string, string> = { trial: t("plan_trial"), starter: t("plan_starter"), pro: t("plan_pro"), business: t("plan_business") }
     return map[p] || p
   }
 
-  if (loading) return <div className="p-6 text-dark-400 text-sm">Yükleniyor...</div>
+  const PLAN_FEATURES: Record<string, string[]> = {
+    trial: [t("feat_1_user"), t("feat_100_msg"), t("feat_basic_bot")],
+    starter: [t("feat_2_users"), t("feat_1000_msg"), "AI Chatbot", "Broadcast", t("automation_cat")],
+    pro: [t("feat_5_users"), t("feat_unlimited_msg"), "Flow Builder", "Analytics", t("templates"), t("feat_priority_support")],
+    business: [t("feat_20_users"), t("feat_unlimited_msg"), t("feat_ig_fb_dm"), "Shopify", t("feat_api_access"), t("feat_custom_integration"), t("feat_dedicated_support")],
+  }
+
+  if (loading) return <div className="p-6 text-dark-400 text-sm">{t("loading")}</div>
 
   return (
     <div className="p-6">
-      <h2 className="text-xl font-semibold text-white mb-2">Abonelik ve Faturalama</h2>
+      <h2 className="text-xl font-semibold text-white mb-2">{t("billing")}</h2>
       <p className="text-dark-400 text-sm mb-8">
-        Mevcut plan: <span className="text-brand-400 font-medium">{planLabel(data?.plan || "trial")}</span>
+        {t("current_plan")}: <span className="text-brand-400 font-medium">{planLabel(data?.plan || "trial")}</span>
         {data?.stripe_customer_id && (
           <button onClick={handlePortal} className="text-brand-400 hover:text-brand-300 ml-4 underline text-sm">
-            Fatura yönetimi
+            {t("invoice_management")}
           </button>
         )}
       </p>
 
       {/* Ödeme Yöntemi Seçimi */}
       <div className="bg-dark-900 border border-dark-800 rounded-xl p-6 mb-8">
-        <h3 className="text-white font-medium mb-4">Ödeme Yöntemi</h3>
+        <h3 className="text-white font-medium mb-4">{t("payment_method")}</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { id: "stripe" as const, label: "Stripe", desc: "Uluslararasi kredi kartı", logo: <StripeLogo /> },
-            { id: "iyzico" as const, label: "iyzico", desc: "Türkiye kredi kartı & banka", logo: <IyzicoLogo /> },
-            { id: "paytr" as const, label: "PayTR", desc: "Türkiye kredi kartı & havale", logo: <PayTRLogo /> },
-            { id: "param" as const, label: "Param", desc: "Türkiye dijital ödeme", logo: <ParafLogo /> },
+            { id: "stripe" as const, label: "Stripe", desc: t("intl_credit_card"), logo: <StripeLogo /> },
+            { id: "iyzico" as const, label: "iyzico", desc: t("tr_credit_card_bank"), logo: <IyzicoLogo /> },
+            { id: "paytr" as const, label: "PayTR", desc: t("tr_credit_card_transfer"), logo: <PayTRLogo /> },
+            { id: "param" as const, label: "Param", desc: t("tr_digital_payment"), logo: <ParafLogo /> },
           ].map((pm) => (
             <button
               key={pm.id}
@@ -147,16 +149,16 @@ export default function BillingPage() {
           <svg className="w-4 h-4 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
-          <span>256-bit SSL ile güvenli ödeme. Kart bilgileriniz sunucularımızda saklanmaz.</span>
+          <span>{t("ssl_secure")}</span>
         </div>
       </div>
 
       {/* Plan kartları */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { id: "starter", name: "Başlangıç", price: "$29", priceTL: "999 TL", popular: false },
-          { id: "pro", name: "Profesyonel", price: "$79", priceTL: "2.999 TL", popular: true },
-          { id: "business", name: "İşletme", price: "$199", priceTL: "6.999 TL", popular: false },
+          { id: "starter", name: t("plan_starter"), price: "$29", priceTL: "999 TL", popular: false },
+          { id: "pro", name: t("plan_pro"), price: "$79", priceTL: "2.999 TL", popular: true },
+          { id: "business", name: t("plan_business"), price: "$199", priceTL: "6.999 TL", popular: false },
         ].map((plan) => {
           const isActive = data?.plan === plan.id
           const features = PLAN_FEATURES[plan.id] || []
@@ -166,7 +168,7 @@ export default function BillingPage() {
             }`}>
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-500 text-dark-950 text-xs font-bold px-3 py-1 rounded-full">
-                  En Popüler
+                  {t("most_popular")}
                 </div>
               )}
               <h3 className="text-white font-semibold text-lg">{plan.name}</h3>
@@ -187,7 +189,7 @@ export default function BillingPage() {
               </ul>
               {isActive ? (
                 <button disabled className="w-full bg-dark-800 text-dark-400 font-semibold py-2.5 rounded-lg text-sm">
-                  Mevcut Plan
+                  {t("current_plan_btn")}
                 </button>
               ) : (
                 <button
@@ -199,7 +201,7 @@ export default function BillingPage() {
                       : "bg-dark-800 hover:bg-dark-700 text-white"
                   }`}
                 >
-                  {subscribing === plan.id ? "Yönlendiriliyor..." : "Planı Seç"}
+                  {subscribing === plan.id ? t("redirecting") : t("select_plan")}
                 </button>
               )}
             </div>
@@ -209,7 +211,7 @@ export default function BillingPage() {
 
       {/* Desteklenen ödeme yöntemleri */}
       <div className="mt-8 bg-dark-900 border border-dark-800 rounded-xl p-6">
-        <h3 className="text-white font-medium mb-4">Desteklenen Ödeme Yöntemleri</h3>
+        <h3 className="text-white font-medium mb-4">{t("supported_methods")}</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {/* Stripe */}
           <div className="flex flex-col items-center gap-2">
@@ -231,7 +233,7 @@ export default function BillingPage() {
             </div>
             <div className="text-center">
               <p className="text-xs text-white font-medium">iyzico</p>
-              <p className="text-[10px] text-dark-500">Kredi kartı, BKM Express</p>
+              <p className="text-[10px] text-dark-500">{t("credit_card_bkm")}</p>
             </div>
           </div>
 
@@ -242,7 +244,7 @@ export default function BillingPage() {
             </div>
             <div className="text-center">
               <p className="text-xs text-white font-medium">PayTR</p>
-              <p className="text-[10px] text-dark-500">Kredi kartı, Havale/EFT</p>
+              <p className="text-[10px] text-dark-500">{t("credit_card_transfer")}</p>
             </div>
           </div>
 
@@ -253,7 +255,7 @@ export default function BillingPage() {
             </div>
             <div className="text-center">
               <p className="text-xs text-white font-medium">Param</p>
-              <p className="text-[10px] text-dark-500">Dijital cüzdan, QR ödeme</p>
+              <p className="text-[10px] text-dark-500">{t("digital_wallet_qr")}</p>
             </div>
           </div>
         </div>
@@ -292,10 +294,9 @@ export default function BillingPage() {
 
       {/* Ücretsiz plan */}
       <div className="mt-6 bg-dark-900 border border-dark-800 rounded-xl p-6">
-        <h3 className="text-white font-medium mb-2">Ücretsiz Deneme</h3>
+        <h3 className="text-white font-medium mb-2">{t("free_trial_title")}</h3>
         <p className="text-dark-400 text-sm">
-          Tum yeni hesaplar 7 gun ücretsiz deneme ile baslar. Deneme suresi dolmadan plan secerseniz
-          kesintisiz devam edersiniz. Kredi kartı olmadan baslayabilirsiniz.
+          {t("free_trial_desc")}
         </p>
       </div>
     </div>

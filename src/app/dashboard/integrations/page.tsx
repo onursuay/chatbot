@@ -3,116 +3,46 @@
 import { useState } from "react"
 import { useAuth } from "@/lib/auth"
 import { supabase } from "@/lib/supabase"
+import { useI18n } from "@/lib/i18n"
 
 interface Integration {
   id: string
   name: string
-  description: string
+  descKey: string
   icon: string
-  category: string
+  categoryKey: string
   connected: boolean
   config?: Record<string, string>
 }
 
-const INTEGRATIONS: Omit<Integration, "connected">[] = [
-  {
-    id: "shopify",
-    name: "Shopify",
-    description: "Sipariş bildirimleri, sepet hatırlatma, kargo takibi",
-    icon: "🛍",
-    category: "E-Ticaret",
-  },
-  {
-    id: "woocommerce",
-    name: "WooCommerce",
-    description: "WordPress e-ticaret entegrasyonu",
-    icon: "🛒",
-    category: "E-Ticaret",
-  },
-  {
-    id: "stripe",
-    name: "Stripe",
-    description: "Ödeme bildirimleri ve fatura takibi",
-    icon: "💳",
-    category: "Ödeme",
-  },
-  {
-    id: "iyzico",
-    name: "Iyzico",
-    description: "Türkiye ödeme altyapisi entegrasyonu",
-    icon: "🏦",
-    category: "Ödeme",
-  },
-  {
-    id: "hubspot",
-    name: "HubSpot",
-    description: "CRM senkronizasyonu ve lead yönetimi",
-    icon: "🔶",
-    category: "CRM",
-  },
-  {
-    id: "salesforce",
-    name: "Salesforce",
-    description: "Kurumsal CRM entegrasyonu",
-    icon: "☁️",
-    category: "CRM",
-  },
-  {
-    id: "zapier",
-    name: "Zapier",
-    description: "5000+ uygulama ile otomasyon",
-    icon: "⚡",
-    category: "Otomasyon",
-  },
-  {
-    id: "make",
-    name: "Make (Integromat)",
-    description: "Gelişmiş otomasyon akışları",
-    icon: "🔄",
-    category: "Otomasyon",
-  },
-  {
-    id: "google_sheets",
-    name: "Google Sheets",
-    description: "Kişi ve mesaj verilerini tabloya aktar",
-    icon: "📊",
-    category: "Verimlilik",
-  },
-  {
-    id: "google_calendar",
-    name: "Google Calendar",
-    description: "Randevu oluşturma ve hatirlatma",
-    icon: "📅",
-    category: "Verimlilik",
-  },
-  {
-    id: "ctwa_ads",
-    name: "Click-to-WhatsApp Ads",
-    description: "Facebook/Instagram reklamlarından direkt WhatsApp'a lead düşürme",
-    icon: "📢",
-    category: "Pazarlama",
-  },
-  {
-    id: "webhook",
-    name: "Custom Webhook",
-    description: "Ozel webhook URL ile herhangi bir servise bağlanın",
-    icon: "🔗",
-    category: "Gelistirici",
-  },
-]
-
 export default function IntegrationsPage() {
   const { user } = useAuth()
+  const { t } = useI18n()
   const [search, setSearch] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [configuring, setConfiguring] = useState<string | null>(null)
   const [shopifyUrl, setShopifyUrl] = useState("")
 
-  const categories = Array.from(new Set(INTEGRATIONS.map((i) => i.category)))
+  const INTEGRATIONS = [
+    { id: "shopify", name: "Shopify", descKey: "shopify_desc", icon: "🛍", categoryKey: "e_commerce" },
+    { id: "woocommerce", name: "WooCommerce", descKey: "woocommerce_desc", icon: "🛒", categoryKey: "e_commerce" },
+    { id: "stripe", name: "Stripe", descKey: "stripe_desc", icon: "💳", categoryKey: "payment" },
+    { id: "iyzico", name: "Iyzico", descKey: "iyzico_desc", icon: "🏦", categoryKey: "payment" },
+    { id: "hubspot", name: "HubSpot", descKey: "hubspot_desc", icon: "🔶", categoryKey: "crm" },
+    { id: "salesforce", name: "Salesforce", descKey: "salesforce_desc", icon: "☁️", categoryKey: "crm" },
+    { id: "zapier", name: "Zapier", descKey: "zapier_desc", icon: "⚡", categoryKey: "automation_cat" },
+    { id: "make", name: "Make (Integromat)", descKey: "make_desc", icon: "🔄", categoryKey: "automation_cat" },
+    { id: "google_sheets", name: "Google Sheets", descKey: "gsheets_desc", icon: "📊", categoryKey: "productivity" },
+    { id: "google_calendar", name: "Google Calendar", descKey: "gcalendar_desc", icon: "📅", categoryKey: "productivity" },
+    { id: "ctwa_ads", name: "Click-to-WhatsApp Ads", descKey: "ctwa_desc", icon: "📢", categoryKey: "marketing" },
+    { id: "webhook", name: "Custom Webhook", descKey: "webhook_desc", icon: "🔗", categoryKey: "developer" },
+  ]
+
+  const categoryKeys = Array.from(new Set(INTEGRATIONS.map((i) => i.categoryKey)))
 
   const filtered = INTEGRATIONS.filter((i) => {
     if (search && !i.name.toLowerCase().includes(search.toLowerCase())) return false
-    if (selectedCategory && i.category !== selectedCategory) return false
+    if (selectedCategory && i.categoryKey !== selectedCategory) return false
     return true
   })
 
@@ -133,7 +63,7 @@ export default function IntegrationsPage() {
       window.open("https://make.com", "_blank")
       return
     }
-    alert(`${integrationId} entegrasyonu yaklaşımda!`)
+    alert(`${integrationId} ${t("coming_soon")}`)
   }
 
   const saveShopifyConfig = async () => {
@@ -152,28 +82,28 @@ export default function IntegrationsPage() {
       .eq("id", user.org_id)
 
     setConfiguring(null)
-    alert("Shopify bağlandı!")
+    alert(t("shopify_connected"))
   }
 
   return (
     <div className="p-6">
-      <h2 className="text-xl font-semibold text-white mb-2">Entegrasyonlar</h2>
-      <p className="text-dark-400 text-sm mb-6">E-ticaret, CRM, otomasyon ve daha fazlasini bağlayın</p>
+      <h2 className="text-xl font-semibold text-white mb-2">{t("integrations")}</h2>
+      <p className="text-dark-400 text-sm mb-6">{t("integrations_desc")}</p>
 
       {/* Filtreler */}
       <div className="flex items-center gap-3 mb-6">
         <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
-          placeholder="Entegrasyon ara..."
+          placeholder={t("search_integration")}
           className="bg-dark-800 border border-dark-700 rounded-lg px-4 py-2 text-sm text-white placeholder-dark-500 focus:outline-none focus:border-brand-500 w-64" />
         <div className="flex gap-2">
           <button onClick={() => setSelectedCategory(null)}
             className={`text-xs px-3 py-1.5 rounded-lg transition ${!selectedCategory ? "bg-brand-500/10 text-brand-400" : "bg-dark-800 text-dark-400 hover:text-white"}`}>
-            Tumu
+            {t("all")}
           </button>
-          {categories.map((c) => (
+          {categoryKeys.map((c) => (
             <button key={c} onClick={() => setSelectedCategory(c)}
               className={`text-xs px-3 py-1.5 rounded-lg transition ${selectedCategory === c ? "bg-brand-500/10 text-brand-400" : "bg-dark-800 text-dark-400 hover:text-white"}`}>
-              {c}
+              {t(c)}
             </button>
           ))}
         </div>
@@ -182,19 +112,19 @@ export default function IntegrationsPage() {
       {/* Shopify config modal */}
       {configuring === "shopify" && (
         <div className="bg-dark-900 border border-brand-500/30 rounded-xl p-6 mb-6">
-          <h3 className="text-white font-medium mb-3">Shopify Entegrasyonu</h3>
-          <p className="text-sm text-dark-400 mb-4">Magazanizin URL'sini girin. Sepet hatirlatma ve siparis bildirimleri otomatik aktif olacak.</p>
+          <h3 className="text-white font-medium mb-3">{t("shopify_setup")}</h3>
+          <p className="text-sm text-dark-400 mb-4">{t("shopify_setup_desc")}</p>
           <div className="flex gap-2">
             <input type="text" value={shopifyUrl} onChange={(e) => setShopifyUrl(e.target.value)}
               className="flex-1 bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
               placeholder="magazam.myshopify.com" />
             <button onClick={saveShopifyConfig}
               className="bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-4 py-2 rounded-lg text-sm transition">
-              Bağla
+              {t("connect")}
             </button>
             <button onClick={() => setConfiguring(null)}
               className="bg-dark-800 text-dark-300 hover:text-white px-4 py-2 rounded-lg text-sm transition">
-              İptal
+              {t("cancel")}
             </button>
           </div>
         </div>
@@ -208,13 +138,13 @@ export default function IntegrationsPage() {
               <span className="text-2xl">{integration.icon}</span>
               <div>
                 <h3 className="text-white font-medium text-sm">{integration.name}</h3>
-                <span className="text-[10px] text-dark-500">{integration.category}</span>
+                <span className="text-[10px] text-dark-500">{t(integration.categoryKey)}</span>
               </div>
             </div>
-            <p className="text-xs text-dark-400 flex-1 mb-4">{integration.description}</p>
+            <p className="text-xs text-dark-400 flex-1 mb-4">{t(integration.descKey)}</p>
             <button onClick={() => handleConnect(integration.id)}
               className="w-full bg-dark-800 hover:bg-dark-700 text-white py-2 rounded-lg text-sm font-medium transition">
-              Bağla
+              {t("connect")}
             </button>
           </div>
         ))}

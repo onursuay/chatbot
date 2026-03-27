@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { api } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
+import { useI18n } from "@/lib/i18n"
 
 interface Template {
   id?: string
@@ -15,6 +16,7 @@ interface Template {
 
 export default function TemplatesPage() {
   const { getToken } = useAuth()
+  const { t } = useI18n()
   const [templates, setTemplates] = useState<Template[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreate, setShowCreate] = useState(false)
@@ -31,7 +33,7 @@ export default function TemplatesPage() {
   }, [getToken])
 
   const handleCreate = async () => {
-    if (!form.name || !form.text) return alert("Şablon adi ve metin zorunlu")
+    if (!form.name || !form.text) return alert(t("template_name") + " & " + t("message_text"))
     const token = getToken()
     if (!token) return
     setCreating(true)
@@ -40,13 +42,12 @@ export default function TemplatesPage() {
         method: "POST", token,
         body: JSON.stringify(form),
       })
-      // Listeyi yenile
       const updated = await api<Template[]>("/templates", { token })
       setTemplates(updated)
       setShowCreate(false)
       setForm({ name: "", text: "", category: "MARKETING", language: "tr" })
     } catch (err: any) {
-      alert(err.message || "Şablon oluşturulamadı")
+      alert(err.message || t("failed"))
     }
     setCreating(false)
   }
@@ -62,79 +63,79 @@ export default function TemplatesPage() {
   }
 
   const categoryLabel = (c: string) => {
-    const map: Record<string, string> = { MARKETING: "Pazarlama", UTILITY: "Bildirim", AUTHENTICATION: "Doğrulama" }
+    const map: Record<string, string> = { MARKETING: t("marketing"), UTILITY: t("utility"), AUTHENTICATION: t("authentication") }
     return map[c] || c
   }
 
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-white">Mesaj Şablonlari</h2>
+        <h2 className="text-xl font-semibold text-white">{t("templates")}</h2>
         <button onClick={() => setShowCreate(!showCreate)}
           className="bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-4 py-2 rounded-lg text-sm transition">
-          + Yeni Şablon
+          {t("new_template")}
         </button>
       </div>
 
       {showCreate && (
         <div className="bg-dark-900 border border-dark-800 rounded-xl p-6 mb-6">
-          <h3 className="text-white font-medium mb-4">Yeni Şablon Oluştur</h3>
+          <h3 className="text-white font-medium mb-4">{t("new_template_form")}</h3>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm text-dark-400 mb-1">Şablon Adi (küçük harf, alt çizgi)</label>
+              <label className="block text-sm text-dark-400 mb-1">{t("template_name")}</label>
               <input type="text" value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "") })}
                 className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
-                placeholder="ornek: hosgeldin_mesaji" />
+                placeholder={t("example_template")} />
             </div>
             <div>
-              <label className="block text-sm text-dark-400 mb-1">Kategori</label>
+              <label className="block text-sm text-dark-400 mb-1">{t("category")}</label>
               <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}
                 className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
-                <option value="MARKETING">Pazarlama</option>
-                <option value="UTILITY">Bildirim</option>
-                <option value="AUTHENTICATION">Doğrulama</option>
+                <option value="MARKETING">{t("marketing")}</option>
+                <option value="UTILITY">{t("utility")}</option>
+                <option value="AUTHENTICATION">{t("authentication")}</option>
               </select>
             </div>
           </div>
           <div className="mb-4">
-            <label className="block text-sm text-dark-400 mb-1">Mesaj Metni</label>
+            <label className="block text-sm text-dark-400 mb-1">{t("message_text")}</label>
             <textarea value={form.text} onChange={(e) => setForm({ ...form, text: e.target.value })}
               className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500 h-24 resize-none"
-              placeholder="Merhaba {{1}}, size ozel kampanyamiz var!" />
-            <p className="text-xs text-dark-600 mt-1">Değişkenler için {"{{1}}"}, {"{{2}}"} kullanin</p>
+              placeholder={t("msg_body_placeholder")} />
+            <p className="text-xs text-dark-600 mt-1">{t("variables_hint")}</p>
           </div>
           <div className="flex gap-2">
             <button onClick={handleCreate} disabled={creating}
               className="bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-6 py-2 rounded-lg text-sm transition disabled:opacity-50">
-              {creating ? "Gönderiliyor..." : "Meta'ya Gönder"}
+              {creating ? t("sending") : t("send_to_meta")}
             </button>
             <button onClick={() => setShowCreate(false)}
-              className="bg-dark-800 text-dark-300 hover:text-white px-4 py-2 rounded-lg text-sm transition">İptal</button>
+              className="bg-dark-800 text-dark-300 hover:text-white px-4 py-2 rounded-lg text-sm transition">{t("cancel")}</button>
           </div>
         </div>
       )}
 
-      {loading ? <p className="text-dark-400 text-sm">Yükleniyor...</p> : templates.length === 0 ? (
+      {loading ? <p className="text-dark-400 text-sm">{t("loading")}</p> : templates.length === 0 ? (
         <div className="bg-dark-900 border border-dark-800 rounded-xl p-12 text-center">
-          <p className="text-dark-400">Henüz şablon yok</p>
-          <p className="text-dark-600 text-sm mt-1">Broadcast gonderimi için onaylanmis şablon gereklidir</p>
+          <p className="text-dark-400">{t("no_templates")}</p>
+          <p className="text-dark-600 text-sm mt-1">{t("no_templates_desc")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {templates.map((t, i) => (
-            <div key={t.name + i} className="bg-dark-900 border border-dark-800 rounded-xl p-5">
+          {templates.map((tpl, i) => (
+            <div key={tpl.name + i} className="bg-dark-900 border border-dark-800 rounded-xl p-5">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-white font-medium text-sm">{t.name}</h3>
-                <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${statusColor(t.status)}`}>{t.status}</span>
+                <h3 className="text-white font-medium text-sm">{tpl.name}</h3>
+                <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${statusColor(tpl.status)}`}>{tpl.status}</span>
               </div>
               <div className="flex gap-2 text-xs text-dark-500">
-                <span>{categoryLabel(t.category)}</span>
-                <span>{t.language}</span>
+                <span>{categoryLabel(tpl.category)}</span>
+                <span>{tpl.language}</span>
               </div>
-              {t.components && t.components.length > 0 && (
+              {tpl.components && tpl.components.length > 0 && (
                 <p className="text-xs text-dark-400 mt-2 line-clamp-2">
-                  {t.components.find((c: any) => c.type === "BODY")?.text || ""}
+                  {tpl.components.find((c: any) => c.type === "BODY")?.text || ""}
                 </p>
               )}
             </div>
