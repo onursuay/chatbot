@@ -40,13 +40,13 @@ export default function AnalyticsPage() {
 
   const stats = o ? [
     { label: t("total_messages"), value: o.total_messages, accent: "text-ink", iconBg: "bg-surface-100", icon: "msg" },
-    { label: t("inbound_messages"), value: o.inbound_messages, accent: "text-blue-600", iconBg: "bg-blue-50", icon: "in" },
+    { label: t("inbound_messages"), value: o.inbound_messages, accent: "text-blue-400", iconBg: "bg-blue-500/10", icon: "in" },
     { label: t("outbound_messages"), value: o.outbound_messages, accent: "text-primary", iconBg: "bg-primary/8", icon: "out" },
-    { label: t("active_conversations"), value: o.open_conversations, accent: "text-amber-600", iconBg: "bg-amber-50", icon: "active" },
-    { label: t("resolved_conversations"), value: o.resolved_conversations, accent: "text-emerald-600", iconBg: "bg-emerald-50", icon: "resolved" },
-    { label: t("total_contacts"), value: o.total_contacts, accent: "text-violet-600", iconBg: "bg-violet-50", icon: "contacts" },
+    { label: t("active_conversations"), value: o.open_conversations, accent: "text-amber-400", iconBg: "bg-amber-500/10", icon: "active" },
+    { label: t("resolved_conversations"), value: o.resolved_conversations, accent: "text-emerald-400", iconBg: "bg-emerald-500/10", icon: "resolved" },
+    { label: t("total_contacts"), value: o.total_contacts, accent: "text-violet-400", iconBg: "bg-violet-500/10", icon: "contacts" },
     { label: t("bot_messages"), value: o.bot_messages, accent: "text-primary", iconBg: "bg-primary/8", icon: "bot" },
-    { label: t("agent_messages"), value: o.agent_messages, accent: "text-orange-600", iconBg: "bg-orange-50", icon: "agent" },
+    { label: t("agent_messages"), value: o.agent_messages, accent: "text-orange-400", iconBg: "bg-orange-500/10", icon: "agent" },
   ] : []
 
   const botRate = o && o.outbound_messages > 0
@@ -156,7 +156,7 @@ export default function AnalyticsPage() {
                           className="w-full max-w-[44px] bg-primary/8 rounded-t-lg relative group transition-all duration-200 hover:bg-primary/12"
                           style={{ height: `${Math.max(height, 4)}%` }}
                         >
-                          <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] px-2 py-1 rounded-badge opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                          <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-surface-200 text-ink text-[10px] px-2 py-1 rounded-badge opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-surface-300">
                             {day.inbound + day.outbound} {t("messages_count")}
                           </div>
                           <div

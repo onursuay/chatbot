@@ -140,11 +140,11 @@ export default function FlowBuilderPage() {
 
           {/* Node palette */}
           <div className="ds-card p-4">
-            <p className="text-caption text-surface-500 mb-3">{t("add_node")}</p>
+            <p className="text-caption text-ink-secondary mb-3">{t("add_node")}</p>
             <div className="flex gap-2 flex-wrap">
               {NODE_TYPES.filter((nt) => nt.type !== "trigger").map((nt) => (
                 <button key={nt.type} onClick={() => addNode(nt.type)}
-                  className="flex items-center gap-2 bg-surface-100 hover:bg-surface-200 text-ink px-3 py-2 rounded-btn text-caption transition">
+                  className="flex items-center gap-2 bg-surface-200 hover:bg-surface-300 text-ink px-3 py-2 rounded-btn text-caption transition">
                   <span>{nt.icon}</span>
                   <span>{nt.label}</span>
                 </button>
@@ -160,7 +160,7 @@ export default function FlowBuilderPage() {
                 <div key={node.id}>
                   {i > 0 && (
                     <div className="flex justify-center py-1">
-                      <div className="w-0.5 h-6 bg-surface-200" />
+                      <div className="w-0.5 h-6 bg-surface-300" />
                     </div>
                   )}
                   <div className="ds-card p-4">
@@ -173,7 +173,7 @@ export default function FlowBuilderPage() {
                       </div>
                       {node.type !== "trigger" && (
                         <button onClick={() => removeNode(node.id)}
-                          className="text-surface-400 hover:text-red-400 text-caption transition">{t("delete")}</button>
+                          className="ds-btn-ghost ds-btn-sm text-ink-tertiary hover:text-red-400 transition">{t("delete")}</button>
                       )}
                     </div>
 
@@ -181,10 +181,10 @@ export default function FlowBuilderPage() {
                     {node.type === "trigger" && (
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-micro text-surface-400 mb-1">{t("trigger_type")}</label>
+                          <label className="ds-form-label">{t("trigger_type")}</label>
                           <select value={node.data.trigger_type || "keyword"}
                             onChange={(e) => updateNode(node.id, { trigger_type: e.target.value })}
-                            className="ds-input">
+                            className="ds-select">
                             <option value="keyword">{t("keyword")}</option>
                             <option value="first_message">{t("first_message")}</option>
                             <option value="business_hours">{t("business_hours")}</option>
@@ -192,7 +192,7 @@ export default function FlowBuilderPage() {
                         </div>
                         {node.data.trigger_type === "keyword" && (
                           <div>
-                            <label className="block text-micro text-surface-400 mb-1">{t("keywords_label")}</label>
+                            <label className="ds-form-label">{t("keywords_label")}</label>
                             <input type="text" value={node.data.keywords_text || ""}
                               onChange={(e) => updateNode(node.id, { keywords_text: e.target.value, keywords: e.target.value.split(",").map((k: string) => k.trim()) })}
                               className="ds-input"
@@ -213,14 +213,14 @@ export default function FlowBuilderPage() {
                       <div className="grid grid-cols-3 gap-2">
                         <select value={node.data.field || "message"}
                           onChange={(e) => updateNode(node.id, { field: e.target.value })}
-                          className="ds-input">
+                          className="ds-select">
                           <option value="message">{t("condition_message")}</option>
                           <option value="contact_name">{t("condition_contact_name")}</option>
                           <option value="tag">{t("condition_tag")}</option>
                         </select>
                         <select value={node.data.operator || "contains"}
                           onChange={(e) => updateNode(node.id, { operator: e.target.value })}
-                          className="ds-input">
+                          className="ds-select">
                           <option value="contains">{t("contains")}</option>
                           <option value="equals">{t("equals")}</option>
                           <option value="starts_with">{t("starts_with")}</option>
@@ -237,7 +237,7 @@ export default function FlowBuilderPage() {
                         <input type="number" value={node.data.minutes || 5}
                           onChange={(e) => updateNode(node.id, { minutes: parseInt(e.target.value) })}
                           className="ds-input w-20" />
-                        <span className="text-caption text-surface-500">{t("minutes_wait")}</span>
+                        <span className="text-caption text-ink-secondary">{t("minutes_wait")}</span>
                       </div>
                     )}
 
@@ -245,7 +245,7 @@ export default function FlowBuilderPage() {
                       <div className="grid grid-cols-2 gap-2">
                         <select value={node.data.action || "add_tag"}
                           onChange={(e) => updateNode(node.id, { action: e.target.value })}
-                          className="ds-input">
+                          className="ds-select">
                           <option value="add_tag">{t("add_tag_action")}</option>
                           <option value="assign_agent">{t("assign_agent_action")}</option>
                           <option value="close_conversation">{t("close_conversation")}</option>

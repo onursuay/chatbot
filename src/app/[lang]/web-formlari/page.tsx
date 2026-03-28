@@ -88,27 +88,31 @@ export default function WebFormlariPage() {
 
       {/* Create Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setShowForm(false)}>
-          <div className="ds-card p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-            <h3 className="ds-section-title text-lg mb-4">{t("create_form")}</h3>
+        <div className="ds-modal-overlay" onClick={() => setShowForm(false)}>
+          <div className="ds-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="ds-modal-title">{t("create_form")}</h3>
             {formError && <p className="text-red-400 text-caption mb-3">{formError}</p>}
             <div className="space-y-3">
-              <input
-                type="text"
-                value={formName}
-                onChange={(e) => setFormName(e.target.value)}
-                placeholder={t("form_name")}
-                className="ds-input"
-              />
-              <input
-                type="text"
-                value={formSlug}
-                onChange={(e) => setFormSlug(e.target.value)}
-                placeholder={t("slug")}
-                className="ds-input"
-              />
+              <div className="ds-form-group">
+                <input
+                  type="text"
+                  value={formName}
+                  onChange={(e) => setFormName(e.target.value)}
+                  placeholder={t("form_name")}
+                  className="ds-input"
+                />
+              </div>
+              <div className="ds-form-group">
+                <input
+                  type="text"
+                  value={formSlug}
+                  onChange={(e) => setFormSlug(e.target.value)}
+                  placeholder={t("slug")}
+                  className="ds-input"
+                />
+              </div>
             </div>
-            <div className="flex justify-end gap-3 mt-4">
+            <div className="ds-modal-actions">
               <button
                 onClick={() => setShowForm(false)}
                 className="ds-btn-ghost"

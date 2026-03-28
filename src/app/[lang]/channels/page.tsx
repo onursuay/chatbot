@@ -213,7 +213,7 @@ export default function ChannelsPage() {
     },
   ]
 
-  if (loading) return <div className="p-7 text-surface-500 text-caption">{t("loading")}</div>
+  if (loading) return <div className="p-7 text-ink-tertiary text-caption">{t("loading")}</div>
 
   return (
     <div className="p-7">
@@ -240,7 +240,7 @@ export default function ChannelsPage() {
                   </div>
                   <div>
                     <h3 className="text-body-medium font-medium">{ch.name}</h3>
-                    <p className="text-micro text-surface-400">{ch.desc}</p>
+                    <p className="text-micro text-ink-tertiary">{ch.desc}</p>
                   </div>
                 </div>
                 {/* Toggle */}
@@ -255,8 +255,8 @@ export default function ChannelsPage() {
                   </button>
                 )}
                 {!isConnected && (
-                  <div className="w-11 h-6 bg-surface-200 rounded-full relative shrink-0">
-                    <div className="w-5 h-5 bg-surface-300 rounded-full absolute top-0.5 left-0.5" />
+                  <div className="w-11 h-6 bg-surface-300 rounded-full relative shrink-0">
+                    <div className="w-5 h-5 bg-surface-400 rounded-full absolute top-0.5 left-0.5" />
                   </div>
                 )}
               </div>
@@ -268,10 +268,10 @@ export default function ChannelsPage() {
                     <span className="text-green-400 text-caption font-medium">{t("connected")}</span>
                   </div>
                   {isWhatsApp && waStatus?.waba_name && (
-                    <p className="text-caption text-surface-500">{waStatus.waba_name}</p>
+                    <p className="text-caption text-ink-secondary">{waStatus.waba_name}</p>
                   )}
                   {!isWhatsApp && (channels?.[ch.id] as any)?.page_name && (
-                    <p className="text-caption text-surface-500">{(channels?.[ch.id] as any).page_name}</p>
+                    <p className="text-caption text-ink-secondary">{(channels?.[ch.id] as any).page_name}</p>
                   )}
                 </div>
               ) : (
@@ -290,7 +290,7 @@ export default function ChannelsPage() {
 
       <div className="mt-8 ds-card p-6">
         <h3 className="ds-section-title mb-2">{t("how_it_works")}</h3>
-        <ul className="text-caption text-surface-500 space-y-2">
+        <ul className="text-caption text-ink-secondary space-y-2">
           <li>{t("channel_step1_v2")}</li>
           <li>{t("channel_step2_v2")}</li>
           <li>{t("channel_step3")}</li>

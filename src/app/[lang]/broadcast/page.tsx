@@ -91,7 +91,7 @@ export default function BroadcastPage() {
             <div>
               <label className="block text-caption-medium text-surface-500 mb-1">{t("message_template")}</label>
               <select value={form.template_name} onChange={(e) => setForm({ ...form, template_name: e.target.value })}
-                className="ds-input">
+                className="ds-select">
                 <option value="">{t("select_template")}</option>
                 {templates.map((tpl) => (
                   <option key={tpl.name} value={tpl.name}>{tpl.name} ({tpl.category})</option>
@@ -101,7 +101,7 @@ export default function BroadcastPage() {
             <div>
               <label className="block text-caption-medium text-surface-500 mb-1">{t("language")}</label>
               <select value={form.language} onChange={(e) => setForm({ ...form, language: e.target.value })}
-                className="ds-input">
+                className="ds-select">
                 <option value="tr">{t("turkish")}</option>
                 <option value="en_US">English</option>
               </select>

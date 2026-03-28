@@ -101,12 +101,12 @@ export default function IntegrationsPage() {
           className="ds-input w-64" />
         <div className="flex gap-2">
           <button onClick={() => setSelectedCategory(null)}
-            className={`text-micro px-3 py-1.5 rounded-badge transition ${!selectedCategory ? "ds-badge-primary" : "bg-surface-100 text-surface-500 hover:text-ink"}`}>
+            className={`text-micro px-3 py-1.5 rounded-badge transition ${!selectedCategory ? "ds-chip-active" : "ds-chip"}`}>
             {t("all")}
           </button>
           {categoryKeys.map((c) => (
             <button key={c} onClick={() => setSelectedCategory(c)}
-              className={`text-micro px-3 py-1.5 rounded-badge transition ${selectedCategory === c ? "ds-badge-primary" : "bg-surface-100 text-surface-500 hover:text-ink"}`}>
+              className={`text-micro px-3 py-1.5 rounded-badge transition ${selectedCategory === c ? "ds-chip-active" : "ds-chip"}`}>
               {t(c)}
             </button>
           ))}
@@ -117,7 +117,7 @@ export default function IntegrationsPage() {
       {configuring === "shopify" && (
         <div className="ds-card border-primary/30 p-6 mb-6">
           <h3 className="ds-section-title mb-3">{t("shopify_setup")}</h3>
-          <p className="text-caption text-surface-500 mb-4">{t("shopify_setup_desc")}</p>
+          <p className="text-caption text-ink-secondary mb-4">{t("shopify_setup_desc")}</p>
           <div className="flex gap-2">
             <input type="text" value={shopifyUrl} onChange={(e) => setShopifyUrl(e.target.value)}
               className="ds-input flex-1"
@@ -142,10 +142,10 @@ export default function IntegrationsPage() {
               <span className="text-2xl">{integration.icon}</span>
               <div>
                 <h3 className="text-body-medium font-medium">{integration.name}</h3>
-                <span className="text-micro text-surface-400">{t(integration.categoryKey)}</span>
+                <span className="text-micro text-ink-tertiary">{t(integration.categoryKey)}</span>
               </div>
             </div>
-            <p className="text-caption text-surface-500 flex-1 mb-4">{t(integration.descKey)}</p>
+            <p className="text-caption text-ink-secondary flex-1 mb-4">{t(integration.descKey)}</p>
             <button onClick={() => handleConnect(integration.id)}
               className="w-full ds-btn-secondary">
               {t("connect")}

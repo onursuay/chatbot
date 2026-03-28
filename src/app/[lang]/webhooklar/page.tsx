@@ -92,38 +92,38 @@ export default function WebhooklarPage() {
 
       {/* Create Webhook Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setShowForm(false)}>
-          <div className="ds-card p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-            <h3 className="ds-section-title text-lg mb-4">{t("create_webhook")}</h3>
+        <div className="ds-modal-overlay" onClick={() => setShowForm(false)}>
+          <div className="ds-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="ds-modal-title">{t("create_webhook")}</h3>
             {formError && <p className="text-red-400 text-caption mb-3">{formError}</p>}
             <div className="space-y-3">
-              <input
-                type="text"
-                value={formName}
-                onChange={(e) => setFormName(e.target.value)}
-                placeholder={t("webhook_name")}
-                className="ds-input"
-              />
-              <input
-                type="url"
-                value={formUrl}
-                onChange={(e) => setFormUrl(e.target.value)}
-                placeholder={t("webhook_url")}
-                className="ds-input"
-              />
-              <div>
-                <p className="text-surface-500 text-micro uppercase mb-2">{t("events")}</p>
+              <div className="ds-form-group">
+                <input
+                  type="text"
+                  value={formName}
+                  onChange={(e) => setFormName(e.target.value)}
+                  placeholder={t("webhook_name")}
+                  className="ds-input"
+                />
+              </div>
+              <div className="ds-form-group">
+                <input
+                  type="url"
+                  value={formUrl}
+                  onChange={(e) => setFormUrl(e.target.value)}
+                  placeholder={t("webhook_url")}
+                  className="ds-input"
+                />
+              </div>
+              <div className="ds-form-group">
+                <label className="ds-form-label">{t("events")}</label>
                 <div className="flex flex-wrap gap-2">
                   {eventOptions.map((event) => (
                     <button
                       key={event}
                       type="button"
                       onClick={() => handleToggleEvent(event)}
-                      className={`text-micro px-3 py-1.5 rounded-badge border transition ${
-                        formEvents.includes(event)
-                          ? "bg-primary/10 border-primary text-primary"
-                          : "bg-surface-100 border-surface-200 text-surface-500 hover:border-surface-400"
-                      }`}
+                      className={formEvents.includes(event) ? "ds-chip-active" : "ds-chip"}
                     >
                       {event}
                     </button>
@@ -131,7 +131,7 @@ export default function WebhooklarPage() {
                 </div>
               </div>
             </div>
-            <div className="flex justify-end gap-3 mt-4">
+            <div className="ds-modal-actions">
               <button
                 onClick={() => setShowForm(false)}
                 className="ds-btn-ghost"

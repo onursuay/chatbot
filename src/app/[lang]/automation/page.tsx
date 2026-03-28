@@ -110,32 +110,32 @@ export default function AutomationPage() {
           <h3 className="ds-section-title mb-4">{t("new_automation_form")}</h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-caption-medium text-surface-500 mb-1">{t("rule_name")}</label>
+              <label className="ds-form-label">{t("rule_name")}</label>
               <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
                 className="ds-input" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-caption-medium text-surface-500 mb-1">{t("trigger")}</label>
+                <label className="ds-form-label">{t("trigger")}</label>
                 <select value={form.trigger_type} onChange={(e) => setForm({ ...form, trigger_type: e.target.value })}
-                  className="ds-input">
+                  className="ds-select">
                   {TRIGGER_TYPES.map((tr) => <option key={tr.value} value={tr.value}>{tr.label}</option>)}
                 </select>
-                <p className="text-micro text-surface-400 mt-1">
+                <p className="text-micro text-ink-tertiary mt-1">
                   {TRIGGER_TYPES.find((tr) => tr.value === form.trigger_type)?.desc}
                 </p>
               </div>
               <div>
-                <label className="block text-caption-medium text-surface-500 mb-1">{t("action")}</label>
+                <label className="ds-form-label">{t("action")}</label>
                 <select value={form.action_type} onChange={(e) => setForm({ ...form, action_type: e.target.value })}
-                  className="ds-input">
+                  className="ds-select">
                   {ACTION_TYPES.map((a) => <option key={a.value} value={a.value}>{a.label}</option>)}
                 </select>
               </div>
             </div>
             {form.trigger_type === "keyword" && (
               <div>
-                <label className="block text-caption-medium text-surface-500 mb-1">{t("keywords_comma")}</label>
+                <label className="ds-form-label">{t("keywords_comma")}</label>
                 <input type="text" value={form.trigger_config.keywords}
                   onChange={(e) => setForm({ ...form, trigger_config: { keywords: e.target.value } })}
                   className="ds-input"
@@ -144,7 +144,7 @@ export default function AutomationPage() {
             )}
             {(form.action_type === "send_message") && (
               <div>
-                <label className="block text-caption-medium text-surface-500 mb-1">{t("message_to_send")}</label>
+                <label className="ds-form-label">{t("message_to_send")}</label>
                 <textarea value={form.action_config.message}
                   onChange={(e) => setForm({ ...form, action_config: { message: e.target.value } })}
                   className="ds-input h-20 resize-none"
@@ -153,7 +153,7 @@ export default function AutomationPage() {
             )}
             {form.action_type === "add_tag" && (
               <div>
-                <label className="block text-caption-medium text-surface-500 mb-1">{t("tag_to_add")}</label>
+                <label className="ds-form-label">{t("tag_to_add")}</label>
                 <input type="text" value={form.action_config.tag || ""}
                   onChange={(e) => setForm({ ...form, action_config: { tag: e.target.value } })}
                   className="ds-input"
@@ -172,7 +172,7 @@ export default function AutomationPage() {
         </div>
       )}
 
-      {loading ? <p className="text-surface-500 text-caption">{t("loading")}</p> : automations.length === 0 ? (
+      {loading ? <p className="text-ink-tertiary text-caption">{t("loading")}</p> : automations.length === 0 ? (
         <div className="ds-empty-state">
           <p className="ds-empty-state-title">{t("no_automations")}</p>
           <p className="ds-empty-state-desc">{t("no_automations_desc")}</p>
@@ -188,18 +188,18 @@ export default function AutomationPage() {
                     {a.is_active ? t("active") : t("passive")}
                   </span>
                 </div>
-                <div className="flex gap-4 mt-1 text-caption text-surface-400">
+                <div className="flex gap-4 mt-1 text-caption text-ink-tertiary">
                   <span>{t("trigger")}: {TRIGGER_TYPES.find((tr) => tr.value === a.trigger_type)?.label || a.trigger_type}</span>
                   <span>{t("action")}: {ACTION_TYPES.find((act) => act.value === a.action_type)?.label || a.action_type}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button onClick={() => toggleActive(a.id, a.is_active)}
-                  className={`w-10 h-5 rounded-full transition relative ${a.is_active ? "bg-primary" : "bg-surface-200"}`}>
+                  className={`w-10 h-5 rounded-full transition relative ${a.is_active ? "bg-primary" : "bg-surface-300"}`}>
                   <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition ${a.is_active ? "left-5" : "left-0.5"}`} />
                 </button>
                 <button onClick={() => deleteAutomation(a.id)}
-                  className="text-surface-400 hover:text-red-400 transition text-caption ml-2">{t("delete")}</button>
+                  className="ds-btn-ghost ds-btn-sm text-ink-tertiary hover:text-red-400 transition ml-2">{t("delete")}</button>
               </div>
             </div>
           ))}

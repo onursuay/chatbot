@@ -87,46 +87,58 @@ export default function SirketlerPage() {
 
       {/* Create Company Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setShowForm(false)}>
-          <div className="ds-card p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-            <h3 className="ds-section-title text-lg mb-4">{t("create_company")}</h3>
+        <div className="ds-modal-overlay" onClick={() => setShowForm(false)}>
+          <div className="ds-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="ds-modal-title">{t("create_company")}</h3>
             {formError && <p className="text-red-400 text-caption mb-3">{formError}</p>}
             <div className="space-y-3">
-              <input
-                type="text"
-                value={formName}
-                onChange={(e) => setFormName(e.target.value)}
-                placeholder={t("company_name")}
-                className="ds-input"
-              />
-              <input
-                type="text"
-                value={formDomain}
-                onChange={(e) => setFormDomain(e.target.value)}
-                placeholder={t("domain")}
-                className="ds-input"
-              />
-              <input
-                type="text"
-                value={formIndustry}
-                onChange={(e) => setFormIndustry(e.target.value)}
-                placeholder={t("industry")}
-                className="ds-input"
-              />
-              <select
-                value={formSize}
-                onChange={(e) => setFormSize(e.target.value)}
-                className="ds-input"
-              >
-                <option value="">{t("select_size")}</option>
-                <option value="1-10">1-10</option>
-                <option value="11-50">11-50</option>
-                <option value="51-200">51-200</option>
-                <option value="201-500">201-500</option>
-                <option value="501+">501+</option>
-              </select>
+              <div className="ds-form-group">
+                <label className="ds-form-label">{t("company_name")}</label>
+                <input
+                  type="text"
+                  value={formName}
+                  onChange={(e) => setFormName(e.target.value)}
+                  placeholder={t("company_name")}
+                  className="ds-input w-full"
+                />
+              </div>
+              <div className="ds-form-group">
+                <label className="ds-form-label">{t("domain")}</label>
+                <input
+                  type="text"
+                  value={formDomain}
+                  onChange={(e) => setFormDomain(e.target.value)}
+                  placeholder={t("domain")}
+                  className="ds-input w-full"
+                />
+              </div>
+              <div className="ds-form-group">
+                <label className="ds-form-label">{t("industry")}</label>
+                <input
+                  type="text"
+                  value={formIndustry}
+                  onChange={(e) => setFormIndustry(e.target.value)}
+                  placeholder={t("industry")}
+                  className="ds-input w-full"
+                />
+              </div>
+              <div className="ds-form-group">
+                <label className="ds-form-label">{t("select_size")}</label>
+                <select
+                  value={formSize}
+                  onChange={(e) => setFormSize(e.target.value)}
+                  className="ds-select w-full"
+                >
+                  <option value="">{t("select_size")}</option>
+                  <option value="1-10">1-10</option>
+                  <option value="11-50">11-50</option>
+                  <option value="51-200">51-200</option>
+                  <option value="201-500">201-500</option>
+                  <option value="501+">501+</option>
+                </select>
+              </div>
             </div>
-            <div className="flex justify-end gap-3 mt-4">
+            <div className="ds-modal-actions">
               <button
                 onClick={() => setShowForm(false)}
                 className="ds-btn-ghost"
@@ -161,15 +173,15 @@ export default function SirketlerPage() {
               <tr key={c.id} className="ds-table-row">
                 <td className="p-4 text-ui text-ink font-medium">{c.name}</td>
                 <td className="p-4 text-ui text-primary">{c.domain || "\u2014"}</td>
-                <td className="p-4 text-ui text-surface-500">{c.industry || "\u2014"}</td>
-                <td className="p-4 text-ui text-surface-500">{c.size || "\u2014"}</td>
-                <td className="p-4 text-ui text-surface-500">{c.contacts_count}</td>
-                <td className="p-4 text-ui text-surface-500">{c.leads_count}</td>
+                <td className="p-4 text-ui text-ink-secondary">{c.industry || "\u2014"}</td>
+                <td className="p-4 text-ui text-ink-secondary">{c.size || "\u2014"}</td>
+                <td className="p-4 text-ui text-ink-secondary">{c.contacts_count}</td>
+                <td className="p-4 text-ui text-ink-secondary">{c.leads_count}</td>
               </tr>
             ))}
             {companies.length === 0 && (
               <tr>
-                <td colSpan={6} className="p-8 text-center text-surface-400 text-ui">{t("no_companies")}</td>
+                <td colSpan={6} className="p-8 text-center text-ink-tertiary text-ui">{t("no_companies")}</td>
               </tr>
             )}
           </tbody>

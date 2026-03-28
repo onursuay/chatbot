@@ -267,14 +267,14 @@ export default function BillingPage() {
         {/* Kart logolari */}
         <div className="mt-6 pt-4 border-t border-surface-200 flex items-center justify-center gap-4">
           {/* Visa */}
-          <div className="w-12 h-8 bg-white/5 rounded flex items-center justify-center">
+          <div className="w-12 h-8 bg-surface-250 rounded flex items-center justify-center">
             <svg viewBox="0 0 48 16" className="w-10 h-4">
               <path d="M19.5 1.3L12.7 14.7H8.5L5.1 4.2C4.9 3.4 4.7 3.1 4.1 2.8 3.1 2.3 1.5 1.8 0 1.5L.1 1.3H6.8C7.7 1.3 8.5 1.9 8.7 2.9L10.3 11.2L14.4 1.3H19.5Z" fill="#1A1F71"/>
               <path d="M34.5 10.1C34.5 6.5 29.5 6.3 29.5 4.7C29.6 4.2 30 3.7 31.1 3.5C31.6 3.5 33.1 3.4 34.7 4.1L35.4 1.6C34.5 1.3 33.4 1 32 1C27.2 1 23.8 3.6 23.8 7.2C23.7 9.8 26.1 11.2 27.8 12.1C29.6 13 30.2 13.5 30.2 14.2C30.1 15.3 28.8 15.7 27.6 15.7C25.8 15.8 24.8 15.3 24 14.9L23.3 17.5C24.1 17.9 25.7 18.2 27.3 18.2C32.5 18.2 35.8 15.7 34.5 10.1Z" fill="#1A1F71"/>
             </svg>
           </div>
           {/* Mastercard */}
-          <div className="w-12 h-8 bg-white/5 rounded flex items-center justify-center">
+          <div className="w-12 h-8 bg-surface-250 rounded flex items-center justify-center">
             <svg viewBox="0 0 32 20" className="w-8 h-5">
               <circle cx="11" cy="10" r="8" fill="#EB001B" opacity="0.9"/>
               <circle cx="21" cy="10" r="8" fill="#F79E1B" opacity="0.9"/>
@@ -282,15 +282,15 @@ export default function BillingPage() {
             </svg>
           </div>
           {/* Amex */}
-          <div className="w-12 h-8 bg-white/5 rounded flex items-center justify-center">
+          <div className="w-12 h-8 bg-surface-250 rounded flex items-center justify-center">
             <span className="text-[#006FCF] font-bold text-[9px]">AMEX</span>
           </div>
           {/* Troy */}
-          <div className="w-12 h-8 bg-white/5 rounded flex items-center justify-center">
+          <div className="w-12 h-8 bg-surface-250 rounded flex items-center justify-center">
             <span className="text-[#00A3E0] font-bold text-[9px]">TROY</span>
           </div>
           {/* BKM */}
-          <div className="w-12 h-8 bg-white/5 rounded flex items-center justify-center">
+          <div className="w-12 h-8 bg-surface-250 rounded flex items-center justify-center">
             <span className="text-[#E31E24] font-bold text-[8px]">BKM</span>
           </div>
         </div>

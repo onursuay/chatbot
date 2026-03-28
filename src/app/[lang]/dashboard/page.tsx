@@ -91,8 +91,8 @@ export default function DashboardPage() {
           <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
         </svg>
       ),
-      accent: "text-emerald-600",
-      iconBg: "bg-emerald-50",
+      accent: "text-emerald-400",
+      iconBg: "bg-emerald-500/10",
     },
     {
       label: t("tasks_due_today"),
@@ -102,8 +102,8 @@ export default function DashboardPage() {
           <path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
         </svg>
       ),
-      accent: "text-amber-600",
-      iconBg: "bg-amber-50",
+      accent: "text-amber-400",
+      iconBg: "bg-amber-500/10",
     },
     {
       label: t("conversion_rate"),
@@ -113,8 +113,8 @@ export default function DashboardPage() {
           <path d="M18 20V10M12 20V4M6 20v-6" />
         </svg>
       ),
-      accent: "text-violet-600",
-      iconBg: "bg-violet-50",
+      accent: "text-violet-400",
+      iconBg: "bg-violet-500/10",
     },
   ]
 

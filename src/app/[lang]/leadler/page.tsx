@@ -127,7 +127,7 @@ export default function LeadlerPage() {
         <select
           value={filterPipeline}
           onChange={(e) => { setFilterPipeline(e.target.value); setFilterStage("") }}
-          className="ds-input w-auto"
+          className="ds-select w-auto"
         >
           <option value="">{t("all_pipelines")}</option>
           {pipelines.map((p) => (
@@ -137,7 +137,7 @@ export default function LeadlerPage() {
         <select
           value={filterStage}
           onChange={(e) => setFilterStage(e.target.value)}
-          className="ds-input w-auto"
+          className="ds-select w-auto"
         >
           <option value="">{t("all_stages")}</option>
           {(selectedPipeline?.stages || []).map((s) => (
@@ -147,7 +147,7 @@ export default function LeadlerPage() {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="ds-input w-auto"
+          className="ds-select w-auto"
         >
           <option value="">{t("all_statuses")}</option>
           <option value="open">{t("open")}</option>
@@ -158,47 +158,59 @@ export default function LeadlerPage() {
 
       {/* Create Lead Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setShowForm(false)}>
-          <div className="ds-card p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-            <h3 className="ds-section-title text-lg mb-4">{t("create_lead")}</h3>
+        <div className="ds-modal-overlay" onClick={() => setShowForm(false)}>
+          <div className="ds-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="ds-modal-title">{t("create_lead")}</h3>
             {formError && <p className="text-red-400 text-caption mb-3">{formError}</p>}
             <div className="space-y-3">
-              <input
-                type="text"
-                value={formTitle}
-                onChange={(e) => setFormTitle(e.target.value)}
-                placeholder={t("lead_title")}
-                className="ds-input"
-              />
-              <input
-                type="number"
-                value={formValue}
-                onChange={(e) => setFormValue(e.target.value)}
-                placeholder={t("value")}
-                className="ds-input"
-              />
-              <select
-                value={formPipeline}
-                onChange={(e) => { setFormPipeline(e.target.value); setFormStage("") }}
-                className="ds-input"
-              >
-                <option value="">{t("select_pipeline")}</option>
-                {pipelines.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
-              <select
-                value={formStage}
-                onChange={(e) => setFormStage(e.target.value)}
-                className="ds-input"
-              >
-                <option value="">{t("select_stage")}</option>
-                {(formPipelineObj?.stages || []).map((s) => (
-                  <option key={s.id} value={s.id}>{s.name}</option>
-                ))}
-              </select>
+              <div className="ds-form-group">
+                <label className="ds-form-label">{t("lead_title")}</label>
+                <input
+                  type="text"
+                  value={formTitle}
+                  onChange={(e) => setFormTitle(e.target.value)}
+                  placeholder={t("lead_title")}
+                  className="ds-input w-full"
+                />
+              </div>
+              <div className="ds-form-group">
+                <label className="ds-form-label">{t("value")}</label>
+                <input
+                  type="number"
+                  value={formValue}
+                  onChange={(e) => setFormValue(e.target.value)}
+                  placeholder={t("value")}
+                  className="ds-input w-full"
+                />
+              </div>
+              <div className="ds-form-group">
+                <label className="ds-form-label">{t("select_pipeline")}</label>
+                <select
+                  value={formPipeline}
+                  onChange={(e) => { setFormPipeline(e.target.value); setFormStage("") }}
+                  className="ds-select w-full"
+                >
+                  <option value="">{t("select_pipeline")}</option>
+                  {pipelines.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="ds-form-group">
+                <label className="ds-form-label">{t("select_stage")}</label>
+                <select
+                  value={formStage}
+                  onChange={(e) => setFormStage(e.target.value)}
+                  className="ds-select w-full"
+                >
+                  <option value="">{t("select_stage")}</option>
+                  {(formPipelineObj?.stages || []).map((s) => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div className="flex justify-end gap-3 mt-4">
+            <div className="ds-modal-actions">
               <button
                 onClick={() => setShowForm(false)}
                 className="ds-btn-ghost"
@@ -246,17 +258,17 @@ export default function LeadlerPage() {
                     {lead.stage_name || "\u2014"}
                   </span>
                 </td>
-                <td className="p-4 text-ui text-surface-500">{lead.contact_name || "\u2014"}</td>
-                <td className="p-4 text-ui text-surface-500">{lead.assigned_user_name || "\u2014"}</td>
-                <td className="p-4 text-ui text-surface-500">{lead.score ?? "\u2014"}</td>
-                <td className="p-4 text-caption text-surface-400">
+                <td className="p-4 text-ui text-ink-secondary">{lead.contact_name || "\u2014"}</td>
+                <td className="p-4 text-ui text-ink-secondary">{lead.assigned_user_name || "\u2014"}</td>
+                <td className="p-4 text-ui text-ink-secondary">{lead.score ?? "\u2014"}</td>
+                <td className="p-4 text-caption text-ink-tertiary">
                   {new Date(lead.created_at).toLocaleDateString("tr-TR")}
                 </td>
               </tr>
             ))}
             {leads.length === 0 && (
               <tr>
-                <td colSpan={7} className="p-8 text-center text-surface-400 text-ui">{t("no_leads")}</td>
+                <td colSpan={7} className="p-8 text-center text-ink-tertiary text-ui">{t("no_leads")}</td>
               </tr>
             )}
           </tbody>

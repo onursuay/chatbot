@@ -74,7 +74,7 @@ export default function PipelinePage() {
           <select
             value={selectedPipelineId}
             onChange={(e) => setSelectedPipelineId(e.target.value)}
-            className="ds-input pr-8"
+            className="ds-select"
           >
             {pipelines.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
@@ -102,15 +102,15 @@ export default function PipelinePage() {
               return (
                 <div
                   key={stage.id}
-                  className="w-72 flex flex-col bg-surface-50 rounded-card border border-surface-200"
+                  className="w-72 flex flex-col bg-surface-200 rounded-card border border-surface-300"
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={() => setDraggedLeadId(null)}
                 >
                   {/* Stage Header */}
-                  <div className="px-4 py-3 border-b border-surface-200 flex items-center justify-between">
+                  <div className="px-4 py-3 border-b border-surface-300 flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
                       {stage.color && (
-                        <div className="w-2.5 h-2.5 rounded-full ring-2 ring-white" style={{ backgroundColor: stage.color }} />
+                        <div className="w-2.5 h-2.5 rounded-full ring-2 ring-surface-200" style={{ backgroundColor: stage.color }} />
                       )}
                       <span className="text-body-medium text-ink">{stage.name}</span>
                     </div>
@@ -136,7 +136,7 @@ export default function PipelinePage() {
                         )}
                         <div className="flex items-center justify-between mt-2.5">
                           {lead.contact_name && (
-                            <span className="text-caption text-surface-500">{lead.contact_name}</span>
+                            <span className="text-caption text-ink-secondary">{lead.contact_name}</span>
                           )}
                           {lead.assigned_user_name && (
                             <div className="w-6 h-6 rounded-avatar bg-primary flex items-center justify-center text-white text-[10px] font-bold" title={lead.assigned_user_name}>
@@ -147,7 +147,7 @@ export default function PipelinePage() {
                       </div>
                     ))}
                     {stageLeads.length === 0 && (
-                      <p className="text-caption text-surface-400 text-center py-6">{t("no_leads")}</p>
+                      <p className="text-caption text-ink-tertiary text-center py-6">{t("no_leads")}</p>
                     )}
                   </div>
                 </div>

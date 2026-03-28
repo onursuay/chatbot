@@ -111,7 +111,7 @@ export default function ChatbotPage() {
       </div>
 
       {/* Tabs */}
-      <div className="px-7 pt-4 border-b border-surface-300 bg-white">
+      <div className="px-7 pt-4 border-b border-surface-300 bg-surface-200">
         <div className="flex gap-1">
           {tabs.map((tab) => (
             <button

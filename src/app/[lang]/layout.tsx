@@ -177,7 +177,7 @@ export default function LangLayout({ children, params }: { children: React.React
     <div className="h-screen bg-surface flex overflow-hidden">
       {/* ===== SIDEBAR (Kommo-compact) ===== */}
       <aside
-        className={`${sidebarWidth} ${animate ? "transition-[width] duration-200 ease-out" : ""} bg-white border-r border-surface-300 flex flex-col shrink-0 overflow-hidden`}
+        className={`${sidebarWidth} ${animate ? "transition-[width] duration-200 ease-out" : ""} bg-surface-100 border-r border-surface-300 flex flex-col shrink-0 overflow-hidden`}
       >
         {/* Logo */}
         <div className="px-3 py-3 flex items-center gap-2 border-b border-surface-200">
@@ -297,7 +297,7 @@ export default function LangLayout({ children, params }: { children: React.React
       {/* ===== MAIN CONTENT ===== */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header (Kommo-style: compact, 48px) */}
-        <header className="h-[48px] border-b border-surface-300 bg-white flex items-center justify-between px-5 shrink-0">
+        <header className="h-[48px] border-b border-surface-300 bg-surface-100 flex items-center justify-between px-5 shrink-0">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse-soft" />
             <span className="text-caption text-ink-tertiary">{t("wa_account")}</span>

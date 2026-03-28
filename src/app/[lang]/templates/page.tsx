@@ -91,7 +91,7 @@ export default function TemplatesPage() {
             <div>
               <label className="block text-caption-medium text-surface-500 mb-1">{t("category")}</label>
               <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="ds-input">
+                className="ds-select">
                 <option value="MARKETING">{t("marketing")}</option>
                 <option value="UTILITY">{t("utility")}</option>
                 <option value="AUTHENTICATION">{t("authentication")}</option>

@@ -43,7 +43,7 @@ export default function AktivitePage() {
         <select
           value={filterEntityType}
           onChange={(e) => setFilterEntityType(e.target.value)}
-          className="ds-input w-auto"
+          className="ds-select w-auto"
         >
           <option value="">{t("all_entities")}</option>
           {entityTypeOptions.map((type) => (

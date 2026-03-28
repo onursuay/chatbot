@@ -68,7 +68,7 @@ export default function ContactsPage() {
                     <span className="text-body-medium text-ink">{c.name || "\u2014"}</span>
                   </div>
                 </td>
-                <td className="px-6 py-3.5 text-ui text-surface-600">{c.phone}</td>
+                <td className="px-6 py-3.5 text-ui text-ink-secondary">{c.phone}</td>
                 <td className="px-6 py-3.5">
                   <div className="flex gap-1 flex-wrap">
                     {c.tags.map((tag) => (
@@ -76,7 +76,7 @@ export default function ContactsPage() {
                     ))}
                   </div>
                 </td>
-                <td className="px-6 py-3.5 text-caption text-surface-400">
+                <td className="px-6 py-3.5 text-caption text-ink-tertiary">
                   {c.last_message_at ? new Date(c.last_message_at).toLocaleDateString("tr-TR") : "\u2014"}
                 </td>
               </tr>

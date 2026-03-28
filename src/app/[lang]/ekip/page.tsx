@@ -93,29 +93,33 @@ export default function EkipPage() {
 
       {/* Invite Modal */}
       {showInviteForm && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setShowInviteForm(false)}>
-          <div className="ds-card p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-            <h3 className="ds-section-title text-lg mb-4">{t("invite_member")}</h3>
+        <div className="ds-modal-overlay" onClick={() => setShowInviteForm(false)}>
+          <div className="ds-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="ds-modal-title">{t("invite_member")}</h3>
             {formError && <p className="text-red-400 text-caption mb-3">{formError}</p>}
             <div className="space-y-3">
-              <input
-                type="email"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                placeholder={t("email")}
-                className="ds-input"
-              />
-              <select
-                value={inviteRole}
-                onChange={(e) => setInviteRole(e.target.value)}
-                className="ds-input"
-              >
-                <option value="member">{t("member")}</option>
-                <option value="admin">{t("admin")}</option>
-                <option value="viewer">{t("viewer")}</option>
-              </select>
+              <div className="ds-form-group">
+                <input
+                  type="email"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  placeholder={t("email")}
+                  className="ds-input"
+                />
+              </div>
+              <div className="ds-form-group">
+                <select
+                  value={inviteRole}
+                  onChange={(e) => setInviteRole(e.target.value)}
+                  className="ds-select"
+                >
+                  <option value="member">{t("member")}</option>
+                  <option value="admin">{t("admin")}</option>
+                  <option value="viewer">{t("viewer")}</option>
+                </select>
+              </div>
             </div>
-            <div className="flex justify-end gap-3 mt-4">
+            <div className="ds-modal-actions">
               <button
                 onClick={() => setShowInviteForm(false)}
                 className="ds-btn-ghost"

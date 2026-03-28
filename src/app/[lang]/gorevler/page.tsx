@@ -95,7 +95,7 @@ export default function GorevlerPage() {
     const colors: Record<string, string> = {
       low: "ds-badge-neutral",
       medium: "ds-badge-warning",
-      high: "bg-orange-500/10 text-orange-400 text-[10px] px-2 py-0.5 rounded-badge font-medium",
+      high: "ds-badge-warning",
       urgent: "ds-badge-danger",
     }
     return colors[priority] || "ds-badge-neutral"
@@ -118,7 +118,7 @@ export default function GorevlerPage() {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="ds-input w-auto"
+          className="ds-select w-auto"
         >
           <option value="">{t("all_statuses")}</option>
           <option value="pending">{t("pending")}</option>
@@ -128,7 +128,7 @@ export default function GorevlerPage() {
         <select
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
-          className="ds-input w-auto"
+          className="ds-select w-auto"
         >
           <option value="">{t("all_types")}</option>
           <option value="task">{t("task")}</option>
@@ -140,46 +140,58 @@ export default function GorevlerPage() {
 
       {/* Create Task Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setShowForm(false)}>
-          <div className="ds-card p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-            <h3 className="ds-section-title text-lg mb-4">{t("create_task")}</h3>
+        <div className="ds-modal-overlay" onClick={() => setShowForm(false)}>
+          <div className="ds-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="ds-modal-title">{t("create_task")}</h3>
             {formError && <p className="text-red-400 text-caption mb-3">{formError}</p>}
             <div className="space-y-3">
-              <input
-                type="text"
-                value={formTitle}
-                onChange={(e) => setFormTitle(e.target.value)}
-                placeholder={t("task_title")}
-                className="ds-input"
-              />
-              <select
-                value={formType}
-                onChange={(e) => setFormType(e.target.value)}
-                className="ds-input"
-              >
-                <option value="task">{t("task")}</option>
-                <option value="call">{t("call")}</option>
-                <option value="email">{t("email")}</option>
-                <option value="meeting">{t("meeting")}</option>
-              </select>
-              <select
-                value={formPriority}
-                onChange={(e) => setFormPriority(e.target.value)}
-                className="ds-input"
-              >
-                <option value="low">{t("low")}</option>
-                <option value="medium">{t("medium")}</option>
-                <option value="high">{t("high")}</option>
-                <option value="urgent">{t("urgent")}</option>
-              </select>
-              <input
-                type="datetime-local"
-                value={formDueAt}
-                onChange={(e) => setFormDueAt(e.target.value)}
-                className="ds-input"
-              />
+              <div className="ds-form-group">
+                <label className="ds-form-label">{t("task_title")}</label>
+                <input
+                  type="text"
+                  value={formTitle}
+                  onChange={(e) => setFormTitle(e.target.value)}
+                  placeholder={t("task_title")}
+                  className="ds-input w-full"
+                />
+              </div>
+              <div className="ds-form-group">
+                <label className="ds-form-label">{t("type")}</label>
+                <select
+                  value={formType}
+                  onChange={(e) => setFormType(e.target.value)}
+                  className="ds-select w-full"
+                >
+                  <option value="task">{t("task")}</option>
+                  <option value="call">{t("call")}</option>
+                  <option value="email">{t("email")}</option>
+                  <option value="meeting">{t("meeting")}</option>
+                </select>
+              </div>
+              <div className="ds-form-group">
+                <label className="ds-form-label">{t("priority")}</label>
+                <select
+                  value={formPriority}
+                  onChange={(e) => setFormPriority(e.target.value)}
+                  className="ds-select w-full"
+                >
+                  <option value="low">{t("low")}</option>
+                  <option value="medium">{t("medium")}</option>
+                  <option value="high">{t("high")}</option>
+                  <option value="urgent">{t("urgent")}</option>
+                </select>
+              </div>
+              <div className="ds-form-group">
+                <label className="ds-form-label">{t("due_at")}</label>
+                <input
+                  type="datetime-local"
+                  value={formDueAt}
+                  onChange={(e) => setFormDueAt(e.target.value)}
+                  className="ds-input w-full"
+                />
+              </div>
             </div>
-            <div className="flex justify-end gap-3 mt-4">
+            <div className="ds-modal-actions">
               <button
                 onClick={() => setShowForm(false)}
                 className="ds-btn-ghost"
@@ -215,14 +227,14 @@ export default function GorevlerPage() {
             {tasks.map((task) => (
               <tr key={task.id} className="ds-table-row">
                 <td className="p-4 text-ui text-ink font-medium">{task.title}</td>
-                <td className="p-4 text-ui text-surface-500 capitalize">{task.type}</td>
+                <td className="p-4 text-ui text-ink-secondary capitalize">{task.type}</td>
                 <td className="p-4">
                   <span className={`capitalize ${priorityBadge(task.priority)}`}>
                     {task.priority}
                   </span>
                 </td>
-                <td className="p-4 text-ui text-surface-500">{task.assigned_user_name || "\u2014"}</td>
-                <td className="p-4 text-caption text-surface-400">
+                <td className="p-4 text-ui text-ink-secondary">{task.assigned_user_name || "\u2014"}</td>
+                <td className="p-4 text-caption text-ink-tertiary">
                   {task.due_at ? new Date(task.due_at).toLocaleString("tr-TR") : "\u2014"}
                 </td>
                 <td className="p-4">
@@ -246,7 +258,7 @@ export default function GorevlerPage() {
             ))}
             {tasks.length === 0 && (
               <tr>
-                <td colSpan={7} className="p-8 text-center text-surface-400 text-ui">{t("no_tasks")}</td>
+                <td colSpan={7} className="p-8 text-center text-ink-tertiary text-ui">{t("no_tasks")}</td>
               </tr>
             )}
           </tbody>

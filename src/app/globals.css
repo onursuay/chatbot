@@ -29,8 +29,8 @@ body {
   --sidebar-width: 220px;
   --sidebar-collapsed: 54px;
   --header-height: 48px;
-  --radius: 4px;
-  --radius-card: 6px;
+  --radius: 6px;
+  --radius-card: 8px;
   --transition-fast: 120ms ease;
   --transition-normal: 200ms ease;
 }
@@ -43,56 +43,56 @@ body {
   }
 }
 
-/* Scrollbar — Kommo style (7px, subtle) */
-::-webkit-scrollbar { width: 7px; }
-::-webkit-scrollbar-track { background: inherit; }
-::-webkit-scrollbar-thumb { @apply bg-surface-400 rounded-full; }
-::-webkit-scrollbar-thumb:hover { @apply bg-surface-500; }
+/* Scrollbar — Dark theme */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { @apply bg-surface-500 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-surface-600; }
 
 ::selection {
-  @apply bg-primary/15 text-ink;
+  @apply bg-primary/20 text-ink;
 }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* ============================================
-   KOMMO-INSPIRED DESIGN SYSTEM
+   YOAI DARK DESIGN SYSTEM
    ============================================ */
 
 @layer components {
-  /* --- Card System (tight radius, minimal shadow) --- */
+  /* --- Card System --- */
   .ds-card {
-    @apply bg-white rounded-[6px] border border-surface-300 shadow-card;
+    @apply bg-surface-200 rounded-card border border-surface-400 shadow-card;
     transition: box-shadow var(--transition-normal), border-color var(--transition-normal);
   }
 
   .ds-card:hover {
-    @apply shadow-card-hover;
+    @apply shadow-card-hover border-surface-500;
   }
 
   .ds-card-interactive {
-    @apply bg-white rounded-[6px] border border-surface-300 shadow-card cursor-pointer;
+    @apply bg-surface-200 rounded-card border border-surface-400 shadow-card cursor-pointer;
     transition: box-shadow var(--transition-normal), border-color var(--transition-normal), transform var(--transition-fast);
   }
 
   .ds-card-interactive:hover {
-    @apply shadow-card-hover border-surface-400;
+    @apply shadow-card-hover border-primary/30;
     transform: translateY(-1px);
   }
 
   .ds-card-interactive:active {
-    transform: translateY(1px);
+    transform: translateY(0);
   }
 
   /* --- KPI Card --- */
   .ds-kpi-card {
-    @apply bg-white rounded-[6px] border border-surface-300 shadow-card p-5;
+    @apply bg-surface-200 rounded-card border border-surface-400 shadow-card p-5;
     transition: box-shadow var(--transition-normal), transform var(--transition-fast);
   }
 
   .ds-kpi-card:hover {
-    @apply shadow-card-hover;
+    @apply shadow-card-hover border-surface-500;
     transform: translateY(-1px);
   }
 
@@ -105,9 +105,9 @@ body {
     @apply text-section-title text-ink;
   }
 
-  /* --- Page Header (Kommo: clean, no blur, solid bg) --- */
+  /* --- Page Header --- */
   .ds-page-header {
-    @apply px-7 py-5 border-b border-surface-300 bg-white flex items-center justify-between;
+    @apply px-7 py-5 border-b border-surface-300 bg-surface-100 flex items-center justify-between;
   }
 
   .ds-page-title {
@@ -118,11 +118,11 @@ body {
     @apply text-caption text-ink-tertiary mt-0.5;
   }
 
-  /* --- Button System (Kommo: 36px, 4px radius, bold, no shadow) --- */
+  /* --- Button System --- */
   .ds-btn {
-    @apply inline-flex items-center justify-center gap-1 font-bold rounded-btn;
-    @apply text-ui h-[36px] px-3;
-    transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+    @apply inline-flex items-center justify-center gap-1.5 font-bold rounded-btn;
+    @apply text-ui h-[36px] px-4;
+    transition: all var(--transition-fast);
     white-space: nowrap;
   }
 
@@ -131,7 +131,7 @@ body {
   }
 
   .ds-btn-primary {
-    @apply ds-btn bg-primary text-white border border-primary-600;
+    @apply ds-btn bg-primary text-surface border border-primary/80;
   }
 
   .ds-btn-primary:not(:disabled):hover {
@@ -139,11 +139,11 @@ body {
   }
 
   .ds-btn-secondary {
-    @apply ds-btn bg-white text-ink border border-surface-300;
+    @apply ds-btn bg-surface-300 text-ink border border-surface-500;
   }
 
   .ds-btn-secondary:not(:disabled):hover {
-    @apply bg-surface-50;
+    @apply bg-surface-400 border-surface-600;
   }
 
   .ds-btn-ghost {
@@ -151,24 +151,24 @@ body {
   }
 
   .ds-btn-ghost:not(:disabled):hover {
-    @apply text-ink;
+    @apply text-ink bg-surface-300;
   }
 
   .ds-btn-danger {
-    @apply ds-btn bg-accent-red text-white border border-accent-red;
+    @apply ds-btn bg-accent-red/20 text-accent-red border border-accent-red/30;
   }
 
   .ds-btn-danger:not(:disabled):hover {
-    @apply bg-accent-red-hover;
+    @apply bg-accent-red/30;
   }
 
   .ds-btn-sm {
-    @apply h-[30px] px-2 text-caption;
+    @apply h-[30px] px-3 text-caption;
   }
 
-  /* --- Input System (Kommo: 4px radius, 1px border, solid) --- */
+  /* --- Input System --- */
   .ds-input {
-    @apply bg-white border border-surface-500 rounded-input px-3 py-2 text-body text-ink;
+    @apply bg-surface-250 border border-surface-500 rounded-input px-3 py-2 text-body text-ink;
     @apply transition-all duration-150;
   }
 
@@ -177,44 +177,54 @@ body {
   }
 
   .ds-input:focus {
-    @apply outline-none border-primary shadow-input-focus;
+    @apply outline-none border-primary/50 shadow-input-focus;
   }
 
   .ds-input:disabled {
-    @apply opacity-60 bg-surface-150;
+    @apply opacity-50 bg-surface-300;
   }
 
-  /* --- Badge System (Kommo: 4px radius, tight) --- */
+  /* --- Select styling --- */
+  .ds-select {
+    @apply ds-input cursor-pointer;
+    @apply appearance-none bg-no-repeat;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a0a0a0' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-size: 1.25em 1.25em;
+    padding-right: 2.5rem;
+  }
+
+  /* --- Badge System --- */
   .ds-badge {
     @apply inline-flex items-center gap-1 px-2 py-0.5 text-micro rounded-badge;
   }
 
   .ds-badge-primary {
-    @apply ds-badge bg-primary/10 text-primary;
+    @apply ds-badge bg-primary/15 text-primary;
   }
 
   .ds-badge-success {
-    @apply ds-badge bg-callout-success text-green-700;
+    @apply ds-badge bg-green-500/15 text-green-400;
   }
 
   .ds-badge-warning {
-    @apply ds-badge bg-callout-warning text-amber-700;
+    @apply ds-badge bg-yellow-500/15 text-yellow-400;
   }
 
   .ds-badge-danger {
-    @apply ds-badge bg-callout-error text-accent-red-deep;
+    @apply ds-badge bg-red-500/15 text-red-400;
   }
 
   .ds-badge-neutral {
-    @apply ds-badge bg-surface-200 text-ink-secondary;
+    @apply ds-badge bg-surface-400 text-ink-secondary;
   }
 
   .ds-badge-info {
-    @apply ds-badge bg-callout-info text-accent-blue-deep;
+    @apply ds-badge bg-blue-500/15 text-blue-400;
   }
 
   .ds-badge-ai {
-    @apply ds-badge bg-primary/10 text-primary border border-primary/20;
+    @apply ds-badge bg-primary/15 text-primary border border-primary/20;
   }
 
   /* --- Status Dot --- */
@@ -224,7 +234,7 @@ body {
 
   .ds-status-online { @apply ds-status-dot bg-primary; }
   .ds-status-away { @apply ds-status-dot bg-accent-yellow; }
-  .ds-status-offline { @apply ds-status-dot bg-surface-500; }
+  .ds-status-offline { @apply ds-status-dot bg-surface-600; }
 
   /* --- Empty State --- */
   .ds-empty-state {
@@ -232,7 +242,7 @@ body {
   }
 
   .ds-empty-state-icon {
-    @apply w-14 h-14 rounded-[6px] bg-surface-200 flex items-center justify-center mb-4;
+    @apply w-14 h-14 rounded-card bg-surface-300 flex items-center justify-center mb-4;
   }
 
   .ds-empty-state-title {
@@ -243,18 +253,18 @@ body {
     @apply text-caption text-ink-muted;
   }
 
-  /* --- Table System (Kommo: clean, no uppercase) --- */
+  /* --- Table System --- */
   .ds-table-header {
-    @apply text-caption font-bold text-ink-tertiary;
+    @apply text-caption font-bold text-ink-tertiary uppercase tracking-wider;
   }
 
   .ds-table-row {
-    @apply border-b border-surface-200;
+    @apply border-b border-surface-300;
     transition: background var(--transition-fast);
   }
 
   .ds-table-row:hover {
-    @apply bg-surface-100;
+    @apply bg-surface-250;
   }
 
   /* --- Sidebar Nav Item --- */
@@ -265,7 +275,7 @@ body {
   }
 
   .ds-nav-item-active {
-    @apply bg-primary/10 text-primary font-bold;
+    @apply bg-primary/15 text-primary font-bold;
   }
 
   .ds-nav-item-inactive {
@@ -273,40 +283,70 @@ body {
   }
 
   .ds-nav-item-inactive:hover {
-    @apply text-ink bg-surface-200;
+    @apply text-ink bg-surface-300;
   }
 
-  /* --- AI Accent surface --- */
+  /* --- Modal --- */
+  .ds-modal-overlay {
+    @apply fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50;
+    animation: fade-in 0.15s ease;
+  }
+
+  .ds-modal {
+    @apply bg-surface-200 border border-surface-400 rounded-card shadow-modal p-6 w-full max-w-lg mx-4;
+    animation: popup-scale 0.2s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+
+  .ds-modal-title {
+    @apply text-lg font-bold text-ink mb-5;
+  }
+
+  .ds-modal-actions {
+    @apply flex items-center justify-end gap-3 mt-6 pt-4 border-t border-surface-300;
+  }
+
+  /* --- AI Surface --- */
   .ds-ai-surface {
-    @apply bg-callout-success border border-primary/15 rounded-[6px];
+    @apply bg-primary/5 border border-primary/15 rounded-card;
   }
 
   .ds-ai-glow {
-    box-shadow: 0 0 0 1px rgba(43, 182, 115, 0.06), 0 1px 6px rgba(43, 182, 115, 0.08);
-  }
-
-  /* --- Glass Effect --- */
-  .glass-effect {
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 0 0 1px rgba(74, 237, 196, 0.08), 0 1px 8px rgba(74, 237, 196, 0.1);
   }
 
   /* --- Divider --- */
   .ds-divider {
-    @apply h-px bg-surface-300;
+    @apply h-px bg-surface-400;
   }
 
-  /* --- Callout (Kommo style) --- */
-  .ds-callout-error { @apply bg-callout-error border border-accent-red/20 rounded-[6px] p-4; }
-  .ds-callout-warning { @apply bg-callout-warning border border-accent-yellow/20 rounded-[6px] p-4; }
-  .ds-callout-info { @apply bg-callout-info border border-accent-blue/20 rounded-[6px] p-4; }
-  .ds-callout-success { @apply bg-callout-success border border-primary/15 rounded-[6px] p-4; }
+  /* --- Callout --- */
+  .ds-callout-error { @apply bg-callout-error border border-accent-red/20 rounded-card p-4; }
+  .ds-callout-warning { @apply bg-callout-warning border border-accent-yellow/20 rounded-card p-4; }
+  .ds-callout-info { @apply bg-callout-info border border-accent-blue/20 rounded-card p-4; }
+  .ds-callout-success { @apply bg-callout-success border border-primary/15 rounded-card p-4; }
+
+  /* --- Form Group --- */
+  .ds-form-group {
+    @apply space-y-1.5;
+  }
+
+  .ds-form-label {
+    @apply text-caption font-bold text-ink-secondary;
+  }
+
+  /* --- Tag / Chip --- */
+  .ds-chip {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 text-micro rounded-btn bg-surface-350 text-ink-secondary border border-surface-500;
+  }
+
+  .ds-chip-active {
+    @apply bg-primary/15 text-primary border-primary/30;
+  }
 }
 
-/* Focus ring (Kommo: 2px solid, cobalt-blue) */
+/* Focus ring */
 *:focus-visible {
-  outline: 2px solid rgba(43, 182, 115, 0.4);
+  outline: 2px solid rgba(74, 237, 196, 0.4);
   outline-offset: 1px;
 }
 
@@ -314,10 +354,10 @@ textarea:focus {
   box-shadow: none;
 }
 
-/* Select arrow */
+/* Select arrow (global fallback) */
 select {
   @apply appearance-none bg-no-repeat;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b6d72' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a0a0a0' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
   background-position: right 0.5rem center;
   background-size: 1.25em 1.25em;
   padding-right: 2rem;

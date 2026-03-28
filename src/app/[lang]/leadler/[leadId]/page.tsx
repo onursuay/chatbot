@@ -213,21 +213,21 @@ export default function LeadDetailPage() {
             <>
               <button
                 onClick={() => handleCloseAs("won")}
-                className="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1.5 rounded-btn transition"
+                className="ds-btn-primary ds-btn-sm"
               >
                 {t("close_won")}
               </button>
               <button
                 onClick={() => handleCloseAs("lost")}
-                className="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1.5 rounded-btn transition"
+                className="ds-btn-danger ds-btn-sm"
               >
                 {t("close_lost")}
               </button>
             </>
           )}
           {lead.status !== "active" && (
-            <span className={`text-xs px-3 py-1.5 rounded-btn font-bold ${
-              lead.status === "won" ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"
+            <span className={`${
+              lead.status === "won" ? "ds-badge-success" : "ds-badge-danger"
             }`}>
               {lead.status === "won" ? t("won") : t("lost")}
             </span>
@@ -238,11 +238,11 @@ export default function LeadDetailPage() {
       {/* Tag bar */}
       <div className="px-4 py-2 border-b border-surface-300 flex items-center gap-2 flex-wrap">
         {lead.tags.map((tag) => (
-          <span key={tag} className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded">
+          <span key={tag} className="ds-badge-primary">
             #{tag}
           </span>
         ))}
-        <button className="text-ink-muted hover:text-primary text-xs transition">
+        <button className="ds-btn-ghost ds-btn-sm">
           {t("add_tag")}
         </button>
       </div>
@@ -253,7 +253,7 @@ export default function LeadDetailPage() {
           <select
             value={lead.stage_id}
             onChange={(e) => handleStageChange(e.target.value)}
-            className="bg-surface-150 border border-surface-300 rounded-btn px-3 py-2 text-sm text-ink focus:outline-none focus:border-primary"
+            className="ds-select"
           >
             {stages.map((s) => (
               <option key={s.id} value={s.id}>{s.name}</option>
@@ -501,20 +501,20 @@ export default function LeadDetailPage() {
                 onChange={(e) => setNoteText(e.target.value)}
                 placeholder={t("note_placeholder")}
                 rows={3}
-                className="w-full bg-transparent text-ink text-sm placeholder-gray-400 resize-none focus:outline-none"
+                className="w-full bg-transparent text-ink text-sm placeholder-ink-tertiary resize-none focus:outline-none"
               />
               <div className="flex items-center justify-between mt-2">
                 <div className="flex gap-2">
                   <button
                     onClick={handleAddNote}
                     disabled={!noteText.trim() || saving}
-                    className="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-4 py-2 rounded-btn transition disabled:opacity-50"
+                    className="ds-btn-primary ds-btn-sm disabled:opacity-50"
                   >
                     {saving ? t("saving") : t("add_note")}
                   </button>
                   <button
                     onClick={() => setNoteText("")}
-                    className="text-ink-muted text-xs hover:text-ink transition px-3 py-2"
+                    className="ds-btn-ghost ds-btn-sm"
                   >
                     {t("cancel")}
                   </button>
