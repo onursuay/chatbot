@@ -434,7 +434,7 @@ async function processWhatsAppMessage(
     const cleanResponse = aiResponse.replace("[TRANSFER_SALES]", "").replace("[NOT_INTERESTED]", "").trim()
 
     const result = await sendTextMessage(phone.phone_number_id, accessToken, senderWaId, cleanResponse)
-    const waMessageId = result?.messages?.[0]?.id || null
+    const waMessageId = result.success ? result.messages?.[0]?.id || null : null
 
     await supabase.from("messages").insert({
       org_id: waba.org_id,

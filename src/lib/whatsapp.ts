@@ -5,13 +5,20 @@
 const GRAPH_API_VERSION = "v21.0"
 const GRAPH_API_BASE = `https://graph.facebook.com/${GRAPH_API_VERSION}`
 
+export interface SendResult {
+  success: boolean
+  messages?: { id: string }[]
+  error?: string
+}
+
 export async function sendTextMessage(
   phoneNumberId: string,
   accessToken: string,
   to: string,
   text: string
-): Promise<{ messages: { id: string }[] } | null> {
+): Promise<SendResult> {
   const url = `${GRAPH_API_BASE}/${phoneNumberId}/messages`
+  console.log("[WhatsApp API] Sending:", { phoneNumberId, to, textLength: text.length })
   try {
     const res = await fetch(url, {
       method: "POST",
@@ -27,13 +34,16 @@ export async function sendTextMessage(
       }),
     })
     const data = await res.json()
-    if (!data.messages) {
-      console.error("[WhatsApp API] Send failed:", JSON.stringify(data))
+    if (data.messages) {
+      console.log("[WhatsApp API] Sent OK:", data.messages[0]?.id)
+      return { success: true, messages: data.messages }
     }
-    return data.messages ? data : null
-  } catch (err) {
+    const errorMsg = data.error?.message || JSON.stringify(data)
+    console.error("[WhatsApp API] Send failed:", errorMsg, "| Code:", data.error?.code, "| Status:", res.status)
+    return { success: false, error: errorMsg }
+  } catch (err: any) {
     console.error("[WhatsApp API] Network error:", err)
-    return null
+    return { success: false, error: err.message || "Network error" }
   }
 }
 

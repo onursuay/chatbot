@@ -146,15 +146,20 @@ export async function POST(
       text
     )
 
-    if (!result) {
+    if (!result.success) {
       console.error("[WhatsApp Send] Mesaj gonderilemedi:", {
+        error: result.error,
         phoneNumberId: phone.phone_number_id,
         to: conv.contact.wa_id,
         convId: conv.id,
       })
+      return NextResponse.json(
+        { detail: `WhatsApp gonderilemedi: ${result.error}` },
+        { status: 502 }
+      )
     }
 
-    waMessageId = result?.messages?.[0]?.id || null
+    waMessageId = result.messages?.[0]?.id || null
   }
 
   // DB'ye kaydet
