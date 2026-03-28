@@ -47,8 +47,17 @@ export async function POST(request: Request) {
     // 5. WABA'yı subscribe et
     await subscribeWaba(accessToken, wabaId)
 
-    // 6. Phone register
-    await registerPhoneNumber(accessToken, phone.id)
+    // 6. Phone register — sadece yeni numara ise (tekrar register display name'i sıfırlar!)
+    const supabaseCheck = getServiceSupabase()
+    const { data: existingPhoneCheck } = await supabaseCheck
+      .from("phone_numbers")
+      .select("id")
+      .eq("phone_number_id", phone.id)
+      .single()
+
+    if (!existingPhoneCheck) {
+      await registerPhoneNumber(accessToken, phone.id)
+    }
 
     // 7. DB'ye kaydet
     const supabase = getServiceSupabase()
