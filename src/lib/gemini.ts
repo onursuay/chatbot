@@ -47,6 +47,9 @@ export async function getAIResponse(
     const model = config.ai_model || "gemini-2.5-flash"
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
 
+    // gemini-2.5-pro thinking token'ları ayrı harcanır, maxOutputTokens daha yüksek olmalı
+    const maxTokens = model.includes("pro") ? Math.max(config.max_tokens || 300, 2048) : (config.max_tokens || 300)
+
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -55,7 +58,7 @@ export async function getAIResponse(
         systemInstruction: { parts: [{ text: config.system_prompt }] },
         generationConfig: {
           temperature: config.temperature || 0.7,
-          maxOutputTokens: config.max_tokens || 300,
+          maxOutputTokens: maxTokens,
         },
       }),
     })
