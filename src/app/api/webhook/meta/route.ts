@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getServiceSupabase } from "@/lib/supabase"
 import { sendTextMessage, markAsRead } from "@/lib/whatsapp"
 import { getAIResponse } from "@/lib/gemini"
+import { decryptToken } from "@/lib/crypto"
 
 const VERIFY_TOKEN = process.env.META_WEBHOOK_VERIFY_TOKEN || "waapi_webhook_verify_2026"
 const GRAPH_API = "https://graph.facebook.com/v21.0"
@@ -58,6 +59,15 @@ async function handleWhatsAppWebhook(payload: any) {
 
     if (!waba) continue
 
+    // Access token'ı decrypt et
+    let accessToken: string
+    try {
+      accessToken = decryptToken(waba.access_token)
+    } catch {
+      // Decrypt başarısızsa, token düz metin olabilir
+      accessToken = waba.access_token
+    }
+
     for (const change of entry.changes || []) {
       const value = change.value || {}
       const phoneNumberId = value.metadata?.phone_number_id
@@ -75,7 +85,7 @@ async function handleWhatsAppWebhook(payload: any) {
       const contactsData = value.contacts || []
 
       for (const msg of value.messages || []) {
-        await processWhatsAppMessage(supabase, waba, phone, msg, contactsData)
+        await processWhatsAppMessage(supabase, waba, phone, accessToken, msg, contactsData)
       }
 
       for (const statusUpdate of value.statuses || []) {
@@ -367,7 +377,7 @@ async function sendFacebookReply(supabase: any, org: any, recipientId: string, t
 // WHATSAPP: Gelen mesaj işle (mevcut mantık)
 // ============================================
 async function processWhatsAppMessage(
-  supabase: any, waba: any, phone: any, msg: any, contactsData: any[]
+  supabase: any, waba: any, phone: any, accessToken: string, msg: any, contactsData: any[]
 ) {
   const msgId = msg.id || ""
   const senderWaId = msg.from || ""
@@ -382,10 +392,18 @@ async function processWhatsAppMessage(
 
   const senderName = contactsData[0]?.profile?.name || ""
   const contact = await getOrCreateContact(supabase, waba.org_id, senderWaId, senderName, "whatsapp")
+  if (!contact) {
+    console.error("[Webhook] Contact olusturulamadi:", senderWaId)
+    return
+  }
   const conversation = await getOrCreateConversation(supabase, waba.org_id, contact.id, phone.id, "whatsapp")
+  if (!conversation) {
+    console.error("[Webhook] Conversation olusturulamadi:", contact.id)
+    return
+  }
 
   const validTypes = ["text", "image", "video", "audio", "document", "location"]
-  await supabase.from("messages").insert({
+  const { error: msgError } = await supabase.from("messages").insert({
     org_id: waba.org_id,
     conversation_id: conversation.id,
     contact_id: contact.id,
@@ -396,6 +414,10 @@ async function processWhatsAppMessage(
     status: "received",
     sender_type: "contact",
   })
+  if (msgError) {
+    console.error("[Webhook] Mesaj kayit hatasi:", msgError)
+    return
+  }
 
   await supabase.from("conversations").update({
     last_message_at: new Date().toISOString(),
@@ -403,7 +425,7 @@ async function processWhatsAppMessage(
     unread_count: (conversation.unread_count || 0) + 1,
   }).eq("id", conversation.id)
 
-  await markAsRead(phone.phone_number_id, waba.access_token, msgId)
+  await markAsRead(phone.phone_number_id, accessToken, msgId)
 
   if (conversation.is_bot_active) {
     const aiResponse = await getAIResponse(waba.org_id, conversation.id, text)
@@ -411,7 +433,7 @@ async function processWhatsAppMessage(
     const notInterested = aiResponse.includes("[NOT_INTERESTED]")
     const cleanResponse = aiResponse.replace("[TRANSFER_SALES]", "").replace("[NOT_INTERESTED]", "").trim()
 
-    const result = await sendTextMessage(phone.phone_number_id, waba.access_token, senderWaId, cleanResponse)
+    const result = await sendTextMessage(phone.phone_number_id, accessToken, senderWaId, cleanResponse)
     const waMessageId = result?.messages?.[0]?.id || null
 
     await supabase.from("messages").insert({
@@ -534,7 +556,7 @@ async function getOrCreateConversation(
     contact_id: contactId,
     status: "open",
     is_bot_active: true,
-    channel: channel,
+    metadata: { channel },
   }
   if (phoneNumberId) insert.phone_number_id = phoneNumberId
 
