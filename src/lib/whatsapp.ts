@@ -12,21 +12,29 @@ export async function sendTextMessage(
   text: string
 ): Promise<{ messages: { id: string }[] } | null> {
   const url = `${GRAPH_API_BASE}/${phoneNumberId}/messages`
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      messaging_product: "whatsapp",
-      to,
-      type: "text",
-      text: { body: text },
-    }),
-  })
-  const data = await res.json()
-  return data.messages ? data : null
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to,
+        type: "text",
+        text: { body: text },
+      }),
+    })
+    const data = await res.json()
+    if (!data.messages) {
+      console.error("[WhatsApp API] Send failed:", JSON.stringify(data))
+    }
+    return data.messages ? data : null
+  } catch (err) {
+    console.error("[WhatsApp API] Network error:", err)
+    return null
+  }
 }
 
 export async function sendTemplateMessage(

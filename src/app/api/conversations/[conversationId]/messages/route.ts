@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getServiceSupabase } from "@/lib/supabase"
 import { getAuthUser } from "@/lib/jwt"
 import { sendTextMessage } from "@/lib/whatsapp"
+import { decryptToken } from "@/lib/crypto"
 
 // GET — Konuşmanın mesajlarını getir
 export async function GET(
@@ -129,12 +130,30 @@ export async function POST(
       return NextResponse.json({ detail: "Telefon numarasi bulunamadi" }, { status: 400 })
     }
 
+    // Access token'ı decrypt et (DB'de Fernet ile şifreli saklanıyor)
+    let accessToken: string
+    try {
+      accessToken = decryptToken(phone.waba.access_token)
+    } catch {
+      // Eğer decrypt başarısızsa, token zaten düz metin olabilir
+      accessToken = phone.waba.access_token
+    }
+
     const result = await sendTextMessage(
       phone.phone_number_id,
-      phone.waba.access_token,
+      accessToken,
       conv.contact.wa_id,
       text
     )
+
+    if (!result) {
+      console.error("[WhatsApp Send] Mesaj gonderilemedi:", {
+        phoneNumberId: phone.phone_number_id,
+        to: conv.contact.wa_id,
+        convId: conv.id,
+      })
+    }
+
     waMessageId = result?.messages?.[0]?.id || null
   }
 
