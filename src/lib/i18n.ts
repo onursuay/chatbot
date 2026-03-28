@@ -306,6 +306,24 @@ const translations: Record<string, Record<Lang, string>> = {
   "contact_count": { tr: "Kişi Sayısı", en: "Contacts" },
   "lead_count": { tr: "Lead Sayısı", en: "Leads" },
 
+  // Inbox — Documento design
+  "today": { tr: "Bugün", en: "Today" },
+  "yesterday": { tr: "Dün", en: "Yesterday" },
+  "online": { tr: "Çevrimiçi", en: "Online" },
+  "offline": { tr: "Çevrimdışı", en: "Offline" },
+  "ai_suggestions_ready": { tr: "Yapay zeka yanıt önerileri hazırladı.", en: "AI has prepared reply suggestions." },
+  "ai_summary_title": { tr: "AI Özet & Öngörü", en: "AI Summary & Insights" },
+  "customer_details": { tr: "Müşteri Detayları", en: "Customer Details" },
+  "email_label": { tr: "E-posta", en: "Email" },
+  "phone_label": { tr: "Telefon", en: "Phone" },
+  "tags_label": { tr: "Etiketler", en: "Tags" },
+  "add_tag_btn": { tr: "+ Ekle", en: "+ Add" },
+  "archive_conversation": { tr: "Konuşmayı Arşivle", en: "Archive Conversation" },
+  "individual_customer": { tr: "Bireysel Müşteri", en: "Individual Customer" },
+  "image_sent": { tr: "Resim gönderildi", en: "Image sent" },
+  "new_message_btn": { tr: "Yeni Mesaj", en: "New Message" },
+  "msg_search_placeholder": { tr: "Mesajlarda veya kişilerde ara...", en: "Search messages or contacts..." },
+
   // Misc
   "unknown": { tr: "Bilinmeyen", en: "Unknown" },
   "no_message": { tr: "Mesaj yok", en: "No messages" },
