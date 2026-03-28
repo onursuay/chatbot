@@ -96,110 +96,110 @@ export default function AutomationPage() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">{t("automation_rules")}</h2>
+    <div className="p-7">
+      <div className="ds-page-header">
+        <h2 className="ds-page-title">{t("automation_rules")}</h2>
         <button onClick={() => setShowCreate(!showCreate)}
-          className="bg-primary hover:bg-primary/90 text-gray-900 font-semibold px-4 py-2 rounded-lg text-sm transition">
+          className="ds-btn-primary">
           {t("new_rule")}
         </button>
       </div>
 
       {showCreate && (
-        <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
-          <h3 className="text-gray-900 font-medium mb-4">{t("new_automation_form")}</h3>
+        <div className="ds-card p-6 mb-6">
+          <h3 className="ds-section-title mb-4">{t("new_automation_form")}</h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-500 mb-1">{t("rule_name")}</label>
+              <label className="block text-caption-medium text-surface-500 mb-1">{t("rule_name")}</label>
               <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary" />
+                className="ds-input" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-gray-500 mb-1">{t("trigger")}</label>
+                <label className="block text-caption-medium text-surface-500 mb-1">{t("trigger")}</label>
                 <select value={form.trigger_type} onChange={(e) => setForm({ ...form, trigger_type: e.target.value })}
-                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary">
+                  className="ds-input">
                   {TRIGGER_TYPES.map((tr) => <option key={tr.value} value={tr.value}>{tr.label}</option>)}
                 </select>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-micro text-surface-400 mt-1">
                   {TRIGGER_TYPES.find((tr) => tr.value === form.trigger_type)?.desc}
                 </p>
               </div>
               <div>
-                <label className="block text-sm text-gray-500 mb-1">{t("action")}</label>
+                <label className="block text-caption-medium text-surface-500 mb-1">{t("action")}</label>
                 <select value={form.action_type} onChange={(e) => setForm({ ...form, action_type: e.target.value })}
-                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary">
+                  className="ds-input">
                   {ACTION_TYPES.map((a) => <option key={a.value} value={a.value}>{a.label}</option>)}
                 </select>
               </div>
             </div>
             {form.trigger_type === "keyword" && (
               <div>
-                <label className="block text-sm text-gray-500 mb-1">{t("keywords_comma")}</label>
+                <label className="block text-caption-medium text-surface-500 mb-1">{t("keywords_comma")}</label>
                 <input type="text" value={form.trigger_config.keywords}
                   onChange={(e) => setForm({ ...form, trigger_config: { keywords: e.target.value } })}
-                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary"
+                  className="ds-input"
                   placeholder={t("example_keywords")} />
               </div>
             )}
             {(form.action_type === "send_message") && (
               <div>
-                <label className="block text-sm text-gray-500 mb-1">{t("message_to_send")}</label>
+                <label className="block text-caption-medium text-surface-500 mb-1">{t("message_to_send")}</label>
                 <textarea value={form.action_config.message}
                   onChange={(e) => setForm({ ...form, action_config: { message: e.target.value } })}
-                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary h-20 resize-none"
+                  className="ds-input h-20 resize-none"
                   placeholder={t("example_price_msg")} />
               </div>
             )}
             {form.action_type === "add_tag" && (
               <div>
-                <label className="block text-sm text-gray-500 mb-1">{t("tag_to_add")}</label>
+                <label className="block text-caption-medium text-surface-500 mb-1">{t("tag_to_add")}</label>
                 <input type="text" value={form.action_config.tag || ""}
                   onChange={(e) => setForm({ ...form, action_config: { tag: e.target.value } })}
-                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary"
+                  className="ds-input"
                   placeholder="vip" />
               </div>
             )}
           </div>
           <div className="flex gap-2 mt-4">
             <button onClick={handleCreate} disabled={saving}
-              className="bg-primary hover:bg-primary/90 text-gray-900 font-semibold px-6 py-2 rounded-lg text-sm transition disabled:opacity-50">
+              className="ds-btn-primary disabled:opacity-50">
               {saving ? t("saving") : t("create")}
             </button>
             <button onClick={() => setShowCreate(false)}
-              className="bg-gray-100 text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg text-sm transition">{t("cancel")}</button>
+              className="ds-btn-secondary">{t("cancel")}</button>
           </div>
         </div>
       )}
 
-      {loading ? <p className="text-gray-500 text-sm">{t("loading")}</p> : automations.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-xl p-12 text-center">
-          <p className="text-gray-500">{t("no_automations")}</p>
-          <p className="text-gray-400 text-sm mt-1">{t("no_automations_desc")}</p>
+      {loading ? <p className="text-surface-500 text-caption">{t("loading")}</p> : automations.length === 0 ? (
+        <div className="ds-empty-state">
+          <p className="ds-empty-state-title">{t("no_automations")}</p>
+          <p className="ds-empty-state-desc">{t("no_automations_desc")}</p>
         </div>
       ) : (
         <div className="space-y-3">
           {automations.map((a) => (
-            <div key={a.id} className="bg-white border border-gray-200 rounded-xl p-5 flex items-center justify-between">
+            <div key={a.id} className="ds-card p-5 flex items-center justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-3">
-                  <h3 className="text-gray-900 font-medium">{a.name}</h3>
-                  <span className={`text-[10px] px-2 py-0.5 rounded ${a.is_active ? "bg-primary/10 text-primary" : "bg-gray-200 text-gray-400"}`}>
+                  <h3 className="text-body-medium font-medium">{a.name}</h3>
+                  <span className={`${a.is_active ? "ds-badge-primary" : "ds-badge-neutral"}`}>
                     {a.is_active ? t("active") : t("passive")}
                   </span>
                 </div>
-                <div className="flex gap-4 mt-1 text-xs text-gray-400">
+                <div className="flex gap-4 mt-1 text-caption text-surface-400">
                   <span>{t("trigger")}: {TRIGGER_TYPES.find((tr) => tr.value === a.trigger_type)?.label || a.trigger_type}</span>
                   <span>{t("action")}: {ACTION_TYPES.find((act) => act.value === a.action_type)?.label || a.action_type}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button onClick={() => toggleActive(a.id, a.is_active)}
-                  className={`w-10 h-5 rounded-full transition relative ${a.is_active ? "bg-primary" : "bg-gray-200"}`}>
+                  className={`w-10 h-5 rounded-full transition relative ${a.is_active ? "bg-primary" : "bg-surface-200"}`}>
                   <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition ${a.is_active ? "left-5" : "left-0.5"}`} />
                 </button>
                 <button onClick={() => deleteAutomation(a.id)}
-                  className="text-gray-400 hover:text-red-400 transition text-sm ml-2">{t("delete")}</button>
+                  className="text-surface-400 hover:text-red-400 transition text-caption ml-2">{t("delete")}</button>
               </div>
             </div>
           ))}

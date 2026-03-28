@@ -27,18 +27,21 @@ export default function ContactsPage() {
   }, [getToken, search])
 
   return (
-    <div className="h-screen flex flex-col">
-      <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-900">{t("contacts")}</h2>
-        <div className="flex gap-3">
+    <div className="h-full flex flex-col">
+      {/* Page Header */}
+      <div className="ds-page-header">
+        <div>
+          <h2 className="ds-page-title">{t("contacts")}</h2>
+        </div>
+        <div className="flex gap-2.5">
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t("search")}
-            className="bg-gray-100 border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary"
+            className="ds-input w-56"
           />
-          <button className="bg-primary hover:bg-primary/90 text-gray-900 text-sm font-semibold px-4 py-2.5 rounded-lg transition">
+          <button className="ds-btn-primary">
             {t("add_contact")}
           </button>
         </div>
@@ -47,31 +50,49 @@ export default function ContactsPage() {
       <div className="flex-1 overflow-y-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase">
-              <th className="text-left p-4">{t("contact_name")}</th>
-              <th className="text-left p-4">{t("phone")}</th>
-              <th className="text-left p-4">{t("tags")}</th>
-              <th className="text-left p-4">{t("last_message")}</th>
+            <tr className="border-b border-surface-200">
+              <th className="ds-table-header text-left px-6 py-3">{t("contact_name")}</th>
+              <th className="ds-table-header text-left px-6 py-3">{t("phone")}</th>
+              <th className="ds-table-header text-left px-6 py-3">{t("tags")}</th>
+              <th className="ds-table-header text-left px-6 py-3">{t("last_message")}</th>
             </tr>
           </thead>
           <tbody>
             {contacts.map((c) => (
-              <tr key={c.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition">
-                <td className="p-4 text-[14px] text-gray-900">{c.name || "—"}</td>
-                <td className="p-4 text-[14px] text-gray-600">{c.phone}</td>
-                <td className="p-4">
-                  {c.tags.map((tag) => (
-                    <span key={tag} className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded mr-1">{tag}</span>
-                  ))}
+              <tr key={c.id} className="ds-table-row">
+                <td className="px-6 py-3.5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-avatar bg-primary flex items-center justify-center text-white text-micro font-bold">
+                      {c.name?.charAt(0)?.toUpperCase() || "?"}
+                    </div>
+                    <span className="text-body-medium text-ink">{c.name || "\u2014"}</span>
+                  </div>
                 </td>
-                <td className="p-4 text-xs text-gray-400">
-                  {c.last_message_at ? new Date(c.last_message_at).toLocaleDateString("tr-TR") : "—"}
+                <td className="px-6 py-3.5 text-ui text-surface-600">{c.phone}</td>
+                <td className="px-6 py-3.5">
+                  <div className="flex gap-1 flex-wrap">
+                    {c.tags.map((tag) => (
+                      <span key={tag} className="ds-badge-primary">{tag}</span>
+                    ))}
+                  </div>
+                </td>
+                <td className="px-6 py-3.5 text-caption text-surface-400">
+                  {c.last_message_at ? new Date(c.last_message_at).toLocaleDateString("tr-TR") : "\u2014"}
                 </td>
               </tr>
             ))}
             {contacts.length === 0 && (
               <tr>
-                <td colSpan={4} className="p-8 text-center text-gray-400 text-[14px]">{t("no_contacts")}</td>
+                <td colSpan={4}>
+                  <div className="ds-empty-state">
+                    <div className="ds-empty-state-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-surface-300">
+                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" />
+                      </svg>
+                    </div>
+                    <p className="ds-empty-state-title">{t("no_contacts")}</p>
+                  </div>
+                </td>
               </tr>
             )}
           </tbody>

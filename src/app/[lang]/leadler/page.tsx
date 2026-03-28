@@ -103,19 +103,19 @@ export default function LeadlerPage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-900">{t("leads")}</h2>
+      <div className="ds-page-header px-7 py-5 border-b border-surface-200">
+        <h2 className="ds-page-title">{t("leads")}</h2>
         <div className="flex gap-3">
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t("search")}
-            className="bg-gray-100 border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary"
+            className="ds-input"
           />
           <button
             onClick={() => setShowForm(true)}
-            className="bg-primary hover:bg-primary/90 text-gray-900 text-sm font-semibold px-4 py-2.5 rounded-lg transition"
+            className="ds-btn-primary"
           >
             {t("create_lead")}
           </button>
@@ -123,11 +123,11 @@ export default function LeadlerPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="px-6 py-3 border-b border-gray-200 flex gap-3 flex-wrap">
+      <div className="px-7 py-3 border-b border-surface-200 flex gap-3 flex-wrap">
         <select
           value={filterPipeline}
           onChange={(e) => { setFilterPipeline(e.target.value); setFilterStage("") }}
-          className="bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary"
+          className="ds-input w-auto"
         >
           <option value="">{t("all_pipelines")}</option>
           {pipelines.map((p) => (
@@ -137,7 +137,7 @@ export default function LeadlerPage() {
         <select
           value={filterStage}
           onChange={(e) => setFilterStage(e.target.value)}
-          className="bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary"
+          className="ds-input w-auto"
         >
           <option value="">{t("all_stages")}</option>
           {(selectedPipeline?.stages || []).map((s) => (
@@ -147,7 +147,7 @@ export default function LeadlerPage() {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary"
+          className="ds-input w-auto"
         >
           <option value="">{t("all_statuses")}</option>
           <option value="open">{t("open")}</option>
@@ -159,28 +159,28 @@ export default function LeadlerPage() {
       {/* Create Lead Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setShowForm(false)}>
-          <div className="bg-white rounded-lg border border-gray-200 p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-gray-900 font-semibold text-lg mb-4">{t("create_lead")}</h3>
-            {formError && <p className="text-red-400 text-sm mb-3">{formError}</p>}
+          <div className="ds-card p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <h3 className="ds-section-title text-lg mb-4">{t("create_lead")}</h3>
+            {formError && <p className="text-red-400 text-caption mb-3">{formError}</p>}
             <div className="space-y-3">
               <input
                 type="text"
                 value={formTitle}
                 onChange={(e) => setFormTitle(e.target.value)}
                 placeholder={t("lead_title")}
-                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary"
+                className="ds-input"
               />
               <input
                 type="number"
                 value={formValue}
                 onChange={(e) => setFormValue(e.target.value)}
                 placeholder={t("value")}
-                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary"
+                className="ds-input"
               />
               <select
                 value={formPipeline}
                 onChange={(e) => { setFormPipeline(e.target.value); setFormStage("") }}
-                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:border-primary"
+                className="ds-input"
               >
                 <option value="">{t("select_pipeline")}</option>
                 {pipelines.map((p) => (
@@ -190,7 +190,7 @@ export default function LeadlerPage() {
               <select
                 value={formStage}
                 onChange={(e) => setFormStage(e.target.value)}
-                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:border-primary"
+                className="ds-input"
               >
                 <option value="">{t("select_stage")}</option>
                 {(formPipelineObj?.stages || []).map((s) => (
@@ -201,13 +201,13 @@ export default function LeadlerPage() {
             <div className="flex justify-end gap-3 mt-4">
               <button
                 onClick={() => setShowForm(false)}
-                className="text-gray-500 hover:text-gray-900 text-sm px-4 py-2.5 transition"
+                className="ds-btn-ghost"
               >
                 {t("cancel")}
               </button>
               <button
                 onClick={handleCreate}
-                className="bg-primary hover:bg-primary/90 text-gray-900 text-sm font-semibold px-4 py-2.5 rounded-lg transition"
+                className="ds-btn-primary"
               >
                 {t("create")}
               </button>
@@ -218,9 +218,9 @@ export default function LeadlerPage() {
 
       {/* Table */}
       <div className="flex-1 overflow-y-auto">
-        <table className="w-full">
+        <table className="ds-table w-full">
           <thead>
-            <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase">
+            <tr className="ds-table-header">
               <th className="text-left p-4">{t("title")}</th>
               <th className="text-left p-4">{t("value")}</th>
               <th className="text-left p-4">{t("stage")}</th>
@@ -235,28 +235,28 @@ export default function LeadlerPage() {
               <tr
                 key={lead.id}
                 onClick={() => router.push(`/${lang}/leadler/${lead.id}`)}
-                className="border-b border-gray-100 hover:bg-gray-50/50 transition cursor-pointer"
+                className="ds-table-row cursor-pointer"
               >
-                <td className="p-4 text-[14px] text-gray-900 font-medium">{lead.title}</td>
-                <td className="p-4 text-[14px] text-primary">
-                  {lead.value != null ? `$${lead.value.toLocaleString()}` : "—"}
+                <td className="p-4 text-ui text-ink font-medium">{lead.title}</td>
+                <td className="p-4 text-ui text-primary">
+                  {lead.value != null ? `$${lead.value.toLocaleString()}` : "\u2014"}
                 </td>
                 <td className="p-4">
-                  <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded">
-                    {lead.stage_name || "—"}
+                  <span className="ds-badge-primary">
+                    {lead.stage_name || "\u2014"}
                   </span>
                 </td>
-                <td className="p-4 text-[14px] text-gray-600">{lead.contact_name || "—"}</td>
-                <td className="p-4 text-[14px] text-gray-600">{lead.assigned_user_name || "—"}</td>
-                <td className="p-4 text-[14px] text-gray-600">{lead.score ?? "—"}</td>
-                <td className="p-4 text-xs text-gray-400">
+                <td className="p-4 text-ui text-surface-500">{lead.contact_name || "\u2014"}</td>
+                <td className="p-4 text-ui text-surface-500">{lead.assigned_user_name || "\u2014"}</td>
+                <td className="p-4 text-ui text-surface-500">{lead.score ?? "\u2014"}</td>
+                <td className="p-4 text-caption text-surface-400">
                   {new Date(lead.created_at).toLocaleDateString("tr-TR")}
                 </td>
               </tr>
             ))}
             {leads.length === 0 && (
               <tr>
-                <td colSpan={7} className="p-8 text-center text-gray-400 text-[14px]">{t("no_leads")}</td>
+                <td colSpan={7} className="p-8 text-center text-surface-400 text-ui">{t("no_leads")}</td>
               </tr>
             )}
           </tbody>

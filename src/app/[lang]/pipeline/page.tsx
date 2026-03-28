@@ -63,14 +63,18 @@ export default function PipelinePage() {
   const getLeadsForStage = (stageId: string) => leads.filter((l) => l.stage_id === stageId)
 
   return (
-    <div className="h-screen flex flex-col">
-      <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-900">{t("pipeline")}</h2>
-        <div className="flex gap-3">
+    <div className="h-full flex flex-col">
+      {/* Page Header */}
+      <div className="ds-page-header">
+        <div>
+          <h2 className="ds-page-title">{t("pipeline")}</h2>
+          <p className="ds-page-subtitle">CRM deal management</p>
+        </div>
+        <div className="flex gap-2.5">
           <select
             value={selectedPipelineId}
             onChange={(e) => setSelectedPipelineId(e.target.value)}
-            className="bg-gray-100 border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:border-primary"
+            className="ds-input pr-8"
           >
             {pipelines.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
@@ -82,7 +86,14 @@ export default function PipelinePage() {
       <div className="flex-1 overflow-x-auto p-6">
         {stages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-gray-400 text-[14px]">{t("no_stages")}</p>
+            <div className="ds-empty-state">
+              <div className="ds-empty-state-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-surface-300">
+                  <path d="M3 3h5v18H3zM10 3h5v18h-5zM17 3h5v18h-5z" />
+                </svg>
+              </div>
+              <p className="ds-empty-state-title">{t("no_stages")}</p>
+            </div>
           </div>
         ) : (
           <div className="flex gap-4 h-full min-w-max">
@@ -91,20 +102,23 @@ export default function PipelinePage() {
               return (
                 <div
                   key={stage.id}
-                  className="w-72 flex flex-col bg-white rounded-lg border border-gray-200"
+                  className="w-72 flex flex-col bg-surface-50 rounded-card border border-surface-200"
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={() => setDraggedLeadId(null)}
                 >
-                  <div className="p-3 border-b border-gray-200 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  {/* Stage Header */}
+                  <div className="px-4 py-3 border-b border-surface-200 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
                       {stage.color && (
-                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: stage.color }} />
+                        <div className="w-2.5 h-2.5 rounded-full ring-2 ring-white" style={{ backgroundColor: stage.color }} />
                       )}
-                      <span className="text-gray-900 text-sm font-medium">{stage.name}</span>
+                      <span className="text-body-medium text-ink">{stage.name}</span>
                     </div>
-                    <span className="text-gray-400 text-xs">{stageLeads.length}</span>
+                    <span className="ds-badge-neutral">{stageLeads.length}</span>
                   </div>
-                  <div className="flex-1 overflow-y-auto p-2 space-y-2">
+
+                  {/* Stage Cards */}
+                  <div className="flex-1 overflow-y-auto p-2.5 space-y-2">
                     {stageLeads.map((lead) => (
                       <div
                         key={lead.id}
@@ -112,20 +126,20 @@ export default function PipelinePage() {
                         onDragStart={() => setDraggedLeadId(lead.id)}
                         onDragEnd={() => setDraggedLeadId(null)}
                         onClick={() => router.push(`/${lang}/leadler/${lead.id}`)}
-                        className={`bg-gray-100 rounded-lg p-3 cursor-pointer border border-gray-300 hover:border-primary/30 hover:bg-gray-100 transition ${
+                        className={`ds-card-interactive p-3.5 ${
                           draggedLeadId === lead.id ? "opacity-50" : ""
                         }`}
                       >
-                        <p className="text-gray-900 text-sm font-medium">{lead.title}</p>
+                        <p className="text-body-medium text-ink">{lead.title}</p>
                         {lead.value != null && (
-                          <p className="text-primary text-xs mt-1 font-medium">${lead.value.toLocaleString()}</p>
+                          <p className="text-caption-medium text-primary mt-1">${lead.value.toLocaleString()}</p>
                         )}
-                        <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center justify-between mt-2.5">
                           {lead.contact_name && (
-                            <span className="text-gray-500 text-xs">{lead.contact_name}</span>
+                            <span className="text-caption text-surface-500">{lead.contact_name}</span>
                           )}
                           {lead.assigned_user_name && (
-                            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-[10px] font-bold" title={lead.assigned_user_name}>
+                            <div className="w-6 h-6 rounded-avatar bg-primary flex items-center justify-center text-white text-[10px] font-bold" title={lead.assigned_user_name}>
                               {lead.assigned_user_name.charAt(0).toUpperCase()}
                             </div>
                           )}
@@ -133,7 +147,7 @@ export default function PipelinePage() {
                       </div>
                     ))}
                     {stageLeads.length === 0 && (
-                      <p className="text-gray-400 text-xs text-center py-4">{t("no_leads")}</p>
+                      <p className="text-caption text-surface-400 text-center py-6">{t("no_leads")}</p>
                     )}
                   </div>
                 </div>

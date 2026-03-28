@@ -38,7 +38,7 @@ export default function SettingsPage() {
   const [error, setError] = useState<string | null>(null)
   const [sdkReady, setSdkReady] = useState(false)
 
-  // Facebook SDK yükle
+  // Facebook SDK yukle
   useEffect(() => {
     if (window.FB) {
       setSdkReady(true)
@@ -62,7 +62,7 @@ export default function SettingsPage() {
     document.body.appendChild(script)
   }, [])
 
-  // Bağlantı durumunu kontrol et
+  // Baglanti durumunu kontrol et
   const checkStatus = useCallback(async () => {
     try {
       const token = getToken()
@@ -80,10 +80,10 @@ export default function SettingsPage() {
     checkStatus()
   }, [checkStatus])
 
-  // Embedded Signup başlat
+  // Embedded Signup baslat
   const handleConnect = () => {
     if (!sdkReady || !window.FB) {
-      setError("Facebook SDK yüklenemedi. Sayfayı yenileyin.")
+      setError("Facebook SDK yuklenemedi. Sayfayi yenileyin.")
       return
     }
 
@@ -93,11 +93,11 @@ export default function SettingsPage() {
     window.FB.login(
       (response: any) => {
         if (response.authResponse?.code) {
-          // Code'u backend'e gönder
+          // Code'u backend'e gonder
           sendCodeToBackend(response.authResponse.code)
         } else {
           setConnecting(false)
-          setError("Facebook girişi iptal edildi.")
+          setError("Facebook girisi iptal edildi.")
         }
       },
       {
@@ -127,77 +127,79 @@ export default function SettingsPage() {
       await checkStatus()
       setError(null)
     } catch (err: any) {
-      setError(err.message || "Bağlantı sırasında bir hata oluştu.")
+      setError(err.message || "Baglanti sirasinda bir hata olustu.")
     } finally {
       setConnecting(false)
     }
   }
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">{t("settings")}</h2>
+    <div className="p-7">
+      <div className="ds-page-header">
+        <h2 className="ds-page-title">{t("settings")}</h2>
+      </div>
 
       <div className="max-w-2xl space-y-6">
         {/* Organizasyon */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <h3 className="text-gray-900 font-medium text-[15px] mb-4">{t("organization")}</h3>
+        <div className="ds-card p-6">
+          <h3 className="ds-section-title mb-4">{t("organization")}</h3>
           <div className="space-y-3">
             <div>
-              <label className="text-sm text-gray-500">{t("company_name")}</label>
-              <p className="text-gray-900 text-[15px]">{user?.org_name}</p>
+              <label className="text-caption text-surface-500">{t("company_name")}</label>
+              <p className="text-ink text-ui">{user?.org_name}</p>
             </div>
             <div>
-              <label className="text-sm text-gray-500">{t("plan")}</label>
-              <p className="text-primary capitalize text-[15px]">{user?.org_plan === "trial" ? t("trial_plan") : user?.org_plan}</p>
+              <label className="text-caption text-surface-500">{t("plan")}</label>
+              <p className="text-primary capitalize text-ui">{user?.org_plan === "trial" ? t("trial_plan") : user?.org_plan}</p>
             </div>
           </div>
         </div>
 
-        {/* WhatsApp Bağlantısı */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <h3 className="text-gray-900 font-medium text-[15px] mb-4">{t("whatsapp_connection")}</h3>
+        {/* WhatsApp Baglantisi */}
+        <div className="ds-card p-6">
+          <h3 className="ds-section-title mb-4">{t("whatsapp_connection")}</h3>
 
           {loading ? (
-            <p className="text-gray-500 text-sm">{t("loading")}</p>
+            <p className="text-surface-500 text-caption">{t("loading")}</p>
           ) : status?.connected ? (
-            /* Bağlı durumu */
+            /* Bagli durumu */
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-2.5 h-2.5 bg-green-500 rounded-full" />
-                <span className="text-green-400 text-sm font-medium">{t("connected")}</span>
+                <span className="text-green-400 text-caption font-medium">{t("connected")}</span>
               </div>
 
               <div className="space-y-3">
                 <div>
-                  <label className="text-sm text-gray-500">WABA</label>
-                  <p className="text-gray-900 text-[15px]">{status.waba_name}</p>
+                  <label className="text-caption text-surface-500">WABA</label>
+                  <p className="text-ink text-ui">{status.waba_name}</p>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-500">WABA ID</label>
-                  <p className="text-gray-900 text-[15px] font-mono">{status.waba_id}</p>
+                  <label className="text-caption text-surface-500">WABA ID</label>
+                  <p className="text-ink text-ui font-mono">{status.waba_id}</p>
                 </div>
               </div>
 
               {status.phone_numbers && status.phone_numbers.length > 0 && (
-                <div className="border-t border-gray-200 pt-4">
-                  <label className="text-sm text-gray-500 block mb-2">{t("phone_numbers")}</label>
+                <div className="border-t border-surface-200 pt-4">
+                  <label className="text-caption text-surface-500 block mb-2">{t("phone_numbers")}</label>
                   {status.phone_numbers.map((phone) => (
-                    <div key={phone.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3">
+                    <div key={phone.id} className="flex items-center justify-between bg-surface-50 rounded-card-sm px-4 py-3">
                       <div>
-                        <p className="text-gray-900 text-[15px]">{phone.number}</p>
+                        <p className="text-ink text-ui">{phone.number}</p>
                         {phone.verified_name && (
-                          <p className="text-gray-500 text-xs">{phone.verified_name}</p>
+                          <p className="text-surface-500 text-caption">{phone.verified_name}</p>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className={`text-xs px-2 py-0.5 rounded ${
-                          phone.quality_rating === "GREEN" ? "bg-green-500/20 text-green-400" :
-                          phone.quality_rating === "YELLOW" ? "bg-yellow-500/20 text-yellow-400" :
-                          "bg-red-500/20 text-red-400"
+                        <span className={`${
+                          phone.quality_rating === "GREEN" ? "ds-badge-success" :
+                          phone.quality_rating === "YELLOW" ? "ds-badge-warning" :
+                          "ds-badge-danger"
                         }`}>
                           {phone.quality_rating}
                         </span>
-                        <span className="text-xs text-gray-500">{phone.status}</span>
+                        <span className="text-caption text-surface-500">{phone.status}</span>
                       </div>
                     </div>
                   ))}
@@ -205,22 +207,22 @@ export default function SettingsPage() {
               )}
             </div>
           ) : (
-            /* Bağlı değil */
+            /* Bagli degil */
             <div>
-              <p className="text-gray-500 text-sm mb-4">
+              <p className="text-surface-500 text-caption mb-4">
                 {t("whatsapp_connect_desc")}
               </p>
 
               {error && (
-                <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3 mb-4">
-                  <p className="text-red-400 text-sm">{error}</p>
+                <div className="bg-red-500/10 border border-red-500/20 rounded-card-sm px-4 py-3 mb-4">
+                  <p className="text-red-400 text-caption">{error}</p>
                 </div>
               )}
 
               <button
                 onClick={handleConnect}
                 disabled={connecting || !sdkReady}
-                className="bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 font-semibold px-5 py-2.5 rounded-lg transition text-[14px] flex items-center gap-2"
+                className="ds-btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {connecting ? (
                   <>
@@ -244,20 +246,20 @@ export default function SettingsPage() {
         </div>
 
         {/* Profil */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <h3 className="text-gray-900 font-medium text-[15px] mb-4">{t("profile")}</h3>
+        <div className="ds-card p-6">
+          <h3 className="ds-section-title mb-4">{t("profile")}</h3>
           <div className="space-y-3">
             <div>
-              <label className="text-sm text-gray-500">{t("full_name")}</label>
-              <p className="text-gray-900 text-[15px]">{user?.full_name}</p>
+              <label className="text-caption text-surface-500">{t("full_name")}</label>
+              <p className="text-ink text-ui">{user?.full_name}</p>
             </div>
             <div>
-              <label className="text-sm text-gray-500">{t("email")}</label>
-              <p className="text-gray-900 text-[15px]">{user?.email}</p>
+              <label className="text-caption text-surface-500">{t("email")}</label>
+              <p className="text-ink text-ui">{user?.email}</p>
             </div>
             <div>
-              <label className="text-sm text-gray-500">{t("role")}</label>
-              <p className="text-gray-900 capitalize text-[15px]">{user?.role}</p>
+              <label className="text-caption text-surface-500">{t("role")}</label>
+              <p className="text-ink capitalize text-ui">{user?.role}</p>
             </div>
           </div>
         </div>

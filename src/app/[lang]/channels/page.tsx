@@ -25,7 +25,7 @@ declare global {
   interface Window { FB: any; fbAsyncInit: () => void }
 }
 
-// WhatsApp gerçek logo
+// WhatsApp gercek logo
 function WhatsAppIcon() {
   return (
     <svg className="w-6 h-6" viewBox="0 0 24 24" fill="white">
@@ -99,7 +99,7 @@ export default function ChannelsPage() {
 
   // WhatsApp Embedded Signup
   const connectWhatsApp = () => {
-    if (!window.FB) return alert("Facebook SDK yüklenemedi. Sayfayı yenileyin.")
+    if (!window.FB) return alert("Facebook SDK yuklenemedi. Sayfayi yenileyin.")
     setConnecting("whatsapp")
 
     window.FB.login(
@@ -135,9 +135,9 @@ export default function ChannelsPage() {
     }
   }
 
-  // Instagram / Facebook bağla
+  // Instagram / Facebook bagla
   const connectChannel = (channel: "instagram" | "facebook") => {
-    if (!window.FB) return alert("Facebook SDK yüklenemedi")
+    if (!window.FB) return alert("Facebook SDK yuklenemedi")
     setConnecting(channel)
 
     window.FB.login(
@@ -172,7 +172,7 @@ export default function ChannelsPage() {
     )
   }
 
-  // Bağlantı kes
+  // Baglanti kes
   const disconnectChannel = async (channelId: string) => {
     if (!confirm(t("disconnect_confirm"))) return
     setDisconnecting(channelId)
@@ -213,12 +213,16 @@ export default function ChannelsPage() {
     },
   ]
 
-  if (loading) return <div className="p-6 text-gray-500 text-sm">{t("loading")}</div>
+  if (loading) return <div className="p-7 text-surface-500 text-caption">{t("loading")}</div>
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">{t("channel_management")}</h2>
-      <p className="text-gray-500 text-sm mb-6">{t("channel_management_desc")}</p>
+    <div className="p-7">
+      <div className="ds-page-header">
+        <div>
+          <h2 className="ds-page-title">{t("channel_management")}</h2>
+          <p className="ds-page-subtitle">{t("channel_management_desc")}</p>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {channelList.map((ch) => {
@@ -228,15 +232,15 @@ export default function ChannelsPage() {
           const isConnected = isWhatsApp ? waConnected : igFbConnected
 
           return (
-            <div key={ch.id} className={`bg-white border rounded-xl p-6 ${isConnected ? "border-primary/30" : "border-gray-200"}`}>
+            <div key={ch.id} className={`ds-card p-6 ${isConnected ? "border-primary/30" : ""}`}>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 ${ch.color} rounded-lg flex items-center justify-center`}>
+                  <div className={`w-10 h-10 ${ch.color} rounded-card-sm flex items-center justify-center`}>
                     {ch.icon}
                   </div>
                   <div>
-                    <h3 className="text-gray-900 font-medium">{ch.name}</h3>
-                    <p className="text-xs text-gray-400">{ch.desc}</p>
+                    <h3 className="text-body-medium font-medium">{ch.name}</h3>
+                    <p className="text-micro text-surface-400">{ch.desc}</p>
                   </div>
                 </div>
                 {/* Toggle */}
@@ -251,8 +255,8 @@ export default function ChannelsPage() {
                   </button>
                 )}
                 {!isConnected && (
-                  <div className="w-11 h-6 bg-gray-200 rounded-full relative shrink-0">
-                    <div className="w-5 h-5 bg-gray-300 rounded-full absolute top-0.5 left-0.5" />
+                  <div className="w-11 h-6 bg-surface-200 rounded-full relative shrink-0">
+                    <div className="w-5 h-5 bg-surface-300 rounded-full absolute top-0.5 left-0.5" />
                   </div>
                 )}
               </div>
@@ -261,20 +265,20 @@ export default function ChannelsPage() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full" />
-                    <span className="text-green-400 text-sm font-medium">{t("connected")}</span>
+                    <span className="text-green-400 text-caption font-medium">{t("connected")}</span>
                   </div>
                   {isWhatsApp && waStatus?.waba_name && (
-                    <p className="text-xs text-gray-500">{waStatus.waba_name}</p>
+                    <p className="text-caption text-surface-500">{waStatus.waba_name}</p>
                   )}
                   {!isWhatsApp && (channels?.[ch.id] as any)?.page_name && (
-                    <p className="text-xs text-gray-500">{(channels?.[ch.id] as any).page_name}</p>
+                    <p className="text-caption text-surface-500">{(channels?.[ch.id] as any).page_name}</p>
                   )}
                 </div>
               ) : (
                 <button
                   onClick={() => isWhatsApp ? connectWhatsApp() : connectChannel(ch.id as "instagram" | "facebook")}
                   disabled={connecting === ch.id}
-                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50"
+                  className="w-full ds-btn-secondary disabled:opacity-50"
                 >
                   {connecting === ch.id ? t("connecting") : t("connect")}
                 </button>
@@ -284,9 +288,9 @@ export default function ChannelsPage() {
         })}
       </div>
 
-      <div className="mt-8 bg-white border border-gray-200 rounded-xl p-6">
-        <h3 className="text-gray-900 font-medium mb-2">{t("how_it_works")}</h3>
-        <ul className="text-sm text-gray-500 space-y-2">
+      <div className="mt-8 ds-card p-6">
+        <h3 className="ds-section-title mb-2">{t("how_it_works")}</h3>
+        <ul className="text-caption text-surface-500 space-y-2">
           <li>{t("channel_step1_v2")}</li>
           <li>{t("channel_step2_v2")}</li>
           <li>{t("channel_step3")}</li>

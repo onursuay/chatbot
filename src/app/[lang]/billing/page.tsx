@@ -107,23 +107,27 @@ export default function BillingPage() {
     business: [t("feat_20_users"), t("feat_unlimited_msg"), t("feat_ig_fb_dm"), "Shopify", t("feat_api_access"), t("feat_custom_integration"), t("feat_dedicated_support")],
   }
 
-  if (loading) return <div className="p-6 text-gray-500 text-sm">{t("loading")}</div>
+  if (loading) return <div className="p-7 text-surface-500 text-caption">{t("loading")}</div>
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">{t("billing")}</h2>
-      <p className="text-gray-500 text-sm mb-8">
-        {t("current_plan")}: <span className="text-primary font-medium">{planLabel(data?.plan || "trial")}</span>
-        {data?.stripe_customer_id && (
-          <button onClick={handlePortal} className="text-primary hover:text-primary ml-4 underline text-sm">
-            {t("invoice_management")}
-          </button>
-        )}
-      </p>
+    <div className="p-7">
+      <div className="ds-page-header">
+        <div>
+          <h2 className="ds-page-title">{t("billing")}</h2>
+          <p className="ds-page-subtitle">
+            {t("current_plan")}: <span className="text-primary font-medium">{planLabel(data?.plan || "trial")}</span>
+            {data?.stripe_customer_id && (
+              <button onClick={handlePortal} className="text-primary hover:text-primary ml-4 underline text-caption">
+                {t("invoice_management")}
+              </button>
+            )}
+          </p>
+        </div>
+      </div>
 
-      {/* Ödeme Yöntemi Seçimi */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8">
-        <h3 className="text-gray-900 font-medium mb-4">{t("payment_method")}</h3>
+      {/* Odeme Yontemi Secimi */}
+      <div className="ds-card p-6 mb-8">
+        <h3 className="ds-section-title mb-4">{t("payment_method")}</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             { id: "stripe" as const, label: "Stripe", desc: t("intl_credit_card"), logo: <StripeLogo /> },
@@ -134,18 +138,18 @@ export default function BillingPage() {
             <button
               key={pm.id}
               onClick={() => setPaymentMethod(pm.id === "param" ? "iyzico" : pm.id)}
-              className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition ${
+              className={`flex flex-col items-center gap-2 p-4 rounded-card-sm border transition ${
                 paymentMethod === pm.id || (pm.id === "param" && paymentMethod === "iyzico")
                   ? "border-primary bg-primary/5"
-                  : "border-gray-200 bg-gray-50 hover:border-gray-300"
+                  : "border-surface-200 bg-surface-50 hover:border-surface-300"
               }`}
             >
               {pm.logo}
-              <span className="text-xs text-gray-500">{pm.desc}</span>
+              <span className="text-caption text-surface-500">{pm.desc}</span>
             </button>
           ))}
         </div>
-        <div className="mt-4 flex items-center gap-3 text-xs text-gray-400">
+        <div className="mt-4 flex items-center gap-3 text-micro text-surface-400">
           <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
@@ -153,7 +157,7 @@ export default function BillingPage() {
         </div>
       </div>
 
-      {/* Plan kartları */}
+      {/* Plan kartlari */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
           { id: "starter", name: t("plan_starter"), price: "$29", priceTL: "999 TL", popular: false },
@@ -163,23 +167,23 @@ export default function BillingPage() {
           const isActive = data?.plan === plan.id
           const features = PLAN_FEATURES[plan.id] || []
           return (
-            <div key={plan.id} className={`bg-white border rounded-xl p-6 relative ${
-              plan.popular ? "border-primary" : "border-gray-200"
+            <div key={plan.id} className={`ds-card p-6 relative ${
+              plan.popular ? "border-primary" : ""
             }`}>
               {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-gray-900 text-xs font-bold px-3 py-1 rounded-full">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-micro font-bold px-3 py-1 rounded-full">
                   {t("most_popular")}
                 </div>
               )}
-              <h3 className="text-gray-900 font-semibold text-lg">{plan.name}</h3>
+              <h3 className="text-ink font-bold text-lg">{plan.name}</h3>
               <div className="mt-3 mb-6">
-                <span className="text-3xl font-bold text-gray-900">{plan.price}</span>
-                <span className="text-gray-500 text-sm"> /ay</span>
-                <p className="text-gray-400 text-xs mt-1">{plan.priceTL} /ay</p>
+                <span className="text-kpi font-bold text-ink">{plan.price}</span>
+                <span className="text-surface-500 text-caption"> /ay</span>
+                <p className="text-surface-400 text-micro mt-1">{plan.priceTL} /ay</p>
               </div>
               <ul className="space-y-2 mb-6">
                 {features.map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
+                  <li key={f} className="flex items-center gap-2 text-caption text-surface-500">
                     <svg className="w-4 h-4 text-primary shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
@@ -188,17 +192,17 @@ export default function BillingPage() {
                 ))}
               </ul>
               {isActive ? (
-                <button disabled className="w-full bg-gray-100 text-gray-500 font-semibold py-2.5 rounded-lg text-sm">
+                <button disabled className="w-full bg-surface-100 text-surface-500 font-bold py-2.5 rounded-btn text-caption">
                   {t("current_plan_btn")}
                 </button>
               ) : (
                 <button
                   onClick={() => handleSubscribe(plan.id)}
                   disabled={subscribing === plan.id}
-                  className={`w-full font-semibold py-2.5 rounded-lg text-sm transition disabled:opacity-50 ${
+                  className={`w-full font-bold py-2.5 rounded-btn text-caption transition disabled:opacity-50 ${
                     plan.popular
-                      ? "bg-primary hover:bg-primary/90 text-gray-900"
-                      : "bg-gray-100 hover:bg-gray-200 text-gray-900"
+                      ? "ds-btn-primary"
+                      : "ds-btn-secondary"
                   }`}
                 >
                   {subscribing === plan.id ? t("redirecting") : t("select_plan")}
@@ -209,59 +213,59 @@ export default function BillingPage() {
         })}
       </div>
 
-      {/* Desteklenen ödeme yöntemleri */}
-      <div className="mt-8 bg-white border border-gray-200 rounded-xl p-6">
-        <h3 className="text-gray-900 font-medium mb-4">{t("supported_methods")}</h3>
+      {/* Desteklenen odeme yontemleri */}
+      <div className="mt-8 ds-card p-6">
+        <h3 className="ds-section-title mb-4">{t("supported_methods")}</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {/* Stripe */}
           <div className="flex flex-col items-center gap-2">
-            <div className="w-16 h-10 bg-[#635bff]/10 rounded-lg flex items-center justify-center">
+            <div className="w-16 h-10 bg-[#635bff]/10 rounded-card-sm flex items-center justify-center">
               <svg viewBox="0 0 24 24" className="w-8 h-5" fill="#635bff">
                 <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-7.076-2.19l-.893 5.575C4.746 22.81 7.489 24 10.725 24c2.6 0 4.507-.484 5.966-1.624 1.627-1.274 2.477-3.26 2.477-5.756 0-4.115-2.543-5.834-5.192-6.87z"/>
               </svg>
             </div>
             <div className="text-center">
-              <p className="text-xs text-gray-900 font-medium">Stripe</p>
-              <p className="text-[10px] text-gray-400">Visa, Mastercard, Amex</p>
+              <p className="text-caption text-ink font-medium">Stripe</p>
+              <p className="text-micro text-surface-400">Visa, Mastercard, Amex</p>
             </div>
           </div>
 
           {/* iyzico */}
           <div className="flex flex-col items-center gap-2">
-            <div className="w-16 h-10 bg-[#1E64FF]/10 rounded-lg flex items-center justify-center">
-              <span className="text-[#1E64FF] font-bold text-sm">iyzico</span>
+            <div className="w-16 h-10 bg-[#1E64FF]/10 rounded-card-sm flex items-center justify-center">
+              <span className="text-[#1E64FF] font-bold text-caption">iyzico</span>
             </div>
             <div className="text-center">
-              <p className="text-xs text-gray-900 font-medium">iyzico</p>
-              <p className="text-[10px] text-gray-400">{t("credit_card_bkm")}</p>
+              <p className="text-caption text-ink font-medium">iyzico</p>
+              <p className="text-micro text-surface-400">{t("credit_card_bkm")}</p>
             </div>
           </div>
 
           {/* PayTR */}
           <div className="flex flex-col items-center gap-2">
-            <div className="w-16 h-10 bg-[#00C853]/10 rounded-lg flex items-center justify-center">
-              <span className="text-[#00C853] font-bold text-sm">PayTR</span>
+            <div className="w-16 h-10 bg-[#00C853]/10 rounded-card-sm flex items-center justify-center">
+              <span className="text-[#00C853] font-bold text-caption">PayTR</span>
             </div>
             <div className="text-center">
-              <p className="text-xs text-gray-900 font-medium">PayTR</p>
-              <p className="text-[10px] text-gray-400">{t("credit_card_transfer")}</p>
+              <p className="text-caption text-ink font-medium">PayTR</p>
+              <p className="text-micro text-surface-400">{t("credit_card_transfer")}</p>
             </div>
           </div>
 
           {/* Param */}
           <div className="flex flex-col items-center gap-2">
-            <div className="w-16 h-10 bg-[#FF6F00]/10 rounded-lg flex items-center justify-center">
-              <span className="text-[#FF6F00] font-bold text-sm">Param</span>
+            <div className="w-16 h-10 bg-[#FF6F00]/10 rounded-card-sm flex items-center justify-center">
+              <span className="text-[#FF6F00] font-bold text-caption">Param</span>
             </div>
             <div className="text-center">
-              <p className="text-xs text-gray-900 font-medium">Param</p>
-              <p className="text-[10px] text-gray-400">{t("digital_wallet_qr")}</p>
+              <p className="text-caption text-ink font-medium">Param</p>
+              <p className="text-micro text-surface-400">{t("digital_wallet_qr")}</p>
             </div>
           </div>
         </div>
 
-        {/* Kart logoları */}
-        <div className="mt-6 pt-4 border-t border-gray-200 flex items-center justify-center gap-4">
+        {/* Kart logolari */}
+        <div className="mt-6 pt-4 border-t border-surface-200 flex items-center justify-center gap-4">
           {/* Visa */}
           <div className="w-12 h-8 bg-white/5 rounded flex items-center justify-center">
             <svg viewBox="0 0 48 16" className="w-10 h-4">
@@ -292,10 +296,10 @@ export default function BillingPage() {
         </div>
       </div>
 
-      {/* Ücretsiz plan */}
-      <div className="mt-6 bg-white border border-gray-200 rounded-xl p-6">
-        <h3 className="text-gray-900 font-medium mb-2">{t("free_trial_title")}</h3>
-        <p className="text-gray-500 text-sm">
+      {/* Ucretsiz plan */}
+      <div className="mt-6 ds-card p-6">
+        <h3 className="ds-section-title mb-2">{t("free_trial_title")}</h3>
+        <p className="text-surface-500 text-caption">
           {t("free_trial_desc")}
         </p>
       </div>

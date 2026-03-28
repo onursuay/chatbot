@@ -72,45 +72,105 @@ export default function DashboardPage() {
   }, [getToken])
 
   const kpiCards = [
-    { label: t("total_leads"), value: kpi.total_leads, color: "text-primary" },
-    { label: t("active_deals_value"), value: `$${kpi.active_deals_value.toLocaleString()}`, color: "text-green-400" },
-    { label: t("tasks_due_today"), value: kpi.tasks_due_today, color: "text-yellow-400" },
-    { label: t("conversion_rate"), value: `${kpi.conversion_rate}%`, color: "text-purple-400" },
+    {
+      label: t("total_leads"),
+      value: kpi.total_leads,
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" />
+        </svg>
+      ),
+      accent: "text-primary",
+      iconBg: "bg-primary/8",
+    },
+    {
+      label: t("active_deals_value"),
+      value: `$${kpi.active_deals_value.toLocaleString()}`,
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5">
+          <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+        </svg>
+      ),
+      accent: "text-emerald-600",
+      iconBg: "bg-emerald-50",
+    },
+    {
+      label: t("tasks_due_today"),
+      value: kpi.tasks_due_today,
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5">
+          <path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+        </svg>
+      ),
+      accent: "text-amber-600",
+      iconBg: "bg-amber-50",
+    },
+    {
+      label: t("conversion_rate"),
+      value: `${kpi.conversion_rate}%`,
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5">
+          <path d="M18 20V10M12 20V4M6 20v-6" />
+        </svg>
+      ),
+      accent: "text-violet-600",
+      iconBg: "bg-violet-50",
+    },
   ]
 
   return (
-    <div className="h-screen flex flex-col overflow-y-auto">
-      <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-900">{t("dashboard")}</h2>
+    <div className="h-full flex flex-col overflow-y-auto">
+      {/* Page Header */}
+      <div className="ds-page-header">
+        <div>
+          <h2 className="ds-page-title">{t("dashboard")}</h2>
+          <p className="ds-page-subtitle">AI-powered business overview</p>
+        </div>
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="p-7 space-y-6">
         {/* KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {kpiCards.map((card) => (
-            <div key={card.label} className="bg-white rounded-lg p-5 border border-gray-200">
-              <p className="text-gray-500 text-xs uppercase mb-2">{card.label}</p>
-              <p className={`text-2xl font-bold ${card.color}`}>{card.value}</p>
+          {kpiCards.map((card, i) => (
+            <div
+              key={card.label}
+              className="ds-kpi-card animate-slide-up"
+              style={{ animationDelay: `${i * 60}ms` }}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-caption-medium text-surface-500 uppercase tracking-wider">{card.label}</p>
+                <div className={`w-9 h-9 rounded-[6px] ${card.iconBg} ${card.accent} flex items-center justify-center`}>
+                  {card.icon}
+                </div>
+              </div>
+              <p className={`text-kpi ${card.accent}`}>{card.value}</p>
             </div>
           ))}
         </div>
 
         {/* Pipeline Summary */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="p-4 border-b border-gray-200">
-            <h3 className="text-gray-900 font-semibold text-sm">{t("pipeline_summary")}</h3>
+        <div className="ds-card">
+          <div className="px-5 py-4 border-b border-surface-200">
+            <h3 className="ds-section-title">{t("pipeline_summary")}</h3>
           </div>
-          <div className="p-4">
+          <div className="p-5">
             {pipelines.length === 0 ? (
-              <p className="text-center text-gray-400 text-[14px] py-4">{t("no_pipelines")}</p>
+              <div className="ds-empty-state py-8">
+                <div className="ds-empty-state-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-surface-300">
+                    <path d="M3 3h5v18H3zM10 3h5v18h-5zM17 3h5v18h-5z" />
+                  </svg>
+                </div>
+                <p className="ds-empty-state-title">{t("no_pipelines")}</p>
+              </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {pipelines.map((p) => (
-                  <div key={p.id} className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-gray-900 text-sm font-medium">{p.name}</p>
-                    <div className="flex justify-between mt-2">
-                      <span className="text-gray-500 text-xs">{p.leads_count} {t("leads")}</span>
-                      <span className="text-primary text-xs font-medium">${p.total_value.toLocaleString()}</span>
+                  <div key={p.id} className="bg-surface-50 rounded-card-sm p-4 border border-surface-200 hover:border-surface-300 transition-colors">
+                    <p className="text-body-medium text-ink">{p.name}</p>
+                    <div className="flex justify-between mt-2.5">
+                      <span className="text-caption text-surface-500">{p.leads_count} {t("leads")}</span>
+                      <span className="text-caption-medium text-primary">${p.total_value.toLocaleString()}</span>
                     </div>
                   </div>
                 ))}
@@ -120,27 +180,34 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="p-4 border-b border-gray-200">
-            <h3 className="text-gray-900 font-semibold text-sm">{t("recent_activity")}</h3>
+        <div className="ds-card">
+          <div className="px-5 py-4 border-b border-surface-200">
+            <h3 className="ds-section-title">{t("recent_activity")}</h3>
           </div>
-          <div className="p-4">
+          <div className="p-5">
             {activities.length === 0 ? (
-              <p className="text-center text-gray-400 text-[14px] py-4">{t("no_activity")}</p>
+              <div className="ds-empty-state py-8">
+                <div className="ds-empty-state-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-surface-300">
+                    <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+                  </svg>
+                </div>
+                <p className="ds-empty-state-title">{t("no_activity")}</p>
+              </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-1">
                 {activities.map((a) => (
-                  <div key={a.id} className="flex items-start gap-3 py-2">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
+                  <div key={a.id} className="flex items-start gap-3 py-2.5 px-2 rounded-[6px] hover:bg-surface-50 transition-colors">
+                    <div className="w-8 h-8 rounded-avatar bg-primary flex items-center justify-center text-white text-micro font-bold flex-shrink-0">
                       {a.user_name?.charAt(0)?.toUpperCase() || "?"}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-900">
-                        <span className="font-medium">{a.user_name}</span>{" "}
-                        <span className="text-gray-500">{a.action}</span>{" "}
-                        <span className="text-primary">{a.entity_title}</span>
+                      <p className="text-ui text-ink">
+                        <span className="font-bold">{a.user_name}</span>{" "}
+                        <span className="text-surface-500">{a.action}</span>{" "}
+                        <span className="text-primary font-medium">{a.entity_title}</span>
                       </p>
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="text-micro text-surface-400 mt-0.5">
                         {new Date(a.created_at).toLocaleString("tr-TR")}
                       </p>
                     </div>
@@ -153,15 +220,15 @@ export default function DashboardPage() {
 
         {/* Saved Widgets */}
         {widgets.length > 0 && (
-          <div className="bg-white rounded-lg border border-gray-200">
-            <div className="p-4 border-b border-gray-200">
-              <h3 className="text-gray-900 font-semibold text-sm">{t("custom_widgets")}</h3>
+          <div className="ds-card">
+            <div className="px-5 py-4 border-b border-surface-200">
+              <h3 className="ds-section-title">{t("custom_widgets")}</h3>
             </div>
-            <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {widgets.map((w) => (
-                <div key={w.id} className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-gray-900 text-sm font-medium">{w.title}</p>
-                  <p className="text-gray-400 text-xs mt-1">{w.type}</p>
+                <div key={w.id} className="bg-surface-50 rounded-card-sm p-4 border border-surface-200 hover:border-surface-300 transition-colors">
+                  <p className="text-body-medium text-ink">{w.title}</p>
+                  <p className="text-micro text-surface-400 mt-1">{w.type}</p>
                 </div>
               ))}
             </div>

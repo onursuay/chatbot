@@ -2,29 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 html {
-  font-size: 85%;
+  font-size: 100%;
 }
 
 * {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'PT Sans', system-ui, -apple-system, sans-serif;
 }
 
 body {
-  @apply bg-gray-50 text-gray-900;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  @apply bg-surface text-ink;
+  font-family: 'PT Sans', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 :root {
-  --space-card: 14px;
-  --btn-h: 30px;
-  --btn-h-sm: 26px;
+  --space-card: 16px;
+  --space-card-lg: 20px;
+  --btn-h: 36px;
+  --btn-h-sm: 30px;
   --chip-h: 26px;
-  --row-h: 34px;
+  --row-h: 42px;
+  --sidebar-width: 220px;
+  --sidebar-collapsed: 54px;
+  --header-height: 48px;
+  --radius: 4px;
+  --radius-card: 6px;
+  --transition-fast: 120ms ease;
+  --transition-normal: 200ms ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -35,23 +43,282 @@ body {
   }
 }
 
-/* Scrollbar — light theme */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { @apply bg-gray-100; }
-::-webkit-scrollbar-thumb { @apply bg-gray-300 rounded-full; }
-::-webkit-scrollbar-thumb:hover { @apply bg-gray-400; }
+/* Scrollbar — Kommo style (7px, subtle) */
+::-webkit-scrollbar { width: 7px; }
+::-webkit-scrollbar-track { background: inherit; }
+::-webkit-scrollbar-thumb { @apply bg-surface-400 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-surface-500; }
 
 ::selection {
-  @apply bg-primary/20 text-gray-900;
+  @apply bg-primary/15 text-ink;
 }
 
-/* No scrollbar utility */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Glass effect */
-.glass-effect {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+/* ============================================
+   KOMMO-INSPIRED DESIGN SYSTEM
+   ============================================ */
+
+@layer components {
+  /* --- Card System (tight radius, minimal shadow) --- */
+  .ds-card {
+    @apply bg-white rounded-[6px] border border-surface-300 shadow-card;
+    transition: box-shadow var(--transition-normal), border-color var(--transition-normal);
+  }
+
+  .ds-card:hover {
+    @apply shadow-card-hover;
+  }
+
+  .ds-card-interactive {
+    @apply bg-white rounded-[6px] border border-surface-300 shadow-card cursor-pointer;
+    transition: box-shadow var(--transition-normal), border-color var(--transition-normal), transform var(--transition-fast);
+  }
+
+  .ds-card-interactive:hover {
+    @apply shadow-card-hover border-surface-400;
+    transform: translateY(-1px);
+  }
+
+  .ds-card-interactive:active {
+    transform: translateY(1px);
+  }
+
+  /* --- KPI Card --- */
+  .ds-kpi-card {
+    @apply bg-white rounded-[6px] border border-surface-300 shadow-card p-5;
+    transition: box-shadow var(--transition-normal), transform var(--transition-fast);
+  }
+
+  .ds-kpi-card:hover {
+    @apply shadow-card-hover;
+    transform: translateY(-1px);
+  }
+
+  /* --- Section Header --- */
+  .ds-section-header {
+    @apply flex items-center justify-between pb-3;
+  }
+
+  .ds-section-title {
+    @apply text-section-title text-ink;
+  }
+
+  /* --- Page Header (Kommo: clean, no blur, solid bg) --- */
+  .ds-page-header {
+    @apply px-7 py-5 border-b border-surface-300 bg-white flex items-center justify-between;
+  }
+
+  .ds-page-title {
+    @apply text-page-title text-ink;
+  }
+
+  .ds-page-subtitle {
+    @apply text-caption text-ink-tertiary mt-0.5;
+  }
+
+  /* --- Button System (Kommo: 36px, 4px radius, bold, no shadow) --- */
+  .ds-btn {
+    @apply inline-flex items-center justify-center gap-1 font-bold rounded-btn;
+    @apply text-ui h-[36px] px-3;
+    transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+    white-space: nowrap;
+  }
+
+  .ds-btn:not(:disabled):active {
+    transform: translateY(1px);
+  }
+
+  .ds-btn-primary {
+    @apply ds-btn bg-primary text-white border border-primary-600;
+  }
+
+  .ds-btn-primary:not(:disabled):hover {
+    @apply bg-primary-hover;
+  }
+
+  .ds-btn-secondary {
+    @apply ds-btn bg-white text-ink border border-surface-300;
+  }
+
+  .ds-btn-secondary:not(:disabled):hover {
+    @apply bg-surface-50;
+  }
+
+  .ds-btn-ghost {
+    @apply ds-btn bg-transparent text-ink-secondary border border-transparent;
+  }
+
+  .ds-btn-ghost:not(:disabled):hover {
+    @apply text-ink;
+  }
+
+  .ds-btn-danger {
+    @apply ds-btn bg-accent-red text-white border border-accent-red;
+  }
+
+  .ds-btn-danger:not(:disabled):hover {
+    @apply bg-accent-red-hover;
+  }
+
+  .ds-btn-sm {
+    @apply h-[30px] px-2 text-caption;
+  }
+
+  /* --- Input System (Kommo: 4px radius, 1px border, solid) --- */
+  .ds-input {
+    @apply bg-white border border-surface-500 rounded-input px-3 py-2 text-body text-ink;
+    @apply transition-all duration-150;
+  }
+
+  .ds-input::placeholder {
+    @apply text-ink-placeholder;
+  }
+
+  .ds-input:focus {
+    @apply outline-none border-primary shadow-input-focus;
+  }
+
+  .ds-input:disabled {
+    @apply opacity-60 bg-surface-150;
+  }
+
+  /* --- Badge System (Kommo: 4px radius, tight) --- */
+  .ds-badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 text-micro rounded-badge;
+  }
+
+  .ds-badge-primary {
+    @apply ds-badge bg-primary/10 text-primary;
+  }
+
+  .ds-badge-success {
+    @apply ds-badge bg-callout-success text-green-700;
+  }
+
+  .ds-badge-warning {
+    @apply ds-badge bg-callout-warning text-amber-700;
+  }
+
+  .ds-badge-danger {
+    @apply ds-badge bg-callout-error text-accent-red-deep;
+  }
+
+  .ds-badge-neutral {
+    @apply ds-badge bg-surface-200 text-ink-secondary;
+  }
+
+  .ds-badge-info {
+    @apply ds-badge bg-callout-info text-accent-blue-deep;
+  }
+
+  .ds-badge-ai {
+    @apply ds-badge bg-primary/10 text-primary border border-primary/20;
+  }
+
+  /* --- Status Dot --- */
+  .ds-status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  .ds-status-online { @apply ds-status-dot bg-primary; }
+  .ds-status-away { @apply ds-status-dot bg-accent-yellow; }
+  .ds-status-offline { @apply ds-status-dot bg-surface-500; }
+
+  /* --- Empty State --- */
+  .ds-empty-state {
+    @apply flex flex-col items-center justify-center py-12 px-6 text-center;
+  }
+
+  .ds-empty-state-icon {
+    @apply w-14 h-14 rounded-[6px] bg-surface-200 flex items-center justify-center mb-4;
+  }
+
+  .ds-empty-state-title {
+    @apply text-body text-ink-tertiary mb-1;
+  }
+
+  .ds-empty-state-desc {
+    @apply text-caption text-ink-muted;
+  }
+
+  /* --- Table System (Kommo: clean, no uppercase) --- */
+  .ds-table-header {
+    @apply text-caption font-bold text-ink-tertiary;
+  }
+
+  .ds-table-row {
+    @apply border-b border-surface-200;
+    transition: background var(--transition-fast);
+  }
+
+  .ds-table-row:hover {
+    @apply bg-surface-100;
+  }
+
+  /* --- Sidebar Nav Item --- */
+  .ds-nav-item {
+    @apply flex items-center gap-2.5 rounded-btn text-ui;
+    transition: background var(--transition-fast), color var(--transition-fast);
+    position: relative;
+  }
+
+  .ds-nav-item-active {
+    @apply bg-primary/10 text-primary font-bold;
+  }
+
+  .ds-nav-item-inactive {
+    @apply text-ink-secondary;
+  }
+
+  .ds-nav-item-inactive:hover {
+    @apply text-ink bg-surface-200;
+  }
+
+  /* --- AI Accent surface --- */
+  .ds-ai-surface {
+    @apply bg-callout-success border border-primary/15 rounded-[6px];
+  }
+
+  .ds-ai-glow {
+    box-shadow: 0 0 0 1px rgba(43, 182, 115, 0.06), 0 1px 6px rgba(43, 182, 115, 0.08);
+  }
+
+  /* --- Glass Effect --- */
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* --- Divider --- */
+  .ds-divider {
+    @apply h-px bg-surface-300;
+  }
+
+  /* --- Callout (Kommo style) --- */
+  .ds-callout-error { @apply bg-callout-error border border-accent-red/20 rounded-[6px] p-4; }
+  .ds-callout-warning { @apply bg-callout-warning border border-accent-yellow/20 rounded-[6px] p-4; }
+  .ds-callout-info { @apply bg-callout-info border border-accent-blue/20 rounded-[6px] p-4; }
+  .ds-callout-success { @apply bg-callout-success border border-primary/15 rounded-[6px] p-4; }
+}
+
+/* Focus ring (Kommo: 2px solid, cobalt-blue) */
+*:focus-visible {
+  outline: 2px solid rgba(43, 182, 115, 0.4);
+  outline-offset: 1px;
+}
+
+textarea:focus {
+  box-shadow: none;
+}
+
+/* Select arrow */
+select {
+  @apply appearance-none bg-no-repeat;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b6d72' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-size: 1.25em 1.25em;
+  padding-right: 2rem;
 }

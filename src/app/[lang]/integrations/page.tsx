@@ -24,18 +24,18 @@ export default function IntegrationsPage() {
   const [shopifyUrl, setShopifyUrl] = useState("")
 
   const INTEGRATIONS = [
-    { id: "shopify", name: "Shopify", descKey: "shopify_desc", icon: "🛍", categoryKey: "e_commerce" },
-    { id: "woocommerce", name: "WooCommerce", descKey: "woocommerce_desc", icon: "🛒", categoryKey: "e_commerce" },
-    { id: "stripe", name: "Stripe", descKey: "stripe_desc", icon: "💳", categoryKey: "payment" },
-    { id: "iyzico", name: "Iyzico", descKey: "iyzico_desc", icon: "🏦", categoryKey: "payment" },
-    { id: "hubspot", name: "HubSpot", descKey: "hubspot_desc", icon: "🔶", categoryKey: "crm" },
-    { id: "salesforce", name: "Salesforce", descKey: "salesforce_desc", icon: "☁️", categoryKey: "crm" },
-    { id: "zapier", name: "Zapier", descKey: "zapier_desc", icon: "⚡", categoryKey: "automation_cat" },
-    { id: "make", name: "Make (Integromat)", descKey: "make_desc", icon: "🔄", categoryKey: "automation_cat" },
-    { id: "google_sheets", name: "Google Sheets", descKey: "gsheets_desc", icon: "📊", categoryKey: "productivity" },
-    { id: "google_calendar", name: "Google Calendar", descKey: "gcalendar_desc", icon: "📅", categoryKey: "productivity" },
-    { id: "ctwa_ads", name: "Click-to-WhatsApp Ads", descKey: "ctwa_desc", icon: "📢", categoryKey: "marketing" },
-    { id: "webhook", name: "Custom Webhook", descKey: "webhook_desc", icon: "🔗", categoryKey: "developer" },
+    { id: "shopify", name: "Shopify", descKey: "shopify_desc", icon: "\uD83D\uDECD", categoryKey: "e_commerce" },
+    { id: "woocommerce", name: "WooCommerce", descKey: "woocommerce_desc", icon: "\uD83D\uDED2", categoryKey: "e_commerce" },
+    { id: "stripe", name: "Stripe", descKey: "stripe_desc", icon: "\uD83D\uDCB3", categoryKey: "payment" },
+    { id: "iyzico", name: "Iyzico", descKey: "iyzico_desc", icon: "\uD83C\uDFE6", categoryKey: "payment" },
+    { id: "hubspot", name: "HubSpot", descKey: "hubspot_desc", icon: "\uD83D\uDD36", categoryKey: "crm" },
+    { id: "salesforce", name: "Salesforce", descKey: "salesforce_desc", icon: "\u2601\uFE0F", categoryKey: "crm" },
+    { id: "zapier", name: "Zapier", descKey: "zapier_desc", icon: "\u26A1", categoryKey: "automation_cat" },
+    { id: "make", name: "Make (Integromat)", descKey: "make_desc", icon: "\uD83D\uDD04", categoryKey: "automation_cat" },
+    { id: "google_sheets", name: "Google Sheets", descKey: "gsheets_desc", icon: "\uD83D\uDCCA", categoryKey: "productivity" },
+    { id: "google_calendar", name: "Google Calendar", descKey: "gcalendar_desc", icon: "\uD83D\uDCC5", categoryKey: "productivity" },
+    { id: "ctwa_ads", name: "Click-to-WhatsApp Ads", descKey: "ctwa_desc", icon: "\uD83D\uDCE2", categoryKey: "marketing" },
+    { id: "webhook", name: "Custom Webhook", descKey: "webhook_desc", icon: "\uD83D\uDD17", categoryKey: "developer" },
   ]
 
   const categoryKeys = Array.from(new Set(INTEGRATIONS.map((i) => i.categoryKey)))
@@ -86,23 +86,27 @@ export default function IntegrationsPage() {
   }
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">{t("integrations")}</h2>
-      <p className="text-gray-500 text-sm mb-6">{t("integrations_desc")}</p>
+    <div className="p-7">
+      <div className="ds-page-header">
+        <div>
+          <h2 className="ds-page-title">{t("integrations")}</h2>
+          <p className="ds-page-subtitle">{t("integrations_desc")}</p>
+        </div>
+      </div>
 
       {/* Filtreler */}
       <div className="flex items-center gap-3 mb-6">
         <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
           placeholder={t("search_integration")}
-          className="bg-gray-100 border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary w-64" />
+          className="ds-input w-64" />
         <div className="flex gap-2">
           <button onClick={() => setSelectedCategory(null)}
-            className={`text-xs px-3 py-1.5 rounded-lg transition ${!selectedCategory ? "bg-primary/10 text-primary" : "bg-gray-100 text-gray-500 hover:text-gray-900"}`}>
+            className={`text-micro px-3 py-1.5 rounded-badge transition ${!selectedCategory ? "ds-badge-primary" : "bg-surface-100 text-surface-500 hover:text-ink"}`}>
             {t("all")}
           </button>
           {categoryKeys.map((c) => (
             <button key={c} onClick={() => setSelectedCategory(c)}
-              className={`text-xs px-3 py-1.5 rounded-lg transition ${selectedCategory === c ? "bg-primary/10 text-primary" : "bg-gray-100 text-gray-500 hover:text-gray-900"}`}>
+              className={`text-micro px-3 py-1.5 rounded-badge transition ${selectedCategory === c ? "ds-badge-primary" : "bg-surface-100 text-surface-500 hover:text-ink"}`}>
               {t(c)}
             </button>
           ))}
@@ -111,19 +115,19 @@ export default function IntegrationsPage() {
 
       {/* Shopify config modal */}
       {configuring === "shopify" && (
-        <div className="bg-white border border-primary/30 rounded-xl p-6 mb-6">
-          <h3 className="text-gray-900 font-medium mb-3">{t("shopify_setup")}</h3>
-          <p className="text-sm text-gray-500 mb-4">{t("shopify_setup_desc")}</p>
+        <div className="ds-card border-primary/30 p-6 mb-6">
+          <h3 className="ds-section-title mb-3">{t("shopify_setup")}</h3>
+          <p className="text-caption text-surface-500 mb-4">{t("shopify_setup_desc")}</p>
           <div className="flex gap-2">
             <input type="text" value={shopifyUrl} onChange={(e) => setShopifyUrl(e.target.value)}
-              className="flex-1 bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary"
+              className="ds-input flex-1"
               placeholder="magazam.myshopify.com" />
             <button onClick={saveShopifyConfig}
-              className="bg-primary hover:bg-primary/90 text-gray-900 font-semibold px-4 py-2 rounded-lg text-sm transition">
+              className="ds-btn-primary">
               {t("connect")}
             </button>
             <button onClick={() => setConfiguring(null)}
-              className="bg-gray-100 text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg text-sm transition">
+              className="ds-btn-secondary">
               {t("cancel")}
             </button>
           </div>
@@ -133,17 +137,17 @@ export default function IntegrationsPage() {
       {/* Entegrasyon listesi */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((integration) => (
-          <div key={integration.id} className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col">
+          <div key={integration.id} className="ds-card p-5 flex flex-col">
             <div className="flex items-center gap-3 mb-3">
               <span className="text-2xl">{integration.icon}</span>
               <div>
-                <h3 className="text-gray-900 font-medium text-sm">{integration.name}</h3>
-                <span className="text-[10px] text-gray-400">{t(integration.categoryKey)}</span>
+                <h3 className="text-body-medium font-medium">{integration.name}</h3>
+                <span className="text-micro text-surface-400">{t(integration.categoryKey)}</span>
               </div>
             </div>
-            <p className="text-xs text-gray-500 flex-1 mb-4">{t(integration.descKey)}</p>
+            <p className="text-caption text-surface-500 flex-1 mb-4">{t(integration.descKey)}</p>
             <button onClick={() => handleConnect(integration.id)}
-              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-2 rounded-lg text-sm font-medium transition">
+              className="w-full ds-btn-secondary">
               {t("connect")}
             </button>
           </div>
