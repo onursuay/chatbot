@@ -213,12 +213,12 @@ export default function ChannelsPage() {
     },
   ]
 
-  if (loading) return <div className="p-6 text-dark-400 text-sm">{t("loading")}</div>
+  if (loading) return <div className="p-6 text-gray-500 text-sm">{t("loading")}</div>
 
   return (
     <div className="p-6">
-      <h2 className="text-xl font-semibold text-white mb-2">{t("channel_management")}</h2>
-      <p className="text-dark-400 text-sm mb-6">{t("channel_management_desc")}</p>
+      <h2 className="text-xl font-semibold text-gray-900 mb-2">{t("channel_management")}</h2>
+      <p className="text-gray-500 text-sm mb-6">{t("channel_management_desc")}</p>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {channelList.map((ch) => {
@@ -228,15 +228,15 @@ export default function ChannelsPage() {
           const isConnected = isWhatsApp ? waConnected : igFbConnected
 
           return (
-            <div key={ch.id} className={`bg-dark-900 border rounded-xl p-6 ${isConnected ? "border-brand-500/30" : "border-dark-800"}`}>
+            <div key={ch.id} className={`bg-white border rounded-xl p-6 ${isConnected ? "border-primary/30" : "border-gray-200"}`}>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 ${ch.color} rounded-lg flex items-center justify-center`}>
                     {ch.icon}
                   </div>
                   <div>
-                    <h3 className="text-white font-medium">{ch.name}</h3>
-                    <p className="text-xs text-dark-500">{ch.desc}</p>
+                    <h3 className="text-gray-900 font-medium">{ch.name}</h3>
+                    <p className="text-xs text-gray-400">{ch.desc}</p>
                   </div>
                 </div>
                 {/* Toggle */}
@@ -244,15 +244,15 @@ export default function ChannelsPage() {
                   <button
                     onClick={() => disconnectChannel(ch.id)}
                     disabled={disconnecting === ch.id}
-                    className="w-11 h-6 bg-brand-500 rounded-full relative transition hover:bg-brand-600 disabled:opacity-50 shrink-0"
+                    className="w-11 h-6 bg-primary rounded-full relative transition hover:bg-primary/90 disabled:opacity-50 shrink-0"
                     title={t("disconnect")}
                   >
                     <div className="w-5 h-5 bg-white rounded-full absolute top-0.5 left-5 transition" />
                   </button>
                 )}
                 {!isConnected && (
-                  <div className="w-11 h-6 bg-dark-700 rounded-full relative shrink-0">
-                    <div className="w-5 h-5 bg-dark-500 rounded-full absolute top-0.5 left-0.5" />
+                  <div className="w-11 h-6 bg-gray-200 rounded-full relative shrink-0">
+                    <div className="w-5 h-5 bg-gray-300 rounded-full absolute top-0.5 left-0.5" />
                   </div>
                 )}
               </div>
@@ -264,17 +264,17 @@ export default function ChannelsPage() {
                     <span className="text-green-400 text-sm font-medium">{t("connected")}</span>
                   </div>
                   {isWhatsApp && waStatus?.waba_name && (
-                    <p className="text-xs text-dark-400">{waStatus.waba_name}</p>
+                    <p className="text-xs text-gray-500">{waStatus.waba_name}</p>
                   )}
                   {!isWhatsApp && (channels?.[ch.id] as any)?.page_name && (
-                    <p className="text-xs text-dark-400">{(channels?.[ch.id] as any).page_name}</p>
+                    <p className="text-xs text-gray-500">{(channels?.[ch.id] as any).page_name}</p>
                   )}
                 </div>
               ) : (
                 <button
                   onClick={() => isWhatsApp ? connectWhatsApp() : connectChannel(ch.id as "instagram" | "facebook")}
                   disabled={connecting === ch.id}
-                  className="w-full bg-dark-800 hover:bg-dark-700 text-white py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50"
+                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50"
                 >
                   {connecting === ch.id ? t("connecting") : t("connect")}
                 </button>
@@ -284,9 +284,9 @@ export default function ChannelsPage() {
         })}
       </div>
 
-      <div className="mt-8 bg-dark-900 border border-dark-800 rounded-xl p-6">
-        <h3 className="text-white font-medium mb-2">{t("how_it_works")}</h3>
-        <ul className="text-sm text-dark-400 space-y-2">
+      <div className="mt-8 bg-white border border-gray-200 rounded-xl p-6">
+        <h3 className="text-gray-900 font-medium mb-2">{t("how_it_works")}</h3>
+        <ul className="text-sm text-gray-500 space-y-2">
           <li>{t("channel_step1_v2")}</li>
           <li>{t("channel_step2_v2")}</li>
           <li>{t("channel_step3")}</li>

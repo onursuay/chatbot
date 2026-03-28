@@ -64,13 +64,13 @@ export default function PipelinePage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="p-6 border-b border-dark-800 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-white">{t("pipeline")}</h2>
+      <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+        <h2 className="text-xl font-semibold text-gray-900">{t("pipeline")}</h2>
         <div className="flex gap-3">
           <select
             value={selectedPipelineId}
             onChange={(e) => setSelectedPipelineId(e.target.value)}
-            className="bg-dark-800 border border-dark-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500"
+            className="bg-gray-100 border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:border-primary"
           >
             {pipelines.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
@@ -82,7 +82,7 @@ export default function PipelinePage() {
       <div className="flex-1 overflow-x-auto p-6">
         {stages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-dark-600 text-[14px]">{t("no_stages")}</p>
+            <p className="text-gray-400 text-[14px]">{t("no_stages")}</p>
           </div>
         ) : (
           <div className="flex gap-4 h-full min-w-max">
@@ -91,18 +91,18 @@ export default function PipelinePage() {
               return (
                 <div
                   key={stage.id}
-                  className="w-72 flex flex-col bg-dark-900 rounded-lg border border-dark-800"
+                  className="w-72 flex flex-col bg-white rounded-lg border border-gray-200"
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={() => setDraggedLeadId(null)}
                 >
-                  <div className="p-3 border-b border-dark-800 flex items-center justify-between">
+                  <div className="p-3 border-b border-gray-200 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {stage.color && (
                         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: stage.color }} />
                       )}
-                      <span className="text-white text-sm font-medium">{stage.name}</span>
+                      <span className="text-gray-900 text-sm font-medium">{stage.name}</span>
                     </div>
-                    <span className="text-dark-500 text-xs">{stageLeads.length}</span>
+                    <span className="text-gray-400 text-xs">{stageLeads.length}</span>
                   </div>
                   <div className="flex-1 overflow-y-auto p-2 space-y-2">
                     {stageLeads.map((lead) => (
@@ -112,20 +112,20 @@ export default function PipelinePage() {
                         onDragStart={() => setDraggedLeadId(lead.id)}
                         onDragEnd={() => setDraggedLeadId(null)}
                         onClick={() => router.push(`/${lang}/leadler/${lead.id}`)}
-                        className={`bg-dark-800 rounded-lg p-3 cursor-pointer border border-dark-700 hover:border-brand-500/50 hover:bg-dark-700/50 transition ${
+                        className={`bg-gray-100 rounded-lg p-3 cursor-pointer border border-gray-300 hover:border-primary/30 hover:bg-gray-100 transition ${
                           draggedLeadId === lead.id ? "opacity-50" : ""
                         }`}
                       >
-                        <p className="text-white text-sm font-medium">{lead.title}</p>
+                        <p className="text-gray-900 text-sm font-medium">{lead.title}</p>
                         {lead.value != null && (
-                          <p className="text-brand-400 text-xs mt-1 font-medium">${lead.value.toLocaleString()}</p>
+                          <p className="text-primary text-xs mt-1 font-medium">${lead.value.toLocaleString()}</p>
                         )}
                         <div className="flex items-center justify-between mt-2">
                           {lead.contact_name && (
-                            <span className="text-dark-400 text-xs">{lead.contact_name}</span>
+                            <span className="text-gray-500 text-xs">{lead.contact_name}</span>
                           )}
                           {lead.assigned_user_name && (
-                            <div className="w-6 h-6 rounded-full bg-brand-500/20 flex items-center justify-center text-brand-400 text-[10px] font-bold" title={lead.assigned_user_name}>
+                            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-[10px] font-bold" title={lead.assigned_user_name}>
                               {lead.assigned_user_name.charAt(0).toUpperCase()}
                             </div>
                           )}
@@ -133,7 +133,7 @@ export default function PipelinePage() {
                       </div>
                     ))}
                     {stageLeads.length === 0 && (
-                      <p className="text-dark-600 text-xs text-center py-4">{t("no_leads")}</p>
+                      <p className="text-gray-400 text-xs text-center py-4">{t("no_leads")}</p>
                     )}
                   </div>
                 </div>

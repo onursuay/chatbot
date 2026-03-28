@@ -192,7 +192,7 @@ export default function LeadDetailPage() {
   if (!lead) {
     return (
       <div className="h-screen flex items-center justify-center">
-        <div className="animate-pulse text-brand-400">{t("loading")}</div>
+        <div className="animate-pulse text-primary">{t("loading")}</div>
       </div>
     )
   }
@@ -200,26 +200,26 @@ export default function LeadDetailPage() {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b border-dark-800 flex items-center gap-4">
+      <div className="p-4 border-b border-gray-200 flex items-center gap-4">
         <button
           onClick={() => router.back()}
-          className="text-dark-400 hover:text-white transition text-sm"
+          className="text-gray-500 hover:text-gray-900 transition text-sm"
         >
           ← {t("back_to_pipeline")}
         </button>
-        <h2 className="text-lg font-semibold text-white flex-1">{lead.title}</h2>
+        <h2 className="text-lg font-semibold text-gray-900 flex-1">{lead.title}</h2>
         <div className="flex gap-2">
           {lead.status === "active" && (
             <>
               <button
                 onClick={() => handleCloseAs("won")}
-                className="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1.5 rounded-lg transition"
+                className="bg-green-600 hover:bg-green-700 text-gray-900 text-xs px-3 py-1.5 rounded-lg transition"
               >
                 {t("close_won")}
               </button>
               <button
                 onClick={() => handleCloseAs("lost")}
-                className="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1.5 rounded-lg transition"
+                className="bg-red-600 hover:bg-red-700 text-gray-900 text-xs px-3 py-1.5 rounded-lg transition"
               >
                 {t("close_lost")}
               </button>
@@ -236,33 +236,33 @@ export default function LeadDetailPage() {
       </div>
 
       {/* Tag bar */}
-      <div className="px-4 py-2 border-b border-dark-800 flex items-center gap-2 flex-wrap">
+      <div className="px-4 py-2 border-b border-gray-200 flex items-center gap-2 flex-wrap">
         {lead.tags.map((tag) => (
-          <span key={tag} className="bg-brand-500/10 text-brand-400 text-xs px-2 py-0.5 rounded">
+          <span key={tag} className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded">
             #{tag}
           </span>
         ))}
-        <button className="text-dark-500 hover:text-brand-400 text-xs transition">
+        <button className="text-gray-400 hover:text-primary text-xs transition">
           {t("add_tag")}
         </button>
       </div>
 
       {/* Pipeline stage selector + progress bar */}
-      <div className="px-4 py-3 border-b border-dark-800">
+      <div className="px-4 py-3 border-b border-gray-200">
         <div className="flex items-center gap-3 mb-2">
           <select
             value={lead.stage_id}
             onChange={(e) => handleStageChange(e.target.value)}
-            className="bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
+            className="bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary"
           >
             {stages.map((s) => (
               <option key={s.id} value={s.id}>{s.name}</option>
             ))}
           </select>
-          <span className="text-dark-500 text-xs">{pipeline?.name}</span>
+          <span className="text-gray-400 text-xs">{pipeline?.name}</span>
         </div>
         {/* Progress bar */}
-        <div className="w-full bg-dark-800 rounded-full h-1.5">
+        <div className="w-full bg-gray-100 rounded-full h-1.5">
           <div
             className="h-1.5 rounded-full transition-all duration-500"
             style={{
@@ -278,7 +278,7 @@ export default function LeadDetailPage() {
               key={s.id}
               onClick={() => handleStageChange(s.id)}
               className={`text-[10px] transition ${
-                i <= currentStageIndex ? "text-brand-400" : "text-dark-600"
+                i <= currentStageIndex ? "text-primary" : "text-gray-400"
               }`}
               title={s.name}
             >
@@ -291,15 +291,15 @@ export default function LeadDetailPage() {
       {/* Main content: 2-column layout */}
       <div className="flex-1 flex overflow-hidden">
         {/* LEFT PANEL — Lead info */}
-        <div className="w-[380px] border-r border-dark-800 overflow-y-auto">
+        <div className="w-[380px] border-r border-gray-200 overflow-y-auto">
           {/* Tabs */}
-          <div className="flex border-b border-dark-800">
+          <div className="flex border-b border-gray-200">
             <button
               onClick={() => setActiveTab("main")}
               className={`px-4 py-2.5 text-sm font-medium transition ${
                 activeTab === "main"
-                  ? "text-brand-400 border-b-2 border-brand-400"
-                  : "text-dark-400 hover:text-white"
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-gray-500 hover:text-gray-900"
               }`}
             >
               {t("main_tab")}
@@ -308,8 +308,8 @@ export default function LeadDetailPage() {
               onClick={() => setActiveTab("feed")}
               className={`px-4 py-2.5 text-sm font-medium transition ${
                 activeTab === "feed"
-                  ? "text-brand-400 border-b-2 border-brand-400"
-                  : "text-dark-400 hover:text-white"
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-gray-500 hover:text-gray-900"
               }`}
             >
               {t("feed_tab")}
@@ -320,117 +320,117 @@ export default function LeadDetailPage() {
             <div className="p-4 space-y-5">
               {/* Sorumlu kullanıcı */}
               <div className="flex items-center justify-between">
-                <span className="text-dark-400 text-sm">{t("responsible_user")}</span>
-                <span className="text-white text-sm font-medium">
+                <span className="text-gray-500 text-sm">{t("responsible_user")}</span>
+                <span className="text-gray-900 text-sm font-medium">
                   {lead.assigned_user_name || t("unassigned")}
                 </span>
               </div>
 
               {/* Satış değeri */}
               <div className="flex items-center justify-between">
-                <span className="text-dark-400 text-sm">{t("sales_value")}</span>
-                <span className="text-white text-sm font-medium">
+                <span className="text-gray-500 text-sm">{t("sales_value")}</span>
+                <span className="text-gray-900 text-sm font-medium">
                   {lead.value?.toLocaleString("tr-TR") || "0"} {lead.currency === "TRY" ? "₺" : lead.currency}
                 </span>
               </div>
 
               {/* Lead Score */}
               <div className="flex items-center justify-between">
-                <span className="text-dark-400 text-sm">{t("lead_score_label")}</span>
-                <span className="text-brand-400 text-sm font-bold">{lead.score}/100</span>
+                <span className="text-gray-500 text-sm">{t("lead_score_label")}</span>
+                <span className="text-primary text-sm font-bold">{lead.score}/100</span>
               </div>
 
               {/* Divider */}
-              <div className="border-t border-dark-800" />
+              <div className="border-t border-gray-200" />
 
               {/* Bağlantılı Kişi */}
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-4 h-4 text-dark-500">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-4 h-4 text-gray-400">
                     <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" />
                   </svg>
-                  <span className="text-dark-400 text-xs uppercase tracking-wider">{t("add_connection")}</span>
+                  <span className="text-gray-500 text-xs uppercase tracking-wider">{t("add_connection")}</span>
                 </div>
                 {contact ? (
-                  <div className="bg-dark-800/50 rounded-lg p-3 space-y-2">
-                    <p className="text-white text-sm font-medium">{contact.name || contact.phone}</p>
+                  <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                    <p className="text-gray-900 text-sm font-medium">{contact.name || contact.phone}</p>
                     {contact.phone && (
                       <div className="flex items-center justify-between">
-                        <span className="text-dark-500 text-xs">{t("work_phone")}</span>
-                        <span className="text-dark-300 text-xs">{contact.phone}</span>
+                        <span className="text-gray-400 text-xs">{t("work_phone")}</span>
+                        <span className="text-gray-600 text-xs">{contact.phone}</span>
                       </div>
                     )}
                     {contact.email && (
                       <div className="flex items-center justify-between">
-                        <span className="text-dark-500 text-xs">{t("work_email")}</span>
-                        <span className="text-dark-300 text-xs">{contact.email}</span>
+                        <span className="text-gray-400 text-xs">{t("work_email")}</span>
+                        <span className="text-gray-600 text-xs">{contact.email}</span>
                       </div>
                     )}
                     {contact.title && (
                       <div className="flex items-center justify-between">
-                        <span className="text-dark-500 text-xs">{t("position")}</span>
-                        <span className="text-dark-300 text-xs">{contact.title}</span>
+                        <span className="text-gray-400 text-xs">{t("position")}</span>
+                        <span className="text-gray-600 text-xs">{contact.title}</span>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <button className="text-brand-400 text-xs hover:underline">
+                  <button className="text-primary text-xs hover:underline">
                     + {t("link_contact")}
                   </button>
                 )}
               </div>
 
               {/* Divider */}
-              <div className="border-t border-dark-800" />
+              <div className="border-t border-gray-200" />
 
               {/* Bağlantılı Şirket */}
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-4 h-4 text-dark-500">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-4 h-4 text-gray-400">
                     <rect x="4" y="2" width="16" height="20" rx="2" /><path d="M9 22V12h6v10" />
                   </svg>
-                  <span className="text-dark-400 text-xs uppercase tracking-wider">{t("company_name_label")}</span>
+                  <span className="text-gray-500 text-xs uppercase tracking-wider">{t("company_name_label")}</span>
                 </div>
                 {company ? (
-                  <div className="bg-dark-800/50 rounded-lg p-3 space-y-2">
-                    <p className="text-white text-sm font-medium">{company.name}</p>
+                  <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                    <p className="text-gray-900 text-sm font-medium">{company.name}</p>
                     {company.industry && (
-                      <span className="text-dark-400 text-xs">{company.industry}</span>
+                      <span className="text-gray-500 text-xs">{company.industry}</span>
                     )}
                     {company.phone && (
                       <div className="flex items-center justify-between">
-                        <span className="text-dark-500 text-xs">{t("work_phone")}</span>
-                        <span className="text-dark-300 text-xs">{company.phone}</span>
+                        <span className="text-gray-400 text-xs">{t("work_phone")}</span>
+                        <span className="text-gray-600 text-xs">{company.phone}</span>
                       </div>
                     )}
                     {company.email && (
                       <div className="flex items-center justify-between">
-                        <span className="text-dark-500 text-xs">{t("work_email")}</span>
-                        <span className="text-dark-300 text-xs">{company.email}</span>
+                        <span className="text-gray-400 text-xs">{t("work_email")}</span>
+                        <span className="text-gray-600 text-xs">{company.email}</span>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <button className="text-brand-400 text-xs hover:underline">
+                  <button className="text-primary text-xs hover:underline">
                     + {t("link_company")}
                   </button>
                 )}
               </div>
 
               {/* Divider */}
-              <div className="border-t border-dark-800" />
+              <div className="border-t border-gray-200" />
 
               {/* Meta bilgiler */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-dark-500 text-xs">{t("created_date")}</span>
-                  <span className="text-dark-400 text-xs">
+                  <span className="text-gray-400 text-xs">{t("created_date")}</span>
+                  <span className="text-gray-500 text-xs">
                     {new Date(lead.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" })}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-dark-500 text-xs">{t("last_activity")}</span>
-                  <span className="text-dark-400 text-xs">
+                  <span className="text-gray-400 text-xs">{t("last_activity")}</span>
+                  <span className="text-gray-500 text-xs">
                     {new Date(lead.updated_at).toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" })}
                   </span>
                 </div>
@@ -438,7 +438,7 @@ export default function LeadDetailPage() {
             </div>
           ) : (
             /* Feed Tab — Sol panel, setup/stats gösterilecek */
-            <div className="p-4 text-dark-500 text-sm">
+            <div className="p-4 text-gray-400 text-sm">
               {t("statistics_tab")}
             </div>
           )}
@@ -450,28 +450,28 @@ export default function LeadDetailPage() {
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {activities.length === 0 && (
               <div className="text-center py-8">
-                <p className="text-dark-600 text-sm">{t("no_activity")}</p>
+                <p className="text-gray-400 text-sm">{t("no_activity")}</p>
               </div>
             )}
             {activities.map((act) => (
               <div key={act.id} className="flex gap-3">
                 {/* Avatar dot */}
-                <div className="w-7 h-7 rounded-full bg-dark-700 flex items-center justify-center text-dark-400 text-[10px] font-bold shrink-0 mt-0.5">
+                <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-[10px] font-bold shrink-0 mt-0.5">
                   {act.user_name?.charAt(0)?.toUpperCase() || "S"}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-white text-xs font-medium">{act.user_name || "Sistem"}</span>
-                    <span className="text-dark-600 text-[10px]">
+                    <span className="text-gray-900 text-xs font-medium">{act.user_name || "Sistem"}</span>
+                    <span className="text-gray-400 text-[10px]">
                       {new Date(act.created_at).toLocaleString("tr-TR", {
                         day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
                       })}
                     </span>
                   </div>
-                  <p className="text-dark-400 text-xs mt-0.5">
+                  <p className="text-gray-500 text-xs mt-0.5">
                     {act.action === "note_added" && (
                       <span>
-                        <span className="text-brand-400">{t("note_added")}: </span>
+                        <span className="text-primary">{t("note_added")}: </span>
                         {act.new_value?.content || ""}
                       </span>
                     )}
@@ -494,27 +494,27 @@ export default function LeadDetailPage() {
           </div>
 
           {/* Not ekleme alanı */}
-          <div className="border-t border-dark-800 p-4">
-            <div className="bg-dark-800/50 rounded-lg p-3">
+          <div className="border-t border-gray-200 p-4">
+            <div className="bg-gray-50 rounded-lg p-3">
               <textarea
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
                 placeholder={t("note_placeholder")}
                 rows={3}
-                className="w-full bg-transparent text-white text-sm placeholder-dark-500 resize-none focus:outline-none"
+                className="w-full bg-transparent text-gray-900 text-sm placeholder-gray-400 resize-none focus:outline-none"
               />
               <div className="flex items-center justify-between mt-2">
                 <div className="flex gap-2">
                   <button
                     onClick={handleAddNote}
                     disabled={!noteText.trim() || saving}
-                    className="bg-brand-500 hover:bg-brand-600 text-dark-950 text-xs font-semibold px-4 py-2 rounded-lg transition disabled:opacity-50"
+                    className="bg-primary hover:bg-primary/90 text-gray-900 text-xs font-semibold px-4 py-2 rounded-lg transition disabled:opacity-50"
                   >
                     {saving ? t("saving") : t("add_note")}
                   </button>
                   <button
                     onClick={() => setNoteText("")}
-                    className="text-dark-500 text-xs hover:text-white transition px-3 py-2"
+                    className="text-gray-400 text-xs hover:text-gray-900 transition px-3 py-2"
                   >
                     {t("cancel")}
                   </button>

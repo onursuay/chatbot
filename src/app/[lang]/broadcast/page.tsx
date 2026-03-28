@@ -62,36 +62,36 @@ export default function BroadcastPage() {
   }
 
   const statusMap: Record<string, { key: string; color: string }> = {
-    draft: { key: "draft", color: "text-dark-400" },
+    draft: { key: "draft", color: "text-gray-500" },
     scheduled: { key: "scheduled", color: "text-yellow-400" },
     sending: { key: "sending", color: "text-blue-400" },
-    completed: { key: "completed", color: "text-brand-400" },
+    completed: { key: "completed", color: "text-primary" },
   }
 
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-white">{t("broadcast")}</h2>
+        <h2 className="text-xl font-semibold text-gray-900">{t("broadcast")}</h2>
         <button onClick={() => setShowCreate(!showCreate)}
-          className="bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-4 py-2 rounded-lg text-sm transition">
+          className="bg-primary hover:bg-primary/90 text-gray-900 font-semibold px-4 py-2 rounded-lg text-sm transition">
           {t("new_campaign")}
         </button>
       </div>
 
       {showCreate && (
-        <div className="bg-dark-900 border border-dark-800 rounded-xl p-6 mb-6">
-          <h3 className="text-white font-medium mb-4">{t("new_campaign_form")}</h3>
+        <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
+          <h3 className="text-gray-900 font-medium mb-4">{t("new_campaign_form")}</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-dark-400 mb-1">{t("campaign_name")}</label>
+              <label className="block text-sm text-gray-500 mb-1">{t("campaign_name")}</label>
               <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary"
                 placeholder={t("example_campaign")} />
             </div>
             <div>
-              <label className="block text-sm text-dark-400 mb-1">{t("message_template")}</label>
+              <label className="block text-sm text-gray-500 mb-1">{t("message_template")}</label>
               <select value={form.template_name} onChange={(e) => setForm({ ...form, template_name: e.target.value })}
-                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary">
                 <option value="">{t("select_template")}</option>
                 {templates.map((tpl) => (
                   <option key={tpl.name} value={tpl.name}>{tpl.name} ({tpl.category})</option>
@@ -99,61 +99,61 @@ export default function BroadcastPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm text-dark-400 mb-1">{t("language")}</label>
+              <label className="block text-sm text-gray-500 mb-1">{t("language")}</label>
               <select value={form.language} onChange={(e) => setForm({ ...form, language: e.target.value })}
-                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary">
                 <option value="tr">{t("turkish")}</option>
                 <option value="en_US">English</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm text-dark-400 mb-1">{t("target_tag")}</label>
+              <label className="block text-sm text-gray-500 mb-1">{t("target_tag")}</label>
               <input type="text" value={form.tag_filter} onChange={(e) => setForm({ ...form, tag_filter: e.target.value })}
-                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary"
                 placeholder={t("tag_empty_hint")} />
             </div>
           </div>
           <div className="flex gap-2 mt-4">
             <button onClick={handleSend} disabled={sending}
-              className="bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-6 py-2 rounded-lg text-sm transition disabled:opacity-50">
+              className="bg-primary hover:bg-primary/90 text-gray-900 font-semibold px-6 py-2 rounded-lg text-sm transition disabled:opacity-50">
               {sending ? t("sending") : t("send_now")}
             </button>
             <button onClick={() => setShowCreate(false)}
-              className="bg-dark-800 text-dark-300 hover:text-white px-4 py-2 rounded-lg text-sm transition">{t("cancel")}</button>
+              className="bg-gray-100 text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg text-sm transition">{t("cancel")}</button>
           </div>
         </div>
       )}
 
-      {loading ? <p className="text-dark-400 text-sm">{t("loading")}</p> : broadcasts.length === 0 ? (
-        <div className="bg-dark-900 border border-dark-800 rounded-xl p-12 text-center">
-          <p className="text-dark-400">{t("no_campaigns")}</p>
-          <p className="text-dark-600 text-sm mt-1">{t("no_campaigns_desc")}</p>
+      {loading ? <p className="text-gray-500 text-sm">{t("loading")}</p> : broadcasts.length === 0 ? (
+        <div className="bg-white border border-gray-200 rounded-xl p-12 text-center">
+          <p className="text-gray-500">{t("no_campaigns")}</p>
+          <p className="text-gray-400 text-sm mt-1">{t("no_campaigns_desc")}</p>
         </div>
       ) : (
         <div className="space-y-3">
           {broadcasts.map((b) => {
-            const s = statusMap[b.status] || { key: b.status, color: "text-dark-400" }
+            const s = statusMap[b.status] || { key: b.status, color: "text-gray-500" }
             return (
-              <div key={b.id} className="bg-dark-900 border border-dark-800 rounded-xl p-5">
+              <div key={b.id} className="bg-white border border-gray-200 rounded-xl p-5">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-white font-medium">{b.name}</h3>
+                  <h3 className="text-gray-900 font-medium">{b.name}</h3>
                   <span className={`text-xs font-medium ${s.color}`}>{t(s.key)}</span>
                 </div>
                 <div className="grid grid-cols-5 gap-4 text-center">
                   {[
-                    { v: b.total_recipients, l: "recipients", c: "text-white" },
-                    { v: b.sent_count, l: "sent", c: "text-brand-400" },
+                    { v: b.total_recipients, l: "recipients", c: "text-gray-900" },
+                    { v: b.sent_count, l: "sent", c: "text-primary" },
                     { v: b.delivered_count, l: "delivered", c: "text-blue-400" },
                     { v: b.read_count, l: "read", c: "text-purple-400" },
                     { v: b.failed_count, l: "failed", c: "text-red-400" },
                   ].map((stat) => (
                     <div key={stat.l}>
                       <p className={`text-2xl font-bold ${stat.c}`}>{stat.v}</p>
-                      <p className="text-xs text-dark-500">{t(stat.l)}</p>
+                      <p className="text-xs text-gray-400">{t(stat.l)}</p>
                     </div>
                   ))}
                 </div>
-                <p className="text-xs text-dark-600 mt-3">
+                <p className="text-xs text-gray-400 mt-3">
                   {new Date(b.created_at).toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" })}
                 </p>
               </div>

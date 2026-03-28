@@ -57,9 +57,9 @@ export default function TemplatesPage() {
       APPROVED: "bg-green-500/10 text-green-400",
       PENDING: "bg-yellow-500/10 text-yellow-400",
       REJECTED: "bg-red-500/10 text-red-400",
-      DRAFT: "bg-dark-700 text-dark-400",
+      DRAFT: "bg-gray-200 text-gray-500",
     }
-    return map[s] || "bg-dark-700 text-dark-400"
+    return map[s] || "bg-gray-200 text-gray-500"
   }
 
   const categoryLabel = (c: string) => {
@@ -70,28 +70,28 @@ export default function TemplatesPage() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-white">{t("templates")}</h2>
+        <h2 className="text-xl font-semibold text-gray-900">{t("templates")}</h2>
         <button onClick={() => setShowCreate(!showCreate)}
-          className="bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-4 py-2 rounded-lg text-sm transition">
+          className="bg-primary hover:bg-primary/90 text-gray-900 font-semibold px-4 py-2 rounded-lg text-sm transition">
           {t("new_template")}
         </button>
       </div>
 
       {showCreate && (
-        <div className="bg-dark-900 border border-dark-800 rounded-xl p-6 mb-6">
-          <h3 className="text-white font-medium mb-4">{t("new_template_form")}</h3>
+        <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
+          <h3 className="text-gray-900 font-medium mb-4">{t("new_template_form")}</h3>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm text-dark-400 mb-1">{t("template_name")}</label>
+              <label className="block text-sm text-gray-500 mb-1">{t("template_name")}</label>
               <input type="text" value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "") })}
-                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary"
                 placeholder={t("example_template")} />
             </div>
             <div>
-              <label className="block text-sm text-dark-400 mb-1">{t("category")}</label>
+              <label className="block text-sm text-gray-500 mb-1">{t("category")}</label>
               <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary">
                 <option value="MARKETING">{t("marketing")}</option>
                 <option value="UTILITY">{t("utility")}</option>
                 <option value="AUTHENTICATION">{t("authentication")}</option>
@@ -99,42 +99,42 @@ export default function TemplatesPage() {
             </div>
           </div>
           <div className="mb-4">
-            <label className="block text-sm text-dark-400 mb-1">{t("message_text")}</label>
+            <label className="block text-sm text-gray-500 mb-1">{t("message_text")}</label>
             <textarea value={form.text} onChange={(e) => setForm({ ...form, text: e.target.value })}
-              className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500 h-24 resize-none"
+              className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary h-24 resize-none"
               placeholder={t("msg_body_placeholder")} />
-            <p className="text-xs text-dark-600 mt-1">{t("variables_hint")}</p>
+            <p className="text-xs text-gray-400 mt-1">{t("variables_hint")}</p>
           </div>
           <div className="flex gap-2">
             <button onClick={handleCreate} disabled={creating}
-              className="bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-6 py-2 rounded-lg text-sm transition disabled:opacity-50">
+              className="bg-primary hover:bg-primary/90 text-gray-900 font-semibold px-6 py-2 rounded-lg text-sm transition disabled:opacity-50">
               {creating ? t("sending") : t("send_to_meta")}
             </button>
             <button onClick={() => setShowCreate(false)}
-              className="bg-dark-800 text-dark-300 hover:text-white px-4 py-2 rounded-lg text-sm transition">{t("cancel")}</button>
+              className="bg-gray-100 text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg text-sm transition">{t("cancel")}</button>
           </div>
         </div>
       )}
 
-      {loading ? <p className="text-dark-400 text-sm">{t("loading")}</p> : templates.length === 0 ? (
-        <div className="bg-dark-900 border border-dark-800 rounded-xl p-12 text-center">
-          <p className="text-dark-400">{t("no_templates")}</p>
-          <p className="text-dark-600 text-sm mt-1">{t("no_templates_desc")}</p>
+      {loading ? <p className="text-gray-500 text-sm">{t("loading")}</p> : templates.length === 0 ? (
+        <div className="bg-white border border-gray-200 rounded-xl p-12 text-center">
+          <p className="text-gray-500">{t("no_templates")}</p>
+          <p className="text-gray-400 text-sm mt-1">{t("no_templates_desc")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {templates.map((tpl, i) => (
-            <div key={tpl.name + i} className="bg-dark-900 border border-dark-800 rounded-xl p-5">
+            <div key={tpl.name + i} className="bg-white border border-gray-200 rounded-xl p-5">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-white font-medium text-sm">{tpl.name}</h3>
+                <h3 className="text-gray-900 font-medium text-sm">{tpl.name}</h3>
                 <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${statusColor(tpl.status)}`}>{t(`status_${tpl.status.toLowerCase()}`) || tpl.status}</span>
               </div>
-              <div className="flex gap-2 text-xs text-dark-500">
+              <div className="flex gap-2 text-xs text-gray-400">
                 <span>{categoryLabel(tpl.category)}</span>
                 <span>{tpl.language}</span>
               </div>
               {tpl.components && tpl.components.length > 0 && (
-                <p className="text-xs text-dark-400 mt-2 line-clamp-2">
+                <p className="text-xs text-gray-500 mt-2 line-clamp-2">
                   {tpl.components.find((c: any) => c.type === "BODY")?.text || ""}
                 </p>
               )}

@@ -34,7 +34,7 @@ const CHANNELS: { id: Channel; label: string; color: string; icon: JSX.Element }
   {
     id: "all",
     label: "all_channels",
-    color: "text-white",
+    color: "text-gray-900",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
         <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
@@ -232,23 +232,23 @@ export default function InboxPage() {
   return (
     <div className="h-full flex overflow-hidden">
       {/* Sol Panel — Kanal sekmeleri + Konuşma listesi */}
-      <div className="w-80 border-r border-dark-800 flex flex-col">
+      <div className="w-80 border-r border-gray-200 flex flex-col">
         {/* Başlık */}
-        <div className="p-4 border-b border-dark-800">
-          <h2 className="text-lg font-semibold text-white">{t("inbox")}</h2>
+        <div className="p-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">{t("inbox")}</h2>
           <div className="mt-2">
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t("search")}
-              className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2.5 text-sm text-white placeholder-dark-500 focus:outline-none focus:border-brand-500"
+              className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary"
             />
           </div>
         </div>
 
         {/* Kanal Sekmeleri */}
-        <div className="flex border-b border-dark-800">
+        <div className="flex border-b border-gray-200">
           {CHANNELS.map((ch) => {
             const count = channelCounts[ch.id]
             const isActive = activeChannel === ch.id
@@ -258,15 +258,15 @@ export default function InboxPage() {
                 onClick={() => setActiveChannel(ch.id)}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 transition relative ${
                   isActive
-                    ? `${ch.id === "all" ? "text-brand-400" : ch.color} border-b-2 ${ch.id === "all" ? "border-brand-400" : ch.id === "whatsapp" ? "border-[#25D366]" : ch.id === "instagram" ? "border-[#E1306C]" : "border-[#0084FF]"}`
-                    : "text-dark-500 hover:text-dark-300"
+                    ? `${ch.id === "all" ? "text-primary" : ch.color} border-b-2 ${ch.id === "all" ? "border-primary" : ch.id === "whatsapp" ? "border-[#25D366]" : ch.id === "instagram" ? "border-[#E1306C]" : "border-[#0084FF]"}`
+                    : "text-gray-400 hover:text-gray-600"
                 }`}
                 title={ch.id === "all" ? t("all") : ch.label}
               >
                 <span className={isActive ? ch.color : ""}>{ch.icon}</span>
                 {count > 0 && (
                   <span className={`text-[9px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 ${
-                    isActive ? "bg-brand-500 text-dark-950" : "bg-dark-700 text-dark-400"
+                    isActive ? "bg-primary text-gray-900" : "bg-gray-200 text-gray-500"
                   }`}>
                     {count}
                   </span>
@@ -279,7 +279,7 @@ export default function InboxPage() {
         {/* Konuşma Listesi */}
         <div className="flex-1 overflow-y-auto">
           {filteredConversations.length === 0 ? (
-            <div className="p-8 text-center text-dark-500 text-sm">
+            <div className="p-8 text-center text-gray-400 text-sm">
               {search ? t("no_results") : t("no_conversations")}
             </div>
           ) : (
@@ -287,38 +287,38 @@ export default function InboxPage() {
               <button
                 key={conv.id}
                 onClick={() => setSelectedConv(conv)}
-                className={`w-full p-4 border-b border-dark-800 text-left hover:bg-dark-800/50 transition ${
-                  selectedConv?.id === conv.id ? "bg-dark-800" : ""
+                className={`w-full p-4 border-b border-gray-200 text-left hover:bg-gray-50 transition ${
+                  selectedConv?.id === conv.id ? "bg-gray-100" : ""
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 min-w-0">
                     {/* Kanal ikonu */}
                     <span className="shrink-0">{getChannelIcon(conv.channel)}</span>
-                    <span className="text-sm font-medium text-white truncate">
+                    <span className="text-sm font-medium text-gray-900 truncate">
                       {conv.contact_name || conv.contact_phone || t("unknown")}
                     </span>
                   </div>
                   {conv.unread_count > 0 && (
-                    <span className="bg-brand-500 text-dark-950 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">
+                    <span className="bg-primary text-gray-900 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">
                       {conv.unread_count}
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-dark-400 truncate mt-1 ml-6">
+                <p className="text-xs text-gray-500 truncate mt-1 ml-6">
                   {conv.last_message_preview || t("no_message")}
                 </p>
                 <div className="flex items-center gap-2 mt-1 ml-6">
                   {conv.is_bot_active && (
-                    <span className="text-[10px] bg-brand-500/10 text-brand-400 px-1.5 py-0.5 rounded">BOT</span>
+                    <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">BOT</span>
                   )}
                   <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                    conv.status === "open" ? "text-brand-400" :
-                    conv.status === "resolved" ? "text-dark-500" : "text-yellow-400"
+                    conv.status === "open" ? "text-primary" :
+                    conv.status === "resolved" ? "text-gray-400" : "text-yellow-400"
                   }`}>
                     {conv.status === "open" ? t("open") : conv.status === "resolved" ? t("resolved") : t("assigned")}
                   </span>
-                  <span className="text-[10px] text-dark-600">
+                  <span className="text-[10px] text-gray-400">
                     {conv.last_message_at ? formatTime(conv.last_message_at) : ""}
                   </span>
                 </div>
@@ -333,7 +333,7 @@ export default function InboxPage() {
         {selectedConv ? (
           <>
             {/* Header */}
-            <div className="p-4 border-b border-dark-800 flex items-center justify-between">
+            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {/* Kanal ikonu büyük */}
                 <div className={`w-9 h-9 rounded-full flex items-center justify-center ${
@@ -344,7 +344,7 @@ export default function InboxPage() {
                   {getChannelIcon(selectedConv.channel)}
                 </div>
                 <div>
-                  <h3 className="text-white font-medium text-[15px]">
+                  <h3 className="text-gray-900 font-medium text-[15px]">
                     {selectedConv.contact_name || selectedConv.contact_phone}
                   </h3>
                   <div className="flex items-center gap-2 mt-0.5">
@@ -357,14 +357,14 @@ export default function InboxPage() {
                        selectedConv.channel === "facebook" ? "Messenger" : "WhatsApp"}
                     </span>
                     <span className={`text-xs ${
-                      selectedConv.status === "open" ? "text-brand-400" :
-                      selectedConv.status === "resolved" ? "text-dark-500" : "text-yellow-400"
+                      selectedConv.status === "open" ? "text-primary" :
+                      selectedConv.status === "resolved" ? "text-gray-400" : "text-yellow-400"
                     }`}>
                       {selectedConv.status === "open" ? t("open") :
                        selectedConv.status === "resolved" ? t("resolved") : t("assigned")}
                     </span>
                     {selectedConv.contact_phone && (
-                      <span className="text-xs text-dark-500">{selectedConv.contact_phone}</span>
+                      <span className="text-xs text-gray-400">{selectedConv.contact_phone}</span>
                     )}
                   </div>
                 </div>
@@ -376,8 +376,8 @@ export default function InboxPage() {
                   })}
                   className={`text-xs px-3 py-1.5 rounded-lg transition ${
                     selectedConv.status === "resolved"
-                      ? "bg-brand-500/10 text-brand-400 hover:bg-brand-500/20"
-                      : "bg-dark-800 text-dark-300 hover:text-white"
+                      ? "bg-primary/10 text-primary hover:bg-primary/20"
+                      : "bg-gray-100 text-gray-600 hover:text-gray-900"
                   }`}
                 >
                   {selectedConv.status === "resolved" ? t("reopen") : t("mark_resolved")}
@@ -386,8 +386,8 @@ export default function InboxPage() {
                   onClick={() => updateConversation({ is_bot_active: !selectedConv.is_bot_active })}
                   className={`text-xs px-3 py-1.5 rounded-lg transition ${
                     selectedConv.is_bot_active
-                      ? "bg-brand-500/10 text-brand-400 hover:bg-brand-500/20"
-                      : "bg-dark-800 text-dark-300 hover:text-white"
+                      ? "bg-primary/10 text-primary hover:bg-primary/20"
+                      : "bg-gray-100 text-gray-600 hover:text-gray-900"
                   }`}
                 >
                   {selectedConv.is_bot_active ? t("bot_off") : t("bot_on")}
@@ -406,30 +406,30 @@ export default function InboxPage() {
                     className={`max-w-[70%] rounded-2xl px-4 py-2.5 ${
                       msg.direction === "outbound"
                         ? msg.sender_type === "bot"
-                          ? "bg-brand-500/10 border border-brand-500/20 text-brand-100"
-                          : "bg-brand-600 text-dark-950"
-                        : "bg-dark-800 text-white"
+                          ? "bg-primary/10 border border-primary/20 text-primary"
+                          : "bg-primary text-gray-900"
+                        : "bg-gray-100 text-gray-900"
                     }`}
                   >
                     {msg.sender_type === "bot" && msg.direction === "outbound" && (
-                      <span className="text-[10px] text-brand-400 block mb-1">{t("ai_bot")}</span>
+                      <span className="text-[10px] text-primary block mb-1">{t("ai_bot")}</span>
                     )}
                     {msg.sender_type === "agent" && msg.direction === "outbound" && (
-                      <span className="text-[10px] text-dark-950/60 block mb-1">{t("agent")}</span>
+                      <span className="text-[10px] text-gray-900/60 block mb-1">{t("agent")}</span>
                     )}
                     <p className="text-[14px] whitespace-pre-wrap">{msg.content?.body}</p>
                     <div className={`flex items-center gap-1 mt-1 ${
                       msg.direction === "outbound" ? "justify-end" : ""
                     }`}>
                       <span className={`text-[10px] ${
-                        msg.direction === "outbound" ? "opacity-60" : "text-dark-500"
+                        msg.direction === "outbound" ? "opacity-60" : "text-gray-400"
                       }`}>
                         {formatTime(msg.created_at)}
                       </span>
                       {msg.direction === "outbound" && (
                         <span className={`text-[10px] ${
                           msg.status === "read" ? "text-blue-400" :
-                          msg.status === "delivered" ? "text-dark-400" : "opacity-40"
+                          msg.status === "delivered" ? "text-gray-500" : "opacity-40"
                         }`}>
                           {msg.status === "read" ? "✓✓" : msg.status === "delivered" ? "✓✓" : "✓"}
                         </span>
@@ -442,7 +442,7 @@ export default function InboxPage() {
             </div>
 
             {/* Mesaj input */}
-            <div className="p-4 border-t border-dark-800">
+            <div className="p-4 border-t border-gray-200">
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -454,14 +454,14 @@ export default function InboxPage() {
                       handleSend()
                     }
                   }}
-                  className="flex-1 bg-dark-800 border border-dark-700 rounded-xl px-4 py-2.5 text-[14px] text-white placeholder-dark-500 focus:outline-none focus:border-brand-500 transition"
+                  className="flex-1 bg-gray-100 border border-gray-300 rounded-xl px-4 py-2.5 text-[14px] text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary transition"
                   placeholder={t("write_message")}
                   disabled={sending}
                 />
                 <button
                   onClick={handleSend}
                   disabled={sending || !newMessage.trim()}
-                  className="bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-6 py-2.5 rounded-xl transition disabled:opacity-50 text-[14px]"
+                  className="bg-primary hover:bg-primary/90 text-gray-900 font-semibold px-6 py-2.5 rounded-xl transition disabled:opacity-50 text-[14px]"
                 >
                   {sending ? (
                     <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
@@ -474,15 +474,15 @@ export default function InboxPage() {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-dark-600">
+          <div className="flex-1 flex items-center justify-center text-gray-400">
             <div className="text-center">
-              <div className="w-16 h-16 bg-dark-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-dark-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
-              <p className="text-lg font-medium text-dark-400">{t("select_conversation")}</p>
-              <p className="text-sm text-dark-600 mt-1">{t("select_conversation_desc")}</p>
+              <p className="text-lg font-medium text-gray-500">{t("select_conversation")}</p>
+              <p className="text-sm text-gray-400 mt-1">{t("select_conversation_desc")}</p>
             </div>
           </div>
         )}

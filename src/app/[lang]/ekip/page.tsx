@@ -81,11 +81,11 @@ export default function EkipPage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="p-6 border-b border-dark-800 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-white">{t("team")}</h2>
+      <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+        <h2 className="text-xl font-semibold text-gray-900">{t("team")}</h2>
         <button
           onClick={() => setShowInviteForm(true)}
-          className="bg-brand-500 hover:bg-brand-600 text-dark-950 text-sm font-semibold px-4 py-2.5 rounded-lg transition"
+          className="bg-primary hover:bg-primary/90 text-gray-900 text-sm font-semibold px-4 py-2.5 rounded-lg transition"
         >
           {t("invite_member")}
         </button>
@@ -94,8 +94,8 @@ export default function EkipPage() {
       {/* Invite Modal */}
       {showInviteForm && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setShowInviteForm(false)}>
-          <div className="bg-dark-900 rounded-lg border border-dark-800 p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-white font-semibold text-lg mb-4">{t("invite_member")}</h3>
+          <div className="bg-white rounded-lg border border-gray-200 p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-gray-900 font-semibold text-lg mb-4">{t("invite_member")}</h3>
             {formError && <p className="text-red-400 text-sm mb-3">{formError}</p>}
             <div className="space-y-3">
               <input
@@ -103,12 +103,12 @@ export default function EkipPage() {
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
                 placeholder={t("email")}
-                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-dark-500 focus:outline-none focus:border-brand-500"
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary"
               />
               <select
                 value={inviteRole}
                 onChange={(e) => setInviteRole(e.target.value)}
-                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500"
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:border-primary"
               >
                 <option value="member">{t("member")}</option>
                 <option value="admin">{t("admin")}</option>
@@ -118,13 +118,13 @@ export default function EkipPage() {
             <div className="flex justify-end gap-3 mt-4">
               <button
                 onClick={() => setShowInviteForm(false)}
-                className="text-dark-400 hover:text-white text-sm px-4 py-2.5 transition"
+                className="text-gray-500 hover:text-gray-900 text-sm px-4 py-2.5 transition"
               >
                 {t("cancel")}
               </button>
               <button
                 onClick={handleInvite}
-                className="bg-brand-500 hover:bg-brand-600 text-dark-950 text-sm font-semibold px-4 py-2.5 rounded-lg transition"
+                className="bg-primary hover:bg-primary/90 text-gray-900 text-sm font-semibold px-4 py-2.5 rounded-lg transition"
               >
                 {t("send_invite")}
               </button>
@@ -136,10 +136,10 @@ export default function EkipPage() {
       <div className="flex-1 overflow-y-auto">
         {/* Members */}
         <div className="p-6">
-          <h3 className="text-white font-semibold text-sm mb-3">{t("team_members")}</h3>
+          <h3 className="text-gray-900 font-semibold text-sm mb-3">{t("team_members")}</h3>
           <table className="w-full">
             <thead>
-              <tr className="border-b border-dark-800 text-dark-400 text-xs uppercase">
+              <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase">
                 <th className="text-left p-4">{t("name")}</th>
                 <th className="text-left p-4">{t("email")}</th>
                 <th className="text-left p-4">{t("role")}</th>
@@ -148,27 +148,27 @@ export default function EkipPage() {
             </thead>
             <tbody>
               {members.map((m) => (
-                <tr key={m.id} className="border-b border-dark-800/50 hover:bg-dark-800/30 transition">
-                  <td className="p-4 text-[14px] text-white">
+                <tr key={m.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition">
+                  <td className="p-4 text-[14px] text-gray-900">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-brand-500/20 flex items-center justify-center text-brand-400 text-xs font-bold flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
                         {(m.full_name || m.email).charAt(0).toUpperCase()}
                       </div>
                       {m.full_name || "—"}
                     </div>
                   </td>
-                  <td className="p-4 text-[14px] text-dark-300">{m.email}</td>
+                  <td className="p-4 text-[14px] text-gray-600">{m.email}</td>
                   <td className="p-4">
-                    <span className="bg-brand-500/10 text-brand-400 text-xs px-2 py-0.5 rounded capitalize">{m.role}</span>
+                    <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded capitalize">{m.role}</span>
                   </td>
-                  <td className="p-4 text-xs text-dark-500">
+                  <td className="p-4 text-xs text-gray-400">
                     {new Date(m.joined_at).toLocaleDateString("tr-TR")}
                   </td>
                 </tr>
               ))}
               {members.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="p-8 text-center text-dark-600 text-[14px]">{t("no_members")}</td>
+                  <td colSpan={4} className="p-8 text-center text-gray-400 text-[14px]">{t("no_members")}</td>
                 </tr>
               )}
             </tbody>
@@ -177,10 +177,10 @@ export default function EkipPage() {
 
         {/* Pending Invitations */}
         <div className="p-6 pt-0">
-          <h3 className="text-white font-semibold text-sm mb-3">{t("pending_invitations")}</h3>
+          <h3 className="text-gray-900 font-semibold text-sm mb-3">{t("pending_invitations")}</h3>
           <table className="w-full">
             <thead>
-              <tr className="border-b border-dark-800 text-dark-400 text-xs uppercase">
+              <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase">
                 <th className="text-left p-4">{t("email")}</th>
                 <th className="text-left p-4">{t("role")}</th>
                 <th className="text-left p-4">{t("status")}</th>
@@ -190,15 +190,15 @@ export default function EkipPage() {
             </thead>
             <tbody>
               {invitations.map((inv) => (
-                <tr key={inv.id} className="border-b border-dark-800/50 hover:bg-dark-800/30 transition">
-                  <td className="p-4 text-[14px] text-white">{inv.email}</td>
+                <tr key={inv.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition">
+                  <td className="p-4 text-[14px] text-gray-900">{inv.email}</td>
                   <td className="p-4">
-                    <span className="bg-brand-500/10 text-brand-400 text-xs px-2 py-0.5 rounded capitalize">{inv.role}</span>
+                    <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded capitalize">{inv.role}</span>
                   </td>
                   <td className="p-4">
                     <span className="bg-yellow-500/10 text-yellow-400 text-xs px-2 py-0.5 rounded capitalize">{inv.status}</span>
                   </td>
-                  <td className="p-4 text-xs text-dark-500">
+                  <td className="p-4 text-xs text-gray-400">
                     {new Date(inv.created_at).toLocaleDateString("tr-TR")}
                   </td>
                   <td className="p-4">
@@ -215,7 +215,7 @@ export default function EkipPage() {
               ))}
               {invitations.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-dark-600 text-[14px]">{t("no_invitations")}</td>
+                  <td colSpan={5} className="p-8 text-center text-gray-400 text-[14px]">{t("no_invitations")}</td>
                 </tr>
               )}
             </tbody>

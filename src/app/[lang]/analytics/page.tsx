@@ -39,13 +39,13 @@ export default function AnalyticsPage() {
   const o = data?.overview
 
   const stats = o ? [
-    { label: t("total_messages"), value: o.total_messages, color: "text-white" },
+    { label: t("total_messages"), value: o.total_messages, color: "text-gray-900" },
     { label: t("inbound_messages"), value: o.inbound_messages, color: "text-blue-400" },
-    { label: t("outbound_messages"), value: o.outbound_messages, color: "text-brand-400" },
+    { label: t("outbound_messages"), value: o.outbound_messages, color: "text-primary" },
     { label: t("active_conversations"), value: o.open_conversations, color: "text-yellow-400" },
     { label: t("resolved_conversations"), value: o.resolved_conversations, color: "text-green-400" },
     { label: t("total_contacts"), value: o.total_contacts, color: "text-purple-400" },
-    { label: t("bot_messages"), value: o.bot_messages, color: "text-brand-400" },
+    { label: t("bot_messages"), value: o.bot_messages, color: "text-primary" },
     { label: t("agent_messages"), value: o.agent_messages, color: "text-orange-400" },
   ] : []
 
@@ -55,19 +55,19 @@ export default function AnalyticsPage() {
 
   return (
     <div className="p-6">
-      <h2 className="text-xl font-semibold text-white mb-6">{t("reports")}</h2>
+      <h2 className="text-xl font-semibold text-gray-900 mb-6">{t("reports")}</h2>
 
       {loading ? (
-        <p className="text-dark-400 text-sm">{t("loading")}</p>
+        <p className="text-gray-500 text-sm">{t("loading")}</p>
       ) : !data ? (
-        <p className="text-dark-400 text-sm">{t("data_load_error")}</p>
+        <p className="text-gray-500 text-sm">{t("data_load_error")}</p>
       ) : (
         <>
           {/* KPI kartları */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {stats.map((stat) => (
-              <div key={stat.label} className="bg-dark-900 border border-dark-800 rounded-xl p-5">
-                <p className="text-sm text-dark-400">{stat.label}</p>
+              <div key={stat.label} className="bg-white border border-gray-200 rounded-xl p-5">
+                <p className="text-sm text-gray-500">{stat.label}</p>
                 <p className={`text-2xl font-bold mt-1 ${stat.color}`}>{stat.value.toLocaleString()}</p>
               </div>
             ))}
@@ -75,31 +75,31 @@ export default function AnalyticsPage() {
 
           {/* Bot performansı */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-dark-900 border border-dark-800 rounded-xl p-6">
-              <p className="text-sm text-dark-400 mb-2">{t("bot_resolution_rate")}</p>
-              <p className="text-3xl font-bold text-brand-400">{botRate}%</p>
-              <div className="w-full bg-dark-800 rounded-full h-2 mt-3">
-                <div className="bg-brand-500 h-2 rounded-full" style={{ width: `${botRate}%` }} />
+            <div className="bg-white border border-gray-200 rounded-xl p-6">
+              <p className="text-sm text-gray-500 mb-2">{t("bot_resolution_rate")}</p>
+              <p className="text-3xl font-bold text-primary">{botRate}%</p>
+              <div className="w-full bg-gray-100 rounded-full h-2 mt-3">
+                <div className="bg-primary h-2 rounded-full" style={{ width: `${botRate}%` }} />
               </div>
             </div>
-            <div className="bg-dark-900 border border-dark-800 rounded-xl p-6">
-              <p className="text-sm text-dark-400 mb-2">{t("total_conversations")}</p>
-              <p className="text-3xl font-bold text-white">{o?.total_conversations}</p>
+            <div className="bg-white border border-gray-200 rounded-xl p-6">
+              <p className="text-sm text-gray-500 mb-2">{t("total_conversations")}</p>
+              <p className="text-3xl font-bold text-gray-900">{o?.total_conversations}</p>
               <div className="flex gap-4 mt-2 text-xs">
                 <span className="text-yellow-400">{o?.open_conversations} {t("open")}</span>
                 <span className="text-green-400">{o?.resolved_conversations} {t("resolved")}</span>
               </div>
             </div>
-            <div className="bg-dark-900 border border-dark-800 rounded-xl p-6">
-              <p className="text-sm text-dark-400 mb-2">{t("campaigns")}</p>
-              <p className="text-3xl font-bold text-white">{o?.total_broadcasts}</p>
-              <p className="text-xs text-dark-500 mt-2">{t("total_sent_campaigns")}</p>
+            <div className="bg-white border border-gray-200 rounded-xl p-6">
+              <p className="text-sm text-gray-500 mb-2">{t("campaigns")}</p>
+              <p className="text-3xl font-bold text-gray-900">{o?.total_broadcasts}</p>
+              <p className="text-xs text-gray-400 mt-2">{t("total_sent_campaigns")}</p>
             </div>
           </div>
 
           {/* Son 7 gün grafik (basit bar chart) */}
-          <div className="bg-dark-900 border border-dark-800 rounded-xl p-6">
-            <h3 className="text-white font-medium mb-4">{t("last_7_days")}</h3>
+          <div className="bg-white border border-gray-200 rounded-xl p-6">
+            <h3 className="text-gray-900 font-medium mb-4">{t("last_7_days")}</h3>
             <div className="flex items-end gap-2 h-40">
               {data.daily_chart.map((day) => {
                 const maxVal = Math.max(...data.daily_chart.map((d) => d.inbound + d.outbound), 1)
@@ -108,26 +108,26 @@ export default function AnalyticsPage() {
                   <div key={day.date} className="flex-1 flex flex-col items-center gap-1">
                     <div className="w-full flex flex-col items-center justify-end" style={{ height: "140px" }}>
                       <div
-                        className="w-full max-w-[40px] bg-brand-500/30 rounded-t-md relative group"
+                        className="w-full max-w-[40px] bg-primary/10 rounded-t-md relative group"
                         style={{ height: `${Math.max(height, 4)}%` }}
                       >
-                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-dark-800 text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
+                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gray-100 text-gray-900 text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
                           {day.inbound + day.outbound} {t("messages_count")}
                         </div>
                         <div
-                          className="absolute bottom-0 w-full bg-brand-500 rounded-t-md"
+                          className="absolute bottom-0 w-full bg-primary rounded-t-md"
                           style={{ height: day.inbound > 0 ? `${(day.inbound / (day.inbound + day.outbound || 1)) * 100}%` : "0%" }}
                         />
                       </div>
                     </div>
-                    <span className="text-[10px] text-dark-500">{day.date}</span>
+                    <span className="text-[10px] text-gray-400">{day.date}</span>
                   </div>
                 )
               })}
             </div>
             <div className="flex gap-4 mt-4 text-xs">
-              <span className="flex items-center gap-1"><span className="w-3 h-3 bg-brand-500 rounded" /> {t("incoming")}</span>
-              <span className="flex items-center gap-1"><span className="w-3 h-3 bg-brand-500/30 rounded" /> {t("outgoing")}</span>
+              <span className="flex items-center gap-1"><span className="w-3 h-3 bg-primary rounded" /> {t("incoming")}</span>
+              <span className="flex items-center gap-1"><span className="w-3 h-3 bg-primary/10 rounded" /> {t("outgoing")}</span>
             </div>
           </div>
         </>

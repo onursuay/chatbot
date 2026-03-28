@@ -80,11 +80,11 @@ export default function WebhooklarPage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="p-6 border-b border-dark-800 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-white">{t("webhooks")}</h2>
+      <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+        <h2 className="text-xl font-semibold text-gray-900">{t("webhooks")}</h2>
         <button
           onClick={() => setShowForm(true)}
-          className="bg-brand-500 hover:bg-brand-600 text-dark-950 text-sm font-semibold px-4 py-2.5 rounded-lg transition"
+          className="bg-primary hover:bg-primary/90 text-gray-900 text-sm font-semibold px-4 py-2.5 rounded-lg transition"
         >
           {t("create_webhook")}
         </button>
@@ -93,8 +93,8 @@ export default function WebhooklarPage() {
       {/* Create Webhook Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setShowForm(false)}>
-          <div className="bg-dark-900 rounded-lg border border-dark-800 p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-white font-semibold text-lg mb-4">{t("create_webhook")}</h3>
+          <div className="bg-white rounded-lg border border-gray-200 p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-gray-900 font-semibold text-lg mb-4">{t("create_webhook")}</h3>
             {formError && <p className="text-red-400 text-sm mb-3">{formError}</p>}
             <div className="space-y-3">
               <input
@@ -102,17 +102,17 @@ export default function WebhooklarPage() {
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
                 placeholder={t("webhook_name")}
-                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-dark-500 focus:outline-none focus:border-brand-500"
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary"
               />
               <input
                 type="url"
                 value={formUrl}
                 onChange={(e) => setFormUrl(e.target.value)}
                 placeholder={t("webhook_url")}
-                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-dark-500 focus:outline-none focus:border-brand-500"
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary"
               />
               <div>
-                <p className="text-dark-400 text-xs uppercase mb-2">{t("events")}</p>
+                <p className="text-gray-500 text-xs uppercase mb-2">{t("events")}</p>
                 <div className="flex flex-wrap gap-2">
                   {eventOptions.map((event) => (
                     <button
@@ -121,8 +121,8 @@ export default function WebhooklarPage() {
                       onClick={() => handleToggleEvent(event)}
                       className={`text-xs px-3 py-1.5 rounded-lg border transition ${
                         formEvents.includes(event)
-                          ? "bg-brand-500/20 border-brand-500 text-brand-400"
-                          : "bg-dark-800 border-dark-700 text-dark-400 hover:border-dark-600"
+                          ? "bg-primary/10 border-primary text-primary"
+                          : "bg-gray-100 border-gray-300 text-gray-500 hover:border-gray-400"
                       }`}
                     >
                       {event}
@@ -134,13 +134,13 @@ export default function WebhooklarPage() {
             <div className="flex justify-end gap-3 mt-4">
               <button
                 onClick={() => setShowForm(false)}
-                className="text-dark-400 hover:text-white text-sm px-4 py-2.5 transition"
+                className="text-gray-500 hover:text-gray-900 text-sm px-4 py-2.5 transition"
               >
                 {t("cancel")}
               </button>
               <button
                 onClick={handleCreate}
-                className="bg-brand-500 hover:bg-brand-600 text-dark-950 text-sm font-semibold px-4 py-2.5 rounded-lg transition"
+                className="bg-primary hover:bg-primary/90 text-gray-900 text-sm font-semibold px-4 py-2.5 rounded-lg transition"
               >
                 {t("create")}
               </button>
@@ -152,7 +152,7 @@ export default function WebhooklarPage() {
       <div className="flex-1 overflow-y-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-dark-800 text-dark-400 text-xs uppercase">
+            <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase">
               <th className="text-left p-4">{t("name")}</th>
               <th className="text-left p-4">{t("url")}</th>
               <th className="text-left p-4">{t("events")}</th>
@@ -163,28 +163,28 @@ export default function WebhooklarPage() {
           </thead>
           <tbody>
             {webhooks.map((wh) => (
-              <tr key={wh.id} className="border-b border-dark-800/50 hover:bg-dark-800/30 transition">
-                <td className="p-4 text-[14px] text-white font-medium">{wh.name}</td>
-                <td className="p-4 text-[14px] text-dark-300 font-mono text-xs max-w-[200px] truncate">{wh.url}</td>
+              <tr key={wh.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition">
+                <td className="p-4 text-[14px] text-gray-900 font-medium">{wh.name}</td>
+                <td className="p-4 text-[14px] text-gray-600 font-mono text-xs max-w-[200px] truncate">{wh.url}</td>
                 <td className="p-4">
                   <div className="flex flex-wrap gap-1">
                     {wh.events.map((ev) => (
-                      <span key={ev} className="bg-brand-500/10 text-brand-400 text-[10px] px-1.5 py-0.5 rounded">{ev}</span>
+                      <span key={ev} className="bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded">{ev}</span>
                     ))}
                   </div>
                 </td>
                 <td className="p-4">
                   <span className={`text-xs px-2 py-0.5 rounded ${
-                    wh.is_active ? "bg-green-500/10 text-green-400" : "bg-dark-700 text-dark-400"
+                    wh.is_active ? "bg-green-500/10 text-green-400" : "bg-gray-200 text-gray-500"
                   }`}>
                     {wh.is_active ? t("active") : t("inactive")}
                   </span>
                 </td>
-                <td className="p-4 text-xs text-dark-500">
+                <td className="p-4 text-xs text-gray-400">
                   {wh.last_triggered_at ? new Date(wh.last_triggered_at).toLocaleString("tr-TR") : "—"}
                 </td>
                 <td className="p-4 text-[14px]">
-                  <span className={wh.failure_count > 0 ? "text-red-400" : "text-dark-500"}>
+                  <span className={wh.failure_count > 0 ? "text-red-400" : "text-gray-400"}>
                     {wh.failure_count}
                   </span>
                 </td>
@@ -192,7 +192,7 @@ export default function WebhooklarPage() {
             ))}
             {webhooks.length === 0 && (
               <tr>
-                <td colSpan={6} className="p-8 text-center text-dark-600 text-[14px]">{t("no_webhooks")}</td>
+                <td colSpan={6} className="p-8 text-center text-gray-400 text-[14px]">{t("no_webhooks")}</td>
               </tr>
             )}
           </tbody>

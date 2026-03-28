@@ -135,30 +135,30 @@ export default function SettingsPage() {
 
   return (
     <div className="p-6">
-      <h2 className="text-xl font-semibold text-white mb-6">{t("settings")}</h2>
+      <h2 className="text-xl font-semibold text-gray-900 mb-6">{t("settings")}</h2>
 
       <div className="max-w-2xl space-y-6">
         {/* Organizasyon */}
-        <div className="bg-dark-900 border border-dark-800 rounded-xl p-6">
-          <h3 className="text-white font-medium text-[15px] mb-4">{t("organization")}</h3>
+        <div className="bg-white border border-gray-200 rounded-xl p-6">
+          <h3 className="text-gray-900 font-medium text-[15px] mb-4">{t("organization")}</h3>
           <div className="space-y-3">
             <div>
-              <label className="text-sm text-dark-400">{t("company_name")}</label>
-              <p className="text-white text-[15px]">{user?.org_name}</p>
+              <label className="text-sm text-gray-500">{t("company_name")}</label>
+              <p className="text-gray-900 text-[15px]">{user?.org_name}</p>
             </div>
             <div>
-              <label className="text-sm text-dark-400">{t("plan")}</label>
-              <p className="text-brand-400 capitalize text-[15px]">{user?.org_plan === "trial" ? t("trial_plan") : user?.org_plan}</p>
+              <label className="text-sm text-gray-500">{t("plan")}</label>
+              <p className="text-primary capitalize text-[15px]">{user?.org_plan === "trial" ? t("trial_plan") : user?.org_plan}</p>
             </div>
           </div>
         </div>
 
         {/* WhatsApp Bağlantısı */}
-        <div className="bg-dark-900 border border-dark-800 rounded-xl p-6">
-          <h3 className="text-white font-medium text-[15px] mb-4">{t("whatsapp_connection")}</h3>
+        <div className="bg-white border border-gray-200 rounded-xl p-6">
+          <h3 className="text-gray-900 font-medium text-[15px] mb-4">{t("whatsapp_connection")}</h3>
 
           {loading ? (
-            <p className="text-dark-400 text-sm">{t("loading")}</p>
+            <p className="text-gray-500 text-sm">{t("loading")}</p>
           ) : status?.connected ? (
             /* Bağlı durumu */
             <div className="space-y-4">
@@ -169,24 +169,24 @@ export default function SettingsPage() {
 
               <div className="space-y-3">
                 <div>
-                  <label className="text-sm text-dark-400">WABA</label>
-                  <p className="text-white text-[15px]">{status.waba_name}</p>
+                  <label className="text-sm text-gray-500">WABA</label>
+                  <p className="text-gray-900 text-[15px]">{status.waba_name}</p>
                 </div>
                 <div>
-                  <label className="text-sm text-dark-400">WABA ID</label>
-                  <p className="text-white text-[15px] font-mono">{status.waba_id}</p>
+                  <label className="text-sm text-gray-500">WABA ID</label>
+                  <p className="text-gray-900 text-[15px] font-mono">{status.waba_id}</p>
                 </div>
               </div>
 
               {status.phone_numbers && status.phone_numbers.length > 0 && (
-                <div className="border-t border-dark-800 pt-4">
-                  <label className="text-sm text-dark-400 block mb-2">{t("phone_numbers")}</label>
+                <div className="border-t border-gray-200 pt-4">
+                  <label className="text-sm text-gray-500 block mb-2">{t("phone_numbers")}</label>
                   {status.phone_numbers.map((phone) => (
-                    <div key={phone.id} className="flex items-center justify-between bg-dark-800/50 rounded-lg px-4 py-3">
+                    <div key={phone.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3">
                       <div>
-                        <p className="text-white text-[15px]">{phone.number}</p>
+                        <p className="text-gray-900 text-[15px]">{phone.number}</p>
                         {phone.verified_name && (
-                          <p className="text-dark-400 text-xs">{phone.verified_name}</p>
+                          <p className="text-gray-500 text-xs">{phone.verified_name}</p>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
@@ -197,7 +197,7 @@ export default function SettingsPage() {
                         }`}>
                           {phone.quality_rating}
                         </span>
-                        <span className="text-xs text-dark-400">{phone.status}</span>
+                        <span className="text-xs text-gray-500">{phone.status}</span>
                       </div>
                     </div>
                   ))}
@@ -207,7 +207,7 @@ export default function SettingsPage() {
           ) : (
             /* Bağlı değil */
             <div>
-              <p className="text-dark-400 text-sm mb-4">
+              <p className="text-gray-500 text-sm mb-4">
                 {t("whatsapp_connect_desc")}
               </p>
 
@@ -220,7 +220,7 @@ export default function SettingsPage() {
               <button
                 onClick={handleConnect}
                 disabled={connecting || !sdkReady}
-                className="bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-dark-950 font-semibold px-5 py-2.5 rounded-lg transition text-[14px] flex items-center gap-2"
+                className="bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 font-semibold px-5 py-2.5 rounded-lg transition text-[14px] flex items-center gap-2"
               >
                 {connecting ? (
                   <>
@@ -244,20 +244,20 @@ export default function SettingsPage() {
         </div>
 
         {/* Profil */}
-        <div className="bg-dark-900 border border-dark-800 rounded-xl p-6">
-          <h3 className="text-white font-medium text-[15px] mb-4">{t("profile")}</h3>
+        <div className="bg-white border border-gray-200 rounded-xl p-6">
+          <h3 className="text-gray-900 font-medium text-[15px] mb-4">{t("profile")}</h3>
           <div className="space-y-3">
             <div>
-              <label className="text-sm text-dark-400">{t("full_name")}</label>
-              <p className="text-white text-[15px]">{user?.full_name}</p>
+              <label className="text-sm text-gray-500">{t("full_name")}</label>
+              <p className="text-gray-900 text-[15px]">{user?.full_name}</p>
             </div>
             <div>
-              <label className="text-sm text-dark-400">{t("email")}</label>
-              <p className="text-white text-[15px]">{user?.email}</p>
+              <label className="text-sm text-gray-500">{t("email")}</label>
+              <p className="text-gray-900 text-[15px]">{user?.email}</p>
             </div>
             <div>
-              <label className="text-sm text-dark-400">{t("role")}</label>
-              <p className="text-white capitalize text-[15px]">{user?.role}</p>
+              <label className="text-sm text-gray-500">{t("role")}</label>
+              <p className="text-gray-900 capitalize text-[15px]">{user?.role}</p>
             </div>
           </div>
         </div>

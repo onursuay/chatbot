@@ -63,17 +63,17 @@ export default function ChatbotPage() {
     setTimeout(() => setSaved(false), 3000)
   }
 
-  if (loading) return <div className="p-6 text-dark-400 text-sm">{t("loading")}</div>
-  if (!config) return <div className="p-6 text-dark-400 text-sm">{t("chatbot_settings")}</div>
+  if (loading) return <div className="p-6 text-gray-500 text-sm">{t("loading")}</div>
+  if (!config) return <div className="p-6 text-gray-500 text-sm">{t("chatbot_settings")}</div>
 
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-white">{t("chatbot_settings")}</h2>
+        <h2 className="text-xl font-semibold text-gray-900">{t("chatbot_settings")}</h2>
         <div className="flex items-center gap-3">
-          {saved && <span className="text-brand-400 text-sm">{t("saved")}</span>}
+          {saved && <span className="text-primary text-sm">{t("saved")}</span>}
           <button onClick={handleSave} disabled={saving}
-            className="bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-4 py-2 rounded-lg text-sm transition disabled:opacity-50">
+            className="bg-primary hover:bg-primary/90 text-gray-900 font-semibold px-4 py-2 rounded-lg text-sm transition disabled:opacity-50">
             {saving ? t("saving") : t("save")}
           </button>
         </div>
@@ -81,69 +81,69 @@ export default function ChatbotPage() {
 
       <div className="max-w-3xl space-y-6">
         {/* Aktif/Pasif */}
-        <div className="bg-dark-900 border border-dark-800 rounded-xl p-6">
+        <div className="bg-white border border-gray-200 rounded-xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-white font-medium">{t("bot_status")}</h3>
-              <p className="text-sm text-dark-400 mt-1">{t("bot_status_desc")}</p>
+              <h3 className="text-gray-900 font-medium">{t("bot_status")}</h3>
+              <p className="text-sm text-gray-500 mt-1">{t("bot_status_desc")}</p>
             </div>
             <button
               onClick={() => setConfig({ ...config, is_active: !config.is_active })}
-              className={`w-12 h-6 rounded-full transition relative ${config.is_active ? "bg-brand-500" : "bg-dark-700"}`}>
+              className={`w-12 h-6 rounded-full transition relative ${config.is_active ? "bg-primary" : "bg-gray-200"}`}>
               <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition ${config.is_active ? "left-6" : "left-0.5"}`} />
             </button>
           </div>
         </div>
 
         {/* System Prompt */}
-        <div className="bg-dark-900 border border-dark-800 rounded-xl p-6">
-          <h3 className="text-white font-medium mb-3">{t("system_prompt")}</h3>
-          <p className="text-sm text-dark-400 mb-3">{t("system_prompt_desc")}</p>
+        <div className="bg-white border border-gray-200 rounded-xl p-6">
+          <h3 className="text-gray-900 font-medium mb-3">{t("system_prompt")}</h3>
+          <p className="text-sm text-gray-500 mb-3">{t("system_prompt_desc")}</p>
           <textarea
             value={config.system_prompt}
             onChange={(e) => setConfig({ ...config, system_prompt: e.target.value })}
-            className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500 h-40 resize-none"
+            className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-sm text-gray-900 focus:outline-none focus:border-primary h-40 resize-none"
             placeholder={t("example_prompt")}
           />
         </div>
 
         {/* Karşılama Mesajı */}
-        <div className="bg-dark-900 border border-dark-800 rounded-xl p-6">
-          <h3 className="text-white font-medium mb-3">{t("welcome_message")}</h3>
-          <p className="text-sm text-dark-400 mb-3">{t("welcome_message_desc")}</p>
+        <div className="bg-white border border-gray-200 rounded-xl p-6">
+          <h3 className="text-gray-900 font-medium mb-3">{t("welcome_message")}</h3>
+          <p className="text-sm text-gray-500 mb-3">{t("welcome_message_desc")}</p>
           <textarea
             value={config.welcome_message || ""}
             onChange={(e) => setConfig({ ...config, welcome_message: e.target.value || null })}
-            className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500 h-20 resize-none"
+            className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-sm text-gray-900 focus:outline-none focus:border-primary h-20 resize-none"
             placeholder={t("example_welcome")}
           />
         </div>
 
         {/* Model Ayarlari */}
-        <div className="bg-dark-900 border border-dark-800 rounded-xl p-6">
-          <h3 className="text-white font-medium mb-4">{t("model_settings")}</h3>
+        <div className="bg-white border border-gray-200 rounded-xl p-6">
+          <h3 className="text-gray-900 font-medium mb-4">{t("model_settings")}</h3>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm text-dark-400 mb-1">{t("ai_model")}</label>
+              <label className="block text-sm text-gray-500 mb-1">{t("ai_model")}</label>
               <select value={config.ai_model}
                 onChange={(e) => setConfig({ ...config, ai_model: e.target.value })}
-                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary">
                 <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
                 <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
                 <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm text-dark-400 mb-1">{t("temperature")}: {config.temperature}</label>
+              <label className="block text-sm text-gray-500 mb-1">{t("temperature")}: {config.temperature}</label>
               <input type="range" min="0" max="1" step="0.1" value={config.temperature}
                 onChange={(e) => setConfig({ ...config, temperature: parseFloat(e.target.value) })}
                 className="w-full accent-brand-500" />
             </div>
             <div>
-              <label className="block text-sm text-dark-400 mb-1">{t("max_token")}</label>
+              <label className="block text-sm text-gray-500 mb-1">{t("max_token")}</label>
               <input type="number" value={config.max_tokens}
                 onChange={(e) => setConfig({ ...config, max_tokens: parseInt(e.target.value) || 300 })}
-                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500" />
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary" />
             </div>
           </div>
         </div>

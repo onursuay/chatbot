@@ -87,22 +87,22 @@ export default function IntegrationsPage() {
 
   return (
     <div className="p-6">
-      <h2 className="text-xl font-semibold text-white mb-2">{t("integrations")}</h2>
-      <p className="text-dark-400 text-sm mb-6">{t("integrations_desc")}</p>
+      <h2 className="text-xl font-semibold text-gray-900 mb-2">{t("integrations")}</h2>
+      <p className="text-gray-500 text-sm mb-6">{t("integrations_desc")}</p>
 
       {/* Filtreler */}
       <div className="flex items-center gap-3 mb-6">
         <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
           placeholder={t("search_integration")}
-          className="bg-dark-800 border border-dark-700 rounded-lg px-4 py-2 text-sm text-white placeholder-dark-500 focus:outline-none focus:border-brand-500 w-64" />
+          className="bg-gray-100 border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary w-64" />
         <div className="flex gap-2">
           <button onClick={() => setSelectedCategory(null)}
-            className={`text-xs px-3 py-1.5 rounded-lg transition ${!selectedCategory ? "bg-brand-500/10 text-brand-400" : "bg-dark-800 text-dark-400 hover:text-white"}`}>
+            className={`text-xs px-3 py-1.5 rounded-lg transition ${!selectedCategory ? "bg-primary/10 text-primary" : "bg-gray-100 text-gray-500 hover:text-gray-900"}`}>
             {t("all")}
           </button>
           {categoryKeys.map((c) => (
             <button key={c} onClick={() => setSelectedCategory(c)}
-              className={`text-xs px-3 py-1.5 rounded-lg transition ${selectedCategory === c ? "bg-brand-500/10 text-brand-400" : "bg-dark-800 text-dark-400 hover:text-white"}`}>
+              className={`text-xs px-3 py-1.5 rounded-lg transition ${selectedCategory === c ? "bg-primary/10 text-primary" : "bg-gray-100 text-gray-500 hover:text-gray-900"}`}>
               {t(c)}
             </button>
           ))}
@@ -111,19 +111,19 @@ export default function IntegrationsPage() {
 
       {/* Shopify config modal */}
       {configuring === "shopify" && (
-        <div className="bg-dark-900 border border-brand-500/30 rounded-xl p-6 mb-6">
-          <h3 className="text-white font-medium mb-3">{t("shopify_setup")}</h3>
-          <p className="text-sm text-dark-400 mb-4">{t("shopify_setup_desc")}</p>
+        <div className="bg-white border border-primary/30 rounded-xl p-6 mb-6">
+          <h3 className="text-gray-900 font-medium mb-3">{t("shopify_setup")}</h3>
+          <p className="text-sm text-gray-500 mb-4">{t("shopify_setup_desc")}</p>
           <div className="flex gap-2">
             <input type="text" value={shopifyUrl} onChange={(e) => setShopifyUrl(e.target.value)}
-              className="flex-1 bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
+              className="flex-1 bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary"
               placeholder="magazam.myshopify.com" />
             <button onClick={saveShopifyConfig}
-              className="bg-brand-500 hover:bg-brand-600 text-dark-950 font-semibold px-4 py-2 rounded-lg text-sm transition">
+              className="bg-primary hover:bg-primary/90 text-gray-900 font-semibold px-4 py-2 rounded-lg text-sm transition">
               {t("connect")}
             </button>
             <button onClick={() => setConfiguring(null)}
-              className="bg-dark-800 text-dark-300 hover:text-white px-4 py-2 rounded-lg text-sm transition">
+              className="bg-gray-100 text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg text-sm transition">
               {t("cancel")}
             </button>
           </div>
@@ -133,17 +133,17 @@ export default function IntegrationsPage() {
       {/* Entegrasyon listesi */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((integration) => (
-          <div key={integration.id} className="bg-dark-900 border border-dark-800 rounded-xl p-5 flex flex-col">
+          <div key={integration.id} className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col">
             <div className="flex items-center gap-3 mb-3">
               <span className="text-2xl">{integration.icon}</span>
               <div>
-                <h3 className="text-white font-medium text-sm">{integration.name}</h3>
-                <span className="text-[10px] text-dark-500">{t(integration.categoryKey)}</span>
+                <h3 className="text-gray-900 font-medium text-sm">{integration.name}</h3>
+                <span className="text-[10px] text-gray-400">{t(integration.categoryKey)}</span>
               </div>
             </div>
-            <p className="text-xs text-dark-400 flex-1 mb-4">{t(integration.descKey)}</p>
+            <p className="text-xs text-gray-500 flex-1 mb-4">{t(integration.descKey)}</p>
             <button onClick={() => handleConnect(integration.id)}
-              className="w-full bg-dark-800 hover:bg-dark-700 text-white py-2 rounded-lg text-sm font-medium transition">
+              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-2 rounded-lg text-sm font-medium transition">
               {t("connect")}
             </button>
           </div>

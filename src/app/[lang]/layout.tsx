@@ -28,6 +28,43 @@ export default function LangLayout({ children, params }: { children: React.React
   // Login, register ve legal sayfalarda sidebar gosterme
   const isNoLayoutPage = NO_LAYOUT_PAGES.some((p) => pathname.endsWith(p))
 
+  // Aktif sayfanin grubunu otomatik ac
+  useEffect(() => {
+    if (collapsed) return
+    const allNavItems = [
+      { group: "DASHBOARD", items: [{ href: `/${lang}/` }] },
+      { group: t("nav_messaging"), items: [
+        { href: localePath("inbox", lang) }, { href: localePath("contacts", lang) },
+        { href: localePath("templates", lang) }, { href: localePath("broadcast", lang) },
+      ]},
+      { group: t("nav_crm"), items: [
+        { href: localePath("pipeline", lang) }, { href: localePath("leads", lang) },
+        { href: localePath("companies", lang) }, { href: localePath("tasks", lang) },
+      ]},
+      { group: t("nav_ai"), items: [
+        { href: localePath("chatbot", lang) }, { href: localePath("automation", lang) },
+        { href: localePath("flow-builder", lang) },
+      ]},
+      { group: t("nav_integration"), items: [
+        { href: localePath("channels", lang) }, { href: localePath("integrations", lang) },
+        { href: localePath("web-forms", lang) }, { href: localePath("webhooks", lang) },
+      ]},
+      { group: t("nav_analytics"), items: [
+        { href: localePath("analytics", lang) }, { href: localePath("activity-log", lang) },
+      ]},
+      { group: t("nav_account"), items: [
+        { href: localePath("team", lang) }, { href: localePath("billing", lang) },
+        { href: localePath("settings", lang) },
+      ]},
+    ]
+    for (const nav of allNavItems) {
+      if (nav.items.some((item) => pathname.startsWith(item.href))) {
+        setOpenGroups((prev) => prev.includes(nav.group) ? prev : [...prev, nav.group])
+        break
+      }
+    }
+  }, [pathname, collapsed])
+
   // URL'deki dil parametresine göre i18n sync
   useEffect(() => {
     const urlLang = params.lang as Lang
@@ -170,8 +207,8 @@ export default function LangLayout({ children, params }: { children: React.React
 
   if (loading || !ready) {
     return (
-      <div className="min-h-screen bg-dark-950 flex items-center justify-center">
-        <div className="animate-pulse text-brand-400 text-lg">{t("loading")}</div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-pulse text-primary text-lg">{t("loading")}</div>
       </div>
     )
   }
@@ -179,15 +216,14 @@ export default function LangLayout({ children, params }: { children: React.React
   const sidebarWidth = collapsed ? "w-[72px]" : "w-[260px]"
 
   return (
-    <div className="h-screen bg-dark-950 flex overflow-hidden">
+    <div className="h-screen bg-gray-50 flex overflow-hidden">
       {/* ===== SIDEBAR ===== */}
       <aside
-        className={`${sidebarWidth} ${animate ? "transition-[width] duration-300" : ""} bg-dark-900/80 backdrop-blur-sm border-r border-dark-800/60 flex flex-col shrink-0 overflow-hidden`}
+        className={`${sidebarWidth} ${animate ? "transition-[width] duration-300" : ""} bg-white border-r border-gray-200 flex flex-col shrink-0 overflow-hidden`}
       >
         {/* Logo + Toggle */}
         <div className="px-3 py-4 flex items-center gap-3 relative group">
           {collapsed ? (
-            /* Collapsed: Logo with glow hint */
             <button
               onClick={toggleCollapsed}
               className="w-10 h-10 mx-auto relative flex items-center justify-center"
@@ -199,34 +235,31 @@ export default function LangLayout({ children, params }: { children: React.React
                 <span className="absolute bottom-0 left-2 w-1.5 h-1.5 bg-emerald-300/30 rounded-full animate-ping" style={{ animationDuration: "1.8s", animationDelay: "0.6s" }} />
                 <span className="absolute bottom-1 right-1 w-2 h-2 bg-emerald-400/20 rounded-full animate-ping" style={{ animationDuration: "2.2s", animationDelay: "0.9s" }} />
               </div>
-              {/* Logo */}
-              <div className={`w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center ring-1 ring-emerald-400/40 shadow-[0_0_8px_rgba(16,185,129,0.3)] transition-opacity duration-500 ${hintPhase === "logo" ? "opacity-100" : "opacity-0"} group-hover:opacity-0`}>
-                <span className="text-dark-950 font-bold text-sm">Y</span>
+              <div className={`w-8 h-8 rounded-lg overflow-hidden transition-opacity duration-500 ${hintPhase === "logo" ? "opacity-100" : "opacity-0"} group-hover:opacity-0`}>
+                <img src="/logo.png" alt="YoChat" className="w-full h-full object-contain" />
               </div>
-              {/* "Ac" butonu */}
               <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-500 ${hintPhase === "button" ? "opacity-100" : "opacity-0"} group-hover:opacity-100`}>
-                <div className="w-8 h-8 bg-dark-800 rounded-lg flex items-center justify-center border border-dark-700 hover:border-brand-500/50">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4 text-dark-400">
+                <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200 hover:border-primary/50">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4 text-gray-400">
                     <path d="M9 18l6-6-6-6" />
                   </svg>
                 </div>
               </div>
             </button>
           ) : (
-            /* Expanded: Logo + brand + close button */
             <>
-              <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center shrink-0">
-                <span className="text-dark-950 font-bold text-sm">Y</span>
+              <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0">
+                <img src="/logo.png" alt="YoChat" className="w-full h-full object-contain" />
               </div>
               <div className="flex-1 min-w-0">
                 <h1 className="text-base font-bold leading-none">
-                  <span className="text-white">Yo</span>
-                  <span className="text-brand-400">Chat</span>
+                  <span className="text-gray-900">Yo</span>
+                  <span className="text-primary">Chat</span>
                 </h1>
               </div>
               <button
                 onClick={toggleCollapsed}
-                className="w-6 h-6 flex items-center justify-center text-dark-500 hover:text-white transition rounded"
+                className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-700 transition rounded"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
                   <path d="M15 18l-6-6 6-6" />
@@ -239,30 +272,28 @@ export default function LangLayout({ children, params }: { children: React.React
         {/* Nav Groups */}
         <nav className="flex-1 px-2 py-1 overflow-y-auto overflow-x-hidden">
           {NAV_ITEMS.map((group) => {
-            const isOpen = openGroups.includes(group.group) || !collapsed
+            const isOpen = openGroups.includes(group.group)
             return (
               <div key={group.group} className="mb-3">
-                {/* Grup basligi */}
                 {collapsed ? (
-                  <div className="h-px bg-dark-800/60 mx-2 my-2" />
+                  <div className="h-px bg-gray-200 mx-2 my-2" />
                 ) : (
                   <button
                     onClick={() => toggleGroup(group.group)}
-                    className="w-full flex items-center justify-between px-3 mb-1"
+                    className="w-full flex items-center justify-between px-3 mb-1 py-1 rounded hover:bg-gray-100 transition-colors"
                   >
-                    <p className="text-[10px] font-semibold text-dark-600 uppercase tracking-wider">
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
                       {group.group}
                     </p>
                     <svg
                       viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
-                      className={`w-3 h-3 text-dark-600 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                      className={`w-3 h-3 text-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
                     >
                       <path d="M6 9l6 6 6-6" />
                     </svg>
                   </button>
                 )}
 
-                {/* Nav itemlari */}
                 {(collapsed || isOpen) && (
                   <div className="space-y-0.5">
                     {group.items.map((item) => {
@@ -276,22 +307,21 @@ export default function LangLayout({ children, params }: { children: React.React
                             collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2"
                           } ${
                             active
-                              ? "bg-brand-500/10 text-brand-400 font-bold"
-                              : "text-dark-400 hover:text-white hover:bg-dark-800/60"
+                              ? "bg-primary/10 text-primary font-bold"
+                              : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                           }`}
                         >
-                          {/* Aktif bar */}
                           {active && (
-                            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-brand-400 rounded-r" />
+                            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-primary rounded-r" />
                           )}
-                          <span className={`w-4 h-4 shrink-0 ${active ? "text-brand-400" : "text-dark-500"}`}>
+                          <span className={`w-4 h-4 shrink-0 ${active ? "text-primary" : "text-gray-400"}`}>
                             {item.icon}
                           </span>
                           {!collapsed && (
                             <>
                               <span className="truncate">{item.label}</span>
                               {"badge" in item && item.badge && (
-                                <span className="ml-auto text-[9px] font-bold bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded">
+                                <span className="ml-auto text-[9px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded">
                                   {item.badge}
                                 </span>
                               )}
@@ -308,21 +338,21 @@ export default function LangLayout({ children, params }: { children: React.React
         </nav>
 
         {/* User */}
-        <div className="px-2 py-3 border-t border-dark-800/60">
+        <div className="px-2 py-3 border-t border-gray-200">
           {collapsed ? (
             <div className="flex justify-center">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-dark-950 text-xs font-bold" title={user?.full_name || undefined}>
+              <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold" title={user?.full_name || undefined}>
                 {user?.full_name?.charAt(0) || "U"}
               </div>
             </div>
           ) : (
             <div className="flex items-center gap-2.5 px-2">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-dark-950 text-xs font-bold shrink-0">
+              <div className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">
                 {user?.full_name?.charAt(0) || "U"}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-white truncate">{user?.full_name}</p>
-                <p className="text-[10px] text-brand-500 capitalize">{user?.org_plan === "trial" ? t("trial_plan") : user?.org_plan}</p>
+                <p className="text-xs font-medium text-gray-900 truncate">{user?.full_name}</p>
+                <p className="text-[10px] text-primary capitalize">{user?.org_plan === "trial" ? t("trial_plan") : user?.org_plan}</p>
               </div>
             </div>
           )}
@@ -332,11 +362,11 @@ export default function LangLayout({ children, params }: { children: React.React
       {/* ===== MAIN CONTENT ===== */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header */}
-        <header className="h-12 border-b border-dark-800/60 bg-dark-900/40 backdrop-blur-sm flex items-center justify-between px-5 shrink-0">
+        <header className="h-12 border-b border-gray-200 bg-white flex items-center justify-between px-5 shrink-0">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
-            <span className="text-xs text-dark-400">{t("wa_account")}</span>
-            <span className="text-xs font-medium text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded">{t("wa_connected")}</span>
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span className="text-xs text-gray-500">{t("wa_account")}</span>
+            <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">{t("wa_connected")}</span>
           </div>
           <div className="flex items-center gap-3">
             <button
@@ -354,14 +384,14 @@ export default function LangLayout({ children, params }: { children: React.React
                 }
                 router.push(`/${newLang}`)
               }}
-              className="flex items-center gap-1.5 text-xs text-dark-400 hover:text-white bg-dark-800/60 px-2.5 py-1.5 rounded-lg transition"
+              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-900 bg-gray-100 px-2.5 py-1.5 rounded-lg transition"
             >
               <span>{lang === "tr" ? "\uD83C\uDDF9\uD83C\uDDF7" : "\uD83C\uDDEC\uD83C\uDDE7"}</span>
               <span>{lang === "tr" ? "TR" : "EN"}</span>
             </button>
             <button
               onClick={() => { logout(); router.push(`/${lang}/login`) }}
-              className="text-xs text-dark-500 hover:text-red-400 transition"
+              className="text-xs text-gray-400 hover:text-red-500 transition"
             >
               {t("logout")}
             </button>
@@ -369,7 +399,7 @@ export default function LangLayout({ children, params }: { children: React.React
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-hidden">{children}</main>
+        <main className="flex-1 overflow-auto">{children}</main>
       </div>
     </div>
   )
