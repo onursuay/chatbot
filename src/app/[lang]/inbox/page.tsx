@@ -115,6 +115,14 @@ export default function InboxPage() {
   const [activeChannel, setActiveChannel] = useState<Channel>("all")
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  // New conversation modal
+  const [showNewConv, setShowNewConv] = useState(false)
+  const [newConvPhone, setNewConvPhone] = useState("")
+  const [newConvName, setNewConvName] = useState("")
+  const [newConvText, setNewConvText] = useState("")
+  const [newConvSending, setNewConvSending] = useState(false)
+  const [newConvError, setNewConvError] = useState("")
+
   // Load conversations
   const loadConversations = () => {
     const token = getToken()
@@ -125,6 +133,37 @@ export default function InboxPage() {
   useEffect(() => {
     loadConversations()
   }, [getToken])
+
+  // Start new conversation
+  const handleStartConversation = async () => {
+    if (!newConvPhone.trim() || !newConvText.trim() || newConvSending) return
+    const token = getToken()
+    if (!token) return
+
+    setNewConvSending(true)
+    setNewConvError("")
+
+    try {
+      const conv = await api<Conversation>("/conversations/start", {
+        method: "POST",
+        token,
+        body: JSON.stringify({
+          phone: newConvPhone.trim(),
+          name: newConvName.trim() || null,
+          text: newConvText.trim(),
+        }),
+      })
+      setShowNewConv(false)
+      setNewConvPhone("")
+      setNewConvName("")
+      setNewConvText("")
+      loadConversations()
+      setSelectedConv(conv)
+    } catch (err: any) {
+      setNewConvError(err.message || "Mesaj gonderilemedi")
+    }
+    setNewConvSending(false)
+  }
 
   // Load messages
   useEffect(() => {
@@ -285,7 +324,18 @@ export default function InboxPage() {
       {/* ===== LEFT PANEL - Inbox List ===== */}
       <section className="w-[340px] flex flex-col border-r border-surface-200 bg-white shrink-0">
         <div className="px-5 pt-5 pb-3">
-          <h2 className="text-page-title mb-4">{t("inbox")}</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-page-title">{t("inbox")}</h2>
+            <button
+              onClick={() => setShowNewConv(true)}
+              className="ds-btn-primary ds-btn-sm gap-1"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
+                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              {t("new_message") || "Yeni Mesaj"}
+            </button>
+          </div>
           {/* Channel Filters */}
           <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-3">
             {CHANNEL_FILTERS.map((ch) => {
@@ -720,6 +770,73 @@ export default function InboxPage() {
             </button>
           </div>
         </aside>
+      )}
+
+      {/* ===== NEW CONVERSATION MODAL ===== */}
+      {showNewConv && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={() => setShowNewConv(false)}>
+          <div className="bg-white rounded-[6px] shadow-elevated w-[440px] max-w-[95vw]" onClick={(e) => e.stopPropagation()}>
+            <div className="px-5 py-4 border-b border-surface-300 flex items-center justify-between">
+              <h3 className="text-section-title">{t("new_message") || "Yeni Mesaj"}</h3>
+              <button onClick={() => setShowNewConv(false)} className="text-ink-muted hover:text-ink transition-colors">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5"><path d="M18 6L6 18M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div>
+                <label className="text-caption font-bold text-ink-secondary block mb-1.5">{t("phone") || "Telefon"} *</label>
+                <input
+                  type="tel"
+                  value={newConvPhone}
+                  onChange={(e) => setNewConvPhone(e.target.value)}
+                  placeholder="+905xxxxxxxxx"
+                  className="ds-input w-full"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="text-caption font-bold text-ink-secondary block mb-1.5">{t("contact_name") || "Ad"}</label>
+                <input
+                  type="text"
+                  value={newConvName}
+                  onChange={(e) => setNewConvName(e.target.value)}
+                  placeholder={t("optional") || "Opsiyonel"}
+                  className="ds-input w-full"
+                />
+              </div>
+              <div>
+                <label className="text-caption font-bold text-ink-secondary block mb-1.5">{t("message") || "Mesaj"} *</label>
+                <textarea
+                  value={newConvText}
+                  onChange={(e) => setNewConvText(e.target.value)}
+                  placeholder={t("write_message") || "Mesajinizi yazin..."}
+                  className="ds-input w-full min-h-[80px] resize-none"
+                  rows={3}
+                />
+              </div>
+              {newConvError && (
+                <div className="ds-callout-error text-caption text-accent-red-deep">{newConvError}</div>
+              )}
+            </div>
+            <div className="px-5 py-4 border-t border-surface-200 flex justify-end gap-2">
+              <button onClick={() => setShowNewConv(false)} className="ds-btn-secondary ds-btn-sm">
+                {t("cancel") || "Iptal"}
+              </button>
+              <button
+                onClick={handleStartConversation}
+                disabled={!newConvPhone.trim() || !newConvText.trim() || newConvSending}
+                className="ds-btn-primary ds-btn-sm gap-1"
+              >
+                {newConvSending ? (
+                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" /></svg>
+                )}
+                {t("send") || "Gonder"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
