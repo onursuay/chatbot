@@ -38,7 +38,7 @@ export default function AktivitePage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="ds-page-header px-7 py-5 border-b border-surface-200">
+      <div className="ds-page-header px-7 py-5 border-b border-surface-300">
         <h2 className="ds-page-title">{t("activity_log")}</h2>
         <select
           value={filterEntityType}
@@ -54,7 +54,7 @@ export default function AktivitePage() {
 
       <div className="flex-1 overflow-y-auto p-7">
         {logs.length === 0 ? (
-          <p className="text-center text-surface-400 text-ui py-8">{t("no_activity")}</p>
+          <p className="text-center text-ink-tertiary text-ui py-8">{t("no_activity")}</p>
         ) : (
           <div className="relative">
             {/* Timeline line */}
@@ -76,12 +76,12 @@ export default function AktivitePage() {
                     <div className="flex items-center justify-between">
                       <p className="text-caption text-ink">
                         <span className="font-medium">{log.user_name || t("system")}</span>{" "}
-                        <span className="text-surface-500">{log.action}</span>{" "}
+                        <span className="text-ink-secondary">{log.action}</span>{" "}
                         {log.entity_title && (
                           <span className="text-primary font-medium">{log.entity_title}</span>
                         )}
                       </p>
-                      <span className="text-micro text-surface-400 flex-shrink-0 ml-3">
+                      <span className="text-micro text-ink-tertiary flex-shrink-0 ml-3">
                         {new Date(log.created_at).toLocaleString("tr-TR")}
                       </span>
                     </div>
@@ -90,7 +90,7 @@ export default function AktivitePage() {
                         {log.entity_type}
                       </span>
                       {log.details && (
-                        <span className="text-surface-400 text-caption">{log.details}</span>
+                        <span className="text-ink-tertiary text-caption">{log.details}</span>
                       )}
                     </div>
                   </div>

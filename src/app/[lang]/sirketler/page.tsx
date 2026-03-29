@@ -66,7 +66,7 @@ export default function SirketlerPage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="ds-page-header px-7 py-5 border-b border-surface-200">
+      <div className="ds-page-header px-7 py-5 border-b border-surface-300">
         <h2 className="ds-page-title">{t("companies")}</h2>
         <div className="flex gap-3">
           <input

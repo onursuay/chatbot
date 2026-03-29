@@ -145,11 +145,11 @@ export default function SettingsPage() {
           <h3 className="ds-section-title mb-4">{t("organization")}</h3>
           <div className="space-y-3">
             <div>
-              <label className="text-caption text-surface-500">{t("company_name")}</label>
+              <label className="text-caption text-ink-secondary">{t("company_name")}</label>
               <p className="text-ink text-ui">{user?.org_name}</p>
             </div>
             <div>
-              <label className="text-caption text-surface-500">{t("plan")}</label>
+              <label className="text-caption text-ink-secondary">{t("plan")}</label>
               <p className="text-primary capitalize text-ui">{user?.org_plan === "trial" ? t("trial_plan") : user?.org_plan}</p>
             </div>
           </div>
@@ -160,7 +160,7 @@ export default function SettingsPage() {
           <h3 className="ds-section-title mb-4">{t("whatsapp_connection")}</h3>
 
           {loading ? (
-            <p className="text-surface-500 text-caption">{t("loading")}</p>
+            <p className="text-ink-secondary text-caption">{t("loading")}</p>
           ) : status?.connected ? (
             /* Bagli durumu */
             <div className="space-y-4">
@@ -171,24 +171,24 @@ export default function SettingsPage() {
 
               <div className="space-y-3">
                 <div>
-                  <label className="text-caption text-surface-500">WABA</label>
+                  <label className="text-caption text-ink-secondary">WABA</label>
                   <p className="text-ink text-ui">{status.waba_name}</p>
                 </div>
                 <div>
-                  <label className="text-caption text-surface-500">WABA ID</label>
+                  <label className="text-caption text-ink-secondary">WABA ID</label>
                   <p className="text-ink text-ui font-mono">{status.waba_id}</p>
                 </div>
               </div>
 
               {status.phone_numbers && status.phone_numbers.length > 0 && (
-                <div className="border-t border-surface-200 pt-4">
-                  <label className="text-caption text-surface-500 block mb-2">{t("phone_numbers")}</label>
+                <div className="border-t border-surface-300 pt-4">
+                  <label className="text-caption text-ink-secondary block mb-2">{t("phone_numbers")}</label>
                   {status.phone_numbers.map((phone) => (
-                    <div key={phone.id} className="flex items-center justify-between bg-surface-50 rounded-card-sm px-4 py-3">
+                    <div key={phone.id} className="flex items-center justify-between bg-surface-250 rounded-card-sm px-4 py-3">
                       <div>
                         <p className="text-ink text-ui">{phone.number}</p>
                         {phone.verified_name && (
-                          <p className="text-surface-500 text-caption">{phone.verified_name}</p>
+                          <p className="text-ink-secondary text-caption">{phone.verified_name}</p>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
@@ -199,7 +199,7 @@ export default function SettingsPage() {
                         }`}>
                           {phone.quality_rating}
                         </span>
-                        <span className="text-caption text-surface-500">{phone.status}</span>
+                        <span className="text-caption text-ink-secondary">{phone.status}</span>
                       </div>
                     </div>
                   ))}
@@ -209,7 +209,7 @@ export default function SettingsPage() {
           ) : (
             /* Bagli degil */
             <div>
-              <p className="text-surface-500 text-caption mb-4">
+              <p className="text-ink-secondary text-caption mb-4">
                 {t("whatsapp_connect_desc")}
               </p>
 
@@ -250,15 +250,15 @@ export default function SettingsPage() {
           <h3 className="ds-section-title mb-4">{t("profile")}</h3>
           <div className="space-y-3">
             <div>
-              <label className="text-caption text-surface-500">{t("full_name")}</label>
+              <label className="text-caption text-ink-secondary">{t("full_name")}</label>
               <p className="text-ink text-ui">{user?.full_name}</p>
             </div>
             <div>
-              <label className="text-caption text-surface-500">{t("email")}</label>
+              <label className="text-caption text-ink-secondary">{t("email")}</label>
               <p className="text-ink text-ui">{user?.email}</p>
             </div>
             <div>
-              <label className="text-caption text-surface-500">{t("role")}</label>
+              <label className="text-caption text-ink-secondary">{t("role")}</label>
               <p className="text-ink capitalize text-ui">{user?.role}</p>
             </div>
           </div>

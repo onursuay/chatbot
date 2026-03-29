@@ -483,7 +483,8 @@ const translations: Record<string, Record<Lang, string>> = {
   "entity_type": { tr: "İlişkili Tür", en: "Entity Type" },
 
   // Dashboard
-  "dashboard": { tr: "Dashboard", en: "Dashboard" },
+  "dashboard": { tr: "Kontrol Paneli", en: "Dashboard" },
+  "dashboard_subtitle": { tr: "Yapay zeka destekli iş genel görünümü", en: "AI-powered business overview" },
   "add_widget": { tr: "+ Widget Ekle", en: "+ Add Widget" },
   "widget_type": { tr: "Widget Türü", en: "Widget Type" },
   "kpi_card": { tr: "KPI Kartı", en: "KPI Card" },
@@ -491,6 +492,12 @@ const translations: Record<string, Record<Lang, string>> = {
   "line_chart": { tr: "Çizgi Grafik", en: "Line Chart" },
   "pie_chart": { tr: "Pasta Grafik", en: "Pie Chart" },
   "pipeline_summary": { tr: "Pipeline Özeti", en: "Pipeline Summary" },
+  "total_leads": { tr: "Toplam Lead", en: "Total Leads" },
+  "active_deals_value": { tr: "Aktif Fırsatlar", en: "Active Deals Value" },
+  "tasks_due_today": { tr: "Bugünkü Görevler", en: "Tasks Due Today" },
+  "conversion_rate": { tr: "Dönüşüm Oranı", en: "Conversion Rate" },
+  "recent_activity": { tr: "Son Aktivite", en: "Recent Activity" },
+  "custom_widgets": { tr: "Özel Widgetlar", en: "Custom Widgets" },
   "leaderboard": { tr: "Sıralama", en: "Leaderboard" },
 
   // Lead Scoring

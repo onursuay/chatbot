@@ -82,14 +82,14 @@ export default function TemplatesPage() {
           <h3 className="ds-section-title mb-4">{t("new_template_form")}</h3>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-caption-medium text-surface-500 mb-1">{t("template_name")}</label>
+              <label className="block text-caption-medium text-ink-secondary mb-1">{t("template_name")}</label>
               <input type="text" value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "") })}
                 className="ds-input"
                 placeholder={t("example_template")} />
             </div>
             <div>
-              <label className="block text-caption-medium text-surface-500 mb-1">{t("category")}</label>
+              <label className="block text-caption-medium text-ink-secondary mb-1">{t("category")}</label>
               <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}
                 className="ds-select">
                 <option value="MARKETING">{t("marketing")}</option>
@@ -99,11 +99,11 @@ export default function TemplatesPage() {
             </div>
           </div>
           <div className="mb-4">
-            <label className="block text-caption-medium text-surface-500 mb-1">{t("message_text")}</label>
+            <label className="block text-caption-medium text-ink-secondary mb-1">{t("message_text")}</label>
             <textarea value={form.text} onChange={(e) => setForm({ ...form, text: e.target.value })}
               className="ds-input h-24 resize-none"
               placeholder={t("msg_body_placeholder")} />
-            <p className="text-micro text-surface-400 mt-1">{t("variables_hint")}</p>
+            <p className="text-micro text-ink-tertiary mt-1">{t("variables_hint")}</p>
           </div>
           <div className="flex gap-2">
             <button onClick={handleCreate} disabled={creating}
@@ -116,7 +116,7 @@ export default function TemplatesPage() {
         </div>
       )}
 
-      {loading ? <p className="text-surface-500 text-caption">{t("loading")}</p> : templates.length === 0 ? (
+      {loading ? <p className="text-ink-secondary text-caption">{t("loading")}</p> : templates.length === 0 ? (
         <div className="ds-empty-state">
           <p className="ds-empty-state-title">{t("no_templates")}</p>
           <p className="ds-empty-state-desc">{t("no_templates_desc")}</p>
@@ -129,12 +129,12 @@ export default function TemplatesPage() {
                 <h3 className="text-body-medium font-medium">{tpl.name}</h3>
                 <span className={`${statusColor(tpl.status)}`}>{t(`status_${tpl.status.toLowerCase()}`) || tpl.status}</span>
               </div>
-              <div className="flex gap-2 text-caption text-surface-400">
+              <div className="flex gap-2 text-caption text-ink-tertiary">
                 <span>{categoryLabel(tpl.category)}</span>
                 <span>{tpl.language}</span>
               </div>
               {tpl.components && tpl.components.length > 0 && (
-                <p className="text-caption text-surface-500 mt-2 line-clamp-2">
+                <p className="text-caption text-ink-secondary mt-2 line-clamp-2">
                   {tpl.components.find((c: any) => c.type === "BODY")?.text || ""}
                 </p>
               )}

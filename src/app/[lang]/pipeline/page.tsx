@@ -88,7 +88,7 @@ export default function PipelinePage() {
           <div className="flex items-center justify-center h-full">
             <div className="ds-empty-state">
               <div className="ds-empty-state-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-surface-300">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-ink-tertiary">
                   <path d="M3 3h5v18H3zM10 3h5v18h-5zM17 3h5v18h-5z" />
                 </svg>
               </div>

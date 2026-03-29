@@ -74,7 +74,7 @@ export default function AnalyticsPage() {
         ) : !data ? (
           <div className="ds-empty-state">
             <div className="ds-empty-state-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-surface-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-ink-tertiary">
                 <path d="M18 20V10M12 20V4M6 20v-6" />
               </svg>
             </div>
@@ -91,7 +91,7 @@ export default function AnalyticsPage() {
                   style={{ animationDelay: `${i * 50}ms` }}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-caption-medium text-surface-500">{stat.label}</p>
+                    <p className="text-caption-medium text-ink-secondary">{stat.label}</p>
                     <div className={`w-8 h-8 rounded-[6px] ${stat.iconBg} ${stat.accent} flex items-center justify-center`}>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
                         {stat.icon === "msg" && <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />}
@@ -114,7 +114,7 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Bot Resolution */}
               <div className="ds-card p-5">
-                <p className="text-caption-medium text-surface-500 mb-2">{t("bot_resolution_rate")}</p>
+                <p className="text-caption-medium text-ink-secondary mb-2">{t("bot_resolution_rate")}</p>
                 <p className="text-kpi text-primary">{botRate}%</p>
                 <div className="w-full bg-surface-100 rounded-full h-2 mt-3 overflow-hidden">
                   <div
@@ -126,7 +126,7 @@ export default function AnalyticsPage() {
 
               {/* Total Conversations */}
               <div className="ds-card p-5">
-                <p className="text-caption-medium text-surface-500 mb-2">{t("total_conversations")}</p>
+                <p className="text-caption-medium text-ink-secondary mb-2">{t("total_conversations")}</p>
                 <p className="text-kpi text-ink">{o?.total_conversations}</p>
                 <div className="flex gap-3 mt-2.5">
                   <span className="ds-badge-warning">{o?.open_conversations} {t("open")}</span>
@@ -136,9 +136,9 @@ export default function AnalyticsPage() {
 
               {/* Campaigns */}
               <div className="ds-card p-5">
-                <p className="text-caption-medium text-surface-500 mb-2">{t("campaigns")}</p>
+                <p className="text-caption-medium text-ink-secondary mb-2">{t("campaigns")}</p>
                 <p className="text-kpi text-ink">{o?.total_broadcasts}</p>
-                <p className="text-caption text-surface-400 mt-2">{t("total_sent_campaigns")}</p>
+                <p className="text-caption text-ink-tertiary mt-2">{t("total_sent_campaigns")}</p>
               </div>
             </div>
 
@@ -165,17 +165,17 @@ export default function AnalyticsPage() {
                           />
                         </div>
                       </div>
-                      <span className="text-micro text-surface-400">{day.date}</span>
+                      <span className="text-micro text-ink-tertiary">{day.date}</span>
                     </div>
                   )
                 })}
               </div>
-              <div className="flex gap-5 mt-5 pt-4 border-t border-surface-200">
-                <span className="flex items-center gap-2 text-caption text-surface-500">
+              <div className="flex gap-5 mt-5 pt-4 border-t border-surface-300">
+                <span className="flex items-center gap-2 text-caption text-ink-secondary">
                   <span className="w-3 h-3 bg-primary rounded" />
                   {t("incoming")}
                 </span>
-                <span className="flex items-center gap-2 text-caption text-surface-500">
+                <span className="flex items-center gap-2 text-caption text-ink-secondary">
                   <span className="w-3 h-3 bg-primary/10 rounded" />
                   {t("outgoing")}
                 </span>

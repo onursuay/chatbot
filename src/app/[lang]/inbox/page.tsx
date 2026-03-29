@@ -363,7 +363,7 @@ export default function InboxPage() {
           {filteredConversations.length === 0 ? (
             <div className="ds-empty-state">
               <div className="ds-empty-state-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-surface-300">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-ink-tertiary">
                   <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
                 </svg>
               </div>
@@ -404,11 +404,11 @@ export default function InboxPage() {
                         <h3 className={`text-ui truncate ${isSelected ? "text-primary font-bold" : "font-bold text-ink"}`}>
                           {conv.contact_name || conv.contact_phone || t("unknown")}
                         </h3>
-                        <span className={`text-micro shrink-0 ml-2 ${conv.unread_count > 0 ? "font-bold text-primary" : "text-surface-400"}`}>
+                        <span className={`text-micro shrink-0 ml-2 ${conv.unread_count > 0 ? "font-bold text-primary" : "text-ink-tertiary"}`}>
                           {conv.last_message_at ? formatTime(conv.last_message_at) : ""}
                         </span>
                       </div>
-                      <p className="text-caption text-surface-400 line-clamp-1">
+                      <p className="text-caption text-ink-tertiary line-clamp-1">
                         {conv.last_message_preview || t("no_message")}
                       </p>
                     </div>
@@ -435,7 +435,7 @@ export default function InboxPage() {
                   <div className={`w-10 h-10 rounded-avatar ${getAvatarColor(selectedConv.contact_name)} flex items-center justify-center text-white text-micro font-bold`}>
                     {getInitials(selectedConv.contact_name)}
                   </div>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary border-2 border-surface-200 rounded-full" />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary border-2 border-surface-300 rounded-full" />
                 </div>
                 <div>
                   <h3 className="font-bold text-body-medium text-ink">
@@ -449,20 +449,20 @@ export default function InboxPage() {
               </div>
               <div className="flex items-center gap-1">
                 {/* Call */}
-                <button className="w-8 h-8 flex items-center justify-center hover:bg-surface-300 rounded-[6px] transition-colors text-surface-400 hover:text-ink-secondary">
+                <button className="w-8 h-8 flex items-center justify-center hover:bg-surface-300 rounded-[6px] transition-colors text-ink-tertiary hover:text-ink-secondary">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-[18px] h-[18px]">
                     <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
                   </svg>
                 </button>
                 {/* Video */}
-                <button className="w-8 h-8 flex items-center justify-center hover:bg-surface-300 rounded-[6px] transition-colors text-surface-400 hover:text-ink-secondary">
+                <button className="w-8 h-8 flex items-center justify-center hover:bg-surface-300 rounded-[6px] transition-colors text-ink-tertiary hover:text-ink-secondary">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-[18px] h-[18px]">
                     <polygon points="23 7 16 12 23 17 23 7" />
                     <rect x="1" y="5" width="15" height="14" rx="2" />
                   </svg>
                 </button>
                 {/* Info */}
-                <button className="w-8 h-8 flex items-center justify-center hover:bg-surface-300 rounded-[6px] transition-colors text-surface-400 hover:text-ink-secondary">
+                <button className="w-8 h-8 flex items-center justify-center hover:bg-surface-300 rounded-[6px] transition-colors text-ink-tertiary hover:text-ink-secondary">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-[18px] h-[18px]">
                     <circle cx="12" cy="12" r="10" />
                     <path d="M12 16v-4M12 8h.01" />
@@ -592,7 +592,7 @@ export default function InboxPage() {
 
               {/* Message Input */}
               <div className="flex items-end gap-2 bg-surface-250 p-2 rounded-[6px] border border-surface-300 focus-within:border-primary/30 focus-within:bg-surface-200 focus-within:shadow-input-focus transition-all duration-200">
-                <button className="w-8 h-8 flex items-center justify-center text-surface-400 hover:text-primary rounded-[6px] hover:bg-surface-300 transition-colors">
+                <button className="w-8 h-8 flex items-center justify-center text-ink-tertiary hover:text-primary rounded-[6px] hover:bg-surface-300 transition-colors">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-[18px] h-[18px]">
                     <circle cx="12" cy="12" r="10" />
                     <line x1="12" y1="8" x2="12" y2="16" />
@@ -614,7 +614,7 @@ export default function InboxPage() {
                   rows={1}
                 />
                 <div className="flex items-center gap-1 mb-0.5 pr-0.5">
-                  <button className="w-8 h-8 flex items-center justify-center text-surface-400 hover:text-primary rounded-[6px] hover:bg-surface-300 transition-colors">
+                  <button className="w-8 h-8 flex items-center justify-center text-ink-tertiary hover:text-primary rounded-[6px] hover:bg-surface-300 transition-colors">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-[18px] h-[18px]">
                       <circle cx="12" cy="12" r="10" />
                       <path d="M8 14s1.5 2 4 2 4-2 4-2" />
@@ -647,7 +647,7 @@ export default function InboxPage() {
           <div className="flex-1 flex items-center justify-center bg-surface/30">
             <div className="text-center">
               <div className="ds-empty-state-icon mx-auto">
-                <svg className="w-7 h-7 text-surface-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-7 h-7 text-ink-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
@@ -667,7 +667,7 @@ export default function InboxPage() {
               {getInitials(selectedConv.contact_name)}
             </div>
             <h2 className="font-bold text-body-medium text-ink">{selectedConv.contact_name || t("unknown")}</h2>
-            <p className="text-micro text-surface-400 mt-0.5">
+            <p className="text-micro text-ink-tertiary mt-0.5">
               {t("individual_customer")} {selectedConv.contact_phone ? `\u2022 ${selectedConv.contact_phone}` : ""}
             </p>
           </div>
@@ -681,7 +681,7 @@ export default function InboxPage() {
                 </svg>
                 <h3 className="text-section-label uppercase tracking-wider text-primary">{t("ai_summary_title")}</h3>
               </div>
-              <p className="text-caption text-surface-600 leading-relaxed">
+              <p className="text-caption text-ink-secondary leading-relaxed">
                 {selectedConv.contact_name || t("unknown")} - {getChannelLabel(selectedConv.channel)} {t("online").toLowerCase()}.
                 {selectedConv.is_bot_active && ` ${t("ai_bot")} ${t("active").toLowerCase()}.`}
               </p>
@@ -691,7 +691,7 @@ export default function InboxPage() {
                 </span>
                 <span className={`ds-badge text-[9px] ${
                   selectedConv.status === "open" ? "bg-emerald-500/15 text-emerald-400" :
-                  selectedConv.status === "resolved" ? "bg-surface-300 text-surface-500" : "bg-amber-500/15 text-amber-400"
+                  selectedConv.status === "resolved" ? "bg-surface-300 text-ink-secondary" : "bg-amber-500/15 text-amber-400"
                 }`}>
                   {selectedConv.status === "open" ? t("open") :
                    selectedConv.status === "resolved" ? t("resolved") : t("assigned")}
@@ -701,32 +701,32 @@ export default function InboxPage() {
 
             {/* Customer Details */}
             <div>
-              <h3 className="text-section-label uppercase tracking-wider text-surface-400 mb-3">{t("customer_details")}</h3>
+              <h3 className="text-section-label uppercase tracking-wider text-ink-tertiary mb-3">{t("customer_details")}</h3>
               <div className="space-y-2.5">
                 {selectedConv.contact_email && (
                   <div className="flex items-center gap-2.5 p-2 rounded-card-sm hover:bg-surface-300 transition-colors">
-                    <div className="w-8 h-8 rounded-[6px] bg-surface-300 flex items-center justify-center text-surface-400">
+                    <div className="w-8 h-8 rounded-[6px] bg-surface-300 flex items-center justify-center text-ink-tertiary">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
                         <rect x="2" y="4" width="20" height="16" rx="2" />
                         <path d="M22 7l-10 6L2 7" />
                       </svg>
                     </div>
                     <div>
-                      <p className="text-micro text-surface-400">{t("email_label")}</p>
+                      <p className="text-micro text-ink-tertiary">{t("email_label")}</p>
                       <p className="text-ui text-ink">{selectedConv.contact_email}</p>
                     </div>
                   </div>
                 )}
                 {selectedConv.contact_phone && (
                   <div className="flex items-center gap-2.5 p-2 rounded-card-sm hover:bg-surface-300 transition-colors">
-                    <div className="w-8 h-8 rounded-[6px] bg-surface-300 flex items-center justify-center text-surface-400">
+                    <div className="w-8 h-8 rounded-[6px] bg-surface-300 flex items-center justify-center text-ink-tertiary">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
                         <rect x="5" y="2" width="14" height="20" rx="2" />
                         <line x1="12" y1="18" x2="12.01" y2="18" />
                       </svg>
                     </div>
                     <div>
-                      <p className="text-micro text-surface-400">{t("phone_label")}</p>
+                      <p className="text-micro text-ink-tertiary">{t("phone_label")}</p>
                       <p className="text-ui text-ink">{selectedConv.contact_phone}</p>
                     </div>
                   </div>
@@ -737,7 +737,7 @@ export default function InboxPage() {
             {/* Tags */}
             <div>
               <div className="flex justify-between items-center mb-3">
-                <h3 className="text-section-label uppercase tracking-wider text-surface-400">{t("tags_label")}</h3>
+                <h3 className="text-section-label uppercase tracking-wider text-ink-tertiary">{t("tags_label")}</h3>
                 <button className="text-micro font-bold text-primary hover:text-primary-600 transition-colors">{t("add_tag_btn")}</button>
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -749,7 +749,7 @@ export default function InboxPage() {
                 </span>
                 <span className={`ds-badge ${
                   selectedConv.status === "open" ? "bg-emerald-500/15 text-emerald-400" :
-                  selectedConv.status === "resolved" ? "bg-surface-300 text-surface-500" :
+                  selectedConv.status === "resolved" ? "bg-surface-300 text-ink-secondary" :
                   "bg-amber-500/15 text-amber-400"
                 }`}>
                   {selectedConv.status === "open" ? t("open") :

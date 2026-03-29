@@ -103,7 +103,7 @@ export default function LeadlerPage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="ds-page-header px-7 py-5 border-b border-surface-200">
+      <div className="ds-page-header px-7 py-5 border-b border-surface-300">
         <h2 className="ds-page-title">{t("leads")}</h2>
         <div className="flex gap-3">
           <input
@@ -123,7 +123,7 @@ export default function LeadlerPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="px-7 py-3 border-b border-surface-200 flex gap-3 flex-wrap">
+      <div className="px-7 py-3 border-b border-surface-300 flex gap-3 flex-wrap">
         <select
           value={filterPipeline}
           onChange={(e) => { setFilterPipeline(e.target.value); setFilterStage("") }}

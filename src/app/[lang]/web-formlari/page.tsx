@@ -76,7 +76,7 @@ export default function WebFormlariPage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="ds-page-header px-7 py-5 border-b border-surface-200">
+      <div className="ds-page-header px-7 py-5 border-b border-surface-300">
         <h2 className="ds-page-title">{t("web_forms")}</h2>
         <button
           onClick={() => setShowForm(true)}
@@ -145,8 +145,8 @@ export default function WebFormlariPage() {
             {forms.map((f) => (
               <tr key={f.id} className="ds-table-row">
                 <td className="p-4 text-ui text-ink font-medium">{f.name}</td>
-                <td className="p-4 text-ui text-surface-500 font-mono">{f.slug}</td>
-                <td className="p-4 text-ui text-surface-500">{f.submissions_count}</td>
+                <td className="p-4 text-ui text-ink-secondary font-mono">{f.slug}</td>
+                <td className="p-4 text-ui text-ink-secondary">{f.submissions_count}</td>
                 <td className="p-4">
                   <span className={`${
                     f.is_active ? "ds-badge-success" : "ds-badge-neutral"
@@ -166,7 +166,7 @@ export default function WebFormlariPage() {
             ))}
             {forms.length === 0 && (
               <tr>
-                <td colSpan={5} className="p-8 text-center text-surface-400 text-ui">{t("no_forms")}</td>
+                <td colSpan={5} className="p-8 text-center text-ink-tertiary text-ui">{t("no_forms")}</td>
               </tr>
             )}
           </tbody>

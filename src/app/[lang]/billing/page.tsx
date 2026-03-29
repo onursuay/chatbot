@@ -107,7 +107,7 @@ export default function BillingPage() {
     business: [t("feat_20_users"), t("feat_unlimited_msg"), t("feat_ig_fb_dm"), "Shopify", t("feat_api_access"), t("feat_custom_integration"), t("feat_dedicated_support")],
   }
 
-  if (loading) return <div className="p-7 text-surface-500 text-caption">{t("loading")}</div>
+  if (loading) return <div className="p-7 text-ink-secondary text-caption">{t("loading")}</div>
 
   return (
     <div className="p-7">
@@ -141,15 +141,15 @@ export default function BillingPage() {
               className={`flex flex-col items-center gap-2 p-4 rounded-card-sm border transition ${
                 paymentMethod === pm.id || (pm.id === "param" && paymentMethod === "iyzico")
                   ? "border-primary bg-primary/5"
-                  : "border-surface-200 bg-surface-50 hover:border-surface-300"
+                  : "border-surface-300 bg-surface-250 hover:border-surface-300"
               }`}
             >
               {pm.logo}
-              <span className="text-caption text-surface-500">{pm.desc}</span>
+              <span className="text-caption text-ink-secondary">{pm.desc}</span>
             </button>
           ))}
         </div>
-        <div className="mt-4 flex items-center gap-3 text-micro text-surface-400">
+        <div className="mt-4 flex items-center gap-3 text-micro text-ink-tertiary">
           <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
@@ -178,12 +178,12 @@ export default function BillingPage() {
               <h3 className="text-ink font-bold text-lg">{plan.name}</h3>
               <div className="mt-3 mb-6">
                 <span className="text-kpi font-bold text-ink">{plan.price}</span>
-                <span className="text-surface-500 text-caption"> /ay</span>
-                <p className="text-surface-400 text-micro mt-1">{plan.priceTL} /ay</p>
+                <span className="text-ink-secondary text-caption"> /ay</span>
+                <p className="text-ink-tertiary text-micro mt-1">{plan.priceTL} /ay</p>
               </div>
               <ul className="space-y-2 mb-6">
                 {features.map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-caption text-surface-500">
+                  <li key={f} className="flex items-center gap-2 text-caption text-ink-secondary">
                     <svg className="w-4 h-4 text-primary shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
@@ -192,7 +192,7 @@ export default function BillingPage() {
                 ))}
               </ul>
               {isActive ? (
-                <button disabled className="w-full bg-surface-100 text-surface-500 font-bold py-2.5 rounded-btn text-caption">
+                <button disabled className="w-full bg-surface-100 text-ink-secondary font-bold py-2.5 rounded-btn text-caption">
                   {t("current_plan_btn")}
                 </button>
               ) : (
@@ -226,7 +226,7 @@ export default function BillingPage() {
             </div>
             <div className="text-center">
               <p className="text-caption text-ink font-medium">Stripe</p>
-              <p className="text-micro text-surface-400">Visa, Mastercard, Amex</p>
+              <p className="text-micro text-ink-tertiary">Visa, Mastercard, Amex</p>
             </div>
           </div>
 
@@ -237,7 +237,7 @@ export default function BillingPage() {
             </div>
             <div className="text-center">
               <p className="text-caption text-ink font-medium">iyzico</p>
-              <p className="text-micro text-surface-400">{t("credit_card_bkm")}</p>
+              <p className="text-micro text-ink-tertiary">{t("credit_card_bkm")}</p>
             </div>
           </div>
 
@@ -248,7 +248,7 @@ export default function BillingPage() {
             </div>
             <div className="text-center">
               <p className="text-caption text-ink font-medium">PayTR</p>
-              <p className="text-micro text-surface-400">{t("credit_card_transfer")}</p>
+              <p className="text-micro text-ink-tertiary">{t("credit_card_transfer")}</p>
             </div>
           </div>
 
@@ -259,13 +259,13 @@ export default function BillingPage() {
             </div>
             <div className="text-center">
               <p className="text-caption text-ink font-medium">Param</p>
-              <p className="text-micro text-surface-400">{t("digital_wallet_qr")}</p>
+              <p className="text-micro text-ink-tertiary">{t("digital_wallet_qr")}</p>
             </div>
           </div>
         </div>
 
         {/* Kart logolari */}
-        <div className="mt-6 pt-4 border-t border-surface-200 flex items-center justify-center gap-4">
+        <div className="mt-6 pt-4 border-t border-surface-300 flex items-center justify-center gap-4">
           {/* Visa */}
           <div className="w-12 h-8 bg-surface-250 rounded flex items-center justify-center">
             <svg viewBox="0 0 48 16" className="w-10 h-4">
@@ -299,7 +299,7 @@ export default function BillingPage() {
       {/* Ucretsiz plan */}
       <div className="mt-6 ds-card p-6">
         <h3 className="ds-section-title mb-2">{t("free_trial_title")}</h3>
-        <p className="text-surface-500 text-caption">
+        <p className="text-ink-secondary text-caption">
           {t("free_trial_desc")}
         </p>
       </div>

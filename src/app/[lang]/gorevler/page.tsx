@@ -103,7 +103,7 @@ export default function GorevlerPage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="ds-page-header px-7 py-5 border-b border-surface-200">
+      <div className="ds-page-header px-7 py-5 border-b border-surface-300">
         <h2 className="ds-page-title">{t("tasks")}</h2>
         <button
           onClick={() => setShowForm(true)}
@@ -114,7 +114,7 @@ export default function GorevlerPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="px-7 py-3 border-b border-surface-200 flex gap-3 flex-wrap">
+      <div className="px-7 py-3 border-b border-surface-300 flex gap-3 flex-wrap">
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}

@@ -62,7 +62,7 @@ export default function BroadcastPage() {
   }
 
   const statusMap: Record<string, { key: string; color: string }> = {
-    draft: { key: "draft", color: "text-surface-500" },
+    draft: { key: "draft", color: "text-ink-secondary" },
     scheduled: { key: "scheduled", color: "text-yellow-400" },
     sending: { key: "sending", color: "text-blue-400" },
     completed: { key: "completed", color: "text-primary" },
@@ -83,13 +83,13 @@ export default function BroadcastPage() {
           <h3 className="ds-section-title mb-4">{t("new_campaign_form")}</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-caption-medium text-surface-500 mb-1">{t("campaign_name")}</label>
+              <label className="block text-caption-medium text-ink-secondary mb-1">{t("campaign_name")}</label>
               <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
                 className="ds-input"
                 placeholder={t("example_campaign")} />
             </div>
             <div>
-              <label className="block text-caption-medium text-surface-500 mb-1">{t("message_template")}</label>
+              <label className="block text-caption-medium text-ink-secondary mb-1">{t("message_template")}</label>
               <select value={form.template_name} onChange={(e) => setForm({ ...form, template_name: e.target.value })}
                 className="ds-select">
                 <option value="">{t("select_template")}</option>
@@ -99,7 +99,7 @@ export default function BroadcastPage() {
               </select>
             </div>
             <div>
-              <label className="block text-caption-medium text-surface-500 mb-1">{t("language")}</label>
+              <label className="block text-caption-medium text-ink-secondary mb-1">{t("language")}</label>
               <select value={form.language} onChange={(e) => setForm({ ...form, language: e.target.value })}
                 className="ds-select">
                 <option value="tr">{t("turkish")}</option>
@@ -107,7 +107,7 @@ export default function BroadcastPage() {
               </select>
             </div>
             <div>
-              <label className="block text-caption-medium text-surface-500 mb-1">{t("target_tag")}</label>
+              <label className="block text-caption-medium text-ink-secondary mb-1">{t("target_tag")}</label>
               <input type="text" value={form.tag_filter} onChange={(e) => setForm({ ...form, tag_filter: e.target.value })}
                 className="ds-input"
                 placeholder={t("tag_empty_hint")} />
@@ -124,7 +124,7 @@ export default function BroadcastPage() {
         </div>
       )}
 
-      {loading ? <p className="text-surface-500 text-caption">{t("loading")}</p> : broadcasts.length === 0 ? (
+      {loading ? <p className="text-ink-secondary text-caption">{t("loading")}</p> : broadcasts.length === 0 ? (
         <div className="ds-empty-state">
           <p className="ds-empty-state-title">{t("no_campaigns")}</p>
           <p className="ds-empty-state-desc">{t("no_campaigns_desc")}</p>
@@ -132,7 +132,7 @@ export default function BroadcastPage() {
       ) : (
         <div className="space-y-3">
           {broadcasts.map((b) => {
-            const s = statusMap[b.status] || { key: b.status, color: "text-surface-500" }
+            const s = statusMap[b.status] || { key: b.status, color: "text-ink-secondary" }
             return (
               <div key={b.id} className="ds-card p-5">
                 <div className="flex items-center justify-between mb-3">
@@ -149,11 +149,11 @@ export default function BroadcastPage() {
                   ].map((stat) => (
                     <div key={stat.l}>
                       <p className={`text-kpi-sm font-bold ${stat.c}`}>{stat.v}</p>
-                      <p className="text-caption text-surface-400">{t(stat.l)}</p>
+                      <p className="text-caption text-ink-tertiary">{t(stat.l)}</p>
                     </div>
                   ))}
                 </div>
-                <p className="text-caption text-surface-400 mt-3">
+                <p className="text-caption text-ink-tertiary mt-3">
                   {new Date(b.created_at).toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" })}
                 </p>
               </div>

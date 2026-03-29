@@ -180,7 +180,7 @@ export default function LangLayout({ children, params }: { children: React.React
         className={`${sidebarWidth} ${animate ? "transition-[width] duration-200 ease-out" : ""} bg-surface-100 border-r border-surface-300 flex flex-col shrink-0 overflow-hidden`}
       >
         {/* Logo */}
-        <div className="px-3 py-3 flex items-center gap-2 border-b border-surface-200">
+        <div className="px-3 py-3 flex items-center gap-2 border-b border-surface-300">
           {collapsed ? (
             <button onClick={toggleCollapsed} className="w-[30px] h-[30px] mx-auto flex items-center justify-center relative group">
               <div className={`w-[28px] h-[28px] rounded-btn overflow-hidden transition-opacity duration-300 ${hintPhase === "logo" ? "opacity-100" : "opacity-0"} group-hover:opacity-0`}>
@@ -230,7 +230,7 @@ export default function LangLayout({ children, params }: { children: React.React
                     </span>
                     <svg
                       viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}
-                      className={`w-3 h-3 transition-transform duration-150 ${isOpen ? "rotate-180" : ""} ${hasActiveItem ? "text-ink-muted" : "text-surface-500 group-hover:text-ink-muted"}`}
+                      className={`w-3 h-3 transition-transform duration-150 ${isOpen ? "rotate-180" : ""} ${hasActiveItem ? "text-ink-muted" : "text-ink-secondary group-hover:text-ink-muted"}`}
                     >
                       <path d="M6 9l6 6 6-6" />
                     </svg>
@@ -273,7 +273,7 @@ export default function LangLayout({ children, params }: { children: React.React
         </nav>
 
         {/* User */}
-        <div className="px-2 py-2 border-t border-surface-200">
+        <div className="px-2 py-2 border-t border-surface-300">
           {collapsed ? (
             <div className="flex justify-center">
               <div className="w-[30px] h-[30px] rounded-avatar bg-primary text-white flex items-center justify-center text-micro" title={user?.full_name || undefined}>

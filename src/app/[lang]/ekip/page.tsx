@@ -81,7 +81,7 @@ export default function EkipPage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="ds-page-header px-7 py-5 border-b border-surface-200">
+      <div className="ds-page-header px-7 py-5 border-b border-surface-300">
         <h2 className="ds-page-title">{t("team")}</h2>
         <button
           onClick={() => setShowInviteForm(true)}
@@ -161,18 +161,18 @@ export default function EkipPage() {
                       {m.full_name || "\u2014"}
                     </div>
                   </td>
-                  <td className="p-4 text-ui text-surface-500">{m.email}</td>
+                  <td className="p-4 text-ui text-ink-secondary">{m.email}</td>
                   <td className="p-4">
                     <span className="ds-badge-primary capitalize">{m.role}</span>
                   </td>
-                  <td className="p-4 text-caption text-surface-400">
+                  <td className="p-4 text-caption text-ink-tertiary">
                     {new Date(m.joined_at).toLocaleDateString("tr-TR")}
                   </td>
                 </tr>
               ))}
               {members.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="p-8 text-center text-surface-400 text-ui">{t("no_members")}</td>
+                  <td colSpan={4} className="p-8 text-center text-ink-tertiary text-ui">{t("no_members")}</td>
                 </tr>
               )}
             </tbody>
@@ -202,7 +202,7 @@ export default function EkipPage() {
                   <td className="p-4">
                     <span className="ds-badge-warning capitalize">{inv.status}</span>
                   </td>
-                  <td className="p-4 text-caption text-surface-400">
+                  <td className="p-4 text-caption text-ink-tertiary">
                     {new Date(inv.created_at).toLocaleDateString("tr-TR")}
                   </td>
                   <td className="p-4">
@@ -219,7 +219,7 @@ export default function EkipPage() {
               ))}
               {invitations.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-surface-400 text-ui">{t("no_invitations")}</td>
+                  <td colSpan={5} className="p-8 text-center text-ink-tertiary text-ui">{t("no_invitations")}</td>
                 </tr>
               )}
             </tbody>

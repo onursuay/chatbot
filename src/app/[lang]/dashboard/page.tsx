@@ -124,7 +124,7 @@ export default function DashboardPage() {
       <div className="ds-page-header">
         <div>
           <h2 className="ds-page-title">{t("dashboard")}</h2>
-          <p className="ds-page-subtitle">AI-powered business overview</p>
+          <p className="ds-page-subtitle">{t("dashboard_subtitle")}</p>
         </div>
       </div>
 
@@ -138,7 +138,7 @@ export default function DashboardPage() {
               style={{ animationDelay: `${i * 60}ms` }}
             >
               <div className="flex items-center justify-between mb-3">
-                <p className="text-caption-medium text-surface-500 uppercase tracking-wider">{card.label}</p>
+                <p className="text-caption-medium text-ink-secondary uppercase tracking-wider">{card.label}</p>
                 <div className={`w-9 h-9 rounded-[6px] ${card.iconBg} ${card.accent} flex items-center justify-center`}>
                   {card.icon}
                 </div>
@@ -150,14 +150,14 @@ export default function DashboardPage() {
 
         {/* Pipeline Summary */}
         <div className="ds-card">
-          <div className="px-5 py-4 border-b border-surface-200">
+          <div className="px-5 py-4 border-b border-surface-300">
             <h3 className="ds-section-title">{t("pipeline_summary")}</h3>
           </div>
           <div className="p-5">
             {pipelines.length === 0 ? (
               <div className="ds-empty-state py-8">
                 <div className="ds-empty-state-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-surface-300">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-ink-tertiary">
                     <path d="M3 3h5v18H3zM10 3h5v18h-5zM17 3h5v18h-5z" />
                   </svg>
                 </div>
@@ -166,10 +166,10 @@ export default function DashboardPage() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {pipelines.map((p) => (
-                  <div key={p.id} className="bg-surface-50 rounded-card-sm p-4 border border-surface-200 hover:border-surface-300 transition-colors">
+                  <div key={p.id} className="bg-surface-250 rounded-card-sm p-4 border border-surface-300 hover:border-surface-300 transition-colors">
                     <p className="text-body-medium text-ink">{p.name}</p>
                     <div className="flex justify-between mt-2.5">
-                      <span className="text-caption text-surface-500">{p.leads_count} {t("leads")}</span>
+                      <span className="text-caption text-ink-secondary">{p.leads_count} {t("leads")}</span>
                       <span className="text-caption-medium text-primary">${p.total_value.toLocaleString()}</span>
                     </div>
                   </div>
@@ -181,14 +181,14 @@ export default function DashboardPage() {
 
         {/* Recent Activity */}
         <div className="ds-card">
-          <div className="px-5 py-4 border-b border-surface-200">
+          <div className="px-5 py-4 border-b border-surface-300">
             <h3 className="ds-section-title">{t("recent_activity")}</h3>
           </div>
           <div className="p-5">
             {activities.length === 0 ? (
               <div className="ds-empty-state py-8">
                 <div className="ds-empty-state-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-surface-300">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-ink-tertiary">
                     <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
                   </svg>
                 </div>
@@ -197,17 +197,17 @@ export default function DashboardPage() {
             ) : (
               <div className="space-y-1">
                 {activities.map((a) => (
-                  <div key={a.id} className="flex items-start gap-3 py-2.5 px-2 rounded-[6px] hover:bg-surface-50 transition-colors">
+                  <div key={a.id} className="flex items-start gap-3 py-2.5 px-2 rounded-[6px] hover:bg-surface-250 transition-colors">
                     <div className="w-8 h-8 rounded-avatar bg-primary flex items-center justify-center text-white text-micro font-bold flex-shrink-0">
                       {a.user_name?.charAt(0)?.toUpperCase() || "?"}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-ui text-ink">
                         <span className="font-bold">{a.user_name}</span>{" "}
-                        <span className="text-surface-500">{a.action}</span>{" "}
+                        <span className="text-ink-secondary">{a.action}</span>{" "}
                         <span className="text-primary font-medium">{a.entity_title}</span>
                       </p>
-                      <p className="text-micro text-surface-400 mt-0.5">
+                      <p className="text-micro text-ink-tertiary mt-0.5">
                         {new Date(a.created_at).toLocaleString("tr-TR")}
                       </p>
                     </div>
@@ -221,14 +221,14 @@ export default function DashboardPage() {
         {/* Saved Widgets */}
         {widgets.length > 0 && (
           <div className="ds-card">
-            <div className="px-5 py-4 border-b border-surface-200">
+            <div className="px-5 py-4 border-b border-surface-300">
               <h3 className="ds-section-title">{t("custom_widgets")}</h3>
             </div>
             <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {widgets.map((w) => (
-                <div key={w.id} className="bg-surface-50 rounded-card-sm p-4 border border-surface-200 hover:border-surface-300 transition-colors">
+                <div key={w.id} className="bg-surface-250 rounded-card-sm p-4 border border-surface-300 hover:border-surface-300 transition-colors">
                   <p className="text-body-medium text-ink">{w.title}</p>
-                  <p className="text-micro text-surface-400 mt-1">{w.type}</p>
+                  <p className="text-micro text-ink-tertiary mt-1">{w.type}</p>
                 </div>
               ))}
             </div>

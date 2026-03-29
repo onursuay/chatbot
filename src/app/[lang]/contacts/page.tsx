@@ -50,7 +50,7 @@ export default function ContactsPage() {
       <div className="flex-1 overflow-y-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-surface-200">
+            <tr className="border-b border-surface-300">
               <th className="ds-table-header text-left px-6 py-3">{t("contact_name")}</th>
               <th className="ds-table-header text-left px-6 py-3">{t("phone")}</th>
               <th className="ds-table-header text-left px-6 py-3">{t("tags")}</th>
@@ -86,7 +86,7 @@ export default function ContactsPage() {
                 <td colSpan={4}>
                   <div className="ds-empty-state">
                     <div className="ds-empty-state-icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-surface-300">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-ink-tertiary">
                         <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" />
                       </svg>
                     </div>

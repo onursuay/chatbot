@@ -80,7 +80,7 @@ export default function WebhooklarPage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="ds-page-header px-7 py-5 border-b border-surface-200">
+      <div className="ds-page-header px-7 py-5 border-b border-surface-300">
         <h2 className="ds-page-title">{t("webhooks")}</h2>
         <button
           onClick={() => setShowForm(true)}
@@ -165,7 +165,7 @@ export default function WebhooklarPage() {
             {webhooks.map((wh) => (
               <tr key={wh.id} className="ds-table-row">
                 <td className="p-4 text-ui text-ink font-medium">{wh.name}</td>
-                <td className="p-4 text-ui text-surface-500 font-mono text-caption max-w-[200px] truncate">{wh.url}</td>
+                <td className="p-4 text-ui text-ink-secondary font-mono text-caption max-w-[200px] truncate">{wh.url}</td>
                 <td className="p-4">
                   <div className="flex flex-wrap gap-1">
                     {wh.events.map((ev) => (
@@ -180,11 +180,11 @@ export default function WebhooklarPage() {
                     {wh.is_active ? t("active") : t("inactive")}
                   </span>
                 </td>
-                <td className="p-4 text-caption text-surface-400">
+                <td className="p-4 text-caption text-ink-tertiary">
                   {wh.last_triggered_at ? new Date(wh.last_triggered_at).toLocaleString("tr-TR") : "\u2014"}
                 </td>
                 <td className="p-4 text-ui">
-                  <span className={wh.failure_count > 0 ? "text-red-400" : "text-surface-400"}>
+                  <span className={wh.failure_count > 0 ? "text-red-400" : "text-ink-tertiary"}>
                     {wh.failure_count}
                   </span>
                 </td>
@@ -192,7 +192,7 @@ export default function WebhooklarPage() {
             ))}
             {webhooks.length === 0 && (
               <tr>
-                <td colSpan={6} className="p-8 text-center text-surface-400 text-ui">{t("no_webhooks")}</td>
+                <td colSpan={6} className="p-8 text-center text-ink-tertiary text-ui">{t("no_webhooks")}</td>
               </tr>
             )}
           </tbody>
