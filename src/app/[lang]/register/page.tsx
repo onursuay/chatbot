@@ -8,7 +8,7 @@ import { api } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
 import { useI18n, localePath, type Lang } from "@/lib/i18n"
 
-const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "0x4AAAAAAACvDYQEwzjn9xWLF"
 
 export default function RegisterPage() {
   const [form, setForm] = useState({ email: "", password: "", full_name: "", org_name: "", phone: "" })
