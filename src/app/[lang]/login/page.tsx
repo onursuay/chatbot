@@ -8,8 +8,8 @@ import { api } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
 import { useI18n, localePath, type Lang } from "@/lib/i18n"
 
-// ===== NEURAL NETWORK CANVAS =====
-function NeuralCanvas() {
+// ===== MESSAGING NETWORK CANVAS =====
+function MessagingCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -19,113 +19,243 @@ function NeuralCanvas() {
     if (!ctx) return
 
     let animId: number
-    let nodes: { x: number; y: number; vx: number; vy: number; r: number }[] = []
-    let pulses: { from: number; to: number; progress: number; speed: number }[] = []
+    let w = 0, h = 0
 
-    const NODE_COUNT = 35
-    const CONNECT_DIST = 180
-    const MAX_PULSES = 15
+    // Mesaj baloncukları — farklı kanalları temsil eder
+    interface Bubble {
+      x: number; y: number
+      vx: number; vy: number
+      size: number
+      type: "whatsapp" | "instagram" | "facebook" | "crm" | "bot"
+      opacity: number
+      pulsePhase: number
+    }
+
+    // Uçan mesaj parçacıkları
+    interface Particle {
+      x: number; y: number
+      targetX: number; targetY: number
+      progress: number
+      speed: number
+      fromIdx: number; toIdx: number
+      color: string
+    }
+
+    const COLORS = {
+      whatsapp: { r: 37, g: 211, b: 102 },    // WhatsApp yeşil
+      instagram: { r: 225, g: 48, b: 108 },    // Instagram pembe
+      facebook: { r: 66, g: 103, b: 178 },     // Facebook mavi
+      crm: { r: 74, g: 237, b: 196 },          // Mint (primary)
+      bot: { r: 168, g: 130, b: 255 },         // AI mor
+    }
+
+    let bubbles: Bubble[] = []
+    let particles: Particle[] = []
 
     const resize = () => {
-      canvas.width = canvas.offsetWidth * window.devicePixelRatio
-      canvas.height = canvas.offsetHeight * window.devicePixelRatio
-      ctx.scale(window.devicePixelRatio, window.devicePixelRatio)
+      const dpr = window.devicePixelRatio || 1
+      w = canvas.offsetWidth
+      h = canvas.offsetHeight
+      canvas.width = w * dpr
+      canvas.height = h * dpr
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     }
 
     const init = () => {
       resize()
-      const w = canvas.offsetWidth
-      const h = canvas.offsetHeight
-      nodes = Array.from({ length: NODE_COUNT }, () => ({
+      const types: Bubble["type"][] = ["whatsapp", "instagram", "facebook", "crm", "bot"]
+      bubbles = Array.from({ length: 24 }, (_, i) => ({
         x: Math.random() * w,
         y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        r: 1.5 + Math.random() * 2,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        size: 4 + Math.random() * 8,
+        type: types[i % types.length],
+        opacity: 0.15 + Math.random() * 0.25,
+        pulsePhase: Math.random() * Math.PI * 2,
       }))
     }
 
-    const draw = () => {
-      const w = canvas.offsetWidth
-      const h = canvas.offsetHeight
+    const drawBubbleIcon = (b: Bubble, time: number) => {
+      const c = COLORS[b.type]
+      const pulse = Math.sin(time * 0.001 + b.pulsePhase) * 0.1 + 0.9
+      const s = b.size * pulse
+      const alpha = b.opacity * pulse
+
+      // Dış glow
+      const gradient = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, s * 3)
+      gradient.addColorStop(0, `rgba(${c.r},${c.g},${c.b},${alpha * 0.15})`)
+      gradient.addColorStop(1, `rgba(${c.r},${c.g},${c.b},0)`)
+      ctx.fillStyle = gradient
+      ctx.fillRect(b.x - s * 3, b.y - s * 3, s * 6, s * 6)
+
+      // Ana daire
+      ctx.beginPath()
+      ctx.arc(b.x, b.y, s, 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(${c.r},${c.g},${c.b},${alpha})`
+      ctx.fill()
+
+      // İç parlama
+      ctx.beginPath()
+      ctx.arc(b.x, b.y, s * 0.5, 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(${c.r},${c.g},${c.b},${alpha * 0.6})`
+      ctx.fill()
+
+      // Mesaj baloncuğu ikonu (büyük node'lar için)
+      if (b.size > 8) {
+        ctx.save()
+        ctx.globalAlpha = alpha * 0.8
+
+        if (b.type === "whatsapp") {
+          // Telefon ikonu
+          ctx.beginPath()
+          ctx.arc(b.x, b.y, s * 0.35, 0, Math.PI * 2)
+          ctx.fillStyle = `rgba(255,255,255,0.7)`
+          ctx.fill()
+        } else if (b.type === "bot") {
+          // AI yıldız
+          const starSize = s * 0.3
+          for (let i = 0; i < 4; i++) {
+            const angle = (i * Math.PI) / 2 + time * 0.001
+            ctx.beginPath()
+            ctx.arc(
+              b.x + Math.cos(angle) * starSize,
+              b.y + Math.sin(angle) * starSize,
+              1, 0, Math.PI * 2
+            )
+            ctx.fillStyle = `rgba(255,255,255,0.6)`
+            ctx.fill()
+          }
+        }
+
+        ctx.restore()
+      }
+    }
+
+    const draw = (time: number) => {
       ctx.clearRect(0, 0, w, h)
 
-      // Move nodes
-      for (const n of nodes) {
-        n.x += n.vx
-        n.y += n.vy
-        if (n.x < 0 || n.x > w) n.vx *= -1
-        if (n.y < 0 || n.y > h) n.vy *= -1
+      // Move bubbles
+      for (const b of bubbles) {
+        b.x += b.vx
+        b.y += b.vy
+        if (b.x < -20) b.x = w + 20
+        if (b.x > w + 20) b.x = -20
+        if (b.y < -20) b.y = h + 20
+        if (b.y > h + 20) b.y = -20
       }
 
-      // Draw connections
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const dx = nodes[i].x - nodes[j].x
-          const dy = nodes[i].y - nodes[j].y
+      // Bağlantı çizgileri (yakın node'lar arası)
+      const connectDist = 200
+      for (let i = 0; i < bubbles.length; i++) {
+        for (let j = i + 1; j < bubbles.length; j++) {
+          const dx = bubbles[i].x - bubbles[j].x
+          const dy = bubbles[i].y - bubbles[j].y
           const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < CONNECT_DIST) {
-            const alpha = (1 - dist / CONNECT_DIST) * 0.35
+          if (dist < connectDist) {
+            const alpha = (1 - dist / connectDist) * 0.08
             ctx.beginPath()
-            ctx.moveTo(nodes[i].x, nodes[i].y)
-            ctx.lineTo(nodes[j].x, nodes[j].y)
-            ctx.strokeStyle = `rgba(255,255,255,${alpha})`
-            ctx.lineWidth = 0.8
+            ctx.moveTo(bubbles[i].x, bubbles[i].y)
+            ctx.lineTo(bubbles[j].x, bubbles[j].y)
+            ctx.strokeStyle = `rgba(74,237,196,${alpha})`
+            ctx.lineWidth = 0.5
             ctx.stroke()
           }
         }
       }
 
-      // Draw nodes
-      for (const n of nodes) {
-        ctx.beginPath()
-        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2)
-        ctx.fillStyle = "rgba(255,255,255,0.25)"
-        ctx.fill()
+      // Mesaj parçacıkları oluştur (bir bubble'dan diğerine uçan mesajlar)
+      if (particles.length < 8 && Math.random() < 0.015) {
+        const fromIdx = Math.floor(Math.random() * bubbles.length)
+        let toIdx = Math.floor(Math.random() * bubbles.length)
+        if (toIdx === fromIdx) toIdx = (toIdx + 1) % bubbles.length
+        const from = bubbles[fromIdx]
+        const to = bubbles[toIdx]
+        const c = COLORS[from.type]
+        particles.push({
+          x: from.x, y: from.y,
+          targetX: to.x, targetY: to.y,
+          progress: 0,
+          speed: 0.008 + Math.random() * 0.012,
+          fromIdx, toIdx,
+          color: `${c.r},${c.g},${c.b}`,
+        })
       }
 
-      // Create pulses
-      if (pulses.length < MAX_PULSES && Math.random() < 0.008) {
-        const from = Math.floor(Math.random() * NODE_COUNT)
-        let to = Math.floor(Math.random() * NODE_COUNT)
-        if (to === from) to = (to + 1) % NODE_COUNT
-        pulses.push({ from, to, progress: 0, speed: 0.005 + Math.random() * 0.01 })
-      }
-
-      // Draw pulses
-      pulses = pulses.filter((p) => {
+      // Parçacıkları çiz (mesaj uçuşu efekti)
+      particles = particles.filter((p) => {
         p.progress += p.speed
         if (p.progress >= 1) return false
 
-        const fromN = nodes[p.from]
-        const toN = nodes[p.to]
-        const x = fromN.x + (toN.x - fromN.x) * p.progress
-        const y = fromN.y + (toN.y - fromN.y) * p.progress
-        const alpha = Math.sin(p.progress * Math.PI) * 0.8
+        // Hedef güncelle (hareketli hedef)
+        const to = bubbles[p.toIdx]
+        p.targetX = to.x
+        p.targetY = to.y
 
+        const from = bubbles[p.fromIdx]
+        const t = p.progress
+
+        // Eğrisel yol (bezier curve efekti)
+        const midX = (from.x + p.targetX) / 2 + (Math.sin(t * Math.PI) * 30)
+        const midY = (from.y + p.targetY) / 2 - (Math.sin(t * Math.PI) * 30)
+
+        const x = (1 - t) * (1 - t) * from.x + 2 * (1 - t) * t * midX + t * t * p.targetX
+        const y = (1 - t) * (1 - t) * from.y + 2 * (1 - t) * t * midY + t * t * p.targetY
+
+        const alpha = Math.sin(t * Math.PI) * 0.9
+
+        // Mesaj baloncuğu şekli
+        ctx.save()
+
+        // İz (trail)
+        const trailLen = 5
+        for (let i = 0; i < trailLen; i++) {
+          const tt = Math.max(0, t - i * 0.02)
+          const tx = (1 - tt) * (1 - tt) * from.x + 2 * (1 - tt) * tt * midX + tt * tt * p.targetX
+          const ty = (1 - tt) * (1 - tt) * from.y + 2 * (1 - tt) * tt * midY + tt * tt * p.targetY
+          ctx.beginPath()
+          ctx.arc(tx, ty, 1.5 - i * 0.2, 0, Math.PI * 2)
+          ctx.fillStyle = `rgba(${p.color},${alpha * (1 - i / trailLen) * 0.3})`
+          ctx.fill()
+        }
+
+        // Ana parçacık
         ctx.beginPath()
-        ctx.arc(x, y, 2, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(16,185,129,${alpha})`
+        ctx.arc(x, y, 2.5, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(${p.color},${alpha})`
         ctx.fill()
 
         // Glow
         ctx.beginPath()
-        ctx.arc(x, y, 6, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(16,185,129,${alpha * 0.2})`
+        ctx.arc(x, y, 8, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(${p.color},${alpha * 0.12})`
         ctx.fill()
+
+        ctx.restore()
 
         return true
       })
+
+      // Bubble'ları çiz
+      for (const b of bubbles) {
+        drawBubbleIcon(b, time)
+      }
+
+      // Hafif vignette efekti
+      const vignette = ctx.createRadialGradient(w / 2, h / 2, w * 0.3, w / 2, h / 2, w * 0.7)
+      vignette.addColorStop(0, "rgba(0,0,0,0)")
+      vignette.addColorStop(1, "rgba(0,0,0,0.4)")
+      ctx.fillStyle = vignette
+      ctx.fillRect(0, 0, w, h)
 
       animId = requestAnimationFrame(draw)
     }
 
     init()
-    draw()
-    window.addEventListener("resize", resize)
+    animId = requestAnimationFrame(draw)
+    window.addEventListener("resize", () => { resize(); })
     return () => {
       cancelAnimationFrame(animId)
-      window.removeEventListener("resize", resize)
     }
   }, [])
 
@@ -174,8 +304,14 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[#060609] flex flex-col relative overflow-hidden">
-      {/* Neural Network Canvas */}
-      <NeuralCanvas />
+      {/* Messaging Network Canvas */}
+      <MessagingCanvas />
+
+      {/* Subtle grid overlay */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        backgroundImage: `radial-gradient(rgba(74,237,196,0.03) 1px, transparent 1px)`,
+        backgroundSize: "40px 40px",
+      }} />
 
       {/* Content */}
       <div className="flex-1 flex items-center justify-center p-4 relative z-10">
@@ -183,17 +319,34 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-3 mb-3">
-              <Image src="/logo.png" alt="YoChat" width={40} height={40} className="invert rounded-xl" />
-              <h1 className="text-3xl font-bold">
+              <Image src="/logo.png" alt="YoChat" width={44} height={44} className="invert rounded-xl" />
+              <h1 className="text-3xl font-bold tracking-tight">
                 <span className="text-white">Yo</span>
                 <span className="text-primary">Chat</span>
               </h1>
             </div>
-            <p className="text-gray-500 mt-2 text-sm">WhatsApp Business Platform</p>
+            <p className="text-ink-tertiary mt-2 text-sm tracking-wide">
+              {isTR ? "Omni-Channel Mesajlasma & CRM Platformu" : "Omni-Channel Messaging & CRM Platform"}
+            </p>
+
+            {/* Kanal ikonları */}
+            <div className="flex items-center justify-center gap-3 mt-4">
+              {[
+                { label: "WhatsApp", color: "#25D366" },
+                { label: "Instagram", color: "#E1306C" },
+                { label: "Facebook", color: "#4267B2" },
+                { label: "AI Bot", color: "#A882FF" },
+              ].map((ch) => (
+                <div key={ch.label} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-white/5 bg-white/[0.03]">
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: ch.color }} />
+                  <span className="text-[11px] text-white/40">{ch.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Glassmorphism Card */}
-          <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
+          <div className="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-8 backdrop-blur-md shadow-2xl shadow-black/20">
             <h2 className="text-xl font-semibold text-white mb-6">
               {isTR ? "Giris Yap" : "Sign In"}
             </h2>
@@ -206,28 +359,28 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1.5">
+                <label className="block text-sm text-white/50 mb-1.5">
                   {isTR ? "E-posta" : "Email"}
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-white/[0.04] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 transition-all duration-150"
+                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-white placeholder-white/20 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all duration-200"
                   placeholder={isTR ? "ornek@sirket.com" : "example@company.com"}
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm text-gray-400 mb-1.5">
+                <label className="block text-sm text-white/50 mb-1.5">
                   {isTR ? "Sifre" : "Password"}
                 </label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-white/[0.04] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 transition-all duration-150"
+                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-white placeholder-white/20 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all duration-200"
                   placeholder="********"
                   required
                 />
@@ -236,7 +389,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-lg py-2.5 transition-all duration-150 shadow-lg shadow-emerald-500/20 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full bg-primary hover:bg-primary-hover text-[#0a0a0a] font-bold rounded-lg py-2.5 transition-all duration-200 shadow-lg shadow-primary/15 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading
                   ? (isTR ? "Giris yapiliyor..." : "Signing in...")
@@ -244,7 +397,7 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <p className="text-center text-gray-500 text-sm mt-6">
+            <p className="text-center text-white/30 text-sm mt-6">
               {isTR ? "Hesabin yok mu? " : "Don't have an account? "}
               <Link href={`/${lang}/register`} className="text-primary hover:text-primary-light transition-colors duration-150">
                 {isTR ? "Kayit Ol" : "Sign Up"}
@@ -257,14 +410,14 @@ export default function LoginPage() {
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/5 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Image src="/logo.png" alt="YO Dijital" width={20} height={20} className="invert opacity-50" />
-          <span className="text-gray-600 text-xs">2025 YO Dijital. All rights reserved.</span>
+          <Image src="/logo.png" alt="YO Dijital" width={20} height={20} className="invert opacity-40" />
+          <span className="text-white/20 text-xs">2025 YO Dijital. All rights reserved.</span>
         </div>
         <div className="flex items-center gap-4">
-          <a href={`/${lang}/privacy-policy`} className="text-gray-600 hover:text-gray-400 text-xs transition-colors duration-150">{t("footer_privacy")}</a>
-          <a href={`/${lang}/cookie-policy`} className="text-gray-600 hover:text-gray-400 text-xs transition-colors duration-150">{t("footer_cookie")}</a>
-          <a href={`/${lang}/terms-of-service`} className="text-gray-600 hover:text-gray-400 text-xs transition-colors duration-150">{t("footer_terms")}</a>
-          <a href={`/${lang}/data-deletion`} className="text-gray-600 hover:text-gray-400 text-xs transition-colors duration-150">{t("footer_data_deletion")}</a>
+          <a href={`/${lang}/privacy-policy`} className="text-white/20 hover:text-white/40 text-xs transition-colors duration-150">{t("footer_privacy")}</a>
+          <a href={`/${lang}/cookie-policy`} className="text-white/20 hover:text-white/40 text-xs transition-colors duration-150">{t("footer_cookie")}</a>
+          <a href={`/${lang}/terms-of-service`} className="text-white/20 hover:text-white/40 text-xs transition-colors duration-150">{t("footer_terms")}</a>
+          <a href={`/${lang}/data-deletion`} className="text-white/20 hover:text-white/40 text-xs transition-colors duration-150">{t("footer_data_deletion")}</a>
         </div>
       </footer>
     </div>

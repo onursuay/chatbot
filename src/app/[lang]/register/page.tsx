@@ -63,10 +63,10 @@ export default function RegisterPage() {
                 <span className="text-primary">Chat</span>
               </h1>
             </div>
-            <p className="text-gray-500 mt-2 text-sm">{isTR ? "7 gun ucretsiz deneyin" : "Try free for 7 days"}</p>
+            <p className="text-white/30 mt-2 text-sm">{isTR ? "7 gun ucretsiz deneyin" : "Try free for 7 days"}</p>
           </div>
 
-          <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
+          <div className="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-8 backdrop-blur-sm">
             <h2 className="text-xl font-semibold text-white mb-6">{isTR ? "Kayit Ol" : "Sign Up"}</h2>
 
             {error && (
@@ -75,36 +75,36 @@ export default function RegisterPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1.5">{isTR ? "Ad Soyad" : "Full Name"}</label>
+                <label className="block text-sm text-white/50 mb-1.5">{isTR ? "Ad Soyad" : "Full Name"}</label>
                 <input type="text" value={form.full_name} onChange={(e) => update("full_name", e.target.value)}
-                  className="w-full bg-white/[0.04] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 transition-all duration-150"
+                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-white placeholder-white/20 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all duration-150"
                   placeholder={isTR ? "Adiniz Soyadiniz" : "Your Full Name"} required />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1.5">{isTR ? "Sirket Adi" : "Company Name"}</label>
+                <label className="block text-sm text-white/50 mb-1.5">{isTR ? "Sirket Adi" : "Company Name"}</label>
                 <input type="text" value={form.org_name} onChange={(e) => update("org_name", e.target.value)}
-                  className="w-full bg-white/[0.04] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 transition-all duration-150"
+                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-white placeholder-white/20 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all duration-150"
                   placeholder={isTR ? "Sirketinizin Adi" : "Your Company Name"} required />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1.5">{isTR ? "E-posta" : "Email"}</label>
+                <label className="block text-sm text-white/50 mb-1.5">{isTR ? "E-posta" : "Email"}</label>
                 <input type="email" value={form.email} onChange={(e) => update("email", e.target.value)}
-                  className="w-full bg-white/[0.04] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 transition-all duration-150"
+                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-white placeholder-white/20 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all duration-150"
                   placeholder={isTR ? "ornek@sirket.com" : "example@company.com"} required />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1.5">{isTR ? "Sifre" : "Password"}</label>
+                <label className="block text-sm text-white/50 mb-1.5">{isTR ? "Sifre" : "Password"}</label>
                 <input type="password" value={form.password} onChange={(e) => update("password", e.target.value)}
-                  className="w-full bg-white/[0.04] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 transition-all duration-150"
+                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-white placeholder-white/20 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all duration-150"
                   placeholder={isTR ? "Minimum 8 karakter" : "Minimum 8 characters"} required minLength={8} />
               </div>
               <button type="submit" disabled={loading}
-                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-lg py-2.5 transition-all duration-150 shadow-lg shadow-emerald-500/20 disabled:opacity-60 disabled:cursor-not-allowed">
+                className="w-full bg-primary hover:bg-primary-hover text-[#0a0a0a] font-bold rounded-lg py-2.5 transition-all duration-200 shadow-lg shadow-primary/15 disabled:opacity-50 disabled:cursor-not-allowed">
                 {loading ? (isTR ? "Kayit yapiliyor..." : "Creating account...") : (isTR ? "Ucretsiz Baslat" : "Start Free")}
               </button>
             </form>
 
-            <p className="text-center text-gray-500 text-sm mt-6">
+            <p className="text-center text-white/30 text-sm mt-6">
               {isTR ? "Zaten hesabin var mi? " : "Already have an account? "}
               <Link href={`/${lang}/login`} className="text-primary hover:text-primary-light transition-colors duration-150">
                 {isTR ? "Giris Yap" : "Sign In"}
@@ -117,13 +117,13 @@ export default function RegisterPage() {
       <footer className="relative z-10 border-t border-white/5 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Image src="/logo.png" alt="YO Dijital" width={20} height={20} className="invert opacity-50" />
-          <span className="text-gray-600 text-xs">2025 YO Dijital. All rights reserved.</span>
+          <span className="text-white/20 text-xs">2025 YO Dijital. All rights reserved.</span>
         </div>
         <div className="flex items-center gap-4">
-          <a href={`/${lang}/privacy-policy`} className="text-gray-600 hover:text-gray-400 text-xs transition-colors duration-150">{t("footer_privacy")}</a>
-          <a href={`/${lang}/cookie-policy`} className="text-gray-600 hover:text-gray-400 text-xs transition-colors duration-150">{t("footer_cookie")}</a>
-          <a href={`/${lang}/terms-of-service`} className="text-gray-600 hover:text-gray-400 text-xs transition-colors duration-150">{t("footer_terms")}</a>
-          <a href={`/${lang}/data-deletion`} className="text-gray-600 hover:text-gray-400 text-xs transition-colors duration-150">{t("footer_data_deletion")}</a>
+          <a href={`/${lang}/privacy-policy`} className="text-white/20 hover:text-white/50 text-xs transition-colors duration-150">{t("footer_privacy")}</a>
+          <a href={`/${lang}/cookie-policy`} className="text-white/20 hover:text-white/50 text-xs transition-colors duration-150">{t("footer_cookie")}</a>
+          <a href={`/${lang}/terms-of-service`} className="text-white/20 hover:text-white/50 text-xs transition-colors duration-150">{t("footer_terms")}</a>
+          <a href={`/${lang}/data-deletion`} className="text-white/20 hover:text-white/50 text-xs transition-colors duration-150">{t("footer_data_deletion")}</a>
         </div>
       </footer>
     </div>
