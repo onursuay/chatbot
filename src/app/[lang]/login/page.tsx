@@ -90,7 +90,7 @@ export default function LoginPage() {
               ? "Müşterilerinizle iletişimi güçlendirin"
               : "Empower your customer communication"}
           </h1>
-          <p className="text-emerald-100/80 text-lg leading-relaxed mb-12 max-w-lg">
+          <p className="text-emerald-100/80 text-base leading-relaxed mb-12 whitespace-nowrap">
             {isTR
               ? "Mesajlaşma, CRM ve yapay zeka bir arada! Tüm kanallarınızı tek platformda yönetin."
               : "Messaging, CRM and AI combined! Manage all your channels in one platform."}
