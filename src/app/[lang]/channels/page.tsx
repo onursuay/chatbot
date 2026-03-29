@@ -221,10 +221,36 @@ export default function ChannelsPage() {
   const instagramAccounts = (status?.channel_accounts || []).filter(a => a.channel === "instagram")
   const facebookAccounts = (status?.channel_accounts || []).filter(a => a.channel === "facebook")
 
+  const isTR = t("loading") === "Yükleniyor..."
+
+  const qualityLabel: Record<string, string> = {
+    GREEN: isTR ? "Yüksek Kalite" : "High Quality",
+    YELLOW: isTR ? "Orta Kalite" : "Medium Quality",
+    RED: isTR ? "Düşük Kalite" : "Low Quality",
+    UNKNOWN: isTR ? "Bilinmiyor" : "Unknown",
+  }
+
   const qualityColors: Record<string, string> = {
-    GREEN: "text-green-400",
-    YELLOW: "text-yellow-400",
-    RED: "text-red-400",
+    GREEN: "bg-green-50 text-green-700 border-green-200",
+    YELLOW: "bg-amber-50 text-amber-700 border-amber-200",
+    RED: "bg-red-50 text-red-700 border-red-200",
+    UNKNOWN: "bg-gray-50 text-gray-500 border-gray-200",
+  }
+
+  const statusLabel: Record<string, string> = {
+    CONNECTED: isTR ? "Bağlı" : "Connected",
+    DISCONNECTED: isTR ? "Bağlı Değil" : "Disconnected",
+    PENDING: isTR ? "Beklemede" : "Pending",
+    FLAGGED: isTR ? "İşaretli" : "Flagged",
+    RATE_LIMITED: isTR ? "Hız Sınırlı" : "Rate Limited",
+  }
+
+  const statusColors: Record<string, string> = {
+    CONNECTED: "bg-emerald-50 text-emerald-700",
+    DISCONNECTED: "bg-gray-50 text-gray-500",
+    PENDING: "bg-amber-50 text-amber-700",
+    FLAGGED: "bg-red-50 text-red-700",
+    RATE_LIMITED: "bg-orange-50 text-orange-700",
   }
 
   if (loading) return <div className="p-7 text-ink-tertiary text-caption">{t("loading")}</div>
@@ -282,18 +308,23 @@ export default function ChannelsPage() {
                   {waba.phone_numbers && waba.phone_numbers.length > 0 && (
                     <div className="space-y-2">
                       {waba.phone_numbers.map((phone) => (
-                        <div key={phone.id} className="flex items-center justify-between bg-white border border-surface-300 rounded px-3 py-2">
+                        <div key={phone.id} className="flex items-center justify-between bg-surface-50 border border-surface-300 rounded-lg px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <span className="text-caption font-mono text-ink">{phone.number}</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-4 h-4 text-ink-tertiary">
+                              <rect x="5" y="2" width="14" height="20" rx="2" /><line x1="12" y1="18" x2="12.01" y2="18" />
+                            </svg>
+                            <span className="text-ui font-mono font-medium text-ink">{phone.number}</span>
                             {phone.verified_name && (
                               <span className="text-caption text-ink-secondary">{phone.verified_name}</span>
                             )}
                           </div>
-                          <div className="flex items-center gap-3">
-                            <span className={`text-caption font-medium ${qualityColors[phone.quality_rating] || "text-ink-secondary"}`}>
-                              {phone.quality_rating}
+                          <div className="flex items-center gap-2">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${qualityColors[phone.quality_rating] || qualityColors.UNKNOWN}`}>
+                              {qualityLabel[phone.quality_rating] || qualityLabel.UNKNOWN}
                             </span>
-                            <span className="text-caption text-ink-secondary">{phone.status}</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusColors[phone.status] || statusColors.DISCONNECTED}`}>
+                              {statusLabel[phone.status] || phone.status}
+                            </span>
                           </div>
                         </div>
                       ))}
