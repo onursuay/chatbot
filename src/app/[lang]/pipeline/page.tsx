@@ -133,8 +133,8 @@ export default function PipelinePage() {
           <h2 className="ds-page-title">{t("pipeline")}</h2>
           <p className="ds-page-subtitle">CRM deal management</p>
         </div>
-        {pipelines.length > 0 && (
-          <div className="flex gap-2.5">
+        <div className="flex gap-2.5">
+          {pipelines.length > 0 && (
             <select
               value={selectedPipelineId}
               onChange={(e) => setSelectedPipelineId(e.target.value)}
@@ -144,8 +144,13 @@ export default function PipelinePage() {
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
-          </div>
-        )}
+          )}
+          <button onClick={createDefaultPipeline} disabled={creating} className="ds-btn-primary">
+            {creating
+              ? (isTR ? "Oluşturuluyor..." : "Creating...")
+              : (isTR ? "+ Pipeline Oluştur" : "+ Create Pipeline")}
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-x-auto p-6">
