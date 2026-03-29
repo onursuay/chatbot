@@ -105,7 +105,7 @@ export default function AnalyticsPage() {
                       </svg>
                     </div>
                   </div>
-                  <p className={`text-kpi-sm ${stat.accent}`}>{stat.value.toLocaleString()}</p>
+                  <p className={`text-kpi-sm ${stat.accent}`}>{(stat.value ?? 0).toLocaleString()}</p>
                 </div>
               ))}
             </div>

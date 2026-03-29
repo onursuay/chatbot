@@ -68,7 +68,7 @@ export default function AnalyticsPage() {
             {stats.map((stat) => (
               <div key={stat.label} className="bg-dark-900 border border-dark-800 rounded-xl p-5">
                 <p className="text-sm text-dark-400">{stat.label}</p>
-                <p className={`text-2xl font-bold mt-1 ${stat.color}`}>{stat.value.toLocaleString()}</p>
+                <p className={`text-2xl font-bold mt-1 ${stat.color}`}>{(stat.value ?? 0).toLocaleString()}</p>
               </div>
             ))}
           </div>

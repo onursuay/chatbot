@@ -67,7 +67,7 @@ export default function DashboardPage() {
       try {
         const [widgetsData, kpiData, pipelinesData, activitiesData, channelData] = await Promise.all([
           api<Widget[]>("/crm/widgets", { token }).catch(() => []),
-          api<KPI>("/crm/kpi", { token }).catch(() => ({ total_leads: 0, active_deals_value: 0, tasks_due_today: 0, conversion_rate: 0 })),
+          api<KPI>("/crm/kpi", { token }).then(d => ({ total_leads: d?.total_leads ?? 0, active_deals_value: d?.active_deals_value ?? 0, tasks_due_today: d?.tasks_due_today ?? 0, conversion_rate: d?.conversion_rate ?? 0 })).catch(() => ({ total_leads: 0, active_deals_value: 0, tasks_due_today: 0, conversion_rate: 0 })),
           api<PipelineSummary[]>("/pipelines", { token }).catch(() => []),
           api<ActivityItem[]>("/crm/activity-logs?limit=10", { token }).catch(() => []),
           api<ChannelStats>("/channels/stats", { token }).catch(() => ({
@@ -112,7 +112,7 @@ export default function DashboardPage() {
     },
     {
       label: t("active_deals_value"),
-      value: `₺${kpi.active_deals_value.toLocaleString("tr-TR")}`,
+      value: `₺${(kpi.active_deals_value ?? 0).toLocaleString("tr-TR")}`,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5">
           <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
@@ -240,8 +240,8 @@ export default function DashboardPage() {
 
   // "CRM Pipeline" — only show when user has pipelines
   if (pipelines.length > 0) {
-    const totalPipelineValue = pipelines.reduce((sum, p) => sum + p.total_value, 0)
-    const totalPipelineLeads = pipelines.reduce((sum, p) => sum + p.leads_count, 0)
+    const totalPipelineValue = pipelines.reduce((sum, p) => sum + (p.total_value ?? 0), 0)
+    const totalPipelineLeads = pipelines.reduce((sum, p) => sum + (p.leads_count ?? 0), 0)
     suggestions.push({
       type: "growth",
       titleTR: "CRM Pipeline",
@@ -420,7 +420,7 @@ export default function DashboardPage() {
                       <div key={p.id} className="bg-surface-150 rounded-xl p-4 border border-surface-300 hover:border-surface-400 transition-colors">
                         <div className="flex items-center justify-between mb-2">
                           <p className="text-body-medium text-ink font-semibold">{p.name}</p>
-                          <span className="text-caption-medium text-primary">₺{p.total_value.toLocaleString("tr-TR")}</span>
+                          <span className="text-caption-medium text-primary">₺{(p.total_value ?? 0).toLocaleString("tr-TR")}</span>
                         </div>
                         <div className="flex items-center justify-between text-caption text-ink-secondary mb-2">
                           <span>{p.leads_count} {t("leads")}</span>
