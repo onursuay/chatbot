@@ -123,6 +123,10 @@ export default function InboxPage() {
   const [newConvSending, setNewConvSending] = useState(false)
   const [newConvError, setNewConvError] = useState("")
 
+  // Delete conversation
+  const [deleteTarget, setDeleteTarget] = useState<Conversation | null>(null)
+  const [deleting, setDeleting] = useState(false)
+
   // Load conversations
   const loadConversations = () => {
     const token = getToken()
@@ -256,6 +260,22 @@ export default function InboxPage() {
       setSelectedConv({ ...selectedConv, ...update })
       loadConversations()
     } catch {}
+  }
+
+  const deleteConversation = async (conv: Conversation) => {
+    const token = getToken()
+    if (!token) return
+    setDeleting(true)
+    try {
+      await api(`/conversations/${conv.id}/delete`, { method: "DELETE", token })
+      if (selectedConv?.id === conv.id) {
+        setSelectedConv(null)
+        setMessages([])
+      }
+      loadConversations()
+    } catch {}
+    setDeleting(false)
+    setDeleteTarget(null)
   }
 
   const formatTime = (dateStr: string) => {
@@ -417,6 +437,16 @@ export default function InboxPage() {
                   {conv.unread_count > 0 && (
                     <div className="absolute top-3 right-3 w-2 h-2 bg-primary rounded-full ring-2 ring-white" />
                   )}
+                  {/* Delete button on hover */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setDeleteTarget(conv) }}
+                    className="absolute top-2 right-2 w-7 h-7 rounded-md bg-red-50 text-red-500 items-center justify-center hover:bg-red-100 transition-colors opacity-0 group-hover:opacity-100 hidden group-hover:flex"
+                    title={t("delete_conversation")}
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
+                      <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                    </svg>
+                  </button>
                 </button>
               )
             })
@@ -770,6 +800,46 @@ export default function InboxPage() {
             </button>
           </div>
         </aside>
+      )}
+
+      {/* ===== DELETE CONFIRMATION MODAL ===== */}
+      {deleteTarget && (
+        <div className="ds-modal-overlay" onClick={() => !deleting && setDeleteTarget(null)}>
+          <div className="ds-modal w-[400px] max-w-[95vw]" onClick={(e) => e.stopPropagation()}>
+            <div className="px-5 py-4 border-b border-surface-300 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 text-red-500">
+                  <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                </svg>
+              </div>
+              <h3 className="ds-modal-title">{t("delete_conversation")}</h3>
+            </div>
+            <div className="p-5">
+              <p className="text-ui text-ink-secondary leading-relaxed">
+                {t("confirm_delete_conversation")}
+              </p>
+              <p className="text-caption text-ink-tertiary mt-2">
+                <strong>{deleteTarget.contact_name || deleteTarget.contact_phone}</strong>
+              </p>
+            </div>
+            <div className="px-5 py-4 border-t border-surface-300 flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                disabled={deleting}
+                className="px-4 py-2 text-ui font-medium text-ink-secondary hover:text-ink bg-surface-150 hover:bg-surface-200 rounded-btn transition-colors"
+              >
+                {t("cancel")}
+              </button>
+              <button
+                onClick={() => deleteConversation(deleteTarget)}
+                disabled={deleting}
+                className="px-4 py-2 text-ui font-medium text-white bg-red-500 hover:bg-red-600 rounded-btn transition-colors disabled:opacity-50"
+              >
+                {deleting ? t("deleting") : t("delete")}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* ===== NEW CONVERSATION MODAL ===== */}

@@ -123,6 +123,11 @@ const translations: Record<string, Record<Lang, string>> = {
   "no_automations": { tr: "Henüz otomasyon kuralı yok", en: "No automation rules yet" },
   "no_automations_desc": { tr: "Keyword tetikleyiciler, hoşgeldin mesajları ve daha fazlası", en: "Keyword triggers, welcome messages and more" },
   "confirm_delete": { tr: "Bu otomasyonu silmek istediğinize emin misiniz?", en: "Are you sure you want to delete this automation?" },
+  "delete_conversation": { tr: "Yazışmayı Sil", en: "Delete Conversation" },
+  "confirm_delete_conversation": { tr: "Bu yazışmayı ve tüm mesajları kalıcı olarak silmek istediğinize emin misiniz?", en: "Are you sure you want to permanently delete this conversation and all messages?" },
+  "deleting": { tr: "Siliniyor...", en: "Deleting..." },
+  "delete": { tr: "Sil", en: "Delete" },
+  "cancel": { tr: "İptal", en: "Cancel" },
 
   // Flow Builder
   "flow_builder": { tr: "Akış Oluşturucu", en: "Flow Builder" },
