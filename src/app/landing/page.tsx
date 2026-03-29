@@ -809,7 +809,7 @@ export default function LandingPage() {
       {/* ═══════════ CHANNELS ═══════════ */}
       <section className="py-5 md:py-6 bg-gradient-to-b from-white via-surface-50 to-white">
         <div className="max-w-[1280px] mx-auto px-6">
-          <SectionHeader badge="Kanallar" title="Tüm mesajlaşma kanalları tek çatı altında toplandı!" subtitle="Müşterileriniz nerede olursa olsun, onlara ulaşın. Tek gelen kutusu, tüm kanallar." />
+          <SectionHeader badge="Kanallar" title="Tüm mesajlaşma kanalları tek çatı altında toplandı" subtitle="Müşterileriniz nerede olursa olsun, onlara ulaşın. Tek gelen kutusu, tüm kanallar." />
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mt-6">
             {[
