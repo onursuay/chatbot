@@ -17,9 +17,14 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-surface flex items-center justify-center">
       <div className="flex flex-col items-center gap-5">
-        <div className="text-2xl font-bold tracking-tight">
-          <span className="text-primary">Yo</span><span className="text-ink">Ai</span>
-        </div>
+        <img
+          src="/logo.png"
+          alt="YoAi"
+          className="h-14 w-auto"
+          style={{
+            animation: "float-logo 2s ease-in-out infinite",
+          }}
+        />
         <div className="flex items-center gap-2">
           {[0, 1, 2, 3].map((i) => (
             <div
@@ -37,6 +42,10 @@ export default function Home() {
           @keyframes bounce-dot {
             0%, 80%, 100% { transform: scale(0.4); opacity: 0.3; }
             40% { transform: scale(1); opacity: 1; }
+          }
+          @keyframes float-logo {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
           }
         `}</style>
       </div>
