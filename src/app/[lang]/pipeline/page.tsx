@@ -32,21 +32,53 @@ interface Lead {
 export default function PipelinePage() {
   const { getToken } = useAuth()
   const { t, lang } = useI18n()
+  const isTR = lang === "tr"
   const router = useRouter()
   const [pipelines, setPipelines] = useState<Pipeline[]>([])
   const [selectedPipelineId, setSelectedPipelineId] = useState<string>("")
   const [leads, setLeads] = useState<Lead[]>([])
   const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [creating, setCreating] = useState(false)
 
-  useEffect(() => {
+  const loadPipelines = async () => {
     const token = getToken()
     if (!token) return
-    api<Pipeline[]>("/pipelines", { token })
-      .then((data) => {
-        setPipelines(data)
-        if (data.length > 0) setSelectedPipelineId(data[0].id)
+    try {
+      const data = await api<Pipeline[]>("/pipelines", { token })
+      setPipelines(data)
+      if (data.length > 0 && !selectedPipelineId) setSelectedPipelineId(data[0].id)
+    } catch {}
+    setLoading(false)
+  }
+
+  const createDefaultPipeline = async () => {
+    const token = getToken()
+    if (!token) return
+    setCreating(true)
+    try {
+      await api("/pipelines", {
+        method: "POST",
+        token,
+        body: JSON.stringify({
+          name: isTR ? "Satış Pipeline" : "Sales Pipeline",
+          stages: [
+            { name: isTR ? "Yeni" : "New", position: 1, color: "#3B82F6" },
+            { name: isTR ? "İletişimde" : "Contacted", position: 2, color: "#F59E0B" },
+            { name: isTR ? "Teklif Verildi" : "Proposal", position: 3, color: "#8B5CF6" },
+            { name: isTR ? "Müzakere" : "Negotiation", position: 4, color: "#EC4899" },
+            { name: isTR ? "Kazanıldı" : "Won", position: 5, color: "#10B981" },
+            { name: isTR ? "Kaybedildi" : "Lost", position: 6, color: "#EF4444" },
+          ],
+        }),
       })
-      .catch(() => {})
+      await loadPipelines()
+    } catch {}
+    setCreating(false)
+  }
+
+  useEffect(() => {
+    loadPipelines()
   }, [getToken])
 
   useEffect(() => {
@@ -102,20 +134,49 @@ export default function PipelinePage() {
           <p className="ds-page-subtitle">CRM deal management</p>
         </div>
         <div className="flex gap-2.5">
-          <select
-            value={selectedPipelineId}
-            onChange={(e) => setSelectedPipelineId(e.target.value)}
-            className="ds-select"
-          >
-            {pipelines.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
+          {pipelines.length > 0 ? (
+            <select
+              value={selectedPipelineId}
+              onChange={(e) => setSelectedPipelineId(e.target.value)}
+              className="ds-select min-w-[200px]"
+            >
+              {pipelines.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          ) : !loading && (
+            <button onClick={createDefaultPipeline} disabled={creating} className="ds-btn-primary">
+              {creating
+                ? (isTR ? "Oluşturuluyor..." : "Creating...")
+                : (isTR ? "+ Pipeline Oluştur" : "+ Create Pipeline")}
+            </button>
+          )}
         </div>
       </div>
 
       <div className="flex-1 overflow-x-auto p-6">
-        {stages.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-ink-tertiary">{t("loading")}</p>
+          </div>
+        ) : pipelines.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="ds-empty-state text-center">
+              <div className="ds-empty-state-icon mx-auto">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-ink-tertiary">
+                  <path d="M3 3h5v18H3zM10 3h5v18h-5zM17 3h5v18h-5z" />
+                </svg>
+              </div>
+              <p className="ds-empty-state-title">{isTR ? "Henüz pipeline yok" : "No pipelines yet"}</p>
+              <p className="text-caption text-ink-tertiary mt-1 mb-4">{isTR ? "Satış sürecinizi yönetmek için bir pipeline oluşturun" : "Create a pipeline to manage your sales process"}</p>
+              <button onClick={createDefaultPipeline} disabled={creating} className="ds-btn-primary">
+                {creating
+                  ? (isTR ? "Oluşturuluyor..." : "Creating...")
+                  : (isTR ? "+ Pipeline Oluştur" : "+ Create Pipeline")}
+              </button>
+            </div>
+          </div>
+        ) : stages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="ds-empty-state">
               <div className="ds-empty-state-icon">

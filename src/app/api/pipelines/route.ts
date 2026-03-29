@@ -19,7 +19,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ detail: error.message }, { status: 500 })
   }
 
-  return NextResponse.json(pipelines || [])
+  // Frontend "stages" bekliyor, Supabase "pipeline_stages" dönüyor
+  const mapped = (pipelines || []).map((p: any) => ({
+    ...p,
+    stages: p.pipeline_stages || [],
+  }))
+
+  return NextResponse.json(mapped)
 }
 
 // POST — Yeni pipeline + varsayilan asamalar
@@ -60,6 +66,7 @@ export async function POST(request: Request) {
     org_id: auth.org_id,
     name: s.name,
     position: s.position,
+    color: s.color || null,
   }))
 
   const { data: createdStages, error: stagesError } = await supabase
@@ -71,5 +78,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ detail: stagesError.message }, { status: 500 })
   }
 
-  return NextResponse.json({ ...pipeline, pipeline_stages: createdStages || [] })
+  return NextResponse.json({ ...pipeline, stages: createdStages || [], pipeline_stages: createdStages || [] })
 }
