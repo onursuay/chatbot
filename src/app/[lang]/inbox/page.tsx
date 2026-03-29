@@ -764,7 +764,7 @@ export default function InboxPage() {
             {/* Archive Button */}
             <button
               onClick={() => updateConversation({ status: "resolved" })}
-              className="w-full py-2.5 bg-red-500/10 text-red-400 rounded-btn text-micro font-bold hover:bg-red-500/20 transition-colors border border-red-500/20"
+              className="w-full py-2.5 bg-primary/10 text-primary rounded-btn text-micro font-bold hover:bg-primary/20 transition-colors border border-primary/20"
             >
               {t("archive_conversation")}
             </button>
