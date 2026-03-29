@@ -14,10 +14,12 @@ export async function GET(request: Request) {
     .select("*")
     .eq("org_id", auth.org_id)
     .eq("user_id", auth.sub)
-    .order("position", { ascending: true })
+    .order("created_at", { ascending: true })
 
   if (error) {
-    return NextResponse.json({ detail: error.message }, { status: 500 })
+    // Table may not exist yet — return empty array instead of 500
+    console.warn("dashboard_widgets query error:", error.message)
+    return NextResponse.json([])
   }
 
   return NextResponse.json(widgets || [])
