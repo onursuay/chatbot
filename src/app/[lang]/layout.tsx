@@ -183,9 +183,9 @@ export default function LangLayout({ children, params }: { children: React.React
         <div className="px-3 py-3.5 flex items-center gap-2 border-b border-sidebar-border">
           {collapsed ? (
             <button onClick={toggleCollapsed} className="w-[34px] h-[34px] mx-auto flex items-center justify-center relative group">
-              <div className={`w-[30px] h-[30px] rounded-btn overflow-hidden transition-opacity duration-300 ${hintPhase === "logo" ? "opacity-100" : "opacity-0"} group-hover:opacity-0`}>
-                <img src="/logo.png" alt="YoChat" className="w-full h-full object-contain invert" />
-              </div>
+              <a href="https://chatbot.yodijital.com/" className={`w-[30px] h-[30px] rounded-btn overflow-hidden transition-opacity duration-300 ${hintPhase === "logo" ? "opacity-100" : "opacity-0"} group-hover:opacity-0`} onClick={(e) => e.stopPropagation()}>
+                <img src="/logo.png" alt="YO Dijital" className="w-full h-full object-contain invert" />
+              </a>
               <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${hintPhase === "button" ? "opacity-100" : "opacity-0"} group-hover:opacity-100`}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4 text-sidebar-text">
                   <path d="M9 18l6-6-6-6" />
@@ -194,14 +194,10 @@ export default function LangLayout({ children, params }: { children: React.React
             </button>
           ) : (
             <>
-              <div className="w-[30px] h-[30px] rounded-btn overflow-hidden shrink-0">
-                <img src="/logo.png" alt="YoChat" className="w-full h-full object-contain invert" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <span className="text-body-medium text-white leading-none">
-                  Yo<span className="text-primary">Chat</span>
-                </span>
-              </div>
+              <a href="https://chatbot.yodijital.com/" className="w-[30px] h-[30px] rounded-btn overflow-hidden shrink-0 hover:opacity-80 transition-opacity">
+                <img src="/logo.png" alt="YO Dijital" className="w-full h-full object-contain invert" />
+              </a>
+              <div className="flex-1 min-w-0" />
               <button onClick={toggleCollapsed} className="w-6 h-6 flex items-center justify-center text-sidebar-text hover:text-white rounded-btn transition-colors">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
                   <path d="M15 18l-6-6 6-6" />
