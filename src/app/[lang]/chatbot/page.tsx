@@ -97,7 +97,7 @@ export default function ChatbotPage() {
             <span className="text-caption text-ink-tertiary">{config.is_active ? "Aktif" : "Pasif"}</span>
             <button
               onClick={() => setConfig({ ...config, is_active: !config.is_active })}
-              className={`w-11 h-6 rounded-full transition-colors relative ${config.is_active ? "bg-primary" : "bg-surface-400"}`}
+              className={`w-11 h-6 rounded-full transition-colors relative ${config.is_active ? "bg-primary" : "bg-surface-350"}`}
             >
               <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 shadow-card transition-all ${config.is_active ? "left-[22px]" : "left-0.5"}`} />
             </button>
@@ -111,7 +111,7 @@ export default function ChatbotPage() {
       </div>
 
       {/* Tabs */}
-      <div className="px-7 pt-4 border-b border-surface-300 bg-surface-200">
+      <div className="px-7 pt-4 border-b border-surface-300 bg-white">
         <div className="flex gap-1">
           {tabs.map((tab) => (
             <button
@@ -266,7 +266,7 @@ C: Kardes indirimi %10, erken kayit indirimi %5 uygulanmaktadir.`}
                     className={`p-4 rounded-[6px] border text-left transition-colors ${
                       config.ai_model === m.value
                         ? "border-primary bg-primary/5"
-                        : "border-surface-300 hover:border-surface-400"
+                        : "border-surface-300 hover:border-surface-300"
                     }`}
                   >
                     <p className={`text-ui font-bold ${config.ai_model === m.value ? "text-primary" : "text-ink"}`}>{m.label}</p>

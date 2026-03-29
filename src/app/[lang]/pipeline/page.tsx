@@ -102,7 +102,7 @@ export default function PipelinePage() {
               return (
                 <div
                   key={stage.id}
-                  className="w-72 flex flex-col bg-surface-200 rounded-card border border-surface-300"
+                  className="w-72 flex flex-col bg-white rounded-card border border-surface-300 shadow-card"
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={() => setDraggedLeadId(null)}
                 >
@@ -110,7 +110,7 @@ export default function PipelinePage() {
                   <div className="px-4 py-3 border-b border-surface-300 flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
                       {stage.color && (
-                        <div className="w-2.5 h-2.5 rounded-full ring-2 ring-surface-200" style={{ backgroundColor: stage.color }} />
+                        <div className="w-2.5 h-2.5 rounded-full ring-2 ring-white" style={{ backgroundColor: stage.color }} />
                       )}
                       <span className="text-body-medium text-ink">{stage.name}</span>
                     </div>

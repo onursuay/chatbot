@@ -94,8 +94,8 @@ export default function BroadcastPage() {
 
   const statusMap: Record<string, { key: string; color: string }> = {
     draft: { key: "draft", color: "text-ink-secondary" },
-    scheduled: { key: "scheduled", color: "text-yellow-400" },
-    sending: { key: "sending", color: "text-blue-400" },
+    scheduled: { key: "scheduled", color: "text-yellow-600" },
+    sending: { key: "sending", color: "text-blue-600" },
     completed: { key: "completed", color: "text-primary" },
   }
 
@@ -190,9 +190,9 @@ export default function BroadcastPage() {
                   {[
                     { v: b.total_recipients, l: "recipients", c: "text-ink" },
                     { v: b.sent_count, l: "sent", c: "text-primary" },
-                    { v: b.delivered_count, l: "delivered", c: "text-blue-400" },
-                    { v: b.read_count, l: "read", c: "text-purple-400" },
-                    { v: b.failed_count, l: "failed", c: "text-red-400" },
+                    { v: b.delivered_count, l: "delivered", c: "text-blue-600" },
+                    { v: b.read_count, l: "read", c: "text-purple-600" },
+                    { v: b.failed_count, l: "failed", c: "text-red-600" },
                   ].map((stat) => (
                     <div key={stat.l}>
                       <p className={`text-kpi-sm font-bold ${stat.c}`}>{stat.v}</p>

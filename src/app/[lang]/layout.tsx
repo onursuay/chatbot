@@ -177,32 +177,32 @@ export default function LangLayout({ children, params }: { children: React.React
     <div className="h-screen bg-surface flex overflow-hidden">
       {/* ===== SIDEBAR (Kommo-compact) ===== */}
       <aside
-        className={`${sidebarWidth} ${animate ? "transition-[width] duration-200 ease-out" : ""} bg-surface-100 border-r border-surface-300 flex flex-col shrink-0 overflow-hidden`}
+        className={`${sidebarWidth} ${animate ? "transition-[width] duration-200 ease-out" : ""} bg-sidebar shadow-sidebar flex flex-col shrink-0 overflow-hidden`}
       >
         {/* Logo */}
-        <div className="px-3 py-3 flex items-center gap-2 border-b border-surface-300">
+        <div className="px-3 py-3.5 flex items-center gap-2 border-b border-sidebar-border">
           {collapsed ? (
-            <button onClick={toggleCollapsed} className="w-[30px] h-[30px] mx-auto flex items-center justify-center relative group">
-              <div className={`w-[28px] h-[28px] rounded-btn overflow-hidden transition-opacity duration-300 ${hintPhase === "logo" ? "opacity-100" : "opacity-0"} group-hover:opacity-0`}>
-                <img src="/logo.png" alt="YoChat" className="w-full h-full object-contain" />
+            <button onClick={toggleCollapsed} className="w-[34px] h-[34px] mx-auto flex items-center justify-center relative group">
+              <div className={`w-[30px] h-[30px] rounded-btn overflow-hidden transition-opacity duration-300 ${hintPhase === "logo" ? "opacity-100" : "opacity-0"} group-hover:opacity-0`}>
+                <img src="/logo.png" alt="YoChat" className="w-full h-full object-contain invert" />
               </div>
               <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${hintPhase === "button" ? "opacity-100" : "opacity-0"} group-hover:opacity-100`}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4 text-ink-tertiary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4 text-sidebar-text">
                   <path d="M9 18l6-6-6-6" />
                 </svg>
               </div>
             </button>
           ) : (
             <>
-              <div className="w-[28px] h-[28px] rounded-btn overflow-hidden shrink-0">
-                <img src="/logo.png" alt="YoChat" className="w-full h-full object-contain" />
+              <div className="w-[30px] h-[30px] rounded-btn overflow-hidden shrink-0">
+                <img src="/logo.png" alt="YoChat" className="w-full h-full object-contain invert" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="text-body-medium text-ink leading-none">
+                <span className="text-body-medium text-white leading-none">
                   Yo<span className="text-primary">Chat</span>
                 </span>
               </div>
-              <button onClick={toggleCollapsed} className="w-6 h-6 flex items-center justify-center text-ink-muted hover:text-ink rounded-btn transition-colors">
+              <button onClick={toggleCollapsed} className="w-6 h-6 flex items-center justify-center text-sidebar-text hover:text-white rounded-btn transition-colors">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
                   <path d="M15 18l-6-6 6-6" />
                 </svg>
@@ -212,25 +212,25 @@ export default function LangLayout({ children, params }: { children: React.React
         </div>
 
         {/* Nav Groups */}
-        <nav className="flex-1 px-2 py-2 overflow-y-auto overflow-x-hidden no-scrollbar">
+        <nav className="flex-1 px-2 py-3 overflow-y-auto overflow-x-hidden no-scrollbar">
           {NAV_ITEMS.map((group, gi) => {
             const isOpen = openGroups.includes(group.group)
             const hasActiveItem = group.items.some((item) => pathname.startsWith(item.href))
             return (
-              <div key={group.group} className={gi > 0 ? "mt-1" : ""}>
+              <div key={group.group} className={gi > 0 ? "mt-1.5" : ""}>
                 {collapsed ? (
-                  <div className="h-px bg-surface-200 mx-2 my-2" />
+                  <div className="h-px bg-sidebar-border mx-2 my-2" />
                 ) : (
                   <button
                     onClick={() => toggleGroup(group.group)}
                     className="w-full flex items-center justify-between px-2 py-1.5 rounded-btn group"
                   >
-                    <span className={`text-micro uppercase tracking-wider ${hasActiveItem ? "text-ink-secondary" : "text-ink-muted group-hover:text-ink-secondary"}`}>
+                    <span className={`text-micro uppercase tracking-wider ${hasActiveItem ? "text-sidebar-text-active" : "text-sidebar-text group-hover:text-sidebar-text-active"}`}>
                       {group.group}
                     </span>
                     <svg
                       viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}
-                      className={`w-3 h-3 transition-transform duration-150 ${isOpen ? "rotate-180" : ""} ${hasActiveItem ? "text-ink-muted" : "text-ink-secondary group-hover:text-ink-muted"}`}
+                      className={`w-3 h-3 transition-transform duration-150 ${isOpen ? "rotate-180" : ""} text-sidebar-text`}
                     >
                       <path d="M6 9l6 6 6-6" />
                     </svg>
@@ -246,7 +246,7 @@ export default function LangLayout({ children, params }: { children: React.React
                           key={item.href}
                           href={item.href}
                           title={collapsed ? item.label : undefined}
-                          className={`ds-nav-item ${collapsed ? "justify-center px-1.5 py-2" : "px-2 py-[6px]"} ${active ? "ds-nav-item-active" : "ds-nav-item-inactive"}`}
+                          className={`ds-nav-item ${collapsed ? "justify-center px-1.5 py-2" : "px-2.5 py-[7px]"} ${active ? "ds-nav-item-active" : "ds-nav-item-inactive"}`}
                         >
                           {active && !collapsed && (
                             <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-primary rounded-r" />
@@ -258,7 +258,7 @@ export default function LangLayout({ children, params }: { children: React.React
                             <>
                               <span className="truncate">{item.label}</span>
                               {"badge" in item && item.badge && (
-                                <span className="ml-auto ds-badge-ai text-[9px] px-1.5 py-px">{item.badge}</span>
+                                <span className="ml-auto bg-primary/15 text-primary text-[9px] px-1.5 py-px rounded-badge font-semibold">{item.badge}</span>
                               )}
                             </>
                           )}
@@ -273,21 +273,21 @@ export default function LangLayout({ children, params }: { children: React.React
         </nav>
 
         {/* User */}
-        <div className="px-2 py-2 border-t border-surface-300">
+        <div className="px-2 py-2.5 border-t border-sidebar-border">
           {collapsed ? (
             <div className="flex justify-center">
-              <div className="w-[30px] h-[30px] rounded-avatar bg-primary text-white flex items-center justify-center text-micro" title={user?.full_name || undefined}>
+              <div className="w-[32px] h-[32px] rounded-avatar bg-primary text-primary-deep flex items-center justify-center text-micro font-semibold" title={user?.full_name || undefined}>
                 {user?.full_name?.charAt(0) || "U"}
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-2 px-1.5 py-1">
-              <div className="w-[30px] h-[30px] rounded-avatar bg-primary text-white flex items-center justify-center text-micro shrink-0">
+            <div className="flex items-center gap-2.5 px-1.5 py-1">
+              <div className="w-[32px] h-[32px] rounded-avatar bg-primary text-primary-deep flex items-center justify-center text-micro font-semibold shrink-0">
                 {user?.full_name?.charAt(0) || "U"}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-ui font-bold text-ink truncate">{user?.full_name}</p>
-                <p className="text-micro text-primary font-bold capitalize">{user?.org_plan === "trial" ? t("trial_plan") : user?.org_plan}</p>
+                <p className="text-ui font-semibold text-white truncate">{user?.full_name}</p>
+                <p className="text-micro text-primary font-semibold capitalize">{user?.org_plan === "trial" ? t("trial_plan") : user?.org_plan}</p>
               </div>
             </div>
           )}
@@ -296,8 +296,8 @@ export default function LangLayout({ children, params }: { children: React.React
 
       {/* ===== MAIN CONTENT ===== */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Header (Kommo-style: compact, 48px) */}
-        <header className="h-[48px] border-b border-surface-300 bg-surface-100 flex items-center justify-between px-5 shrink-0">
+        {/* Top Header */}
+        <header className="h-[52px] border-b border-surface-300 bg-white flex items-center justify-between px-5 shrink-0">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse-soft" />
             <span className="text-caption text-ink-tertiary">{t("wa_account")}</span>

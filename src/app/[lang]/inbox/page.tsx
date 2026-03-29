@@ -322,7 +322,7 @@ export default function InboxPage() {
   return (
     <div className="h-full flex overflow-hidden">
       {/* ===== LEFT PANEL - Inbox List ===== */}
-      <section className="w-[340px] flex flex-col border-r border-surface-300 bg-surface-200 shrink-0">
+      <section className="w-[340px] flex flex-col border-r border-surface-300 bg-white shrink-0">
         <div className="px-5 pt-5 pb-3">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-page-title">{t("inbox")}</h2>
@@ -347,7 +347,7 @@ export default function InboxPage() {
                   className={`px-3 py-1.5 rounded-btn text-micro font-bold whitespace-nowrap flex items-center gap-1.5 transition-all duration-150 ${
                     isActive
                       ? "bg-primary text-white shadow-button-primary"
-                      : "bg-surface-300 text-ink-secondary hover:bg-surface-400"
+                      : "bg-surface-150 text-ink-secondary hover:bg-surface-150"
                   }`}
                 >
                   {ch.id !== "all" && <span className={isActive ? "text-white" : ch.id === "whatsapp" ? "text-[#25D366]" : ch.id === "instagram" ? "text-[#E1306C]" : "text-[#0084FF]"}>{ch.icon}</span>}
@@ -380,7 +380,7 @@ export default function InboxPage() {
                   className={`w-full p-3 rounded-card-sm text-left transition-all duration-150 relative group ${
                     isSelected
                       ? "bg-primary/5 border border-primary/15 shadow-card"
-                      : "hover:bg-surface-300 border border-transparent"
+                      : "hover:bg-surface-150 border border-transparent"
                   }`}
                 >
                   <div className="flex gap-3">
@@ -390,7 +390,7 @@ export default function InboxPage() {
                         {getInitials(conv.contact_name)}
                       </div>
                       {/* Channel badge */}
-                      <div className="absolute -bottom-0.5 -right-0.5 w-[18px] h-[18px] bg-surface-200 rounded-md flex items-center justify-center ring-1 ring-surface-300">
+                      <div className="absolute -bottom-0.5 -right-0.5 w-[18px] h-[18px] bg-white rounded-md flex items-center justify-center ring-1 ring-surface-300">
                         <span style={{ color: channelColor }} className="flex items-center justify-center [&>svg]:w-2.5 [&>svg]:h-2.5">
                           {conv.channel === "instagram" ? CHANNEL_FILTERS[2].icon :
                            conv.channel === "facebook" ? CHANNEL_FILTERS[3].icon :
@@ -415,7 +415,7 @@ export default function InboxPage() {
                   </div>
                   {/* Unread indicator */}
                   {conv.unread_count > 0 && (
-                    <div className="absolute top-3 right-3 w-2 h-2 bg-primary rounded-full ring-2 ring-surface-200" />
+                    <div className="absolute top-3 right-3 w-2 h-2 bg-primary rounded-full ring-2 ring-white" />
                   )}
                 </button>
               )
@@ -429,13 +429,13 @@ export default function InboxPage() {
         {selectedConv ? (
           <>
             {/* Chat Header */}
-            <div className="px-6 py-3.5 flex justify-between items-center border-b border-surface-300 bg-surface-200">
+            <div className="px-6 py-3.5 flex justify-between items-center border-b border-surface-300 bg-white">
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <div className={`w-10 h-10 rounded-avatar ${getAvatarColor(selectedConv.contact_name)} flex items-center justify-center text-white text-micro font-bold`}>
                     {getInitials(selectedConv.contact_name)}
                   </div>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary border-2 border-surface-300 rounded-full" />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary border-2 border-white rounded-full" />
                 </div>
                 <div>
                   <h3 className="font-bold text-body-medium text-ink">
@@ -449,20 +449,20 @@ export default function InboxPage() {
               </div>
               <div className="flex items-center gap-1">
                 {/* Call */}
-                <button className="w-8 h-8 flex items-center justify-center hover:bg-surface-300 rounded-[6px] transition-colors text-ink-tertiary hover:text-ink-secondary">
+                <button className="w-8 h-8 flex items-center justify-center hover:bg-surface-150 rounded-[6px] transition-colors text-ink-tertiary hover:text-ink-secondary">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-[18px] h-[18px]">
                     <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
                   </svg>
                 </button>
                 {/* Video */}
-                <button className="w-8 h-8 flex items-center justify-center hover:bg-surface-300 rounded-[6px] transition-colors text-ink-tertiary hover:text-ink-secondary">
+                <button className="w-8 h-8 flex items-center justify-center hover:bg-surface-150 rounded-[6px] transition-colors text-ink-tertiary hover:text-ink-secondary">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-[18px] h-[18px]">
                     <polygon points="23 7 16 12 23 17 23 7" />
                     <rect x="1" y="5" width="15" height="14" rx="2" />
                   </svg>
                 </button>
                 {/* Info */}
-                <button className="w-8 h-8 flex items-center justify-center hover:bg-surface-300 rounded-[6px] transition-colors text-ink-tertiary hover:text-ink-secondary">
+                <button className="w-8 h-8 flex items-center justify-center hover:bg-surface-150 rounded-[6px] transition-colors text-ink-tertiary hover:text-ink-secondary">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-[18px] h-[18px]">
                     <circle cx="12" cy="12" r="10" />
                     <path d="M12 16v-4M12 8h.01" />
@@ -472,12 +472,12 @@ export default function InboxPage() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 no-scrollbar bg-surface/50">
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 no-scrollbar bg-surface-50">
               {messageGroups.map((group, gi) => (
                 <div key={gi} className="space-y-3">
                   {/* Date separator */}
                   <div className="flex justify-center">
-                    <span className="px-3 py-1 bg-surface-200 text-ink-secondary text-micro font-bold rounded-badge border border-surface-300">
+                    <span className="px-3 py-1 bg-white text-ink-secondary text-micro font-bold rounded-badge border border-surface-300">
                       {group.label}
                     </span>
                   </div>
@@ -506,9 +506,9 @@ export default function InboxPage() {
                           className={`px-4 py-2.5 text-ui leading-relaxed ${
                             isOutbound
                               ? isBot
-                                ? "bg-primary/10 border border-primary/20 text-ink rounded-[6px] rounded-br-sm"
+                                ? "bg-primary-50 border border-primary/20 text-ink rounded-[6px] rounded-br-sm"
                                 : "bg-primary text-white rounded-[6px] rounded-br-sm"
-                              : "bg-surface-200 text-ink rounded-[6px] rounded-bl-sm shadow-card border border-surface-300"
+                              : "bg-surface-150 text-ink rounded-[6px] rounded-bl-sm shadow-card border border-surface-300"
                           }`}
                         >
                           {isBot && isOutbound && (
@@ -562,13 +562,13 @@ export default function InboxPage() {
             </div>
 
             {/* AI Suggestions & Input Area */}
-            <div className="px-5 py-4 border-t border-surface-300 bg-surface-200">
+            <div className="px-5 py-4 border-t border-surface-300 bg-white">
               {/* AI Suggestion Chips */}
               {messages.length > 0 && (
                 <div className="flex gap-2 mb-3 overflow-x-auto no-scrollbar">
                   <button
                     onClick={() => setNewMessage(t("yes") + ", " + t("send").toLowerCase() + ".")}
-                    className="shrink-0 ds-btn-sm ds-badge-ai px-3 py-1.5 rounded-btn hover:bg-primary/15 transition-colors flex items-center gap-1.5 cursor-pointer"
+                    className="shrink-0 ds-btn-sm ds-badge-ai px-3 py-1.5 rounded-btn hover:bg-primary-50 transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
                     <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
                       <path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z" />
@@ -591,8 +591,8 @@ export default function InboxPage() {
               )}
 
               {/* Message Input */}
-              <div className="flex items-end gap-2 bg-surface-250 p-2 rounded-[6px] border border-surface-300 focus-within:border-primary/30 focus-within:bg-surface-200 focus-within:shadow-input-focus transition-all duration-200">
-                <button className="w-8 h-8 flex items-center justify-center text-ink-tertiary hover:text-primary rounded-[6px] hover:bg-surface-300 transition-colors">
+              <div className="flex items-end gap-2 bg-surface-150 p-2 rounded-[6px] border border-surface-300 focus-within:border-primary/30 focus-within:bg-white focus-within:shadow-input-focus transition-all duration-200">
+                <button className="w-8 h-8 flex items-center justify-center text-ink-tertiary hover:text-primary rounded-[6px] hover:bg-surface-150 transition-colors">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-[18px] h-[18px]">
                     <circle cx="12" cy="12" r="10" />
                     <line x1="12" y1="8" x2="12" y2="16" />
@@ -608,13 +608,13 @@ export default function InboxPage() {
                       handleSend()
                     }
                   }}
-                  className="flex-1 bg-transparent border-none focus:ring-0 text-ui py-2 min-h-[36px] max-h-32 no-scrollbar resize-none placeholder-surface-400 focus:outline-none"
+                  className="flex-1 bg-transparent border-none focus:ring-0 text-ui py-2 min-h-[36px] max-h-32 no-scrollbar resize-none placeholder-surface-300 focus:outline-none"
                   placeholder={t("write_message")}
                   disabled={sending}
                   rows={1}
                 />
                 <div className="flex items-center gap-1 mb-0.5 pr-0.5">
-                  <button className="w-8 h-8 flex items-center justify-center text-ink-tertiary hover:text-primary rounded-[6px] hover:bg-surface-300 transition-colors">
+                  <button className="w-8 h-8 flex items-center justify-center text-ink-tertiary hover:text-primary rounded-[6px] hover:bg-surface-150 transition-colors">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-[18px] h-[18px]">
                       <circle cx="12" cy="12" r="10" />
                       <path d="M8 14s1.5 2 4 2 4-2 4-2" />
@@ -644,7 +644,7 @@ export default function InboxPage() {
           </>
         ) : (
           /* Empty state */
-          <div className="flex-1 flex items-center justify-center bg-surface/30">
+          <div className="flex-1 flex items-center justify-center bg-surface-50">
             <div className="text-center">
               <div className="ds-empty-state-icon mx-auto">
                 <svg className="w-7 h-7 text-ink-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -660,10 +660,10 @@ export default function InboxPage() {
 
       {/* ===== RIGHT PANEL - Contact Info / AI Insights ===== */}
       {selectedConv && (
-        <aside className="hidden xl:flex w-[300px] flex-col border-l border-surface-300 bg-surface-200 p-5 overflow-y-auto no-scrollbar shrink-0">
+        <aside className="hidden xl:flex w-[300px] flex-col border-l border-surface-300 bg-white p-5 overflow-y-auto no-scrollbar shrink-0">
           {/* Profile */}
           <div className="text-center mb-6 pt-2">
-            <div className={`w-16 h-16 rounded-avatar mx-auto ${getAvatarColor(selectedConv.contact_name)} flex items-center justify-center text-white text-xl font-bold mb-3 ring-4 ring-surface-200`}>
+            <div className={`w-16 h-16 rounded-avatar mx-auto ${getAvatarColor(selectedConv.contact_name)} flex items-center justify-center text-white text-xl font-bold mb-3 ring-4 ring-white`}>
               {getInitials(selectedConv.contact_name)}
             </div>
             <h2 className="font-bold text-body-medium text-ink">{selectedConv.contact_name || t("unknown")}</h2>
@@ -690,8 +690,8 @@ export default function InboxPage() {
                   {getChannelLabel(selectedConv.channel)}
                 </span>
                 <span className={`ds-badge text-[9px] ${
-                  selectedConv.status === "open" ? "bg-emerald-500/15 text-emerald-400" :
-                  selectedConv.status === "resolved" ? "bg-surface-300 text-ink-secondary" : "bg-amber-500/15 text-amber-400"
+                  selectedConv.status === "open" ? "bg-emerald-50 text-emerald-700" :
+                  selectedConv.status === "resolved" ? "bg-surface-150 text-ink-secondary" : "bg-amber-50 text-amber-700"
                 }`}>
                   {selectedConv.status === "open" ? t("open") :
                    selectedConv.status === "resolved" ? t("resolved") : t("assigned")}
@@ -704,8 +704,8 @@ export default function InboxPage() {
               <h3 className="text-section-label uppercase tracking-wider text-ink-tertiary mb-3">{t("customer_details")}</h3>
               <div className="space-y-2.5">
                 {selectedConv.contact_email && (
-                  <div className="flex items-center gap-2.5 p-2 rounded-card-sm hover:bg-surface-300 transition-colors">
-                    <div className="w-8 h-8 rounded-[6px] bg-surface-300 flex items-center justify-center text-ink-tertiary">
+                  <div className="flex items-center gap-2.5 p-2 rounded-card-sm hover:bg-surface-150 transition-colors">
+                    <div className="w-8 h-8 rounded-[6px] bg-surface-150 flex items-center justify-center text-ink-tertiary">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
                         <rect x="2" y="4" width="20" height="16" rx="2" />
                         <path d="M22 7l-10 6L2 7" />
@@ -718,8 +718,8 @@ export default function InboxPage() {
                   </div>
                 )}
                 {selectedConv.contact_phone && (
-                  <div className="flex items-center gap-2.5 p-2 rounded-card-sm hover:bg-surface-300 transition-colors">
-                    <div className="w-8 h-8 rounded-[6px] bg-surface-300 flex items-center justify-center text-ink-tertiary">
+                  <div className="flex items-center gap-2.5 p-2 rounded-card-sm hover:bg-surface-150 transition-colors">
+                    <div className="w-8 h-8 rounded-[6px] bg-surface-150 flex items-center justify-center text-ink-tertiary">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
                         <rect x="5" y="2" width="14" height="20" rx="2" />
                         <line x1="12" y1="18" x2="12.01" y2="18" />
@@ -744,13 +744,13 @@ export default function InboxPage() {
                 {selectedConv.is_bot_active && (
                   <span className="ds-badge-ai">AI Bot</span>
                 )}
-                <span className="ds-badge bg-blue-500/15 text-blue-400">
+                <span className="ds-badge bg-blue-50 text-blue-700">
                   {getChannelLabel(selectedConv.channel)}
                 </span>
                 <span className={`ds-badge ${
-                  selectedConv.status === "open" ? "bg-emerald-500/15 text-emerald-400" :
-                  selectedConv.status === "resolved" ? "bg-surface-300 text-ink-secondary" :
-                  "bg-amber-500/15 text-amber-400"
+                  selectedConv.status === "open" ? "bg-emerald-50 text-emerald-700" :
+                  selectedConv.status === "resolved" ? "bg-surface-150 text-ink-secondary" :
+                  "bg-amber-50 text-amber-700"
                 }`}>
                   {selectedConv.status === "open" ? t("open") :
                    selectedConv.status === "resolved" ? t("resolved") : t("assigned")}
@@ -764,7 +764,7 @@ export default function InboxPage() {
             {/* Archive Button */}
             <button
               onClick={() => updateConversation({ status: "resolved" })}
-              className="w-full py-2.5 bg-primary/10 text-primary rounded-btn text-micro font-bold hover:bg-primary/20 transition-colors border border-primary/20"
+              className="w-full py-2.5 bg-primary-50 text-primary-700 rounded-btn text-micro font-bold hover:bg-primary/20 transition-colors border border-primary/20"
             >
               {t("archive_conversation")}
             </button>

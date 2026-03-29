@@ -144,7 +144,7 @@ export default function FlowBuilderPage() {
             <div className="flex gap-2 flex-wrap">
               {NODE_TYPES.filter((nt) => nt.type !== "trigger").map((nt) => (
                 <button key={nt.type} onClick={() => addNode(nt.type)}
-                  className="flex items-center gap-2 bg-surface-200 hover:bg-surface-300 text-ink px-3 py-2 rounded-btn text-caption transition">
+                  className="flex items-center gap-2 bg-white hover:bg-surface-150 text-ink px-3 py-2 rounded-btn text-caption transition">
                   <span>{nt.icon}</span>
                   <span>{nt.label}</span>
                 </button>
@@ -160,7 +160,7 @@ export default function FlowBuilderPage() {
                 <div key={node.id}>
                   {i > 0 && (
                     <div className="flex justify-center py-1">
-                      <div className="w-0.5 h-6 bg-surface-300" />
+                      <div className="w-0.5 h-6 bg-surface-150" />
                     </div>
                   )}
                   <div className="ds-card p-4">

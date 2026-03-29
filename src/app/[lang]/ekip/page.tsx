@@ -96,7 +96,7 @@ export default function EkipPage() {
         <div className="ds-modal-overlay" onClick={() => setShowInviteForm(false)}>
           <div className="ds-modal" onClick={(e) => e.stopPropagation()}>
             <h3 className="ds-modal-title">{t("invite_member")}</h3>
-            {formError && <p className="text-red-400 text-caption mb-3">{formError}</p>}
+            {formError && <p className="text-red-700 text-caption mb-3">{formError}</p>}
             <div className="space-y-3">
               <div className="ds-form-group">
                 <input
@@ -209,7 +209,7 @@ export default function EkipPage() {
                     {inv.status === "pending" && (
                       <button
                         onClick={() => handleCancelInvitation(inv.id)}
-                        className="text-red-400 hover:text-red-300 text-caption-medium font-medium transition"
+                        className="text-red-700 hover:text-red-600 text-caption-medium font-medium transition"
                       >
                         {t("cancel_invitation")}
                       </button>

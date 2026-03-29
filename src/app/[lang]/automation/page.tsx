@@ -195,7 +195,7 @@ export default function AutomationPage() {
               </div>
               <div className="flex items-center gap-2">
                 <button onClick={() => toggleActive(a.id, a.is_active)}
-                  className={`w-10 h-5 rounded-full transition relative ${a.is_active ? "bg-primary" : "bg-surface-300"}`}>
+                  className={`w-10 h-5 rounded-full transition relative ${a.is_active ? "bg-primary" : "bg-surface-350"}`}>
                   <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition ${a.is_active ? "left-5" : "left-0.5"}`} />
                 </button>
                 <button onClick={() => deleteAutomation(a.id)}

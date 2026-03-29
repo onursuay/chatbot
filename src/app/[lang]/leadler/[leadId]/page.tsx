@@ -477,12 +477,12 @@ export default function LeadDetailPage() {
                     )}
                     {act.action === "stage_changed" && (
                       <span>
-                        <span className="text-yellow-400">{t("stage_changed")}: </span>
+                        <span className="text-amber-600">{t("stage_changed")}: </span>
                         {act.old_value?.stage || "—"} → {act.new_value?.stage || "—"}
                       </span>
                     )}
                     {act.action === "created" && (
-                      <span className="text-green-400">{t("lead_created_log")}</span>
+                      <span className="text-emerald-600">{t("lead_created_log")}</span>
                     )}
                     {!["note_added", "stage_changed", "created"].includes(act.action) && (
                       <span>{act.action}</span>

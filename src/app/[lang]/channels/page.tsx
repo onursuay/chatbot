@@ -240,7 +240,7 @@ export default function ChannelsPage() {
 
       <div className="space-y-6">
         {/* ==================== WHATSAPP ==================== */}
-        <div className="bg-surface-200 border border-surface-300 rounded-lg p-6">
+        <div className="bg-white border border-surface-300 rounded-lg p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[#25D366] rounded-card-sm flex items-center justify-center">
@@ -263,7 +263,7 @@ export default function ChannelsPage() {
           {wabaAccounts.length > 0 ? (
             <div className="space-y-3">
               {wabaAccounts.map((waba) => (
-                <div key={waba.waba_id} className="bg-surface-200 border border-surface-300 rounded-lg p-4">
+                <div key={waba.waba_id} className="bg-white border border-surface-300 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="ds-badge-success">{t("connected")}</span>
@@ -282,7 +282,7 @@ export default function ChannelsPage() {
                   {waba.phone_numbers && waba.phone_numbers.length > 0 && (
                     <div className="space-y-2">
                       {waba.phone_numbers.map((phone) => (
-                        <div key={phone.id} className="flex items-center justify-between bg-surface-200 border border-surface-300 rounded px-3 py-2">
+                        <div key={phone.id} className="flex items-center justify-between bg-white border border-surface-300 rounded px-3 py-2">
                           <div className="flex items-center gap-3">
                             <span className="text-caption font-mono text-ink">{phone.number}</span>
                             {phone.verified_name && (
@@ -308,7 +308,7 @@ export default function ChannelsPage() {
         </div>
 
         {/* ==================== INSTAGRAM ==================== */}
-        <div className="bg-surface-200 border border-surface-300 rounded-lg p-6">
+        <div className="bg-white border border-surface-300 rounded-lg p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-[#833AB4] via-[#E1306C] to-[#F77737] rounded-card-sm flex items-center justify-center">
@@ -331,7 +331,7 @@ export default function ChannelsPage() {
           {instagramAccounts.length > 0 ? (
             <div className="space-y-2">
               {instagramAccounts.map((acc) => (
-                <div key={acc.id} className="flex items-center justify-between bg-surface-200 border border-surface-300 rounded-lg px-4 py-3">
+                <div key={acc.id} className="flex items-center justify-between bg-white border border-surface-300 rounded-lg px-4 py-3">
                   <div className="flex items-center gap-2">
                     <span className="ds-badge-success">{t("connected")}</span>
                     <span className="text-body-medium font-medium text-ink">{acc.page_name || acc.account_id}</span>
@@ -352,7 +352,7 @@ export default function ChannelsPage() {
         </div>
 
         {/* ==================== FACEBOOK ==================== */}
-        <div className="bg-surface-200 border border-surface-300 rounded-lg p-6">
+        <div className="bg-white border border-surface-300 rounded-lg p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[#0084FF] rounded-card-sm flex items-center justify-center">
@@ -375,7 +375,7 @@ export default function ChannelsPage() {
           {facebookAccounts.length > 0 ? (
             <div className="space-y-2">
               {facebookAccounts.map((acc) => (
-                <div key={acc.id} className="flex items-center justify-between bg-surface-200 border border-surface-300 rounded-lg px-4 py-3">
+                <div key={acc.id} className="flex items-center justify-between bg-white border border-surface-300 rounded-lg px-4 py-3">
                   <div className="flex items-center gap-2">
                     <span className="ds-badge-success">{t("connected")}</span>
                     <span className="text-body-medium font-medium text-ink">{acc.page_name || acc.account_id}</span>

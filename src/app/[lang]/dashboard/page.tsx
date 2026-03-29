@@ -81,7 +81,7 @@ export default function DashboardPage() {
         </svg>
       ),
       accent: "text-primary",
-      iconBg: "bg-primary/8",
+      iconBg: "bg-primary-50",
     },
     {
       label: t("active_deals_value"),
@@ -91,8 +91,8 @@ export default function DashboardPage() {
           <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
         </svg>
       ),
-      accent: "text-emerald-400",
-      iconBg: "bg-emerald-500/10",
+      accent: "text-emerald-700",
+      iconBg: "bg-emerald-50",
     },
     {
       label: t("tasks_due_today"),
@@ -102,8 +102,8 @@ export default function DashboardPage() {
           <path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
         </svg>
       ),
-      accent: "text-amber-400",
-      iconBg: "bg-amber-500/10",
+      accent: "text-amber-700",
+      iconBg: "bg-amber-50",
     },
     {
       label: t("conversion_rate"),
@@ -113,8 +113,8 @@ export default function DashboardPage() {
           <path d="M18 20V10M12 20V4M6 20v-6" />
         </svg>
       ),
-      accent: "text-violet-400",
-      iconBg: "bg-violet-500/10",
+      accent: "text-violet-700",
+      iconBg: "bg-violet-50",
     },
   ]
 
@@ -166,7 +166,7 @@ export default function DashboardPage() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {pipelines.map((p) => (
-                  <div key={p.id} className="bg-surface-250 rounded-card-sm p-4 border border-surface-300 hover:border-surface-300 transition-colors">
+                  <div key={p.id} className="bg-surface-150 rounded-card-sm p-4 border border-surface-300 hover:border-surface-300 transition-colors">
                     <p className="text-body-medium text-ink">{p.name}</p>
                     <div className="flex justify-between mt-2.5">
                       <span className="text-caption text-ink-secondary">{p.leads_count} {t("leads")}</span>
@@ -197,7 +197,7 @@ export default function DashboardPage() {
             ) : (
               <div className="space-y-1">
                 {activities.map((a) => (
-                  <div key={a.id} className="flex items-start gap-3 py-2.5 px-2 rounded-[6px] hover:bg-surface-250 transition-colors">
+                  <div key={a.id} className="flex items-start gap-3 py-2.5 px-2 rounded-[6px] hover:bg-surface-150 transition-colors">
                     <div className="w-8 h-8 rounded-avatar bg-primary flex items-center justify-center text-white text-micro font-bold flex-shrink-0">
                       {a.user_name?.charAt(0)?.toUpperCase() || "?"}
                     </div>
@@ -226,7 +226,7 @@ export default function DashboardPage() {
             </div>
             <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {widgets.map((w) => (
-                <div key={w.id} className="bg-surface-250 rounded-card-sm p-4 border border-surface-300 hover:border-surface-300 transition-colors">
+                <div key={w.id} className="bg-surface-150 rounded-card-sm p-4 border border-surface-300 hover:border-surface-300 transition-colors">
                   <p className="text-body-medium text-ink">{w.title}</p>
                   <p className="text-micro text-ink-tertiary mt-1">{w.type}</p>
                 </div>

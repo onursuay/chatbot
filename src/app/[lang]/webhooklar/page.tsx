@@ -95,7 +95,7 @@ export default function WebhooklarPage() {
         <div className="ds-modal-overlay" onClick={() => setShowForm(false)}>
           <div className="ds-modal" onClick={(e) => e.stopPropagation()}>
             <h3 className="ds-modal-title">{t("create_webhook")}</h3>
-            {formError && <p className="text-red-400 text-caption mb-3">{formError}</p>}
+            {formError && <p className="text-red-700 text-caption mb-3">{formError}</p>}
             <div className="space-y-3">
               <div className="ds-form-group">
                 <input
@@ -184,7 +184,7 @@ export default function WebhooklarPage() {
                   {wh.last_triggered_at ? new Date(wh.last_triggered_at).toLocaleString("tr-TR") : "\u2014"}
                 </td>
                 <td className="p-4 text-ui">
-                  <span className={wh.failure_count > 0 ? "text-red-400" : "text-ink-tertiary"}>
+                  <span className={wh.failure_count > 0 ? "text-red-700" : "text-ink-tertiary"}>
                     {wh.failure_count}
                   </span>
                 </td>

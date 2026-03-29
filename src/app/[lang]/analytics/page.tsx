@@ -40,13 +40,13 @@ export default function AnalyticsPage() {
 
   const stats = o ? [
     { label: t("total_messages"), value: o.total_messages, accent: "text-ink", iconBg: "bg-surface-100", icon: "msg" },
-    { label: t("inbound_messages"), value: o.inbound_messages, accent: "text-blue-400", iconBg: "bg-blue-500/10", icon: "in" },
-    { label: t("outbound_messages"), value: o.outbound_messages, accent: "text-primary", iconBg: "bg-primary/8", icon: "out" },
-    { label: t("active_conversations"), value: o.open_conversations, accent: "text-amber-400", iconBg: "bg-amber-500/10", icon: "active" },
-    { label: t("resolved_conversations"), value: o.resolved_conversations, accent: "text-emerald-400", iconBg: "bg-emerald-500/10", icon: "resolved" },
-    { label: t("total_contacts"), value: o.total_contacts, accent: "text-violet-400", iconBg: "bg-violet-500/10", icon: "contacts" },
-    { label: t("bot_messages"), value: o.bot_messages, accent: "text-primary", iconBg: "bg-primary/8", icon: "bot" },
-    { label: t("agent_messages"), value: o.agent_messages, accent: "text-orange-400", iconBg: "bg-orange-500/10", icon: "agent" },
+    { label: t("inbound_messages"), value: o.inbound_messages, accent: "text-blue-700", iconBg: "bg-blue-50", icon: "in" },
+    { label: t("outbound_messages"), value: o.outbound_messages, accent: "text-primary", iconBg: "bg-primary-50", icon: "out" },
+    { label: t("active_conversations"), value: o.open_conversations, accent: "text-amber-700", iconBg: "bg-amber-50", icon: "active" },
+    { label: t("resolved_conversations"), value: o.resolved_conversations, accent: "text-emerald-700", iconBg: "bg-emerald-50", icon: "resolved" },
+    { label: t("total_contacts"), value: o.total_contacts, accent: "text-violet-700", iconBg: "bg-violet-50", icon: "contacts" },
+    { label: t("bot_messages"), value: o.bot_messages, accent: "text-primary", iconBg: "bg-primary-50", icon: "bot" },
+    { label: t("agent_messages"), value: o.agent_messages, accent: "text-orange-700", iconBg: "bg-orange-50", icon: "agent" },
   ] : []
 
   const botRate = o && o.outbound_messages > 0
@@ -66,7 +66,7 @@ export default function AnalyticsPage() {
       <div className="p-7 space-y-6">
         {loading ? (
           <div className="ds-empty-state">
-            <div className="w-8 h-8 rounded-[6px] bg-primary/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-[6px] bg-primary-50 flex items-center justify-center">
               <div className="w-3 h-3 rounded-full bg-primary animate-pulse-soft" />
             </div>
             <p className="ds-empty-state-title mt-3">{t("loading")}</p>
@@ -153,10 +153,10 @@ export default function AnalyticsPage() {
                     <div key={day.date} className="flex-1 flex flex-col items-center gap-1.5">
                       <div className="w-full flex flex-col items-center justify-end" style={{ height: "140px" }}>
                         <div
-                          className="w-full max-w-[44px] bg-primary/8 rounded-t-lg relative group transition-all duration-200 hover:bg-primary/12"
+                          className="w-full max-w-[44px] bg-primary-50 rounded-t-lg relative group transition-all duration-200 hover:bg-primary-100"
                           style={{ height: `${Math.max(height, 4)}%` }}
                         >
-                          <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-surface-200 text-ink text-[10px] px-2 py-1 rounded-badge opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-surface-300">
+                          <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-white text-ink text-[10px] px-2 py-1 rounded-badge opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-surface-300">
                             {day.inbound + day.outbound} {t("messages_count")}
                           </div>
                           <div
@@ -176,7 +176,7 @@ export default function AnalyticsPage() {
                   {t("incoming")}
                 </span>
                 <span className="flex items-center gap-2 text-caption text-ink-secondary">
-                  <span className="w-3 h-3 bg-primary/10 rounded" />
+                  <span className="w-3 h-3 bg-primary-50 rounded" />
                   {t("outgoing")}
                 </span>
               </div>

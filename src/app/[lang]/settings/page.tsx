@@ -166,7 +166,7 @@ export default function SettingsPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-2.5 h-2.5 bg-green-500 rounded-full" />
-                <span className="text-green-400 text-caption font-medium">{t("connected")}</span>
+                <span className="text-green-700 text-caption font-medium">{t("connected")}</span>
               </div>
 
               <div className="space-y-3">
@@ -184,7 +184,7 @@ export default function SettingsPage() {
                 <div className="border-t border-surface-300 pt-4">
                   <label className="text-caption text-ink-secondary block mb-2">{t("phone_numbers")}</label>
                   {status.phone_numbers.map((phone) => (
-                    <div key={phone.id} className="flex items-center justify-between bg-surface-250 rounded-card-sm px-4 py-3">
+                    <div key={phone.id} className="flex items-center justify-between bg-surface-150 rounded-card-sm px-4 py-3">
                       <div>
                         <p className="text-ink text-ui">{phone.number}</p>
                         {phone.verified_name && (
@@ -214,8 +214,8 @@ export default function SettingsPage() {
               </p>
 
               {error && (
-                <div className="bg-red-500/10 border border-red-500/20 rounded-card-sm px-4 py-3 mb-4">
-                  <p className="text-red-400 text-caption">{error}</p>
+                <div className="bg-red-50 border border-red-200 rounded-card-sm px-4 py-3 mb-4">
+                  <p className="text-red-700 text-caption">{error}</p>
                 </div>
               )}
 

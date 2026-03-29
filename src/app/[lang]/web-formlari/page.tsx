@@ -91,7 +91,7 @@ export default function WebFormlariPage() {
         <div className="ds-modal-overlay" onClick={() => setShowForm(false)}>
           <div className="ds-modal" onClick={(e) => e.stopPropagation()}>
             <h3 className="ds-modal-title">{t("create_form")}</h3>
-            {formError && <p className="text-red-400 text-caption mb-3">{formError}</p>}
+            {formError && <p className="text-red-700 text-caption mb-3">{formError}</p>}
             <div className="space-y-3">
               <div className="ds-form-group">
                 <input
