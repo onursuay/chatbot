@@ -279,7 +279,7 @@ const translations: Record<string, Record<Lang, string>> = {
   "meeting": { tr: "Toplantı", en: "Meeting" },
   "member": { tr: "Üye", en: "Member" },
   "message": { tr: "Mesaj", en: "Message" },
-  "new_message": { tr: "+ Yeni Mesaj", en: "+ New Message" },
+  "new_message": { tr: "Yeni Mesaj", en: "New Message" },
   "optional": { tr: "İsteğe Bağlı", en: "Optional" },
   "phone_number": { tr: "Telefon Numarası", en: "Phone Number" },
   "script": { tr: "Betik", en: "Script" },
