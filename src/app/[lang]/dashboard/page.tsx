@@ -85,7 +85,7 @@ export default function DashboardPage() {
     },
     {
       label: t("active_deals_value"),
-      value: `$${kpi.active_deals_value.toLocaleString()}`,
+      value: `₺${kpi.active_deals_value.toLocaleString("tr-TR")}`,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5">
           <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
@@ -170,7 +170,7 @@ export default function DashboardPage() {
                     <p className="text-body-medium text-ink">{p.name}</p>
                     <div className="flex justify-between mt-2.5">
                       <span className="text-caption text-ink-secondary">{p.leads_count} {t("leads")}</span>
-                      <span className="text-caption-medium text-primary">${p.total_value.toLocaleString()}</span>
+                      <span className="text-caption-medium text-primary">₺{p.total_value.toLocaleString("tr-TR")}</span>
                     </div>
                   </div>
                 ))}

@@ -132,7 +132,7 @@ export default function PipelinePage() {
                       >
                         <p className="text-body-medium text-ink">{lead.title}</p>
                         {lead.value != null && (
-                          <p className="text-caption-medium text-primary mt-1">${lead.value.toLocaleString()}</p>
+                          <p className="text-caption-medium text-primary mt-1">₺{lead.value.toLocaleString("tr-TR")}</p>
                         )}
                         <div className="flex items-center justify-between mt-2.5">
                           {lead.contact_name && (

@@ -251,7 +251,7 @@ export default function LeadlerPage() {
               >
                 <td className="p-4 text-ui text-ink font-medium">{lead.title}</td>
                 <td className="p-4 text-ui text-primary">
-                  {lead.value != null ? `$${lead.value.toLocaleString()}` : "\u2014"}
+                  {lead.value != null ? `₺${lead.value.toLocaleString("tr-TR")}` : "\u2014"}
                 </td>
                 <td className="p-4">
                   <span className="ds-badge-primary">

@@ -20,14 +20,22 @@ function FloatingCanvas() {
 
     let animId: number
     let w = 0, h = 0
+    let time = 0
 
     interface FloatingIcon {
       x: number; y: number; vx: number; vy: number
       size: number; rotation: number; rotSpeed: number
-      opacity: number; type: string; color: string
+      baseOpacity: number; type: string; color: string
+      pulseOffset: number; glowSize: number
+    }
+
+    interface Particle {
+      x: number; y: number; vx: number; vy: number
+      life: number; maxLife: number; color: string; size: number
     }
 
     let icons: FloatingIcon[] = []
+    let particles: Particle[] = []
 
     const resize = () => {
       const dpr = window.devicePixelRatio || 1
@@ -39,170 +47,314 @@ function FloatingCanvas() {
     const init = () => {
       resize()
       const types = [
-        { type: "chat", color: "74,237,196" },
+        { type: "whatsapp", color: "37,211,102" },
+        { type: "instagram", color: "225,48,108" },
+        { type: "facebook", color: "66,103,178" },
         { type: "whatsapp", color: "37,211,102" },
         { type: "instagram", color: "225,48,108" },
         { type: "facebook", color: "66,103,178" },
         { type: "bot", color: "139,92,246" },
-        { type: "mail", color: "59,130,246" },
-        { type: "bell", color: "245,158,11" },
-        { type: "chart", color: "74,237,196" },
+        { type: "crm-contact", color: "59,130,246" },
+        { type: "crm-pipeline", color: "245,158,11" },
+        { type: "crm-chart", color: "74,237,196" },
+        { type: "mail", color: "99,102,241" },
+        { type: "chat", color: "74,237,196" },
       ]
-      icons = Array.from({ length: 20 }, (_, i) => {
+      icons = Array.from({ length: 28 }, (_, i) => {
         const t = types[i % types.length]
         return {
           x: Math.random() * w, y: Math.random() * h,
-          vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.25,
-          size: 16 + Math.random() * 20,
+          vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.35,
+          size: 22 + Math.random() * 24,
           rotation: Math.random() * Math.PI * 2,
-          rotSpeed: (Math.random() - 0.5) * 0.003,
-          opacity: 0.06 + Math.random() * 0.08,
+          rotSpeed: (Math.random() - 0.5) * 0.004,
+          baseOpacity: 0.15 + Math.random() * 0.2,
           type: t.type, color: t.color,
+          pulseOffset: Math.random() * Math.PI * 2,
+          glowSize: 30 + Math.random() * 20,
         }
       })
     }
 
     const drawIcon = (icon: FloatingIcon) => {
+      const pulse = Math.sin(time * 0.002 + icon.pulseOffset) * 0.08
+      const opacity = icon.baseOpacity + pulse
+
       ctx.save()
       ctx.translate(icon.x, icon.y)
+
+      // Glow effect
+      const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, icon.glowSize)
+      glow.addColorStop(0, `rgba(${icon.color},${opacity * 0.25})`)
+      glow.addColorStop(1, `rgba(${icon.color},0)`)
+      ctx.fillStyle = glow
+      ctx.fillRect(-icon.glowSize, -icon.glowSize, icon.glowSize * 2, icon.glowSize * 2)
+
       ctx.rotate(icon.rotation)
-      ctx.globalAlpha = icon.opacity
+      ctx.globalAlpha = opacity
       const s = icon.size
 
-      ctx.strokeStyle = `rgba(${icon.color},${icon.opacity * 4})`
-      ctx.lineWidth = 1.5
+      ctx.strokeStyle = `rgba(${icon.color},${opacity * 2.5})`
+      ctx.fillStyle = `rgba(${icon.color},${opacity * 0.4})`
+      ctx.lineWidth = 2
       ctx.lineCap = "round"
       ctx.lineJoin = "round"
 
       switch (icon.type) {
-        case "chat":
+        case "whatsapp": {
+          // Outer circle with fill
           ctx.beginPath()
-          ctx.moveTo(-s/2, -s/3); ctx.lineTo(s/2, -s/3)
-          ctx.quadraticCurveTo(s/2+s/6, -s/3, s/2+s/6, -s/6)
-          ctx.lineTo(s/2+s/6, s/4)
-          ctx.quadraticCurveTo(s/2+s/6, s/3+s/12, s/2, s/3+s/12)
-          ctx.lineTo(-s/6, s/3+s/12); ctx.lineTo(-s/3, s/2)
-          ctx.lineTo(-s/3, s/3+s/12); ctx.lineTo(-s/2, s/3+s/12)
-          ctx.quadraticCurveTo(-s/2-s/6, s/3+s/12, -s/2-s/6, s/4)
-          ctx.lineTo(-s/2-s/6, -s/6)
-          ctx.quadraticCurveTo(-s/2-s/6, -s/3, -s/2, -s/3)
+          ctx.arc(0, 0, s / 2, 0, Math.PI * 2)
+          ctx.fill()
           ctx.stroke()
-          // Lines inside
+          // Phone receiver
+          ctx.fillStyle = `rgba(${icon.color},${opacity * 2.5})`
           ctx.beginPath()
-          ctx.moveTo(-s/3, -s/8); ctx.lineTo(s/3, -s/8)
-          ctx.moveTo(-s/3, s/8); ctx.lineTo(s/6, s/8)
-          ctx.stroke()
-          break
-        case "whatsapp":
+          ctx.moveTo(-s * 0.18, s * 0.22)
+          ctx.quadraticCurveTo(-s * 0.28, -s * 0.05, -s * 0.08, -s * 0.2)
+          ctx.quadraticCurveTo(0, -s * 0.28, s * 0.08, -s * 0.2)
+          ctx.quadraticCurveTo(s * 0.28, -s * 0.05, s * 0.18, s * 0.22)
+          ctx.quadraticCurveTo(s * 0.08, s * 0.18, 0, s * 0.12)
+          ctx.quadraticCurveTo(-s * 0.08, s * 0.18, -s * 0.18, s * 0.22)
+          ctx.fill()
+          // Speech tail
           ctx.beginPath()
-          ctx.arc(0, 0, s/2.5, 0, Math.PI * 2)
-          ctx.stroke()
-          // Phone icon
-          ctx.beginPath()
-          ctx.moveTo(-s/6, s/6)
-          ctx.quadraticCurveTo(-s/4, -s/6, 0, -s/5)
-          ctx.quadraticCurveTo(s/4, -s/4, s/6, s/8)
-          ctx.stroke()
-          break
-        case "instagram":
-          const r = s / 2.5
-          ctx.beginPath()
-          ctx.roundRect(-r, -r, r*2, r*2, r*0.3)
-          ctx.stroke()
-          ctx.beginPath()
-          ctx.arc(0, 0, r*0.4, 0, Math.PI * 2)
-          ctx.stroke()
-          ctx.beginPath()
-          ctx.arc(r*0.6, -r*0.6, r*0.1, 0, Math.PI * 2)
-          ctx.fillStyle = ctx.strokeStyle
+          ctx.moveTo(-s * 0.22, s * 0.28)
+          ctx.lineTo(-s * 0.35, s * 0.42)
+          ctx.lineTo(-s * 0.12, s * 0.22)
+          ctx.fillStyle = `rgba(${icon.color},${opacity * 1.5})`
           ctx.fill()
           break
-        case "facebook":
+        }
+        case "instagram": {
+          const r = s / 2
+          // Rounded rectangle
           ctx.beginPath()
-          ctx.arc(0, 0, s/2.5, 0, Math.PI * 2)
+          ctx.roundRect(-r, -r, r * 2, r * 2, r * 0.32)
+          ctx.fill()
           ctx.stroke()
-          ctx.font = `bold ${s*0.6}px Inter, sans-serif`
-          ctx.textAlign = "center"; ctx.textBaseline = "middle"
-          ctx.fillStyle = ctx.strokeStyle
-          ctx.fillText("f", 0, 1)
+          // Inner circle (lens)
+          ctx.beginPath()
+          ctx.arc(0, 0, r * 0.38, 0, Math.PI * 2)
+          ctx.strokeStyle = `rgba(${icon.color},${opacity * 3})`
+          ctx.lineWidth = 2.5
+          ctx.stroke()
+          // Flash dot
+          ctx.beginPath()
+          ctx.arc(r * 0.55, -r * 0.55, r * 0.12, 0, Math.PI * 2)
+          ctx.fillStyle = `rgba(${icon.color},${opacity * 3})`
+          ctx.fill()
           break
-        case "bot":
+        }
+        case "facebook": {
+          // Circle
           ctx.beginPath()
-          ctx.roundRect(-s/3, -s/6, s/1.5, s/2.5, s/10)
+          ctx.arc(0, 0, s / 2, 0, Math.PI * 2)
+          ctx.fill()
+          ctx.stroke()
+          // Bold "f"
+          ctx.font = `bold ${s * 0.65}px Inter, system-ui, sans-serif`
+          ctx.textAlign = "center"
+          ctx.textBaseline = "middle"
+          ctx.fillStyle = `rgba(${icon.color},${opacity * 3})`
+          ctx.fillText("f", s * 0.04, s * 0.04)
+          break
+        }
+        case "bot": {
+          // Robot head
+          ctx.beginPath()
+          ctx.roundRect(-s / 2.8, -s / 5, s / 1.4, s / 1.8, s / 8)
+          ctx.fill()
+          ctx.stroke()
+          // Antenna
+          ctx.beginPath()
+          ctx.moveTo(0, -s / 5); ctx.lineTo(0, -s / 2.8)
+          ctx.lineWidth = 2.5
           ctx.stroke()
           ctx.beginPath()
-          ctx.moveTo(0, -s/6); ctx.lineTo(0, -s/3)
-          ctx.stroke()
-          ctx.beginPath()
-          ctx.arc(0, -s/3, s/12, 0, Math.PI * 2)
-          ctx.stroke()
+          ctx.arc(0, -s / 2.8, s / 10, 0, Math.PI * 2)
+          ctx.fillStyle = `rgba(${icon.color},${opacity * 3})`
+          ctx.fill()
           // Eyes
           ctx.beginPath()
-          ctx.arc(-s/8, s/12, s/14, 0, Math.PI * 2)
-          ctx.arc(s/8, s/12, s/14, 0, Math.PI * 2)
-          ctx.fillStyle = ctx.strokeStyle; ctx.fill()
-          break
-        case "mail":
+          ctx.arc(-s / 7, s / 10, s / 11, 0, Math.PI * 2)
+          ctx.arc(s / 7, s / 10, s / 11, 0, Math.PI * 2)
+          ctx.fill()
+          // Smile
           ctx.beginPath()
-          ctx.roundRect(-s/2.5, -s/4, s/1.25, s/2, s/14)
-          ctx.stroke()
-          ctx.beginPath()
-          ctx.moveTo(-s/2.5, -s/4); ctx.lineTo(0, s/12); ctx.lineTo(s/2.5, -s/4)
+          ctx.arc(0, s / 5, s / 8, 0, Math.PI)
           ctx.stroke()
           break
-        case "bell":
+        }
+        case "crm-contact": {
+          // Person head
           ctx.beginPath()
-          ctx.moveTo(-s/4, s/8)
-          ctx.quadraticCurveTo(-s/4, -s/3, 0, -s/3)
-          ctx.quadraticCurveTo(s/4, -s/3, s/4, s/8)
-          ctx.lineTo(-s/4, s/8)
+          ctx.arc(0, -s / 5, s / 4, 0, Math.PI * 2)
+          ctx.fill()
           ctx.stroke()
+          // Body
           ctx.beginPath()
-          ctx.moveTo(-s/3, s/8); ctx.lineTo(s/3, s/8)
+          ctx.moveTo(-s / 2.5, s / 2)
+          ctx.quadraticCurveTo(-s / 2.5, s / 8, 0, s / 8)
+          ctx.quadraticCurveTo(s / 2.5, s / 8, s / 2.5, s / 2)
+          ctx.fill()
           ctx.stroke()
+          // Badge / CRM indicator
           ctx.beginPath()
-          ctx.arc(0, s/5, s/10, 0, Math.PI * 2)
+          ctx.arc(s / 3, -s / 3, s / 8, 0, Math.PI * 2)
+          ctx.fillStyle = `rgba(${icon.color},${opacity * 3})`
+          ctx.fill()
+          break
+        }
+        case "crm-pipeline": {
+          // Funnel shape
+          ctx.beginPath()
+          ctx.moveTo(-s / 2, -s / 2.5)
+          ctx.lineTo(s / 2, -s / 2.5)
+          ctx.lineTo(s / 5, s / 10)
+          ctx.lineTo(s / 5, s / 2)
+          ctx.lineTo(-s / 5, s / 2)
+          ctx.lineTo(-s / 5, s / 10)
+          ctx.closePath()
+          ctx.fill()
+          ctx.stroke()
+          // Lines inside funnel
+          ctx.beginPath()
+          ctx.moveTo(-s / 3, -s / 6); ctx.lineTo(s / 3, -s / 6)
+          ctx.moveTo(-s / 4.5, s / 14); ctx.lineTo(s / 4.5, s / 14)
+          ctx.strokeStyle = `rgba(${icon.color},${opacity * 1.5})`
           ctx.stroke()
           break
-        case "chart":
+        }
+        case "crm-chart": {
+          // Chart bars with rising effect
+          const barW = s / 7
+          const heights = [s * 0.3, s * 0.5, s * 0.35, s * 0.7, s * 0.55]
+          heights.forEach((bh, i) => {
+            const bx = -s / 2.5 + i * (barW + s / 12)
+            ctx.fillStyle = `rgba(${icon.color},${opacity * (0.5 + i * 0.15)})`
+            ctx.fillRect(bx, s / 2.5 - bh, barW, bh)
+            ctx.strokeRect(bx, s / 2.5 - bh, barW, bh)
+          })
+          // Trend line
           ctx.beginPath()
-          ctx.moveTo(-s/3, s/3); ctx.lineTo(-s/3, -s/6)
-          ctx.moveTo(-s/8, s/3); ctx.lineTo(-s/8, -s/3)
-          ctx.moveTo(s/8, s/3); ctx.lineTo(s/8, 0)
-          ctx.moveTo(s/3, s/3); ctx.lineTo(s/3, -s/5)
+          ctx.moveTo(-s / 2.5, s / 6)
+          ctx.quadraticCurveTo(-s / 8, -s / 4, s / 2.5, -s / 3)
+          ctx.strokeStyle = `rgba(${icon.color},${opacity * 3})`
+          ctx.lineWidth = 2.5
+          ctx.stroke()
+          // Arrow tip
+          ctx.beginPath()
+          ctx.moveTo(s / 3, -s / 4); ctx.lineTo(s / 2.5, -s / 3); ctx.lineTo(s / 5, -s / 3.2)
           ctx.stroke()
           break
+        }
+        case "mail": {
+          const ew = s / 1.2, eh = s / 1.8
+          ctx.beginPath()
+          ctx.roundRect(-ew / 2, -eh / 2, ew, eh, s / 10)
+          ctx.fill()
+          ctx.stroke()
+          // Envelope flap
+          ctx.beginPath()
+          ctx.moveTo(-ew / 2, -eh / 2); ctx.lineTo(0, eh / 6); ctx.lineTo(ew / 2, -eh / 2)
+          ctx.strokeStyle = `rgba(${icon.color},${opacity * 3})`
+          ctx.lineWidth = 2.5
+          ctx.stroke()
+          break
+        }
+        case "chat": {
+          // Speech bubble
+          ctx.beginPath()
+          ctx.moveTo(-s / 2, -s / 3)
+          ctx.lineTo(s / 2, -s / 3)
+          ctx.quadraticCurveTo(s / 1.6, -s / 3, s / 1.6, -s / 6)
+          ctx.lineTo(s / 1.6, s / 5)
+          ctx.quadraticCurveTo(s / 1.6, s / 3, s / 2, s / 3)
+          ctx.lineTo(-s / 8, s / 3)
+          ctx.lineTo(-s / 3, s / 1.8)
+          ctx.lineTo(-s / 4, s / 3)
+          ctx.lineTo(-s / 2, s / 3)
+          ctx.quadraticCurveTo(-s / 1.6, s / 3, -s / 1.6, s / 5)
+          ctx.lineTo(-s / 1.6, -s / 6)
+          ctx.quadraticCurveTo(-s / 1.6, -s / 3, -s / 2, -s / 3)
+          ctx.fill()
+          ctx.stroke()
+          // Text lines
+          ctx.strokeStyle = `rgba(${icon.color},${opacity * 2})`
+          ctx.lineWidth = 2
+          ctx.beginPath()
+          ctx.moveTo(-s / 3.5, -s / 8); ctx.lineTo(s / 3.5, -s / 8)
+          ctx.moveTo(-s / 3.5, s / 10); ctx.lineTo(s / 6, s / 10)
+          ctx.stroke()
+          break
+        }
       }
       ctx.restore()
     }
 
+    const spawnParticles = () => {
+      if (particles.length > 40) return
+      const src = icons[Math.floor(Math.random() * icons.length)]
+      for (let i = 0; i < 2; i++) {
+        particles.push({
+          x: src.x, y: src.y,
+          vx: (Math.random() - 0.5) * 0.8,
+          vy: (Math.random() - 0.5) * 0.8,
+          life: 0, maxLife: 120 + Math.random() * 100,
+          color: src.color, size: 1.5 + Math.random() * 2,
+        })
+      }
+    }
+
     const draw = () => {
+      time++
       ctx.clearRect(0, 0, w, h)
 
-      for (const icon of icons) {
-        icon.x += icon.vx; icon.y += icon.vy; icon.rotation += icon.rotSpeed
-        if (icon.x < -40) icon.x = w + 40
-        if (icon.x > w + 40) icon.x = -40
-        if (icon.y < -40) icon.y = h + 40
-        if (icon.y > h + 40) icon.y = -40
-        drawIcon(icon)
+      // Spawn particles occasionally
+      if (time % 30 === 0) spawnParticles()
+
+      // Draw particles
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i]
+        p.x += p.vx; p.y += p.vy; p.life++
+        if (p.life > p.maxLife) { particles.splice(i, 1); continue }
+        const alpha = (1 - p.life / p.maxLife) * 0.4
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(${p.color},${alpha})`
+        ctx.fill()
       }
 
-      // Subtle connection lines between nearby icons
+      // Connection lines between nearby icons
       for (let i = 0; i < icons.length; i++) {
         for (let j = i + 1; j < icons.length; j++) {
           const dx = icons[i].x - icons[j].x
           const dy = icons[i].y - icons[j].y
           const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < 250) {
+          if (dist < 220) {
+            const lineAlpha = (1 - dist / 220) * 0.08
             ctx.beginPath()
             ctx.moveTo(icons[i].x, icons[i].y)
             ctx.lineTo(icons[j].x, icons[j].y)
-            ctx.strokeStyle = `rgba(74,237,196,${(1 - dist / 250) * 0.04})`
-            ctx.lineWidth = 0.5
+            const grad = ctx.createLinearGradient(icons[i].x, icons[i].y, icons[j].x, icons[j].y)
+            grad.addColorStop(0, `rgba(${icons[i].color},${lineAlpha})`)
+            grad.addColorStop(1, `rgba(${icons[j].color},${lineAlpha})`)
+            ctx.strokeStyle = grad
+            ctx.lineWidth = 1
             ctx.stroke()
           }
         }
+      }
+
+      // Draw icons
+      for (const icon of icons) {
+        icon.x += icon.vx; icon.y += icon.vy; icon.rotation += icon.rotSpeed
+        if (icon.x < -60) icon.x = w + 60
+        if (icon.x > w + 60) icon.x = -60
+        if (icon.y < -60) icon.y = h + 60
+        if (icon.y > h + 60) icon.y = -60
+        drawIcon(icon)
       }
 
       animId = requestAnimationFrame(draw)
