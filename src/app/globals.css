@@ -186,7 +186,7 @@ body {
 
   /* --- AI Surface --- */
   .ds-ai-surface { @apply bg-primary-50 border border-primary/15 rounded-card; }
-  .ds-ai-glow { box-shadow: 0 0 0 1px rgba(74, 237, 196, 0.08), 0 1px 8px rgba(74, 237, 196, 0.1); }
+  .ds-ai-glow { box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.08), 0 1px 8px rgba(99, 102, 241, 0.1); }
 
   /* --- Divider --- */
   .ds-divider { @apply h-px bg-surface-300; }
@@ -200,7 +200,7 @@ body {
 
 /* Focus ring */
 *:focus-visible {
-  outline: 2px solid rgba(74, 237, 196, 0.4);
+  outline: 2px solid rgba(99, 102, 241, 0.4);
   outline-offset: 1px;
 }
 textarea:focus { box-shadow: none; }

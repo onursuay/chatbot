@@ -163,9 +163,31 @@ export default function LangLayout({ children, params }: { children: React.React
   if (loading || !ready) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center">
-        <div className="flex items-center gap-3">
-          <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse-soft" />
-          <span className="text-body text-ink-tertiary">{t("loading")}</span>
+        <div className="flex flex-col items-center gap-5">
+          {/* YoAi Logo */}
+          <div className="text-2xl font-bold tracking-tight">
+            <span className="text-primary">Yo</span><span className="text-ink">Ai</span>
+          </div>
+          {/* Bouncing dots */}
+          <div className="flex items-center gap-2">
+            {[0, 1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="w-3 h-3 rounded-full bg-primary"
+                style={{
+                  animation: "bounce-dot 1.4s ease-in-out infinite",
+                  animationDelay: `${i * 0.16}s`,
+                }}
+              />
+            ))}
+          </div>
+          <span className="text-caption text-ink-tertiary">{t("loading")}</span>
+          <style>{`
+            @keyframes bounce-dot {
+              0%, 80%, 100% { transform: scale(0.4); opacity: 0.3; }
+              40% { transform: scale(1); opacity: 1; }
+            }
+          `}</style>
         </div>
       </div>
     )
