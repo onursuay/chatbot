@@ -42,7 +42,7 @@ export default function RegisterPage() {
       setAuth(user, tokens.access_token, tokens.refresh_token)
       router.push(localePath("inbox", lang))
     } catch (err: any) {
-      setError(err.message || (lang === "tr" ? "Kayit basarisiz" : "Registration failed"))
+      setError(err.message || (lang === "tr" ? "Kayıt başarısız" : "Registration failed"))
     } finally {
       setLoading(false)
     }
@@ -67,7 +67,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-8 backdrop-blur-sm">
-            <h2 className="text-xl font-semibold text-white mb-6">{isTR ? "Kayit Ol" : "Sign Up"}</h2>
+            <h2 className="text-xl font-semibold text-white mb-6">{isTR ? "Kayıt Ol" : "Sign Up"}</h2>
 
             {error && (
               <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg p-3 mb-4 text-sm">{error}</div>
@@ -100,14 +100,14 @@ export default function RegisterPage() {
               </div>
               <button type="submit" disabled={loading}
                 className="w-full bg-primary hover:bg-primary-hover text-white font-bold rounded-lg py-2.5 transition-all duration-200 shadow-lg shadow-primary/15 disabled:opacity-50 disabled:cursor-not-allowed">
-                {loading ? (isTR ? "Kayit yapiliyor..." : "Creating account...") : (isTR ? "Ucretsiz Baslat" : "Start Free")}
+                {loading ? (isTR ? "Kayıt yapılıyor..." : "Creating account...") : (isTR ? "Ucretsiz Baslat" : "Start Free")}
               </button>
             </form>
 
             <p className="text-center text-white/30 text-sm mt-6">
               {isTR ? "Zaten hesabin var mi? " : "Already have an account? "}
               <Link href={`/${lang}/login`} className="text-primary hover:text-primary-light transition-colors duration-150">
-                {isTR ? "Giris Yap" : "Sign In"}
+                {isTR ? "Giriş Yap" : "Sign In"}
               </Link>
             </p>
           </div>

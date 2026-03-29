@@ -426,7 +426,7 @@ export default function LoginPage() {
       setAuth(user, tokens.access_token, tokens.refresh_token)
       router.push(localePath("inbox", lang))
     } catch (err: any) {
-      setError(err.message || (lang === "tr" ? "Giris basarisiz" : "Login failed"))
+      setError(err.message || (lang === "tr" ? "Giriş başarısız" : "Login failed"))
     } finally {
       setLoading(false)
     }
@@ -529,7 +529,7 @@ export default function LoginPage() {
             {/* Login Card */}
             <div className="bg-white/[0.06] border border-white/[0.1] rounded-2xl p-8 backdrop-blur-xl shadow-2xl shadow-black/20">
               <h2 className="text-xl font-semibold text-white mb-6">
-                {isTR ? "Giris Yap" : "Sign In"}
+                {isTR ? "Giriş Yap" : "Sign In"}
               </h2>
 
               {error && (
@@ -573,15 +573,15 @@ export default function LoginPage() {
                   className="w-full bg-primary hover:bg-primary-hover text-white font-bold rounded-lg py-3 transition-all duration-200 shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
                 >
                   {loading
-                    ? (isTR ? "Giris yapiliyor..." : "Signing in...")
-                    : (isTR ? "Giris Yap" : "Sign In")}
+                    ? (isTR ? "Giriş yapılıyor..." : "Signing in...")
+                    : (isTR ? "Giriş Yap" : "Sign In")}
                 </button>
               </form>
 
               <p className="text-center text-white/30 text-sm mt-6">
                 {isTR ? "Hesabin yok mu? " : "Don't have an account? "}
                 <Link href={`/${lang}/register`} className="text-primary hover:text-primary-light font-medium transition-colors">
-                  {isTR ? "Kayit Ol" : "Sign Up"}
+                  {isTR ? "Kayıt Ol" : "Sign Up"}
                 </Link>
               </p>
             </div>
