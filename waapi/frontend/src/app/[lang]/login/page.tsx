@@ -548,14 +548,14 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-4 py-2.5 text-white placeholder-white/20 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
-                    placeholder={isTR ? "ornek@sirket.com" : "example@company.com"}
+                    placeholder={isTR ? "örnek@sirket.com" : "example@company.com"}
                     required
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm text-white/50 mb-1.5 font-medium">
-                    {isTR ? "Sifre" : "Password"}
+                    {isTR ? "Şifre" : "Password"}
                   </label>
                   <input
                     type="password"
@@ -579,7 +579,7 @@ export default function LoginPage() {
               </form>
 
               <p className="text-center text-white/30 text-sm mt-6">
-                {isTR ? "Hesabin yok mu? " : "Don't have an account? "}
+                {isTR ? "Hesabın yok mu? " : "Don't have an account? "}
                 <Link href={`/${lang}/register`} className="text-primary hover:text-primary-light font-medium transition-colors">
                   {isTR ? "Kayıt Ol" : "Sign Up"}
                 </Link>
