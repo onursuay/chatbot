@@ -68,7 +68,7 @@ export default function RegisterPage() {
             {isTR ? "14 gün ücretsiz deneyin" : "14 days free trial"}
           </div>
 
-          <h1 className="text-4xl xl:text-5xl font-extrabold text-white leading-tight mb-5">
+          <h1 className="text-3xl xl:text-4xl font-extrabold text-white leading-tight mb-5 whitespace-nowrap">
             {isTR
               ? "Müşteri iletişiminizi dönüştürün"
               : "Transform your customer communication"}
