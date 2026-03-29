@@ -102,28 +102,29 @@ function FloatingCanvas() {
 
       switch (icon.type) {
         case "whatsapp": {
-          // Outer circle with fill
+          // Speech bubble outline
+          const r = s * 0.45
           ctx.beginPath()
-          ctx.arc(0, 0, s / 2, 0, Math.PI * 2)
+          ctx.arc(0, -s * 0.04, r, 0, Math.PI * 2)
           ctx.fill()
           ctx.stroke()
-          // Phone receiver
-          ctx.fillStyle = `rgba(${icon.color},${opacity * 2.5})`
-          ctx.beginPath()
-          ctx.moveTo(-s * 0.18, s * 0.22)
-          ctx.quadraticCurveTo(-s * 0.28, -s * 0.05, -s * 0.08, -s * 0.2)
-          ctx.quadraticCurveTo(0, -s * 0.28, s * 0.08, -s * 0.2)
-          ctx.quadraticCurveTo(s * 0.28, -s * 0.05, s * 0.18, s * 0.22)
-          ctx.quadraticCurveTo(s * 0.08, s * 0.18, 0, s * 0.12)
-          ctx.quadraticCurveTo(-s * 0.08, s * 0.18, -s * 0.18, s * 0.22)
-          ctx.fill()
           // Speech tail
           ctx.beginPath()
-          ctx.moveTo(-s * 0.22, s * 0.28)
-          ctx.lineTo(-s * 0.35, s * 0.42)
-          ctx.lineTo(-s * 0.12, s * 0.22)
-          ctx.fillStyle = `rgba(${icon.color},${opacity * 1.5})`
+          ctx.moveTo(-s * 0.15, s * 0.3)
+          ctx.lineTo(-s * 0.38, s * 0.48)
+          ctx.lineTo(-s * 0.02, s * 0.35)
+          ctx.fillStyle = `rgba(${icon.color},${opacity * 1.8})`
           ctx.fill()
+          // Phone handset inside
+          ctx.strokeStyle = `rgba(${icon.color},${opacity * 3.5})`
+          ctx.lineWidth = 2.5
+          ctx.beginPath()
+          ctx.moveTo(-s * 0.15, s * 0.08)
+          ctx.quadraticCurveTo(-s * 0.18, -s * 0.08, -s * 0.1, -s * 0.18)
+          ctx.quadraticCurveTo(-s * 0.06, -s * 0.22, 0, -s * 0.2)
+          ctx.quadraticCurveTo(s * 0.06, -s * 0.22, s * 0.1, -s * 0.18)
+          ctx.quadraticCurveTo(s * 0.18, -s * 0.08, s * 0.15, s * 0.08)
+          ctx.stroke()
           break
         }
         case "instagram": {
@@ -419,10 +420,10 @@ export default function LoginPage() {
 
       {/* Content */}
       <div className="flex-1 flex items-center justify-center p-4 relative z-10">
-        <div className="w-full max-w-[960px] flex items-center gap-16">
+        <div className="w-full max-w-[1100px] flex items-center gap-12">
 
           {/* Left Side - Features (hidden on mobile) */}
-          <div className="hidden lg:flex flex-col flex-1 gap-6">
+          <div className="hidden lg:flex flex-col flex-1 gap-5 min-w-[520px]">
             <div className="mb-2">
               <div className="inline-flex items-center gap-3 mb-4">
                 <Image src="/logo.png" alt="YO Dijital" width={52} height={52} className="invert rounded-xl" />
@@ -439,7 +440,7 @@ export default function LoginPage() {
               {
                 icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" strokeLinecap="round" strokeLinejoin="round"/></svg>,
                 titleTR: "Çoklu Kanal Mesajlaşma", titleEN: "Omni-Channel Messaging",
-                descTR: "WhatsApp, Instagram, Facebook ve Messenger tek ekrandan yönetin", descEN: "Manage WhatsApp, Instagram, Facebook & Messenger in one screen",
+                descTR: "WhatsApp, Instagram, Facebook, Messenger tek ekrandan yönetin", descEN: "Manage WhatsApp, Instagram, Facebook & Messenger in one screen",
                 colors: ["#25D366", "#E1306C", "#4267B2"],
               },
               {
@@ -455,15 +456,15 @@ export default function LoginPage() {
                 colors: ["#8B5CF6", "#4AEDC4"],
               },
             ].map((feat, i) => (
-              <div key={i} className="group flex items-start gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300">
+              <div key={i} className="group flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300">
                 <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${feat.colors[0]}20, ${feat.colors[feat.colors.length - 1]}20)` }}>
                   <span style={{ color: feat.colors[0] }}>{feat.icon}</span>
                 </div>
-                <div>
-                  <h3 className="text-white/80 font-semibold text-sm mb-0.5 group-hover:text-white transition-colors">
+                <div className="min-w-0">
+                  <h3 className="text-white/80 font-semibold text-[13px] mb-0.5 group-hover:text-white transition-colors whitespace-nowrap">
                     {isTR ? feat.titleTR : feat.titleEN}
                   </h3>
-                  <p className="text-white/30 text-xs leading-relaxed group-hover:text-white/40 transition-colors">
+                  <p className="text-white/30 text-[11px] group-hover:text-white/40 transition-colors whitespace-nowrap">
                     {isTR ? feat.descTR : feat.descEN}
                   </p>
                 </div>
