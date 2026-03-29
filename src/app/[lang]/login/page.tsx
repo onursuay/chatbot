@@ -455,8 +455,8 @@ export default function LoginPage() {
               </div>
               <p className="text-white/50 text-base leading-relaxed whitespace-nowrap">
                 {isTR
-                  ? "Tüm kanallarınızı tek platformda yönetin. Mesajlaşma, CRM ve yapay zeka bir arada."
-                  : "Manage all your channels in one platform. Messaging, CRM and AI combined."}
+                  ? "Mesajlaşma, CRM ve yapay zeka bir arada! Tüm kanallarınızı tek platformda yönetin."
+                  : "Messaging, CRM and AI combined! Manage all your channels in one platform."}
               </p>
             </div>
 
