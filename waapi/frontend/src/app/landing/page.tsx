@@ -24,6 +24,7 @@ import {
   Mail,
   Instagram,
   Facebook,
+  Linkedin,
 } from "lucide-react"
 
 /* ────────────────────────────────────────────
@@ -403,7 +404,8 @@ export default function LandingPage() {
   const router = useRouter()
   const [mobileMenu, setMobileMenu] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const [activePlan, setActivePlan] = useState<"monthly" | "yearly">("yearly")
+  const [activePlan, setActivePlan] = useState<"6ay" | "1yil" | "2yil">("1yil")
+  const [compareOpen, setCompareOpen] = useState(false)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -416,70 +418,87 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white text-ink font-sans antialiased">
-      {/* ═══════════ HEADER ═══════════ */}
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? "bg-white/80 backdrop-blur-xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] py-3"
-            : "bg-transparent py-5"
-        }`}
-      >
-        <div className="max-w-[1600px] mx-auto px-6 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary-700 flex items-center justify-center shadow-lg shadow-primary/25">
-              <MessageSquare className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight">
-              YO<span className="text-primary">.</span>dijital
-            </span>
-          </div>
+      {/* ═══════════ HEADER — Dark pill nav ═══════════ */}
+      <header className="absolute top-0 left-0 right-0 z-50 py-3">
+        <div className="max-w-[1600px] mx-auto px-6">
+          <div className="flex items-center justify-between rounded-2xl px-5 py-2.5 bg-sidebar/90 backdrop-blur-lg shadow-[0_2px_12px_rgba(0,0,0,0.15)]">
+            {/* Logo */}
+            <a href="/" className="flex items-center gap-2 shrink-0">
+              <img src="/logo-yo.png" alt="YO Dijital" className="h-9 w-auto invert" />
+            </a>
 
-          <nav className="hidden md:flex items-center gap-8">
-            {[
-              { label: "Özellikler", href: "#features" },
-              { label: "Nasıl Çalışır", href: "#how-it-works" },
-              { label: "Fiyatlandırma", href: "#pricing" },
-              { label: "Referanslar", href: "#testimonials" },
-            ].map((item) => (
-              <a key={item.href} href={item.href} className="text-sm font-medium text-ink/70 hover:text-ink transition-colors">
-                {item.label}
-              </a>
-            ))}
-          </nav>
+            {/* Desktop Nav — inside pill container */}
+            <nav className="hidden md:flex items-center">
+              <div className="flex items-center bg-white/[0.07] rounded-full p-1 gap-0.5">
+                {[
+                  { label: "Ürün", href: "#features" },
+                  { label: "Entegrasyonlar", href: "#how-it-works" },
+                  { label: "Fiyatlandırma", href: "#pricing" },
+                ].map((item) => (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    className="text-sm font-bold text-white/80 hover:text-white hover:bg-white/10 px-5 py-2 rounded-full transition-all"
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+            </nav>
 
-          <div className="hidden md:flex items-center gap-3">
-            <button onClick={goLogin} className="text-sm font-medium text-ink/70 hover:text-ink transition-colors px-4 py-2">
-              Giriş Yap
-            </button>
-            <button onClick={goRegister} className="landing-btn-primary text-sm">
-              Ücretsiz Başla <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-
-          <button className="md:hidden p-2" onClick={() => setMobileMenu(!mobileMenu)}>
-            {mobileMenu ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-
-        {mobileMenu && (
-          <div className="md:hidden bg-white border-t border-surface-300 px-6 py-6 space-y-4 animate-slide-up">
-            {["Özellikler", "Nasıl Çalışır", "Fiyatlandırma", "Referanslar"].map((label) => (
-              <a key={label} href={`#${label.toLowerCase().replace(/\s/g, "-")}`} className="block text-sm font-medium text-ink/70" onClick={() => setMobileMenu(false)}>
-                {label}
-              </a>
-            ))}
-            <div className="pt-4 border-t border-surface-300 flex flex-col gap-3">
-              <button onClick={goLogin} className="text-sm font-medium text-ink/70">Giriş Yap</button>
-              <button onClick={goRegister} className="landing-btn-primary text-sm w-full justify-center">
-                Ücretsiz Başla <ArrowRight className="w-4 h-4" />
+            {/* Right CTA */}
+            <div className="hidden md:flex items-center gap-3">
+              <button onClick={goLogin} className="text-sm font-bold text-white/60 hover:text-white transition-colors px-4 py-2">
+                Giriş Yap
+              </button>
+              <button
+                onClick={goRegister}
+                className="text-sm font-bold text-sidebar bg-white/90 hover:bg-white px-5 py-2 rounded-full transition-all flex items-center gap-1.5 border border-white/20"
+              >
+                Görüşme Planla
+              </button>
+              <button
+                onClick={goRegister}
+                className="text-sm font-bold text-white bg-primary hover:bg-primary-hover px-5 py-2 rounded-full transition-all flex items-center gap-1.5 border border-primary-light/30 shadow-lg shadow-primary/25"
+              >
+                7 Gün Ücretsiz Dene
               </button>
             </div>
+
+            {/* Mobile Toggle */}
+            <button className="md:hidden p-2 text-white" onClick={() => setMobileMenu(!mobileMenu)}>
+              {mobileMenu ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
-        )}
+
+          {/* Mobile Menu */}
+          {mobileMenu && (
+            <div className="md:hidden bg-sidebar/95 backdrop-blur-xl mt-2 rounded-2xl px-5 py-5 space-y-3 animate-slide-up border border-white/5">
+              {[
+                { label: "Ürün", href: "#features" },
+                { label: "Entegrasyonlar", href: "#how-it-works" },
+                { label: "Fiyatlandırma", href: "#pricing" },
+              ].map((item) => (
+                <a key={item.label} href={item.href} className="block text-sm font-medium text-white/70 hover:text-white py-1" onClick={() => setMobileMenu(false)}>
+                  {item.label}
+                </a>
+              ))}
+              <div className="pt-3 border-t border-white/10 flex flex-col gap-2">
+                <button onClick={goLogin} className="text-sm font-medium text-white/60 py-2">Giriş Yap</button>
+                <button onClick={goRegister} className="text-sm font-bold text-sidebar bg-white/90 px-5 py-2.5 rounded-full w-full">
+                  Görüşme Planla
+                </button>
+                <button onClick={goRegister} className="text-sm font-bold text-white bg-primary px-5 py-2.5 rounded-full w-full shadow-lg shadow-primary/25">
+                  7 Gün Ücretsiz Dene
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </header>
 
       {/* ═══════════ HERO SECTION ═══════════ */}
-      <section className="relative pt-24 pb-8 md:pt-32 md:pb-10 overflow-hidden">
+      <section className="relative pt-20 pb-6 md:pt-28 md:pb-8 overflow-hidden">
         {/* Canvas Animation Background */}
         <FloatingCanvas />
 
@@ -493,16 +512,11 @@ export default function LandingPage() {
               <span className="text-sm font-semibold text-primary-700">AI Destekli WhatsApp Business Platform</span>
             </div>
 
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-4 landing-reveal landing-reveal-delay-1">
-              Müşterilerinizle{" "}
-              <span className="landing-gradient-text">mesajlaşarak</span>
-              <br />satışlarınızı katla
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] mb-6 landing-reveal landing-reveal-delay-1">
+              Müşteri yönetiminde fark yaratan{" "}
+              <span className="landing-gradient-text">tüm stratejik araçlar ve akıllı çözümler</span>
+              <br />artık tek merkezde buluşuyor.
             </h1>
-
-            <p className="text-lg md:text-xl text-ink/60 max-w-2xl mx-auto mb-6 leading-relaxed landing-reveal landing-reveal-delay-2">
-              WhatsApp, Instagram ve tüm mesajlaşma kanallarınızı tek platformda yönetin.
-              AI chatbot ile 7/24 müşterilerinize anında cevap verin.
-            </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 landing-reveal landing-reveal-delay-3">
               <button onClick={goRegister} className="landing-btn-primary text-base px-8 py-4">
@@ -542,27 +556,38 @@ export default function LandingPage() {
 
                 <div className="flex min-h-[360px] md:min-h-[480px]">
                   {/* Sidebar */}
-                  <div className="hidden md:flex flex-col w-56 bg-sidebar p-4 gap-1">
-                    <div className="flex items-center gap-2 mb-6 px-2">
+                  <div className="hidden md:flex flex-col w-56 bg-sidebar p-3 gap-0.5">
+                    <div className="flex items-center gap-2 mb-4 px-2">
                       <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
                         <MessageSquare className="w-4 h-4 text-white" />
                       </div>
                       <span className="text-sm font-bold text-white">YO.dijital</span>
                     </div>
-                    {[
-                      { icon: MessageCircle, label: "Gelen Kutusu", active: true, badge: "12" },
-                      { icon: Users, label: "Kişiler", active: false },
-                      { icon: Send, label: "Toplu Mesaj", active: false },
-                      { icon: Bot, label: "AI Chatbot", active: false },
-                      { icon: Workflow, label: "Otomasyon", active: false },
-                      { icon: BarChart3, label: "Raporlar", active: false },
-                    ].map((item) => (
-                      <div key={item.label} className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs ${item.active ? "bg-sidebar-active text-white font-medium" : "text-sidebar-text"}`}>
-                        <item.icon className="w-4 h-4" />
-                        <span className="flex-1">{item.label}</span>
-                        {item.badge && <span className="bg-primary text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">{item.badge}</span>}
-                      </div>
-                    ))}
+                    {/* DASHBOARD */}
+                    <div className="px-2 pt-1 pb-1"><span className="text-[9px] font-bold text-sidebar-text/50 tracking-wider">DASHBOARD</span></div>
+                    <SidebarItem icon={BarChart3} label="Dashboard" />
+                    {/* MESAJLAŞMA */}
+                    <div className="px-2 pt-2.5 pb-1"><span className="text-[9px] font-bold text-sidebar-text/50 tracking-wider">MESAJLAŞMA</span></div>
+                    <SidebarItem icon={MessageCircle} label="Gelen Kutusu" active badge="12" />
+                    <SidebarItem icon={Users} label="Kişiler" />
+                    <SidebarItem icon={Mail} label="Şablonlar" />
+                    <SidebarItem icon={Send} label="Toplu Mesaj" />
+                    {/* CRM */}
+                    <div className="px-2 pt-2.5 pb-1"><span className="text-[9px] font-bold text-sidebar-text/50 tracking-wider">CRM</span></div>
+                    <SidebarItem icon={Workflow} label="Pipeline" />
+                    <SidebarItem icon={Users} label="Leadler" />
+                    {/* YAPAY ZEKA */}
+                    <div className="px-2 pt-2.5 pb-1"><span className="text-[9px] font-bold text-sidebar-text/50 tracking-wider">YAPAY ZEKA</span></div>
+                    <SidebarItem icon={Bot} label="AI Sohbet Botu" badgeText="AI" />
+                    <SidebarItem icon={Zap} label="Otomasyonlar" />
+                    <SidebarItem icon={Workflow} label="Akış Oluşturucu" />
+                    {/* ENTEGRASYON */}
+                    <div className="px-2 pt-2.5 pb-1"><span className="text-[9px] font-bold text-sidebar-text/50 tracking-wider">ENTEGRASYON</span></div>
+                    <SidebarItem icon={Phone} label="Kanallar" />
+                    <SidebarItem icon={Globe} label="Entegrasyonlar" />
+                    {/* ANALİZ */}
+                    <div className="px-2 pt-2.5 pb-1"><span className="text-[9px] font-bold text-sidebar-text/50 tracking-wider">ANALİZ</span></div>
+                    <SidebarItem icon={BarChart3} label="Raporlar" />
                   </div>
 
                   {/* Chat List */}
@@ -664,7 +689,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════ STATS BAR ═══════════ */}
-      <section className="py-8 bg-surface-50 border-y border-surface-300/50">
+      <section className="py-6 bg-surface-50 border-y border-surface-300/50">
         <div className="max-w-[1600px] mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
@@ -685,18 +710,18 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════ FEATURES ═══════════ */}
-      <section id="features" className="py-10 md:py-14">
+      <section id="features" className="py-8 md:py-10">
         <div className="max-w-[1600px] mx-auto px-6">
           <SectionHeader badge="Özellikler" title="İşletmenizi büyütecek her şey tek platformda" subtitle="WhatsApp, Instagram, Facebook Messenger ve daha fazlasını tek panelden yönetin. AI destekli otomasyonlarla müşteri deneyimini dönüştürün." />
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mt-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
             {[
-              { icon: MessageCircle, title: "Birleşik Gelen Kutusu", desc: "Tüm kanallardan gelen mesajları tek ekranda görün. WhatsApp, Instagram DM, Facebook Messenger hepsi bir arada.", color: "from-green-500 to-emerald-600" },
-              { icon: Bot, title: "AI Chatbot", desc: "Gemini AI destekli chatbot ile 7/24 müşterilerinize anında yanıt verin. SSS, ürün önerisi, sipariş takibi otomatik.", color: "from-violet-500 to-purple-600" },
-              { icon: Workflow, title: "Akış Oluşturucu", desc: "Sürükle-bırak ile görsel otomasyon akışları oluşturun. Kodsuz, sınırsız senaryo. Karşılama, takip, hatırlatma.", color: "from-blue-500 to-indigo-600" },
-              { icon: Send, title: "Toplu Mesaj & Kampanya", desc: "Hedefli kampanyalar gönderin. Etiket bazlı segmentasyon, zamanlama, A/B test. Teslim ve okunma raporları anlık.", color: "from-orange-500 to-red-500" },
-              { icon: BarChart3, title: "Detaylı Analitik", desc: "Konuşma metrikleri, yanıt süreleri, kampanya performansı, müşteri memnuniyeti — veriye dayalı kararlar alın.", color: "from-cyan-500 to-blue-600" },
-              { icon: Users, title: "CRM & Pipeline", desc: "Müşteri profillerini, lead'leri ve satış pipeline'ını yönetin. Kanban görünüm, etiketler, özel alanlar.", color: "from-pink-500 to-rose-600" },
+              { icon: MessageCircle, title: "Akıllı Gelen Kutusu", desc: "WhatsApp, Instagram ve Facebook mesajlarınız tek ekranda. Müşterilerinize hangi kanaldan yazarsa yazsın, buradan anında yanıt verin. Okundu bilgisi, dosya paylaşımı ve AI destekli hızlı yanıtlar.", color: "from-green-500 to-emerald-600" },
+              { icon: Bot, title: "AI Sohbet Botu", desc: "Bilgi Bankası'na ürün, hizmet ve fiyat bilgilerinizi ekleyin. AI chatbot 7/24 müşterilerinize doğru ve tutarlı yanıtlar versin. Mesai dışında bile müşteri kaybetmeyin.", color: "from-violet-500 to-purple-600" },
+              { icon: Users, title: "CRM & Pipeline", desc: "Müşteri adaylarınızı Kanban tahtasında sürükle-bırak ile yönetin. Her lead'in hangi aşamada olduğunu görün, teklif değerlerini takip edin. Kişi ve şirket bağlayarak satış sürecinizi kontrol edin.", color: "from-blue-500 to-indigo-600" },
+              { icon: Send, title: "Toplu Mesaj Gönderimi", desc: "Onaylanmış WhatsApp şablonlarıyla binlerce müşterinize tek tıkla kişiselleştirilmiş mesajlar gönderin. Etiket bazlı filtreleme ile doğru kitleye ulaşın. Gönderim ve okunma oranlarını anlık takip edin.", color: "from-amber-500 to-orange-600" },
+              { icon: Workflow, title: "Otomasyon & Akış Oluşturucu", desc: "Sürükle-bırak ile görsel otomasyon akışları oluşturun. Karşılama mesajı, takip hatırlatması, etiketleme — kodsuz sınırsız senaryo. Müşteri yolculuğunu otomatikleştirin.", color: "from-pink-500 to-rose-600" },
+              { icon: BarChart3, title: "Analiz & Raporlar", desc: "Mesajlaşma performansınızı detaylı grafiklerle görün. Gelen-giden mesaj sayıları, bot çözüm oranı, kampanya başarısı ve kanal bazlı karşılaştırmalar ile veriye dayalı kararlar alın.", color: "from-cyan-500 to-blue-600" },
             ].map((feature) => (
               <FeatureCard key={feature.title} {...feature} />
             ))}
@@ -705,11 +730,11 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════ HOW IT WORKS ═══════════ */}
-      <section id="how-it-works" className="py-10 md:py-14 bg-gradient-to-b from-surface-50 to-white">
+      <section id="how-it-works" className="py-8 md:py-10 bg-gradient-to-b from-surface-50 to-white">
         <div className="max-w-[1600px] mx-auto px-6">
           <SectionHeader badge="Nasıl Çalışır" title="3 adımda başlayın" subtitle="Dakikalar içinde tüm mesajlaşma kanallarınızı bağlayın ve müşterilerinizle iletişimi dönüştürün." />
 
-          <div className="grid md:grid-cols-3 gap-6 mt-8">
+          <div className="grid md:grid-cols-3 gap-5 mt-6">
             {[
               { step: "01", title: "WhatsApp'ı Bağlayın", desc: "Meta Business hesabınızla giriş yapın, WhatsApp Business API'nizi saniyeler içinde bağlayın. Embedded Signup ile tek tıkla.", icon: Phone },
               { step: "02", title: "AI Chatbot Kurun", desc: "Bilgi tabanınızı yükleyin, yanıt tonunu ayarlayın. AI chatbot müşterilerinize 7/24 otomatik yanıt vermeye başlasın.", icon: Bot },
@@ -722,7 +747,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════ AI SHOWCASE ═══════════ */}
-      <section className="py-10 md:py-14 overflow-hidden">
+      <section className="py-8 md:py-10 overflow-hidden">
         <div className="max-w-[1600px] mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-10 items-center">
             <div>
@@ -782,11 +807,11 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════ CHANNELS ═══════════ */}
-      <section className="py-10 md:py-14 bg-gradient-to-b from-white via-surface-50 to-white">
+      <section className="py-5 md:py-6 bg-gradient-to-b from-white via-surface-50 to-white">
         <div className="max-w-[1600px] mx-auto px-6">
           <SectionHeader badge="Kanallar" title="Tüm mesajlaşma kanalları tek çatı altında" subtitle="Müşterileriniz nerede olursa olsun, onlara ulaşın. Tek gelen kutusu, tüm kanallar." />
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mt-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mt-6">
             {[
               { name: "WhatsApp Business", color: "bg-green-500", icon: Phone, desc: "API entegrasyonu" },
               { name: "Instagram DM", color: "bg-gradient-to-br from-purple-500 to-pink-500", icon: Instagram, desc: "Direkt mesajlar" },
@@ -806,37 +831,261 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════ PRICING ═══════════ */}
-      <section id="pricing" className="py-10 md:py-14">
+      <section id="pricing" className="py-8 md:py-10">
         <div className="max-w-[1600px] mx-auto px-6">
           <SectionHeader badge="Fiyatlandırma" title="İşletmenize uygun planı seçin" subtitle="Tüm planlarda 14 gün ücretsiz deneme. Kredi kartı gerekmez." />
 
-          <div className="flex items-center justify-center gap-3 mt-6 mb-8">
-            <span className={`text-sm font-medium ${activePlan === "monthly" ? "text-ink" : "text-ink/40"}`}>Aylık</span>
-            <button onClick={() => setActivePlan(activePlan === "monthly" ? "yearly" : "monthly")} className={`relative w-12 h-6 rounded-full transition-colors ${activePlan === "yearly" ? "bg-primary" : "bg-surface-350"}`}>
-              <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform ${activePlan === "yearly" ? "translate-x-6" : "translate-x-0.5"}`} />
-            </button>
-            <span className={`text-sm font-medium ${activePlan === "yearly" ? "text-ink" : "text-ink/40"}`}>Yıllık</span>
-            <span className="text-xs font-bold text-primary bg-primary-50 px-2 py-1 rounded-full">%20 indirim</span>
+          {/* Dönem seçici — Kommo style pill tabs */}
+          <div className="flex items-center justify-center mt-5 mb-6">
+            <div className="inline-flex items-center bg-surface-150 rounded-full p-1 gap-0.5">
+              {([
+                { label: "6 Ay", key: "6ay" as const },
+                { label: "1 Yıl", key: "1yil" as const },
+                { label: "2 Yıl", key: "2yil" as const },
+              ]).map((item) => (
+                <button
+                  key={item.key}
+                  onClick={() => setActivePlan(item.key)}
+                  className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+                    activePlan === item.key
+                      ? "bg-white text-ink shadow-sm"
+                      : "text-ink/40 hover:text-ink/60"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {/* 4 Plan kartları */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 max-w-[1400px] mx-auto">
             {[
-              { name: "Başlangıç", price: activePlan === "yearly" ? 799 : 999, desc: "Küçük işletmeler için ideal başlangıç", features: ["1.000 mesaj/ay", "1 WhatsApp numarası", "Temel AI chatbot", "3 kullanıcı", "Email destek"], cta: "Ücretsiz Deneyin", popular: false },
-              { name: "Profesyonel", price: activePlan === "yearly" ? 1599 : 1999, desc: "Büyüyen işletmeler için tam donanım", features: ["10.000 mesaj/ay", "3 WhatsApp numarası", "Gelişmiş AI chatbot", "10 kullanıcı", "CRM & Pipeline", "Otomasyon & Akışlar", "Öncelikli destek"], cta: "Ücretsiz Deneyin", popular: true },
-              { name: "Kurumsal", price: null, desc: "Yüksek hacimli ve özel ihtiyaçlar", features: ["Sınırsız mesaj", "Sınırsız numara", "Özel AI eğitimi", "Sınırsız kullanıcı", "API erişimi", "Özel entegrasyonlar", "Dedicated hesap yöneticisi"], cta: "İletişime Geçin", popular: false },
+              {
+                name: "Temel",
+                price: activePlan === "2yil" ? 449 : activePlan === "1yil" ? 499 : 599,
+                period: "/ay",
+                desc: "Küçük işletmeler için temel iletişim araçları",
+                highlight: false,
+                features: [
+                  "1 WhatsApp numarası",
+                  "Sohbet gelen kutusu",
+                  "Temel AI özeti",
+                  "1 kullanıcı",
+                  "Email destek",
+                ],
+              },
+              {
+                name: "Gelişmiş",
+                price: activePlan === "2yil" ? 899 : activePlan === "1yil" ? 999 : 1199,
+                period: "/ay",
+                desc: "Otomasyon ve toplu mesaj ile büyüme",
+                highlight: false,
+                features: [
+                  "2 WhatsApp numarası",
+                  "Toplu mesaj gönderimi",
+                  "Bot oluşturucu",
+                  "AI temsilcisi",
+                  "3 kullanıcı",
+                  "Otomasyon kuralları",
+                ],
+              },
+              {
+                name: "Profesyonel",
+                price: activePlan === "2yil" ? 1749 : activePlan === "1yil" ? 1999 : 2499,
+                period: "/ay",
+                desc: "Tam CRM, gelişmiş AI ve analitik",
+                highlight: true,
+                features: [
+                  "5 WhatsApp numarası",
+                  "CRM & Pipeline",
+                  "Akış oluşturucu",
+                  "AI önerilen yanıtlar",
+                  "10 kullanıcı",
+                  "Detaylı analitik",
+                  "Öncelikli destek",
+                ],
+              },
+              {
+                name: "Kurumsal",
+                price: null,
+                period: "",
+                desc: "Özel ihtiyaçlar ve yüksek hacim",
+                highlight: false,
+                features: [
+                  "Sınırsız numara",
+                  "Özel AI eğitimi",
+                  "Sınırsız kullanıcı",
+                  "SSO & kurumsal güvenlik",
+                  "API erişimi",
+                  "SLA garantisi",
+                  "Dedicated hesap yöneticisi",
+                ],
+              },
             ].map((plan) => (
-              <PricingCard key={plan.name} {...plan} onAction={plan.price ? goRegister : undefined} />
+              <div
+                key={plan.name}
+                className={`relative rounded-2xl border p-6 flex flex-col transition-all ${
+                  plan.highlight
+                    ? "bg-primary-50/40 border-primary shadow-[0_8px_40px_-12px_rgba(17,157,88,0.25)] lg:scale-[1.03] landing-card-glow"
+                    : "bg-white border-primary/30 hover:shadow-elevated hover:border-primary/50"
+                }`}
+              >
+                {plan.highlight && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[11px] font-bold px-4 py-1 rounded-full shadow-lg shadow-primary/30">
+                    En Popüler
+                  </div>
+                )}
+
+                <h3 className="font-bold text-lg mb-1">{plan.name}</h3>
+                <p className="text-xs text-ink/50 mb-4">{plan.desc}</p>
+
+                {/* Fiyat */}
+                <div className="mb-5">
+                  {plan.price ? (
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-3xl font-extrabold tracking-tight">{plan.price.toLocaleString("tr-TR")}₺</span>
+                      <span className="text-sm text-ink/40">{plan.period}</span>
+                    </div>
+                  ) : (
+                    <div className="text-2xl font-extrabold tracking-tight">Bize Ulaşın</div>
+                  )}
+                </div>
+
+                {/* CTA */}
+                <button
+                  onClick={plan.price ? goRegister : undefined}
+                  className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all mb-6 ${
+                    plan.highlight
+                      ? "bg-primary text-white hover:bg-primary-hover shadow-lg shadow-primary/20"
+                      : "bg-primary/5 text-primary hover:bg-primary/10 border border-primary/20"
+                  }`}
+                >
+                  {plan.price ? "Ücretsiz Deneyin" : "Satış Ekibiyle Görüşün"}
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+
+                {/* Özellikler */}
+                <div className="space-y-2.5 flex-1">
+                  {plan.features.map((f) => (
+                    <div key={f} className="flex items-center gap-2.5">
+                      <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 bg-primary/10">
+                        <Check className="w-2.5 h-2.5 text-primary" />
+                      </div>
+                      <span className="text-sm text-ink/60">{f}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             ))}
+          </div>
+
+          {/* Karşılaştırma Tablosu */}
+          <div className="mt-8 max-w-[1400px] mx-auto">
+            {/* Açıklama + Toggle */}
+            <div className="text-center mb-6">
+              <p className="text-base text-ink/50 mb-4">
+                AI otomasyonunun seviyesine ve ekibinizin ihtiyaç duyduğu desteğe göre bir plan seçin ve işiniz büyüdükçe ölçeklendirin.
+              </p>
+              <button
+                onClick={() => setCompareOpen(!compareOpen)}
+                className="inline-flex items-center gap-2 text-primary font-bold text-sm hover:text-primary-hover transition-colors group"
+              >
+                Ayrıntılı Plan Karşılaştırmasını Görüntüleyin
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 group-hover:scale-110 transition-transform">
+                  <path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
+
+            {/* Karşılaştırma Tablosu — toggle ile açılır */}
+            {compareOpen && <div className="overflow-x-auto animate-slide-up">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b-2 border-surface-300">
+                    <th className="text-left py-3 px-4 font-semibold text-ink/50 w-[260px]">Özellik</th>
+                    <th className="text-center py-3 px-3 font-bold">Temel</th>
+                    <th className="text-center py-3 px-3 font-bold">Gelişmiş</th>
+                    <th className="text-center py-3 px-3 font-bold text-primary">Profesyonel</th>
+                    <th className="text-center py-3 px-3 font-bold">Kurumsal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { label: "WhatsApp numarası", vals: ["1", "2", "5", "Sınırsız"] },
+                    { label: "Kullanıcı sayısı", vals: ["1", "3", "10", "Sınırsız"] },
+                    { label: "Aylık mesaj", vals: ["1.000", "5.000", "25.000", "Sınırsız"] },
+                    { section: "Mesajlaşma" },
+                    { label: "Gelen kutusu", vals: [true, true, true, true] },
+                    { label: "Toplu mesaj", vals: [false, true, true, true] },
+                    { label: "Mesaj şablonları", vals: [true, true, true, true] },
+                    { label: "Dosya & medya paylaşımı", vals: [true, true, true, true] },
+                    { section: "CRM" },
+                    { label: "Pipeline yönetimi", vals: [false, false, true, true] },
+                    { label: "Lead yönetimi", vals: [false, false, true, true] },
+                    { label: "Şirket yönetimi", vals: [false, false, true, true] },
+                    { label: "Özel alanlar", vals: [false, false, true, true] },
+                    { section: "Yapay Zeka" },
+                    { label: "AI chatbot", vals: ["Temel", "Gelişmiş", "Pro", "Özel"] },
+                    { label: "AI önerilen yanıtlar", vals: [false, false, true, true] },
+                    { label: "Bilgi bankası", vals: [false, true, true, true] },
+                    { label: "Özel AI eğitimi", vals: [false, false, false, true] },
+                    { section: "Otomasyon" },
+                    { label: "Otomasyon kuralları", vals: [false, true, true, true] },
+                    { label: "Akış oluşturucu", vals: [false, false, true, true] },
+                    { label: "Webhook entegrasyonu", vals: [false, false, true, true] },
+                    { section: "Analitik & Destek" },
+                    { label: "Temel raporlar", vals: [true, true, true, true] },
+                    { label: "Detaylı analitik", vals: [false, false, true, true] },
+                    { label: "API erişimi", vals: [false, false, true, true] },
+                    { label: "Destek seviyesi", vals: ["Email", "Email", "Öncelikli", "Dedicated"] },
+                    { label: "SSO & kurumsal güvenlik", vals: [false, false, false, true] },
+                  ].map((row, i) => {
+                    if ("section" in row) {
+                      return (
+                        <tr key={`s-${i}`} className="bg-surface-50">
+                          <td colSpan={5} className="py-2.5 px-4 font-bold text-xs text-ink/60 uppercase tracking-wider">{row.section}</td>
+                        </tr>
+                      )
+                    }
+                    return (
+                      <tr key={`r-${i}`} className="border-b border-surface-300/50 hover:bg-surface-50/50">
+                        <td className="py-2.5 px-4 text-ink/70">{row.label}</td>
+                        {row.vals.map((val, j) => (
+                          <td key={j} className={`py-2.5 px-3 text-center ${j === 2 ? "bg-primary-50/30" : ""}`}>
+                            {val === true ? (
+                              <Check className="w-4 h-4 text-primary mx-auto" />
+                            ) : val === false ? (
+                              <span className="text-ink/20">—</span>
+                            ) : (
+                              <span className={`text-xs font-semibold ${j === 2 ? "text-primary" : "text-ink/60"}`}>{val}</span>
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>}
+          </div>
+
+          {/* Alt CTA */}
+          <div className="text-center mt-8">
+            <p className="text-sm text-ink/40 mb-3">14 günlük denemenizde tüm özelliklere tam erişim. Kredi kartı gerekmez.</p>
+            <button onClick={goRegister} className="landing-btn-primary text-base px-8 py-3.5">
+              Ücretsiz Deneyin <ArrowRight className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </section>
 
       {/* ═══════════ TESTIMONIALS ═══════════ */}
-      <section id="testimonials" className="py-10 md:py-14 bg-gradient-to-b from-surface-50 to-white">
+      <section id="testimonials" className="py-8 md:py-10 bg-gradient-to-b from-surface-50 to-white">
         <div className="max-w-[1600px] mx-auto px-6">
           <SectionHeader badge="Referanslar" title="Müşterilerimiz ne diyor?" subtitle="Binlerce işletme YO Dijital ile mesajlaşarak satışlarını artırıyor." />
 
-          <div className="grid md:grid-cols-3 gap-5 mt-8">
+          <div className="grid md:grid-cols-3 gap-5 mt-6">
             {[
               { quote: "WhatsApp üzerinden gelen müşteri sorularına AI chatbot sayesinde anında yanıt vermeye başladık. Müşteri memnuniyeti %40 arttı.", name: "Ahmet Yılmaz", role: "E-ticaret Müdürü", company: "TechStore" },
               { quote: "Toplu mesaj kampanyaları ile satışlarımız 3 ayda %60 arttı. Tek panelden tüm kanalları yönetmek inanılmaz kolaylık.", name: "Elif Kaya", role: "Pazarlama Direktörü", company: "ModeVita" },
@@ -849,7 +1098,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════ FINAL CTA ═══════════ */}
-      <section className="py-10 md:py-14 relative overflow-hidden">
+      <section className="py-8 md:py-10 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-sidebar via-sidebar to-primary-950" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(17,157,88,0.15),transparent_70%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(59,130,246,0.1),transparent_70%)]" />
@@ -874,21 +1123,39 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════ FOOTER ═══════════ */}
-      <footer className="bg-white border-t border-surface-300/50 py-10">
+      <footer className="bg-white border-t border-surface-300/50 py-8">
         <div className="max-w-[1600px] mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2.5 mb-4">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary-700 flex items-center justify-center">
-                  <MessageSquare className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-lg font-bold">YO<span className="text-primary">.</span>dijital</span>
+                <img src="/logo-yo.png" alt="YO Dijital" className="h-10 w-auto" />
               </div>
-              <p className="text-sm text-ink/50 leading-relaxed mb-4">AI destekli WhatsApp Business Platform. Mesajlaşarak satışlarınızı katlayın.</p>
-              <div className="flex items-center gap-2">
-                <div className="px-2 py-1 rounded bg-green-50 border border-green-200">
-                  <span className="text-[10px] font-bold text-green-700">Meta İş Ortağı</span>
+              <p className="text-sm text-ink/50 leading-relaxed mb-5">AI destekli WhatsApp Business Platform. Mesajlaşarak satışlarınızı katlayın.</p>
+              {/* Resmi Partnerler */}
+              <div className="mb-5">
+                <h5 className="text-xs font-bold text-ink/80 mb-2.5">Resmi Partnerler</h5>
+                <div className="inline-flex items-center gap-3 bg-white border border-surface-300 rounded-xl px-4 py-3 shadow-sm">
+                  <svg viewBox="0 0 36 36" className="w-7 h-7 flex-shrink-0">
+                    <circle cx="18" cy="18" r="18" fill="#0668E1" />
+                    <path d="M8 18c0-5.1 3.7-9.3 8.5-10.2v3.7C14 12.5 12.5 15 12.5 18s1.5 5.5 4 6.5v3.7C11.7 27.3 8 23.1 8 18zm10-10.5c1.2-.3 2.5-.3 3.7 0C26.3 8.7 30 12.9 30 18s-3.7 9.3-8.3 10.2v-3.7c2.5-1 4-3.5 4-6.5s-1.5-5.5-4-6.5V7.5z" fill="white" />
+                  </svg>
+                  <div className="flex flex-col">
+                    <span className="text-[11px] font-bold text-[#0668E1] leading-tight">Meta</span>
+                    <span className="text-[10px] text-ink/50 leading-tight">Business Partner</span>
+                  </div>
                 </div>
+              </div>
+              {/* Social Icons */}
+              <div className="flex items-center gap-3">
+                <a href="#" className="w-8 h-8 rounded-full bg-surface-100 flex items-center justify-center text-ink/40 hover:text-[#1877F2] hover:bg-blue-50 transition-all">
+                  <Facebook className="w-4 h-4" />
+                </a>
+                <a href="#" className="w-8 h-8 rounded-full bg-surface-100 flex items-center justify-center text-ink/40 hover:text-[#E4405F] hover:bg-pink-50 transition-all">
+                  <Instagram className="w-4 h-4" />
+                </a>
+                <a href="#" className="w-8 h-8 rounded-full bg-surface-100 flex items-center justify-center text-ink/40 hover:text-[#0A66C2] hover:bg-blue-50 transition-all">
+                  <Linkedin className="w-4 h-4" />
+                </a>
               </div>
             </div>
             <div>
@@ -934,15 +1201,26 @@ export default function LandingPage() {
    SUB-COMPONENTS
    ════════════════════════════════════════════ */
 
+function SidebarItem({ icon: Icon, label, active, badge, badgeText }: { icon: any; label: string; active?: boolean; badge?: string; badgeText?: string }) {
+  return (
+    <div className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[11px] ${active ? "bg-sidebar-active text-white font-medium" : "text-sidebar-text"}`}>
+      <Icon className="w-3.5 h-3.5" />
+      <span className="flex-1 truncate">{label}</span>
+      {badge && <span className="bg-primary text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">{badge}</span>}
+      {badgeText && <span className="bg-violet-500/20 text-violet-300 text-[8px] px-1 py-0.5 rounded font-bold">{badgeText}</span>}
+    </div>
+  )
+}
+
 function SectionHeader({ badge, title, subtitle }: { badge: string; title: string; subtitle: string }) {
   const { ref, inView } = useInView()
   return (
     <div ref={ref} className={`text-center max-w-3xl mx-auto transition-all duration-700 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-50 border border-primary/15 mb-2">
-        <span className="text-xs font-semibold text-primary-700">{badge}</span>
+      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 border border-primary/15 mb-3">
+        <span className="text-sm font-semibold text-primary-700">{badge}</span>
       </div>
-      <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight mb-2">{title}</h2>
-      <p className="text-ink/50 leading-relaxed">{subtitle}</p>
+      <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight mb-3">{title}</h2>
+      <p className="text-base text-ink/50 leading-relaxed">{subtitle}</p>
     </div>
   )
 }
