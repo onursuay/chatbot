@@ -9,6 +9,8 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url)
   const status = searchParams.get("status")
+  const channel = searchParams.get("channel")
+  const phoneNumberId = searchParams.get("phone_number_id")
   const page = parseInt(searchParams.get("page") || "1")
   const perPage = parseInt(searchParams.get("per_page") || "25")
 
@@ -23,6 +25,14 @@ export async function GET(request: Request) {
 
   if (status) {
     query = query.eq("status", status)
+  }
+
+  if (channel && channel !== "all") {
+    query = query.eq("channel", channel)
+  }
+
+  if (phoneNumberId) {
+    query = query.eq("phone_number_id", phoneNumberId)
   }
 
   const { data: convs, error } = await query
@@ -45,6 +55,8 @@ export async function GET(request: Request) {
       unread_count: conv.unread_count,
       is_bot_active: conv.is_bot_active,
       channel: conv.metadata?.channel || conv.channel || "whatsapp",
+      phone_number_id: conv.phone_number_id || null,
+      channel_account_id: conv.channel_account_id || null,
       created_at: conv.created_at,
     }))
   )

@@ -23,15 +23,23 @@ interface Template {
   category: string
 }
 
+interface AvailablePhone {
+  id: string
+  number: string
+  verified_name: string | null
+}
+
 export default function BroadcastPage() {
   const { getToken } = useAuth()
   const { t } = useI18n()
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>([])
   const [templates, setTemplates] = useState<Template[]>([])
+  const [phoneNumbers, setPhoneNumbers] = useState<AvailablePhone[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreate, setShowCreate] = useState(false)
   const [sending, setSending] = useState(false)
   const [form, setForm] = useState({ name: "", template_name: "", language: "tr", tag_filter: "" })
+  const [formPhoneNumberId, setFormPhoneNumberId] = useState("")
 
   useEffect(() => {
     const token = getToken()
@@ -39,9 +47,28 @@ export default function BroadcastPage() {
     Promise.all([
       api<Broadcast[]>("/broadcasts", { token }),
       api<Template[]>("/templates", { token }).catch(() => []),
-    ]).then(([b, tpl]) => {
+      api<any>("/channels/status", { token }).catch(() => null),
+    ]).then(([b, tpl, channelStatus]) => {
       setBroadcasts(b)
       setTemplates((tpl || []).filter((item: Template) => item.status === "APPROVED"))
+
+      // Tum WABA hesaplarindaki telefon numaralarini topla
+      const phones: AvailablePhone[] = []
+      if (channelStatus?.accounts) {
+        for (const waba of channelStatus.accounts) {
+          for (const phone of waba.phone_numbers || []) {
+            phones.push({
+              id: phone.id,
+              number: phone.number,
+              verified_name: phone.verified_name,
+            })
+          }
+        }
+      }
+      setPhoneNumbers(phones)
+      if (phones.length > 0 && !formPhoneNumberId) {
+        setFormPhoneNumberId(phones[0].id)
+      }
     }).catch(() => {}).finally(() => setLoading(false))
   }, [getToken])
 
@@ -52,7 +79,11 @@ export default function BroadcastPage() {
     setSending(true)
     try {
       const result = await api<Broadcast>("/broadcasts", {
-        method: "POST", token, body: JSON.stringify(form),
+        method: "POST", token,
+        body: JSON.stringify({
+          ...form,
+          phone_number_id: formPhoneNumberId || undefined,
+        }),
       })
       setBroadcasts((prev) => [result, ...prev])
       setShowCreate(false)
@@ -112,6 +143,22 @@ export default function BroadcastPage() {
                 className="ds-input"
                 placeholder={t("tag_empty_hint")} />
             </div>
+            {phoneNumbers.length > 1 && (
+              <div className="col-span-2">
+                <label className="block text-caption-medium text-ink-secondary mb-1">{t("phone_number")}</label>
+                <select
+                  value={formPhoneNumberId}
+                  onChange={(e) => setFormPhoneNumberId(e.target.value)}
+                  className="ds-select"
+                >
+                  {phoneNumbers.map((phone) => (
+                    <option key={phone.id} value={phone.id}>
+                      {phone.number}{phone.verified_name ? ` - ${phone.verified_name}` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
           <div className="flex gap-2 mt-4">
             <button onClick={handleSend} disabled={sending}

@@ -27,121 +27,127 @@ export async function POST(request: Request) {
       )
     }
 
-    const wabaId = wabaIds[0]
-
-    // 3. WABA detayları
-    const wabaDetails = await getWabaDetails(accessToken, wabaId)
-    const businessId = wabaDetails.on_behalf_of_business_info?.id || null
-
-    // 4. Telefon numaralarını al
-    const phoneNumbers = await getPhoneNumbers(accessToken, wabaId)
-    if (!phoneNumbers.length) {
-      return NextResponse.json(
-        { detail: "Henuz bir telefon numarasi eklenmemis." },
-        { status: 400 }
-      )
-    }
-
-    const phone = phoneNumbers[0]
-
-    // 5. WABA'yı subscribe et
-    await subscribeWaba(accessToken, wabaId)
-
-    // 6. Phone register — sadece yeni numara ise (tekrar register display name'i sıfırlar!)
-    const supabaseCheck = getServiceSupabase()
-    const { data: existingPhoneCheck } = await supabaseCheck
-      .from("phone_numbers")
-      .select("id")
-      .eq("phone_number_id", phone.id)
-      .single()
-
-    if (!existingPhoneCheck) {
-      await registerPhoneNumber(accessToken, phone.id)
-    }
-
-    // 7. DB'ye kaydet
     const supabase = getServiceSupabase()
+    const connectedAccounts: any[] = []
 
-    // Mevcut WABA var mı?
-    const { data: existingWaba } = await supabase
-      .from("waba_accounts")
-      .select("*")
-      .eq("waba_id", wabaId)
-      .single()
+    // 3. Loop over ALL WABAs
+    for (const wabaId of wabaIds) {
+      const wabaDetails = await getWabaDetails(accessToken, wabaId)
+      const businessId = wabaDetails.on_behalf_of_business_info?.id || null
 
-    let wabaRecord: any
+      // Telefon numaralarını al
+      const phoneNumbers = await getPhoneNumbers(accessToken, wabaId)
 
-    if (existingWaba) {
-      const { data } = await supabase
+      // WABA'yı subscribe et
+      await subscribeWaba(accessToken, wabaId)
+
+      // Mevcut WABA var mı?
+      const { data: existingWaba } = await supabase
         .from("waba_accounts")
-        .update({
-          access_token: accessToken,
-          is_active: true,
-          business_id: businessId,
-        })
-        .eq("id", existingWaba.id)
-        .select()
-        .single()
-      wabaRecord = data
-    } else {
-      const { data } = await supabase
-        .from("waba_accounts")
-        .insert({
-          org_id: auth.org_id,
-          waba_id: wabaId,
-          name: wabaDetails.name || "WhatsApp Business",
-          access_token: accessToken,
-          business_id: businessId,
-          is_active: true,
-        })
-        .select()
-        .single()
-      wabaRecord = data
-    }
+        .select("*")
+        .eq("waba_id", wabaId)
+        .maybeSingle()
 
-    // Telefon numarasını kaydet
-    const { data: existingPhone } = await supabase
-      .from("phone_numbers")
-      .select("*")
-      .eq("phone_number_id", phone.id)
-      .single()
+      let wabaRecord: any
 
-    if (existingPhone) {
-      await supabase
-        .from("phone_numbers")
-        .update({
-          display_number: phone.display_phone_number,
+      if (existingWaba) {
+        const { data } = await supabase
+          .from("waba_accounts")
+          .update({
+            access_token: accessToken,
+            is_active: true,
+            business_id: businessId,
+          })
+          .eq("id", existingWaba.id)
+          .select()
+          .single()
+        wabaRecord = data
+      } else {
+        const { data } = await supabase
+          .from("waba_accounts")
+          .insert({
+            org_id: auth.org_id,
+            waba_id: wabaId,
+            name: wabaDetails.name || "WhatsApp Business",
+            access_token: accessToken,
+            business_id: businessId,
+            is_active: true,
+          })
+          .select()
+          .single()
+        wabaRecord = data
+      }
+
+      const connectedPhones: any[] = []
+
+      // Loop over ALL phone numbers for this WABA
+      for (const phone of phoneNumbers) {
+        // Phone register — sadece yeni numara ise
+        const { data: existingPhoneCheck } = await supabase
+          .from("phone_numbers")
+          .select("id")
+          .eq("phone_number_id", phone.id)
+          .maybeSingle()
+
+        if (!existingPhoneCheck) {
+          await registerPhoneNumber(accessToken, phone.id)
+        }
+
+        // Telefon numarasını kaydet
+        const { data: existingPhone } = await supabase
+          .from("phone_numbers")
+          .select("*")
+          .eq("phone_number_id", phone.id)
+          .maybeSingle()
+
+        if (existingPhone) {
+          await supabase
+            .from("phone_numbers")
+            .update({
+              display_number: phone.display_phone_number,
+              verified_name: phone.verified_name || null,
+              is_active: true,
+            })
+            .eq("id", existingPhone.id)
+        } else {
+          await supabase.from("phone_numbers").insert({
+            waba_id: wabaRecord.id,
+            org_id: auth.org_id,
+            phone_number_id: phone.id,
+            display_number: phone.display_phone_number,
+            verified_name: phone.verified_name || null,
+            quality_rating: phone.quality_rating || "GREEN",
+            status: "CONNECTED",
+            is_active: true,
+          })
+        }
+
+        connectedPhones.push({
+          phone_number: phone.display_phone_number,
+          phone_number_id: phone.id,
           verified_name: phone.verified_name || null,
-          is_active: true,
         })
-        .eq("id", existingPhone.id)
-    } else {
-      await supabase.from("phone_numbers").insert({
-        waba_id: wabaRecord.id,
-        org_id: auth.org_id,
-        phone_number_id: phone.id,
-        display_number: phone.display_phone_number,
-        verified_name: phone.verified_name || null,
-        quality_rating: phone.quality_rating || "GREEN",
-        status: "CONNECTED",
-        is_active: true,
+      }
+
+      // Organization güncelle
+      if (businessId) {
+        await supabase
+          .from("organizations")
+          .update({ meta_business_id: businessId })
+          .eq("id", auth.org_id)
+      }
+
+      connectedAccounts.push({
+        waba_id: wabaId,
+        waba_name: wabaDetails.name || "WhatsApp Business",
+        business_id: businessId,
+        phone_numbers: connectedPhones,
       })
     }
 
-    // Organization güncelle
-    if (businessId) {
-      await supabase
-        .from("organizations")
-        .update({ meta_business_id: businessId })
-        .eq("id", auth.org_id)
-    }
-
     return NextResponse.json({
-      waba_id: wabaId,
-      phone_number: phone.display_phone_number,
-      phone_number_id: phone.id,
-      verified_name: phone.verified_name || null,
-      message: "WhatsApp hesabi basariyla baglandi",
+      accounts: connectedAccounts,
+      message: `${connectedAccounts.length} WhatsApp hesabi basariyla baglandi`,
     })
   } catch (e: any) {
     console.error("Embedded signup error:", e)

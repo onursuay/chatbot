@@ -24,31 +24,43 @@ export async function POST(request: Request) {
   if (!auth) return NextResponse.json({ detail: "Yetkisiz" }, { status: 401 })
 
   const body = await request.json()
-  const { name, template_name, language, tag_filter, scheduled_at } = body
+  const { name, template_name, language, tag_filter, scheduled_at, phone_number_id } = body
 
   const supabase = getServiceSupabase()
 
-  // WABA ve phone bilgisi al
-  const { data: waba } = await supabase
-    .from("waba_accounts")
-    .select("*")
-    .eq("org_id", auth.org_id)
-    .eq("is_active", true)
-    .single()
+  // Phone number bul — belirtilmişse onu kullan, yoksa ilk aktif numarayı al
+  let phone: any = null
+  let waba: any = null
 
-  if (!waba) {
-    return NextResponse.json({ detail: "WhatsApp hesabi bagli degil" }, { status: 400 })
+  if (phone_number_id) {
+    const { data } = await supabase
+      .from("phone_numbers")
+      .select("*, waba:waba_accounts(*)")
+      .eq("phone_number_id", phone_number_id)
+      .eq("org_id", auth.org_id)
+      .eq("is_active", true)
+      .maybeSingle()
+    if (data) { phone = data; waba = data.waba }
   }
 
-  const { data: phone } = await supabase
-    .from("phone_numbers")
-    .select("*")
-    .eq("waba_id", waba.id)
-    .eq("is_active", true)
-    .single()
-
   if (!phone) {
-    return NextResponse.json({ detail: "Telefon numarasi bulunamadi" }, { status: 400 })
+    // Fallback: ilk aktif WABA ve numarayı al
+    const { data: wabas } = await supabase
+      .from("waba_accounts")
+      .select("*, phone_numbers(*)")
+      .eq("org_id", auth.org_id)
+      .eq("is_active", true)
+      .limit(1)
+
+    if (wabas && wabas.length > 0) {
+      waba = wabas[0]
+      const activePhones = (waba.phone_numbers || []).filter((p: any) => p.is_active)
+      if (activePhones.length > 0) phone = activePhones[0]
+    }
+  }
+
+  if (!waba || !phone) {
+    return NextResponse.json({ detail: "WhatsApp hesabi veya telefon numarasi bulunamadi" }, { status: 400 })
   }
 
   // Hedef kitleyi belirle

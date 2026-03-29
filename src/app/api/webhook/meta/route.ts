@@ -105,9 +105,26 @@ async function handleInstagramWebhook(payload: any) {
     const igAccountId = entry.id
     if (!igAccountId) continue
 
-    // Instagram account ID ile org bul
-    const org = await findOrgByChannelId(supabase, "instagram_account_id", igAccountId)
-    if (!org) continue
+    // Önce channel_accounts tablosundan bul
+    let channelAccount = await findChannelAccount(supabase, "instagram", igAccountId)
+    let orgId: string
+    let accessToken: string
+    let accountId: string
+    let channelAccountId: string | null = null
+
+    if (channelAccount) {
+      orgId = channelAccount.org_id
+      accessToken = channelAccount.access_token
+      accountId = channelAccount.account_id
+      channelAccountId = channelAccount.id
+    } else {
+      // Fallback: eski yöntem ile org bul (henüz migrate edilmemiş org'lar için)
+      const org = await findOrgByChannelId(supabase, "instagram_account_id", igAccountId)
+      if (!org) continue
+      orgId = org.id
+      accessToken = org.settings?.instagram_page_token
+      accountId = org.settings?.instagram_account_id
+    }
 
     for (const messaging of entry.messaging || []) {
       const senderId = messaging.sender?.id
@@ -126,17 +143,17 @@ async function handleInstagramWebhook(payload: any) {
       if (existing) continue
 
       // Gönderen bilgisi al
-      const senderName = await getInstagramUsername(supabase, org, senderId)
+      const senderName = await getInstagramUsername(accessToken, senderId)
 
       // Contact bul/oluştur
-      const contact = await getOrCreateContact(supabase, org.id, `ig_${senderId}`, senderName, "instagram")
+      const contact = await getOrCreateContact(supabase, orgId, `ig_${senderId}`, senderName, "instagram")
 
       // Conversation bul/oluştur
-      const conversation = await getOrCreateConversation(supabase, org.id, contact.id, null, "instagram")
+      const conversation = await getOrCreateConversation(supabase, orgId, contact.id, null, "instagram", channelAccountId)
 
       // Mesajı kaydet
       await supabase.from("messages").insert({
-        org_id: org.id,
+        org_id: orgId,
         conversation_id: conversation.id,
         contact_id: contact.id,
         wa_message_id: msgId,
@@ -159,14 +176,14 @@ async function handleInstagramWebhook(payload: any) {
 
       // Bot aktifse yanıt
       if (conversation.is_bot_active) {
-        const aiResponse = await getAIResponse(org.id, conversation.id, text)
+        const aiResponse = await getAIResponse(orgId, conversation.id, text)
         const cleanResponse = aiResponse.replace("[TRANSFER_SALES]", "").replace("[NOT_INTERESTED]", "").trim()
 
         // Instagram ile yanıt gönder
-        const replyMsgId = await sendInstagramReply(supabase, org, senderId, cleanResponse)
+        const replyMsgId = await sendInstagramReply({ access_token: accessToken, account_id: accountId }, senderId, cleanResponse)
 
         await supabase.from("messages").insert({
-          org_id: org.id,
+          org_id: orgId,
           conversation_id: conversation.id,
           contact_id: contact.id,
           wa_message_id: replyMsgId,
@@ -200,9 +217,26 @@ async function handleFacebookWebhook(payload: any) {
     const pageId = entry.id
     if (!pageId) continue
 
-    // Facebook page ID ile org bul
-    const org = await findOrgByChannelId(supabase, "facebook_page_id", pageId)
-    if (!org) continue
+    // Önce channel_accounts tablosundan bul (facebook uses page_id)
+    let channelAccount = await findChannelAccountByPageId(supabase, "facebook", pageId)
+    let orgId: string
+    let accessToken: string
+    let fbPageId: string
+    let channelAccountId: string | null = null
+
+    if (channelAccount) {
+      orgId = channelAccount.org_id
+      accessToken = channelAccount.access_token
+      fbPageId = channelAccount.page_id || channelAccount.account_id
+      channelAccountId = channelAccount.id
+    } else {
+      // Fallback: eski yöntem ile org bul (henüz migrate edilmemiş org'lar için)
+      const org = await findOrgByChannelId(supabase, "facebook_page_id", pageId)
+      if (!org) continue
+      orgId = org.id
+      accessToken = org.settings?.facebook_page_token
+      fbPageId = org.settings?.facebook_page_id
+    }
 
     for (const messaging of entry.messaging || []) {
       const senderId = messaging.sender?.id
@@ -221,17 +255,17 @@ async function handleFacebookWebhook(payload: any) {
       if (existing) continue
 
       // Gönderen bilgisi al
-      const senderName = await getFacebookUsername(supabase, org, senderId)
+      const senderName = await getFacebookUsername(accessToken, senderId)
 
       // Contact bul/oluştur
-      const contact = await getOrCreateContact(supabase, org.id, `fb_${senderId}`, senderName, "facebook")
+      const contact = await getOrCreateContact(supabase, orgId, `fb_${senderId}`, senderName, "facebook")
 
       // Conversation bul/oluştur
-      const conversation = await getOrCreateConversation(supabase, org.id, contact.id, null, "facebook")
+      const conversation = await getOrCreateConversation(supabase, orgId, contact.id, null, "facebook", channelAccountId)
 
       // Mesajı kaydet
       await supabase.from("messages").insert({
-        org_id: org.id,
+        org_id: orgId,
         conversation_id: conversation.id,
         contact_id: contact.id,
         wa_message_id: msgId,
@@ -254,14 +288,14 @@ async function handleFacebookWebhook(payload: any) {
 
       // Bot aktifse yanıt
       if (conversation.is_bot_active) {
-        const aiResponse = await getAIResponse(org.id, conversation.id, text)
+        const aiResponse = await getAIResponse(orgId, conversation.id, text)
         const cleanResponse = aiResponse.replace("[TRANSFER_SALES]", "").replace("[NOT_INTERESTED]", "").trim()
 
         // Facebook Messenger ile yanıt gönder
-        const replyMsgId = await sendFacebookReply(supabase, org, senderId, cleanResponse)
+        const replyMsgId = await sendFacebookReply({ access_token: accessToken, page_id: fbPageId }, senderId, cleanResponse)
 
         await supabase.from("messages").insert({
-          org_id: org.id,
+          org_id: orgId,
           conversation_id: conversation.id,
           contact_id: contact.id,
           wa_message_id: replyMsgId,
@@ -286,7 +320,44 @@ async function handleFacebookWebhook(payload: any) {
 }
 
 // ============================================
-// HELPER: Org bul (settings'ten channel ID ile)
+// HELPER: channel_accounts tablosundan hesap bul
+// ============================================
+async function findChannelAccount(supabase: any, channel: string, accountId: string) {
+  const { data } = await supabase
+    .from("channel_accounts")
+    .select("*")
+    .eq("channel", channel)
+    .eq("account_id", accountId)
+    .eq("is_active", true)
+    .maybeSingle()
+  return data
+}
+
+// Facebook webhook'lar page_id ile gelir, account_id veya page_id olabilir
+async function findChannelAccountByPageId(supabase: any, channel: string, pageId: string) {
+  // Önce page_id ile dene
+  const { data: byPageId } = await supabase
+    .from("channel_accounts")
+    .select("*")
+    .eq("channel", channel)
+    .eq("page_id", pageId)
+    .eq("is_active", true)
+    .maybeSingle()
+  if (byPageId) return byPageId
+
+  // Fallback: account_id ile dene
+  const { data: byAccountId } = await supabase
+    .from("channel_accounts")
+    .select("*")
+    .eq("channel", channel)
+    .eq("account_id", pageId)
+    .eq("is_active", true)
+    .maybeSingle()
+  return byAccountId
+}
+
+// ============================================
+// HELPER (eski): Org bul (settings'ten channel ID ile) — backward compat
 // ============================================
 async function findOrgByChannelId(supabase: any, settingsKey: string, channelId: string) {
   const { data: orgs } = await supabase
@@ -305,11 +376,10 @@ async function findOrgByChannelId(supabase: any, settingsKey: string, channelId:
 // ============================================
 // HELPER: Instagram kullanıcı adı al
 // ============================================
-async function getInstagramUsername(supabase: any, org: any, igUserId: string): Promise<string> {
+async function getInstagramUsername(accessToken: string, igUserId: string): Promise<string> {
   try {
-    const token = org.settings?.instagram_page_token
-    if (!token) return ""
-    const res = await fetch(`${GRAPH_API}/${igUserId}?fields=name,username&access_token=${token}`)
+    if (!accessToken) return ""
+    const res = await fetch(`${GRAPH_API}/${igUserId}?fields=name,username&access_token=${accessToken}`)
     const data = await res.json()
     return data.username || data.name || ""
   } catch { return "" }
@@ -318,11 +388,10 @@ async function getInstagramUsername(supabase: any, org: any, igUserId: string): 
 // ============================================
 // HELPER: Facebook kullanıcı adı al
 // ============================================
-async function getFacebookUsername(supabase: any, org: any, fbUserId: string): Promise<string> {
+async function getFacebookUsername(accessToken: string, fbUserId: string): Promise<string> {
   try {
-    const token = org.settings?.facebook_page_token
-    if (!token) return ""
-    const res = await fetch(`${GRAPH_API}/${fbUserId}?fields=name&access_token=${token}`)
+    if (!accessToken) return ""
+    const res = await fetch(`${GRAPH_API}/${fbUserId}?fields=name&access_token=${accessToken}`)
     const data = await res.json()
     return data.name || ""
   } catch { return "" }
@@ -331,10 +400,10 @@ async function getFacebookUsername(supabase: any, org: any, fbUserId: string): P
 // ============================================
 // HELPER: Instagram'a yanıt gönder
 // ============================================
-async function sendInstagramReply(supabase: any, org: any, recipientId: string, text: string): Promise<string | null> {
+async function sendInstagramReply(channelAccount: any, recipientId: string, text: string): Promise<string | null> {
   try {
-    const token = org.settings?.instagram_page_token
-    const igAccountId = org.settings?.instagram_account_id
+    const token = channelAccount.access_token
+    const igAccountId = channelAccount.account_id
     if (!token || !igAccountId) return null
 
     const res = await fetch(`${GRAPH_API}/${igAccountId}/messages`, {
@@ -353,10 +422,10 @@ async function sendInstagramReply(supabase: any, org: any, recipientId: string, 
 // ============================================
 // HELPER: Facebook Messenger'a yanıt gönder
 // ============================================
-async function sendFacebookReply(supabase: any, org: any, recipientId: string, text: string): Promise<string | null> {
+async function sendFacebookReply(channelAccount: any, recipientId: string, text: string): Promise<string | null> {
   try {
-    const token = org.settings?.facebook_page_token
-    const pageId = org.settings?.facebook_page_id
+    const token = channelAccount.access_token
+    const pageId = channelAccount.page_id
     if (!token || !pageId) return null
 
     const res = await fetch(`${GRAPH_API}/${pageId}/messages`, {
@@ -539,7 +608,8 @@ async function getOrCreateContact(
 // Conversation bul/oluştur (kanal bilgisiyle)
 // ============================================
 async function getOrCreateConversation(
-  supabase: any, orgId: string, contactId: string, phoneNumberId: string | null, channel: string = "whatsapp"
+  supabase: any, orgId: string, contactId: string, phoneNumberId: string | null,
+  channel: string = "whatsapp", channelAccountId: string | null = null
 ) {
   const { data: existing } = await supabase
     .from("conversations")
@@ -559,6 +629,7 @@ async function getOrCreateConversation(
     metadata: { channel },
   }
   if (phoneNumberId) insert.phone_number_id = phoneNumberId
+  if (channelAccountId) insert.channel_account_id = channelAccountId
 
   const { data: newConv } = await supabase
     .from("conversations")

@@ -84,39 +84,68 @@ export async function POST(
   const channel = conv.channel || conv.metadata?.channel || "whatsapp"
   let waMessageId: string | null = null
 
-  if (channel === "instagram") {
-    // Instagram DM ile gönder
-    const { data: org } = await supabase
-      .from("organizations").select("settings").eq("id", auth.org_id).single()
-    const igToken = org?.settings?.instagram_page_token
-    const igAccountId = org?.settings?.instagram_account_id
-    const recipientId = conv.contact.wa_id?.replace("ig_", "")
+  if (channel === "instagram" || channel === "facebook") {
+    // Try channel_accounts first (new multi-account approach)
+    const channelAccountId = conv.channel_account_id
+    let accessToken: string | null = null
+    let accountId: string | null = null
+    let pageId: string | null = null
 
-    if (igToken && igAccountId && recipientId) {
-      const res = await fetch(`https://graph.facebook.com/v21.0/${igAccountId}/messages`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${igToken}` },
-        body: JSON.stringify({ recipient: { id: recipientId }, message: { text } }),
-      })
-      const data = await res.json()
-      waMessageId = data.message_id || null
+    if (channelAccountId) {
+      const { data: chAccount } = await supabase
+        .from("channel_accounts")
+        .select("*")
+        .eq("id", channelAccountId)
+        .single()
+
+      if (chAccount) {
+        accessToken = chAccount.access_token
+        accountId = chAccount.account_id
+        pageId = chAccount.page_id
+      }
     }
-  } else if (channel === "facebook") {
-    // Facebook Messenger ile gönder
-    const { data: org } = await supabase
-      .from("organizations").select("settings").eq("id", auth.org_id).single()
-    const fbToken = org?.settings?.facebook_page_token
-    const pageId = org?.settings?.facebook_page_id
-    const recipientId = conv.contact.wa_id?.replace("fb_", "")
 
-    if (fbToken && pageId && recipientId) {
-      const res = await fetch(`https://graph.facebook.com/v21.0/${pageId}/messages`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${fbToken}` },
-        body: JSON.stringify({ recipient: { id: recipientId }, message: { text }, messaging_type: "RESPONSE" }),
-      })
-      const data = await res.json()
-      waMessageId = data.message_id || null
+    // Fallback to org.settings for old conversations without channel_account_id
+    if (!accessToken) {
+      const { data: org } = await supabase
+        .from("organizations").select("settings").eq("id", auth.org_id).single()
+
+      if (channel === "instagram") {
+        accessToken = org?.settings?.instagram_page_token || null
+        accountId = org?.settings?.instagram_account_id || null
+      } else {
+        accessToken = org?.settings?.facebook_page_token || null
+        pageId = org?.settings?.facebook_page_id || null
+      }
+    }
+
+    if (!accessToken) {
+      return NextResponse.json({ detail: "Kanal hesabi bulunamadi" }, { status: 400 })
+    }
+
+    if (channel === "instagram") {
+      const recipientId = conv.contact.wa_id?.replace("ig_", "")
+      if (accountId && recipientId) {
+        const res = await fetch(`https://graph.facebook.com/v21.0/${accountId}/messages`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+          body: JSON.stringify({ recipient: { id: recipientId }, message: { text } }),
+        })
+        const data = await res.json()
+        waMessageId = data.message_id || null
+      }
+    } else {
+      // facebook
+      const recipientId = conv.contact.wa_id?.replace("fb_", "")
+      if (pageId && recipientId) {
+        const res = await fetch(`https://graph.facebook.com/v21.0/${pageId}/messages`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+          body: JSON.stringify({ recipient: { id: recipientId }, message: { text }, messaging_type: "RESPONSE" }),
+        })
+        const data = await res.json()
+        waMessageId = data.message_id || null
+      }
     }
   } else {
     // WhatsApp ile gönder
