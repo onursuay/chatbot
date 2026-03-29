@@ -23,6 +23,8 @@ export default function IntegrationsPage() {
   const [configuring, setConfiguring] = useState<string | null>(null)
   const [shopifyUrl, setShopifyUrl] = useState("")
 
+  const ACTIVE_INTEGRATION_IDS = new Set(["shopify", "ctwa_ads", "zapier", "make"])
+
   const INTEGRATIONS = [
     { id: "shopify", name: "Shopify", descKey: "shopify_desc", icon: "\uD83D\uDECD", categoryKey: "e_commerce" },
     { id: "woocommerce", name: "WooCommerce", descKey: "woocommerce_desc", icon: "\uD83D\uDED2", categoryKey: "e_commerce" },
@@ -63,7 +65,6 @@ export default function IntegrationsPage() {
       window.open("https://make.com", "_blank")
       return
     }
-    alert(`${integrationId} ${t("coming_soon")}`)
   }
 
   const saveShopifyConfig = async () => {
@@ -136,22 +137,39 @@ export default function IntegrationsPage() {
 
       {/* Entegrasyon listesi */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((integration) => (
-          <div key={integration.id} className="ds-card p-5 flex flex-col">
-            <div className="flex items-center gap-3 mb-3">
-              <span className="text-2xl">{integration.icon}</span>
-              <div>
-                <h3 className="text-body-medium font-medium">{integration.name}</h3>
-                <span className="text-micro text-ink-tertiary">{t(integration.categoryKey)}</span>
+        {filtered.map((integration) => {
+          const isActive = ACTIVE_INTEGRATION_IDS.has(integration.id)
+          return (
+            <div key={integration.id} className={`ds-card p-5 flex flex-col ${!isActive ? "opacity-70" : ""}`}>
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-2xl">{integration.icon}</span>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-body-medium font-medium">{integration.name}</h3>
+                    {!isActive && (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 whitespace-nowrap">
+                        {t("coming_soon")}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-micro text-ink-tertiary">{t(integration.categoryKey)}</span>
+                </div>
               </div>
+              <p className="text-caption text-ink-secondary flex-1 mb-4">{t(integration.descKey)}</p>
+              {isActive ? (
+                <button onClick={() => handleConnect(integration.id)}
+                  className="w-full ds-btn-secondary">
+                  {t("connect")}
+                </button>
+              ) : (
+                <button disabled
+                  className="w-full ds-btn-secondary opacity-50 cursor-not-allowed">
+                  {t("coming_soon")}
+                </button>
+              )}
             </div>
-            <p className="text-caption text-ink-secondary flex-1 mb-4">{t(integration.descKey)}</p>
-            <button onClick={() => handleConnect(integration.id)}
-              className="w-full ds-btn-secondary">
-              {t("connect")}
-            </button>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

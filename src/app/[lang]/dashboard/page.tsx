@@ -196,39 +196,63 @@ export default function DashboardPage() {
     },
   ]
 
-  // AI-powered suggestions
-  const suggestions = [
-    {
-      type: "warning" as const,
+  // AI-powered suggestions — dynamic based on real data
+  const suggestions: {
+    type: "warning" | "tip" | "growth"
+    titleTR: string
+    titleEN: string
+    descTR: string
+    descEN: string
+    actionTR: string
+    actionEN: string
+    href: string
+  }[] = []
+
+  // "Unanswered Messages" — only show when received significantly exceeds sent (gap > 20%)
+  const unansweredGap = totalReceived - totalSent
+  const hasUnansweredMessages = totalReceived > 0 && unansweredGap > 0 && (unansweredGap / totalReceived) > 0.2
+  if (hasUnansweredMessages) {
+    suggestions.push({
+      type: "warning",
       titleTR: "Yanitsiz Mesajlar",
       titleEN: "Unanswered Messages",
-      descTR: "Son 24 saatte yanitsiz kalan mesajlariniz var. Musteri memnuniyeti icin hizli donusum onemli.",
-      descEN: "You have unanswered messages in the last 24 hours. Quick response is important for customer satisfaction.",
+      descTR: `${unansweredGap.toLocaleString("tr-TR")} mesaj henuz yanitlanmamis gorunuyor. Musteri memnuniyeti icin hizli donusum onemli.`,
+      descEN: `${unansweredGap.toLocaleString("en-US")} messages appear unanswered. Quick response is important for customer satisfaction.`,
       actionTR: "Gelen Kutusuna Git",
       actionEN: "Go to Inbox",
       href: `/${lang}/${isTR ? "gelen-kutusu" : "inbox"}`,
-    },
-    {
-      type: "tip" as const,
+    })
+  }
+
+  // "AI Chatbot Suggestion" — only show when WhatsApp is connected (channel active but could benefit from automation)
+  if (channelStats.whatsapp.connected && channelStats.whatsapp.received > 0) {
+    suggestions.push({
+      type: "tip",
       titleTR: "AI Chatbot Onerisi",
       titleEN: "AI Chatbot Suggestion",
-      descTR: "Sikca sorulan sorulara otomatik yanit vermek icin AI chatbot kurulumu yapin. Yanitlama suresini %60 azaltabilirsiniz.",
-      descEN: "Set up AI chatbot for frequently asked questions. You can reduce response time by 60%.",
+      descTR: `WhatsApp kanalinizda ${channelStats.whatsapp.received.toLocaleString("tr-TR")} gelen mesaj var. Sikca sorulan sorulara otomatik yanit vermek icin AI chatbot kurulumu yapin.`,
+      descEN: `Your WhatsApp channel has ${channelStats.whatsapp.received.toLocaleString("en-US")} incoming messages. Set up AI chatbot to automatically handle frequently asked questions.`,
       actionTR: "Chatbot Ayarlari",
       actionEN: "Chatbot Settings",
       href: `/${lang}/${isTR ? "yapay-zeka/chatbot" : "ai/chatbot"}`,
-    },
-    {
-      type: "growth" as const,
+    })
+  }
+
+  // "CRM Pipeline" — only show when user has pipelines
+  if (pipelines.length > 0) {
+    const totalPipelineValue = pipelines.reduce((sum, p) => sum + p.total_value, 0)
+    const totalPipelineLeads = pipelines.reduce((sum, p) => sum + p.leads_count, 0)
+    suggestions.push({
+      type: "growth",
       titleTR: "CRM Pipeline",
       titleEN: "CRM Pipeline",
-      descTR: "Pipeline'inizi duzenlemeyi deneyin. Musteri segmentasyonu ile donusum oranlarini artirabilirsiniz.",
-      descEN: "Try organizing your pipeline. You can increase conversion rates with customer segmentation.",
+      descTR: `${pipelines.length} pipeline'da toplam ${totalPipelineLeads.toLocaleString("tr-TR")} lead ve ₺${totalPipelineValue.toLocaleString("tr-TR")} deger var. Segmentasyon ile donusum oranlarini artirabilirsiniz.`,
+      descEN: `You have ${totalPipelineLeads.toLocaleString("en-US")} leads worth ₺${totalPipelineValue.toLocaleString("en-US")} across ${pipelines.length} pipeline(s). Improve conversion rates with better segmentation.`,
       actionTR: "Pipeline'i Goruntule",
       actionEN: "View Pipeline",
       href: `/${lang}/crm/pipeline`,
-    },
-  ]
+    })
+  }
 
   const suggestionStyles = {
     warning: { border: "border-amber-200", bg: "bg-amber-50", iconColor: "text-amber-600", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> },
@@ -330,28 +354,42 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="p-4 space-y-3">
-              {suggestions.map((s, i) => {
-                const style = suggestionStyles[s.type]
-                return (
-                  <div key={i} className={`rounded-xl border ${style.border} ${style.bg} p-4`}>
-                    <div className="flex items-start gap-3">
-                      <div className={`flex-shrink-0 mt-0.5 ${style.iconColor}`}>
-                        {style.icon}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-ui font-semibold text-ink mb-1">{isTR ? s.titleTR : s.titleEN}</p>
-                        <p className="text-caption text-ink-secondary leading-relaxed">{isTR ? s.descTR : s.descEN}</p>
-                        <a href={s.href} className="inline-flex items-center gap-1 mt-2.5 text-caption-medium text-primary hover:text-primary-hover transition-colors">
-                          {isTR ? s.actionTR : s.actionEN}
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
-                            <path d="M5 12h14M12 5l7 7-7 7" />
-                          </svg>
-                        </a>
+              {suggestions.length === 0 ? (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5 flex items-center gap-3">
+                  <div className="flex-shrink-0 text-emerald-600">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-6 h-6">
+                      <path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-ui font-semibold text-ink">{isTR ? "Hersey yolunda!" : "Everything looks good!"}</p>
+                    <p className="text-caption text-ink-secondary mt-0.5">{isTR ? "Su anda onemli bir oneri bulunmuyor. Verileriniz duzgun gorunuyor." : "No suggestions right now. Your data looks healthy."}</p>
+                  </div>
+                </div>
+              ) : (
+                suggestions.map((s, i) => {
+                  const style = suggestionStyles[s.type]
+                  return (
+                    <div key={i} className={`rounded-xl border ${style.border} ${style.bg} p-4`}>
+                      <div className="flex items-start gap-3">
+                        <div className={`flex-shrink-0 mt-0.5 ${style.iconColor}`}>
+                          {style.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-ui font-semibold text-ink mb-1">{isTR ? s.titleTR : s.titleEN}</p>
+                          <p className="text-caption text-ink-secondary leading-relaxed">{isTR ? s.descTR : s.descEN}</p>
+                          <a href={s.href} className="inline-flex items-center gap-1 mt-2.5 text-caption-medium text-primary hover:text-primary-hover transition-colors">
+                            {isTR ? s.actionTR : s.actionEN}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
+                              <path d="M5 12h14M12 5l7 7-7 7" />
+                            </svg>
+                          </a>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )
-              })}
+                  )
+                })
+              )}
             </div>
           </div>
 

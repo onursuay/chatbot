@@ -62,6 +62,37 @@ export default function PipelinePage() {
 
   const getLeadsForStage = (stageId: string) => leads.filter((l) => l.stage_id === stageId)
 
+  const handleDrop = async (targetStageId: string) => {
+    if (!draggedLeadId) return
+    const lead = leads.find((l) => l.id === draggedLeadId)
+    if (!lead || lead.stage_id === targetStageId) {
+      setDraggedLeadId(null)
+      return
+    }
+
+    // Optimistic update
+    setLeads((prev) =>
+      prev.map((l) => (l.id === draggedLeadId ? { ...l, stage_id: targetStageId } : l))
+    )
+    setDraggedLeadId(null)
+
+    // Persist to backend
+    const token = getToken()
+    if (!token) return
+    try {
+      await api("/leads", {
+        token,
+        method: "PATCH",
+        body: JSON.stringify({ id: draggedLeadId, stage_id: targetStageId }),
+      })
+    } catch {
+      // Revert on failure
+      setLeads((prev) =>
+        prev.map((l) => (l.id === lead.id ? { ...l, stage_id: lead.stage_id } : l))
+      )
+    }
+  }
+
   return (
     <div className="h-full flex flex-col">
       {/* Page Header */}
@@ -104,7 +135,7 @@ export default function PipelinePage() {
                   key={stage.id}
                   className="w-72 flex flex-col bg-white rounded-card border border-surface-300 shadow-card"
                   onDragOver={(e) => e.preventDefault()}
-                  onDrop={() => setDraggedLeadId(null)}
+                  onDrop={() => handleDrop(stage.id)}
                 >
                   {/* Stage Header */}
                   <div className="px-4 py-3 border-b border-surface-300 flex items-center justify-between">

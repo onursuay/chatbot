@@ -111,8 +111,12 @@ export default function InboxPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState("")
   const [sending, setSending] = useState(false)
+  const [aiSending, setAiSending] = useState(false)
   const [search, setSearch] = useState("")
   const [activeChannel, setActiveChannel] = useState<Channel>("all")
+  const [showContactInfo, setShowContactInfo] = useState(true)
+  const [showTagInput, setShowTagInput] = useState(false)
+  const [newTagName, setNewTagName] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // New conversation modal
@@ -465,34 +469,32 @@ export default function InboxPage() {
                   <div className={`w-10 h-10 rounded-avatar ${getAvatarColor(selectedConv.contact_name)} flex items-center justify-center text-white text-micro font-bold`}>
                     {getInitials(selectedConv.contact_name)}
                   </div>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary border-2 border-white rounded-full" />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-[14px] h-[14px] bg-white rounded-md flex items-center justify-center ring-1 ring-surface-300">
+                    <span style={{ color: getChannelColor(selectedConv.channel) }} className="flex items-center justify-center [&>svg]:w-2.5 [&>svg]:h-2.5">
+                      {selectedConv.channel === "instagram" ? CHANNEL_FILTERS[2].icon :
+                       selectedConv.channel === "facebook" ? CHANNEL_FILTERS[3].icon :
+                       CHANNEL_FILTERS[1].icon}
+                    </span>
+                  </span>
                 </div>
                 <div>
                   <h3 className="font-bold text-body-medium text-ink">
                     {selectedConv.contact_name || selectedConv.contact_phone}
                   </h3>
-                  <p className="text-micro text-primary flex items-center gap-1.5">
-                    <span className="w-1 h-1 bg-primary rounded-full" />
-                    {t("online")} &bull; {getChannelLabel(selectedConv.channel)}
+                  <p className="text-micro text-ink-tertiary flex items-center gap-1.5">
+                    {getChannelLabel(selectedConv.channel)}
+                    {selectedConv.last_message_at && (
+                      <> &bull; {formatTime(selectedConv.last_message_at)}</>
+                    )}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                {/* Call */}
-                <button className="w-8 h-8 flex items-center justify-center hover:bg-surface-150 rounded-[6px] transition-colors text-ink-tertiary hover:text-ink-secondary">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-[18px] h-[18px]">
-                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
-                  </svg>
-                </button>
-                {/* Video */}
-                <button className="w-8 h-8 flex items-center justify-center hover:bg-surface-150 rounded-[6px] transition-colors text-ink-tertiary hover:text-ink-secondary">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-[18px] h-[18px]">
-                    <polygon points="23 7 16 12 23 17 23 7" />
-                    <rect x="1" y="5" width="15" height="14" rx="2" />
-                  </svg>
-                </button>
-                {/* Info */}
-                <button className="w-8 h-8 flex items-center justify-center hover:bg-surface-150 rounded-[6px] transition-colors text-ink-tertiary hover:text-ink-secondary">
+                {/* Info toggle */}
+                <button
+                  onClick={() => setShowContactInfo((v) => !v)}
+                  className={`w-8 h-8 flex items-center justify-center hover:bg-surface-150 rounded-[6px] transition-colors ${showContactInfo ? "text-primary" : "text-ink-tertiary hover:text-ink-secondary"}`}
+                >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-[18px] h-[18px]">
                     <circle cx="12" cy="12" r="10" />
                     <path d="M12 16v-4M12 8h.01" />
@@ -576,8 +578,8 @@ export default function InboxPage() {
                 </div>
               ))}
 
-              {/* AI Context Tip */}
-              {messages.length > 0 && (
+              {/* AI Context Tip - only when bot is active and has bot messages */}
+              {selectedConv.is_bot_active && messages.some((m) => m.sender_type === "bot") && (
                 <div className="flex justify-center py-2">
                   <div className="ds-ai-surface ds-ai-glow px-4 py-2 rounded-btn flex items-center gap-2">
                     <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-primary">
@@ -597,12 +599,42 @@ export default function InboxPage() {
               {messages.length > 0 && (
                 <div className="flex gap-2 mb-3 overflow-x-auto no-scrollbar">
                   <button
-                    onClick={() => setNewMessage(t("yes") + ", " + t("send").toLowerCase() + ".")}
-                    className="shrink-0 ds-btn-sm ds-badge-ai px-3 py-1.5 rounded-btn hover:bg-primary-50 transition-colors flex items-center gap-1.5 cursor-pointer"
+                    disabled={aiSending}
+                    onClick={async () => {
+                      const lastBotMsg = [...messages].reverse().find((m) => m.sender_type === "bot" && m.content?.body)
+                      if (!lastBotMsg) {
+                        alert(t("no_ai_message") || "Henuz AI yaniti yok.")
+                        return
+                      }
+                      const text = lastBotMsg.content.body!
+                      setAiSending(true)
+                      setNewMessage("")
+                      setSending(true)
+                      try {
+                        const token = getToken()
+                        if (!token) throw new Error("No token")
+                        const msg = await api<Message>(`/conversations/${selectedConv.id}/messages`, {
+                          method: "POST",
+                          token,
+                          body: JSON.stringify({ text }),
+                        })
+                        setMessages((prev) => prev.some((m) => m.id === msg.id) ? prev : [...prev, msg])
+                      } catch (err: any) {
+                        setNewMessage(text)
+                        alert(t("msg_send_error") + ": " + (err.message || t("unknown")))
+                      }
+                      setSending(false)
+                      setAiSending(false)
+                    }}
+                    className="shrink-0 ds-btn-sm ds-badge-ai px-3 py-1.5 rounded-btn hover:bg-primary-50 transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                   >
-                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
-                      <path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z" />
-                    </svg>
+                    {aiSending ? (
+                      <svg className="animate-spin w-3 h-3" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
+                        <path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z" />
+                      </svg>
+                    )}
                     AI {t("send")}
                   </button>
                   <button
@@ -622,13 +654,6 @@ export default function InboxPage() {
 
               {/* Message Input */}
               <div className="flex items-end gap-2 bg-surface-150 p-2 rounded-[6px] border border-surface-300 focus-within:border-primary/30 focus-within:bg-white focus-within:shadow-input-focus transition-all duration-200">
-                <button className="w-8 h-8 flex items-center justify-center text-ink-tertiary hover:text-primary rounded-[6px] hover:bg-surface-150 transition-colors">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-[18px] h-[18px]">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="16" />
-                    <line x1="8" y1="12" x2="16" y2="12" />
-                  </svg>
-                </button>
                 <textarea
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
@@ -644,14 +669,6 @@ export default function InboxPage() {
                   rows={1}
                 />
                 <div className="flex items-center gap-1 mb-0.5 pr-0.5">
-                  <button className="w-8 h-8 flex items-center justify-center text-ink-tertiary hover:text-primary rounded-[6px] hover:bg-surface-150 transition-colors">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-[18px] h-[18px]">
-                      <circle cx="12" cy="12" r="10" />
-                      <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-                      <line x1="9" y1="9" x2="9.01" y2="9" />
-                      <line x1="15" y1="9" x2="15.01" y2="9" />
-                    </svg>
-                  </button>
                   <button
                     onClick={handleSend}
                     disabled={sending || !newMessage.trim()}
@@ -689,7 +706,7 @@ export default function InboxPage() {
       </section>
 
       {/* ===== RIGHT PANEL - Contact Info / AI Insights ===== */}
-      {selectedConv && (
+      {selectedConv && showContactInfo && (
         <aside className="hidden xl:flex w-[300px] flex-col border-l border-surface-300 bg-white p-5 overflow-y-auto no-scrollbar shrink-0">
           {/* Profile */}
           <div className="text-center mb-6 pt-2">
@@ -768,8 +785,34 @@ export default function InboxPage() {
             <div>
               <div className="flex justify-between items-center mb-3">
                 <h3 className="text-section-label uppercase tracking-wider text-ink-tertiary">{t("tags_label")}</h3>
-                <button className="text-micro font-bold text-primary hover:text-primary-600 transition-colors">{t("add_tag_btn")}</button>
+                <button
+                  onClick={() => setShowTagInput((v) => !v)}
+                  className="text-micro font-bold text-primary hover:text-primary-600 transition-colors"
+                >{t("add_tag_btn")}</button>
               </div>
+              {showTagInput && (
+                <div className="mb-2">
+                  <input
+                    type="text"
+                    value={newTagName}
+                    onChange={(e) => setNewTagName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && newTagName.trim()) {
+                        updateConversation({ tags: [...(selectedConv.tags || []), newTagName.trim()] })
+                        setNewTagName("")
+                        setShowTagInput(false)
+                      }
+                      if (e.key === "Escape") {
+                        setNewTagName("")
+                        setShowTagInput(false)
+                      }
+                    }}
+                    placeholder={t("tag_name") || "Etiket adi..."}
+                    className="ds-input w-full text-micro"
+                    autoFocus
+                  />
+                </div>
+              )}
               <div className="flex flex-wrap gap-1.5">
                 {selectedConv.is_bot_active && (
                   <span className="ds-badge-ai">AI Bot</span>
