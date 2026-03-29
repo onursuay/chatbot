@@ -538,33 +538,29 @@ export default function InboxPage() {
                           className={`px-4 py-2.5 text-ui leading-relaxed ${
                             isOutbound
                               ? isBot
-                                ? "bg-primary-50 border border-primary/20 text-ink rounded-[6px] rounded-br-sm"
-                                : "bg-primary text-white rounded-[6px] rounded-br-sm"
-                              : "bg-surface-150 text-ink rounded-[6px] rounded-bl-sm shadow-card border border-surface-300"
+                                ? "bg-[#E8F5E9] border border-[#C8E6C9] text-[#1B5E20] rounded-[6px] rounded-br-sm"
+                                : "bg-[#DCF8C6] text-[#111B21] rounded-[6px] rounded-br-sm"
+                              : "bg-white text-[#111B21] rounded-[6px] rounded-bl-sm shadow-sm border border-surface-300"
                           }`}
                         >
                           {isBot && isOutbound && (
-                            <span className="ds-badge-ai text-[9px] px-1.5 py-px mb-1.5 inline-flex">{t("ai_bot")}</span>
+                            <span className="text-[9px] font-bold px-1.5 py-px mb-1.5 inline-flex bg-[#25D366]/15 text-[#25D366] rounded">{t("ai_bot")}</span>
                           )}
                           {msg.sender_type === "agent" && isOutbound && (
-                            <span className="text-[10px] text-white/70 block mb-1">{t("agent")}</span>
+                            <span className="text-[10px] text-[#667781] block mb-1">{t("agent")}</span>
                           )}
                           <p className="whitespace-pre-wrap">{msg.content?.body}</p>
                           <div className={`flex items-center gap-1 mt-1.5 ${isOutbound ? "justify-end" : ""}`}>
-                            <span className={`text-[10px] font-medium ${
-                              isOutbound
-                                ? isBot ? "text-primary/50" : "text-white/70"
-                                : "text-ink-muted"
-                            }`}>
+                            <span className="text-[10px] font-medium text-[#667781]">
                               {formatMessageTime(msg.created_at)}
                             </span>
                             {isOutbound && (
                               <>
                                 {msg.status === "read" && (
-                                  <span className={`text-[10px] ${isBot ? "text-primary/50" : "text-white/70"}`}> &bull; {t("read")}</span>
+                                  <span className="text-[10px] text-[#53BDEB]"> &bull; {t("read")}</span>
                                 )}
                                 {msg.status === "delivered" && (
-                                  <span className={`text-[10px] ${isBot ? "text-primary/40" : "text-white/60"}`}>
+                                  <span className="text-[10px] text-[#667781]">
                                     <svg viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3 inline"><path d="M2 8l3 3 7-7" stroke="currentColor" strokeWidth={2} fill="none" /><path d="M6 8l3 3 7-7" stroke="currentColor" strokeWidth={2} fill="none" /></svg>
                                   </span>
                                 )}
