@@ -102,29 +102,54 @@ function FloatingCanvas() {
 
       switch (icon.type) {
         case "whatsapp": {
-          // Speech bubble outline
-          const r = s * 0.45
+          // Draw using the official WhatsApp SVG path scaled to icon size
+          const scale = s / 24
+          ctx.save()
+          ctx.scale(scale, scale)
+          ctx.translate(-12, -12)
+          // Outer bubble path
+          ctx.fillStyle = `rgba(${icon.color},${opacity * 1.2})`
+          ctx.strokeStyle = `rgba(${icon.color},${opacity * 2.5})`
+          ctx.lineWidth = 1.5 / scale
           ctx.beginPath()
-          ctx.arc(0, -s * 0.04, r, 0, Math.PI * 2)
+          ctx.arc(12, 11.5, 10, 0, Math.PI * 2)
           ctx.fill()
           ctx.stroke()
-          // Speech tail
+          // Tail
           ctx.beginPath()
-          ctx.moveTo(-s * 0.15, s * 0.3)
-          ctx.lineTo(-s * 0.38, s * 0.48)
-          ctx.lineTo(-s * 0.02, s * 0.35)
-          ctx.fillStyle = `rgba(${icon.color},${opacity * 1.8})`
+          ctx.moveTo(3.5, 18)
+          ctx.lineTo(1, 23)
+          ctx.lineTo(6.5, 20.5)
+          ctx.fillStyle = `rgba(${icon.color},${opacity * 1.2})`
           ctx.fill()
-          // Phone handset inside
-          ctx.strokeStyle = `rgba(${icon.color},${opacity * 3.5})`
-          ctx.lineWidth = 2.5
+          // Phone handset (classic WhatsApp phone icon)
+          ctx.fillStyle = `rgba(${icon.color},${opacity * 4})`
           ctx.beginPath()
-          ctx.moveTo(-s * 0.15, s * 0.08)
-          ctx.quadraticCurveTo(-s * 0.18, -s * 0.08, -s * 0.1, -s * 0.18)
-          ctx.quadraticCurveTo(-s * 0.06, -s * 0.22, 0, -s * 0.2)
-          ctx.quadraticCurveTo(s * 0.06, -s * 0.22, s * 0.1, -s * 0.18)
-          ctx.quadraticCurveTo(s * 0.18, -s * 0.08, s * 0.15, s * 0.08)
-          ctx.stroke()
+          ctx.moveTo(16.1, 13.9)
+          ctx.bezierCurveTo(15.8, 13.75, 14.5, 13.1, 14.2, 13)
+          ctx.bezierCurveTo(13.9, 12.9, 13.7, 12.85, 13.5, 13.15)
+          ctx.bezierCurveTo(13.3, 13.45, 12.8, 14.1, 12.6, 14.3)
+          ctx.bezierCurveTo(12.4, 14.5, 12.3, 14.5, 12, 14.4)
+          ctx.bezierCurveTo(11.7, 14.25, 10.8, 13.95, 9.8, 13.1)
+          ctx.bezierCurveTo(9, 12.4, 8.5, 11.5, 8.3, 11.2)
+          ctx.bezierCurveTo(8.15, 10.9, 8.3, 10.8, 8.45, 10.65)
+          ctx.bezierCurveTo(8.55, 10.5, 8.7, 10.35, 8.85, 10.2)
+          ctx.bezierCurveTo(9, 10.05, 9.05, 9.9, 9.15, 9.7)
+          ctx.bezierCurveTo(9.25, 9.5, 9.2, 9.35, 9.12, 9.2)
+          ctx.bezierCurveTo(9.05, 9.05, 8.5, 7.7, 8.25, 7.1)
+          ctx.bezierCurveTo(8.0, 6.5, 7.75, 6.6, 7.6, 6.6)
+          ctx.bezierCurveTo(7.4, 6.6, 7.2, 6.6, 7.0, 6.6)
+          ctx.bezierCurveTo(6.8, 6.6, 6.5, 6.7, 6.2, 6.95)
+          ctx.bezierCurveTo(5.95, 7.25, 5.2, 7.95, 5.2, 9.35)
+          ctx.bezierCurveTo(5.2, 10.75, 6.25, 12.1, 6.4, 12.3)
+          ctx.bezierCurveTo(6.55, 12.5, 8.5, 15.5, 11.4, 16.8)
+          ctx.bezierCurveTo(14.3, 18.1, 14.3, 17.6, 14.8, 17.55)
+          ctx.bezierCurveTo(15.3, 17.5, 16.4, 16.85, 16.65, 16.15)
+          ctx.bezierCurveTo(16.9, 15.5, 16.9, 14.9, 16.8, 14.8)
+          ctx.bezierCurveTo(16.7, 14.65, 16.4, 14.05, 16.1, 13.9)
+          ctx.closePath()
+          ctx.fill()
+          ctx.restore()
           break
         }
         case "instagram": {
