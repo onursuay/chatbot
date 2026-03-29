@@ -92,6 +92,20 @@ export default function LeadDetailPage() {
   const [activeTab, setActiveTab] = useState<"main" | "feed">("main")
   const [saving, setSaving] = useState(false)
 
+  // Tag ekleme state
+  const [showTagInput, setShowTagInput] = useState(false)
+  const [newTagValue, setNewTagValue] = useState("")
+
+  // Contact arama state
+  const [showContactSearch, setShowContactSearch] = useState(false)
+  const [contactSearchQuery, setContactSearchQuery] = useState("")
+  const [contactSearchResults, setContactSearchResults] = useState<Contact[]>([])
+
+  // Company arama state
+  const [showCompanySearch, setShowCompanySearch] = useState(false)
+  const [companySearchQuery, setCompanySearchQuery] = useState("")
+  const [companySearchResults, setCompanySearchResults] = useState<Company[]>([])
+
   // Lead verisi yükle
   useEffect(() => {
     const token = getToken()
@@ -189,6 +203,107 @@ export default function LeadDetailPage() {
     setSaving(false)
   }
 
+  // Tag ekle
+  const handleAddTag = async () => {
+    const token = getToken()
+    const tag = newTagValue.trim()
+    if (!token || !lead || !tag) return
+    if (lead.tags.includes(tag)) {
+      setNewTagValue("")
+      setShowTagInput(false)
+      return
+    }
+    setSaving(true)
+    try {
+      const updatedTags = [...lead.tags, tag]
+      await api(`/leads`, {
+        token,
+        method: "PATCH",
+        body: JSON.stringify({ id: lead.id, tags: updatedTags }),
+      })
+      setLead((prev) => prev ? { ...prev, tags: updatedTags } : prev)
+      setNewTagValue("")
+      setShowTagInput(false)
+    } catch {}
+    setSaving(false)
+  }
+
+  // Contact ara
+  const handleContactSearch = async (query: string) => {
+    setContactSearchQuery(query)
+    const token = getToken()
+    if (!token || query.length < 2) {
+      setContactSearchResults([])
+      return
+    }
+    try {
+      const results = await api<Contact[]>(`/contacts?search=${encodeURIComponent(query)}&per_page=10`, { token })
+      setContactSearchResults(results)
+    } catch {
+      setContactSearchResults([])
+    }
+  }
+
+  // Contact bagla
+  const handleLinkContact = async (contactId: string) => {
+    const token = getToken()
+    if (!token || !lead) return
+    setSaving(true)
+    try {
+      await api(`/leads`, {
+        token,
+        method: "PATCH",
+        body: JSON.stringify({ id: lead.id, contact_id: contactId }),
+      })
+      setLead((prev) => prev ? { ...prev, contact_id: contactId } : prev)
+      // Contact detayini yukle
+      const c = await api<Contact>(`/contacts/${contactId}`, { token })
+      setContact(c)
+      setShowContactSearch(false)
+      setContactSearchQuery("")
+      setContactSearchResults([])
+    } catch {}
+    setSaving(false)
+  }
+
+  // Company ara
+  const handleCompanySearch = async (query: string) => {
+    setCompanySearchQuery(query)
+    const token = getToken()
+    if (!token || query.length < 2) {
+      setCompanySearchResults([])
+      return
+    }
+    try {
+      const results = await api<Company[]>(`/companies?search=${encodeURIComponent(query)}&per_page=10`, { token })
+      setCompanySearchResults(results)
+    } catch {
+      setCompanySearchResults([])
+    }
+  }
+
+  // Company bagla
+  const handleLinkCompany = async (companyId: string) => {
+    const token = getToken()
+    if (!token || !lead) return
+    setSaving(true)
+    try {
+      await api(`/leads`, {
+        token,
+        method: "PATCH",
+        body: JSON.stringify({ id: lead.id, company_id: companyId }),
+      })
+      setLead((prev) => prev ? { ...prev, company_id: companyId } : prev)
+      // Company detayini yukle
+      const c = await api<Company>(`/companies/${companyId}`, { token })
+      setCompany(c)
+      setShowCompanySearch(false)
+      setCompanySearchQuery("")
+      setCompanySearchResults([])
+    } catch {}
+    setSaving(false)
+  }
+
   if (!lead) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -242,9 +357,32 @@ export default function LeadDetailPage() {
             #{tag}
           </span>
         ))}
-        <button className="ds-btn-ghost ds-btn-sm">
-          {t("add_tag")}
-        </button>
+        {showTagInput ? (
+          <div className="flex items-center gap-1">
+            <input
+              type="text"
+              value={newTagValue}
+              onChange={(e) => setNewTagValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleAddTag()
+                if (e.key === "Escape") { setShowTagInput(false); setNewTagValue("") }
+              }}
+              placeholder={t("tag_name")}
+              className="ds-input text-xs px-2 py-1 w-28"
+              autoFocus
+            />
+            <button onClick={handleAddTag} disabled={saving || !newTagValue.trim()} className="ds-btn-primary ds-btn-sm disabled:opacity-50">
+              {saving ? "..." : "OK"}
+            </button>
+            <button onClick={() => { setShowTagInput(false); setNewTagValue("") }} className="ds-btn-ghost ds-btn-sm">
+              ✕
+            </button>
+          </div>
+        ) : (
+          <button onClick={() => setShowTagInput(true)} className="ds-btn-ghost ds-btn-sm">
+            {t("add_tag")}
+          </button>
+        )}
       </div>
 
       {/* Pipeline stage selector + progress bar */}
@@ -374,9 +512,44 @@ export default function LeadDetailPage() {
                     )}
                   </div>
                 ) : (
-                  <button className="text-primary text-xs hover:underline">
-                    + {t("link_contact")}
-                  </button>
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowContactSearch(!showContactSearch)}
+                      className="text-primary text-xs hover:underline"
+                    >
+                      + {t("link_contact")}
+                    </button>
+                    {showContactSearch && (
+                      <div className="absolute left-0 top-6 z-10 bg-surface-50 border border-surface-300 rounded-[6px] shadow-lg p-2 w-64">
+                        <input
+                          type="text"
+                          value={contactSearchQuery}
+                          onChange={(e) => handleContactSearch(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === "Escape") { setShowContactSearch(false); setContactSearchQuery(""); setContactSearchResults([]) } }}
+                          placeholder={t("search_contact")}
+                          className="ds-input text-xs w-full mb-1"
+                          autoFocus
+                        />
+                        {contactSearchResults.length > 0 && (
+                          <div className="max-h-40 overflow-y-auto space-y-1">
+                            {contactSearchResults.map((c) => (
+                              <button
+                                key={c.id}
+                                onClick={() => handleLinkContact(c.id)}
+                                className="w-full text-left px-2 py-1.5 rounded hover:bg-surface-150 transition"
+                              >
+                                <p className="text-ink text-xs font-medium">{c.name || c.phone}</p>
+                                {c.phone && <p className="text-ink-muted text-[10px]">{c.phone}</p>}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {contactSearchQuery.length >= 2 && contactSearchResults.length === 0 && (
+                          <p className="text-ink-muted text-[10px] px-2 py-1">{t("no_results")}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
 
@@ -411,9 +584,44 @@ export default function LeadDetailPage() {
                     )}
                   </div>
                 ) : (
-                  <button className="text-primary text-xs hover:underline">
-                    + {t("link_company")}
-                  </button>
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowCompanySearch(!showCompanySearch)}
+                      className="text-primary text-xs hover:underline"
+                    >
+                      + {t("link_company")}
+                    </button>
+                    {showCompanySearch && (
+                      <div className="absolute left-0 top-6 z-10 bg-surface-50 border border-surface-300 rounded-[6px] shadow-lg p-2 w-64">
+                        <input
+                          type="text"
+                          value={companySearchQuery}
+                          onChange={(e) => handleCompanySearch(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === "Escape") { setShowCompanySearch(false); setCompanySearchQuery(""); setCompanySearchResults([]) } }}
+                          placeholder={t("search_company")}
+                          className="ds-input text-xs w-full mb-1"
+                          autoFocus
+                        />
+                        {companySearchResults.length > 0 && (
+                          <div className="max-h-40 overflow-y-auto space-y-1">
+                            {companySearchResults.map((c) => (
+                              <button
+                                key={c.id}
+                                onClick={() => handleLinkCompany(c.id)}
+                                className="w-full text-left px-2 py-1.5 rounded hover:bg-surface-150 transition"
+                              >
+                                <p className="text-ink text-xs font-medium">{c.name}</p>
+                                {c.industry && <p className="text-ink-muted text-[10px]">{c.industry}</p>}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {companySearchQuery.length >= 2 && companySearchResults.length === 0 && (
+                          <p className="text-ink-muted text-[10px] px-2 py-1">{t("no_results")}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
 
