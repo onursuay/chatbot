@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
 import Script from "next/script"
@@ -30,14 +30,29 @@ export default function LoginPage() {
     }
   }, [params.lang])
 
-  const onTurnstileLoad = useCallback(() => {
-    if (turnstileRef.current && (window as any).turnstile) {
-      (window as any).turnstile.render(turnstileRef.current, {
-        sitekey: TURNSTILE_SITE_KEY,
-        callback: (token: string) => setTurnstileToken(token),
-        "expired-callback": () => setTurnstileToken(""),
-        theme: "light",
-      })
+  useEffect(() => {
+    const renderWidget = () => {
+      if (turnstileRef.current && (window as any).turnstile) {
+        turnstileRef.current.innerHTML = ""
+        ;(window as any).turnstile.render(turnstileRef.current, {
+          sitekey: TURNSTILE_SITE_KEY,
+          callback: (token: string) => setTurnstileToken(token),
+          "expired-callback": () => setTurnstileToken(""),
+          theme: "light",
+        })
+      }
+    }
+
+    if ((window as any).turnstile) {
+      renderWidget()
+    } else {
+      const interval = setInterval(() => {
+        if ((window as any).turnstile) {
+          clearInterval(interval)
+          renderWidget()
+        }
+      }, 200)
+      return () => clearInterval(interval)
     }
   }, [])
 
@@ -69,8 +84,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex">
       <Script
-        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-        onLoad={onTurnstileLoad}
+        src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
         strategy="afterInteractive"
       />
 
