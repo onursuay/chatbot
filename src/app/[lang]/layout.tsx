@@ -173,8 +173,8 @@ export default function LangLayout({ children, params }: { children: React.React
       ),
       titleTR: "Akıllı Gelen Kutusu",
       titleEN: "Smart Inbox",
-      descTR: "WhatsApp, Instagram ve Facebook mesajlarını tek panelden yönetin",
-      descEN: "Manage WhatsApp, Instagram & Facebook messages from one panel",
+      descTR: "WhatsApp, Instagram ve Facebook mesajlarınız tek ekranda. Müşterilerinize hangi kanaldan yazarsa yazsın, buradan anında yanıt verin. Okundu bilgisi, dosya paylaşımı ve AI destekli hızlı yanıtlar ile müşteri memnuniyetinizi artırın.",
+      descEN: "All your WhatsApp, Instagram and Facebook messages in one screen. Reply instantly to your customers regardless of their channel. Boost satisfaction with read receipts, file sharing and AI-powered quick replies.",
       color: "#119d58",
     },
     {
@@ -189,8 +189,8 @@ export default function LangLayout({ children, params }: { children: React.React
       ),
       titleTR: "AI Chatbot",
       titleEN: "AI Chatbot",
-      descTR: "Yapay zeka ile 7/24 otomatik müşteri yanıtları oluşturun",
-      descEN: "Create 24/7 automated customer responses with AI",
+      descTR: "Bilgi Bankası'na ürün, hizmet ve fiyat bilgilerinizi ekleyin. AI chatbot 7/24 müşterilerinize doğru ve tutarlı yanıtlar versin. Mesai dışında bile müşteri kaybetmeyin, yapay zeka sizin yerinize çalışsın.",
+      descEN: "Add your products, services and prices to the Knowledge Base. Let AI chatbot answer your customers accurately 24/7. Never lose customers outside business hours — AI works for you.",
       color: "#8B5CF6",
     },
     {
@@ -203,8 +203,8 @@ export default function LangLayout({ children, params }: { children: React.React
       ),
       titleTR: "CRM & Pipeline",
       titleEN: "CRM & Pipeline",
-      descTR: "Müşteri adaylarını takip edin, satış süreçlerinizi görselleştirin",
-      descEN: "Track leads and visualize your sales pipeline",
+      descTR: "Müşteri adaylarınızı Kanban tahtasında sürükle-bırak ile yönetin. Her lead'in hangi aşamada olduğunu görün, teklif değerlerini takip edin. Kişi ve şirket bağlayarak satış sürecinizi uçtan uca kontrol edin.",
+      descEN: "Manage your leads on a Kanban board with drag-and-drop. See which stage each lead is at, track deal values. Link contacts and companies to control your entire sales process end-to-end.",
       color: "#3B82F6",
     },
     {
@@ -215,22 +215,22 @@ export default function LangLayout({ children, params }: { children: React.React
       ),
       titleTR: "Toplu Mesaj Gönderimi",
       titleEN: "Broadcast Messages",
-      descTR: "Binlerce müşteriye kişiselleştirilmiş mesajlar gönderin",
-      descEN: "Send personalized messages to thousands of customers",
+      descTR: "Onaylanmış WhatsApp şablonlarıyla binlerce müşterinize tek tıkla kişiselleştirilmiş mesajlar gönderin. Etiket bazlı filtreleme ile doğru kitleye ulaşın. Gönderim, teslim ve okunma oranlarını anlık takip edin.",
+      descEN: "Send personalized messages to thousands of customers with approved WhatsApp templates. Reach the right audience with tag-based filtering. Track send, delivery and read rates in real-time.",
       color: "#F59E0B",
     },
     {
       icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8 text-accent-red">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8 text-[#0EA5E9]">
           <rect x="3" y="3" width="18" height="18" rx="2"/>
           <path d="M3 9h18M9 21V9" strokeLinecap="round"/>
         </svg>
       ),
       titleTR: "Analiz & Raporlar",
       titleEN: "Analytics & Reports",
-      descTR: "Detaylı istatistikler ve performans raporlarıyla büyüyün",
-      descEN: "Grow with detailed statistics and performance reports",
-      color: "#EF4444",
+      descTR: "Mesajlaşma performansınızı detaylı grafiklerle görün. Gelen-giden mesaj sayıları, bot çözüm oranı, kampanya başarısı ve kanal bazlı karşılaştırmalar ile veriye dayalı kararlar alın ve işinizi büyütün.",
+      descEN: "View your messaging performance with detailed charts. Make data-driven decisions with incoming-outgoing message counts, bot resolution rates, campaign success and channel comparisons to grow your business.",
+      color: "#0EA5E9",
     },
   ]
 
