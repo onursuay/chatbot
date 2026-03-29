@@ -75,6 +75,7 @@ export default function ChannelsPage() {
   const [loading, setLoading] = useState(true)
   const [connecting, setConnecting] = useState<string | null>(null)
   const [disconnecting, setDisconnecting] = useState<string | null>(null)
+  const [expandedCard, setExpandedCard] = useState<string | null>(null)
 
   // Facebook SDK init
   useEffect(() => {
@@ -255,8 +256,44 @@ export default function ChannelsPage() {
 
   if (loading) return <div className="p-7 text-ink-tertiary text-caption">{t("loading")}</div>
 
+  const channels = [
+    {
+      id: "whatsapp",
+      name: "WhatsApp",
+      desc: t("whatsapp_desc"),
+      icon: <WhatsAppIcon />,
+      bg: "bg-[#25D366]",
+      borderActive: "border-[#25D366]/30",
+      connected: wabaAccounts.length > 0,
+      count: wabaAccounts.reduce((n, w) => n + (w.phone_numbers?.length || 0), 0),
+      onConnect: connectWhatsApp,
+    },
+    {
+      id: "instagram",
+      name: "Instagram DM",
+      desc: t("instagram_desc"),
+      icon: <InstagramIcon />,
+      bg: "bg-gradient-to-br from-[#833AB4] via-[#E1306C] to-[#F77737]",
+      borderActive: "border-[#E1306C]/30",
+      connected: instagramAccounts.length > 0,
+      count: instagramAccounts.length,
+      onConnect: () => connectChannel("instagram"),
+    },
+    {
+      id: "facebook",
+      name: "Messenger",
+      desc: t("facebook_desc"),
+      icon: <MessengerIcon />,
+      bg: "bg-[#0084FF]",
+      borderActive: "border-[#0084FF]/30",
+      connected: facebookAccounts.length > 0,
+      count: facebookAccounts.length,
+      onConnect: () => connectChannel("facebook"),
+    },
+  ]
+
   return (
-    <div className="p-7">
+    <div className="h-full flex flex-col overflow-y-auto">
       <div className="ds-page-header">
         <div>
           <h2 className="ds-page-title">{t("channel_management")}</h2>
@@ -264,177 +301,159 @@ export default function ChannelsPage() {
         </div>
       </div>
 
-      <div className="space-y-6">
-        {/* ==================== WHATSAPP ==================== */}
-        <div className="bg-white border border-surface-300 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#25D366] rounded-card-sm flex items-center justify-center">
-                <WhatsAppIcon />
-              </div>
-              <div>
-                <h3 className="text-body-medium font-medium text-ink">WhatsApp</h3>
-                <p className="text-micro text-ink-secondary">{t("whatsapp_desc")}</p>
-              </div>
-            </div>
-            <button
-              onClick={connectWhatsApp}
-              disabled={connecting === "whatsapp"}
-              className="ds-btn-primary disabled:opacity-50"
-            >
-              {connecting === "whatsapp" ? t("connecting") : t("connect")}
-            </button>
-          </div>
+      <div className="p-7">
+        {/* Channel Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {channels.map((ch) => {
+            const isExpanded = expandedCard === ch.id
+            return (
+              <div
+                key={ch.id}
+                className={`bg-white rounded-xl border-2 transition-all duration-200 overflow-hidden ${
+                  ch.connected
+                    ? isExpanded ? ch.borderActive + " shadow-lg" : "border-surface-300 hover:shadow-md"
+                    : "border-surface-200 border-dashed"
+                }`}
+              >
+                {/* Card Top */}
+                <div className="p-5 text-center">
+                  <div className={`w-14 h-14 ${ch.bg} rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-md`}>
+                    {ch.icon}
+                  </div>
+                  <h3 className="text-body-medium font-bold text-ink">{ch.name}</h3>
+                  <p className="text-micro text-ink-tertiary mt-1">{ch.desc}</p>
 
-          {wabaAccounts.length > 0 ? (
-            <div className="space-y-3">
-              {wabaAccounts.map((waba) => (
-                <div key={waba.waba_id} className="bg-white border border-surface-300 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="ds-badge-success">{t("connected")}</span>
-                      <span className="text-body-medium font-medium text-ink">{waba.waba_name}</span>
-                      <span className="text-caption text-ink-secondary">({waba.waba_id})</span>
-                    </div>
+                  {/* Status */}
+                  <div className="mt-3">
+                    {ch.connected ? (
+                      <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
+                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                        {isTR ? "Bağlı" : "Connected"} ({ch.count})
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-ink-tertiary bg-surface-150 px-2.5 py-1 rounded-full">
+                        <span className="w-1.5 h-1.5 bg-gray-300 rounded-full" />
+                        {isTR ? "Bağlı Değil" : "Not Connected"}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Connect Button */}
+                  <button
+                    onClick={ch.onConnect}
+                    disabled={connecting === ch.id}
+                    className="mt-4 w-full py-2 text-ui font-bold rounded-lg transition-colors disabled:opacity-50 bg-surface-100 text-ink hover:bg-surface-200 border border-surface-300"
+                  >
+                    {connecting === ch.id
+                      ? t("connecting")
+                      : ch.connected
+                        ? (isTR ? "+ Hesap Ekle" : "+ Add Account")
+                        : t("connect")}
+                  </button>
+                </div>
+
+                {/* Dropdown Toggle — only if connected */}
+                {ch.connected && (
+                  <>
                     <button
-                      onClick={() => disconnectWaba(waba.waba_id)}
-                      disabled={disconnecting === `waba_${waba.waba_id}`}
-                      className="ds-btn-danger ds-btn-sm disabled:opacity-50"
+                      onClick={() => setExpandedCard(isExpanded ? null : ch.id)}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 bg-surface-50 border-t border-surface-200 hover:bg-surface-100 transition-colors"
                     >
-                      {disconnecting === `waba_${waba.waba_id}` ? "..." : t("disconnect")}
+                      <span className="text-[11px] font-bold text-ink-secondary uppercase tracking-wider">
+                        {isTR ? "Bağlı Hesaplar" : "Connected Accounts"}
+                      </span>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className={`w-3.5 h-3.5 text-ink-tertiary transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}>
+                        <path d="M6 9l6 6 6-6" />
+                      </svg>
                     </button>
-                  </div>
 
-                  {waba.phone_numbers && waba.phone_numbers.length > 0 && (
-                    <div className="space-y-2">
-                      {waba.phone_numbers.map((phone) => (
-                        <div key={phone.id} className="flex items-center justify-between bg-surface-50 border border-surface-300 rounded-lg px-4 py-3">
-                          <div className="flex items-center gap-3">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-4 h-4 text-ink-tertiary">
-                              <rect x="5" y="2" width="14" height="20" rx="2" /><line x1="12" y1="18" x2="12.01" y2="18" />
-                            </svg>
-                            <span className="text-ui font-mono font-medium text-ink">{phone.number}</span>
-                            {phone.verified_name && (
-                              <span className="text-caption text-ink-secondary">{phone.verified_name}</span>
-                            )}
+                    {/* Expanded Account Details */}
+                    {isExpanded && (
+                      <div className="border-t border-surface-200 bg-surface-50 p-4 space-y-2 animate-fade-in">
+                        {ch.id === "whatsapp" && wabaAccounts.map((waba) => (
+                          <div key={waba.waba_id} className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="text-ui font-bold text-ink truncate">{waba.waba_name}</span>
+                              </div>
+                              <button
+                                onClick={() => disconnectWaba(waba.waba_id)}
+                                disabled={disconnecting === `waba_${waba.waba_id}`}
+                                className="text-[10px] font-bold text-red-500 hover:text-red-700 transition-colors shrink-0"
+                              >
+                                {disconnecting === `waba_${waba.waba_id}` ? "..." : (isTR ? "Kes" : "Remove")}
+                              </button>
+                            </div>
+                            {waba.phone_numbers?.map((phone) => (
+                              <div key={phone.id} className="bg-white rounded-lg border border-surface-300 px-3 py-2.5">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-3.5 h-3.5 text-ink-tertiary">
+                                      <rect x="5" y="2" width="14" height="20" rx="2" /><line x1="12" y1="18" x2="12.01" y2="18" />
+                                    </svg>
+                                    <span className="text-caption font-mono font-medium text-ink">{phone.number}</span>
+                                  </div>
+                                </div>
+                                {phone.verified_name && (
+                                  <p className="text-micro text-ink-tertiary mt-1 ml-5.5">{phone.verified_name}</p>
+                                )}
+                                <div className="flex gap-1.5 mt-2">
+                                  <span className={`text-[9px] font-bold px-1.5 py-px rounded-full border ${qualityColors[phone.quality_rating] || qualityColors.UNKNOWN}`}>
+                                    {qualityLabel[phone.quality_rating] || qualityLabel.UNKNOWN}
+                                  </span>
+                                  <span className={`text-[9px] font-bold px-1.5 py-px rounded-full ${statusColors[phone.status] || statusColors.DISCONNECTED}`}>
+                                    {statusLabel[phone.status] || phone.status}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${qualityColors[phone.quality_rating] || qualityColors.UNKNOWN}`}>
-                              {qualityLabel[phone.quality_rating] || qualityLabel.UNKNOWN}
-                            </span>
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusColors[phone.status] || statusColors.DISCONNECTED}`}>
-                              {statusLabel[phone.status] || phone.status}
-                            </span>
+                        ))}
+
+                        {ch.id === "instagram" && instagramAccounts.map((acc) => (
+                          <div key={acc.id} className="flex items-center justify-between bg-white rounded-lg border border-surface-300 px-3 py-2.5">
+                            <span className="text-ui font-medium text-ink">{acc.page_name || acc.account_id}</span>
+                            <button
+                              onClick={() => disconnectChannelAccount(acc.id)}
+                              disabled={disconnecting === acc.id}
+                              className="text-[10px] font-bold text-red-500 hover:text-red-700 transition-colors"
+                            >
+                              {disconnecting === acc.id ? "..." : (isTR ? "Kes" : "Remove")}
+                            </button>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-caption text-ink-secondary">{t("no_whatsapp_connected")}</p>
-          )}
+                        ))}
+
+                        {ch.id === "facebook" && facebookAccounts.map((acc) => (
+                          <div key={acc.id} className="flex items-center justify-between bg-white rounded-lg border border-surface-300 px-3 py-2.5">
+                            <span className="text-ui font-medium text-ink">{acc.page_name || acc.account_id}</span>
+                            <button
+                              onClick={() => disconnectChannelAccount(acc.id)}
+                              disabled={disconnecting === acc.id}
+                              className="text-[10px] font-bold text-red-500 hover:text-red-700 transition-colors"
+                            >
+                              {disconnecting === acc.id ? "..." : (isTR ? "Kes" : "Remove")}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )
+          })}
         </div>
 
-        {/* ==================== INSTAGRAM ==================== */}
-        <div className="bg-white border border-surface-300 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#833AB4] via-[#E1306C] to-[#F77737] rounded-card-sm flex items-center justify-center">
-                <InstagramIcon />
-              </div>
-              <div>
-                <h3 className="text-body-medium font-medium text-ink">Instagram DM</h3>
-                <p className="text-micro text-ink-secondary">{t("instagram_desc")}</p>
-              </div>
-            </div>
-            <button
-              onClick={() => connectChannel("instagram")}
-              disabled={connecting === "instagram"}
-              className="ds-btn-primary disabled:opacity-50"
-            >
-              {connecting === "instagram" ? t("connecting") : t("connect")}
-            </button>
-          </div>
-
-          {instagramAccounts.length > 0 ? (
-            <div className="space-y-2">
-              {instagramAccounts.map((acc) => (
-                <div key={acc.id} className="flex items-center justify-between bg-white border border-surface-300 rounded-lg px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <span className="ds-badge-success">{t("connected")}</span>
-                    <span className="text-body-medium font-medium text-ink">{acc.page_name || acc.account_id}</span>
-                  </div>
-                  <button
-                    onClick={() => disconnectChannelAccount(acc.id)}
-                    disabled={disconnecting === acc.id}
-                    className="ds-btn-danger ds-btn-sm disabled:opacity-50"
-                  >
-                    {disconnecting === acc.id ? "..." : t("disconnect")}
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-caption text-ink-secondary">{t("no_instagram_connected")}</p>
-          )}
+        {/* How it works */}
+        <div className="mt-8 ds-card p-6">
+          <h3 className="ds-section-title mb-2">{t("how_it_works")}</h3>
+          <ul className="text-caption text-ink-secondary space-y-2">
+            <li>{t("channel_step1_v2")}</li>
+            <li>{t("channel_step2_v2")}</li>
+            <li>{t("channel_step3")}</li>
+            <li>{t("channel_step4")}</li>
+          </ul>
         </div>
-
-        {/* ==================== FACEBOOK ==================== */}
-        <div className="bg-white border border-surface-300 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#0084FF] rounded-card-sm flex items-center justify-center">
-                <MessengerIcon />
-              </div>
-              <div>
-                <h3 className="text-body-medium font-medium text-ink">Facebook Messenger</h3>
-                <p className="text-micro text-ink-secondary">{t("facebook_desc")}</p>
-              </div>
-            </div>
-            <button
-              onClick={() => connectChannel("facebook")}
-              disabled={connecting === "facebook"}
-              className="ds-btn-primary disabled:opacity-50"
-            >
-              {connecting === "facebook" ? t("connecting") : t("connect")}
-            </button>
-          </div>
-
-          {facebookAccounts.length > 0 ? (
-            <div className="space-y-2">
-              {facebookAccounts.map((acc) => (
-                <div key={acc.id} className="flex items-center justify-between bg-white border border-surface-300 rounded-lg px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <span className="ds-badge-success">{t("connected")}</span>
-                    <span className="text-body-medium font-medium text-ink">{acc.page_name || acc.account_id}</span>
-                  </div>
-                  <button
-                    onClick={() => disconnectChannelAccount(acc.id)}
-                    disabled={disconnecting === acc.id}
-                    className="ds-btn-danger ds-btn-sm disabled:opacity-50"
-                  >
-                    {disconnecting === acc.id ? "..." : t("disconnect")}
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-caption text-ink-secondary">{t("no_facebook_connected")}</p>
-          )}
-        </div>
-      </div>
-
-      <div className="mt-8 ds-card p-6">
-        <h3 className="ds-section-title mb-2">{t("how_it_works")}</h3>
-        <ul className="text-caption text-ink-secondary space-y-2">
-          <li>{t("channel_step1_v2")}</li>
-          <li>{t("channel_step2_v2")}</li>
-          <li>{t("channel_step3")}</li>
-          <li>{t("channel_step4")}</li>
-        </ul>
       </div>
     </div>
   )
