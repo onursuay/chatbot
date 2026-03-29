@@ -99,7 +99,7 @@ export default function RegisterPage() {
                   placeholder={isTR ? "Minimum 8 karakter" : "Minimum 8 characters"} required minLength={8} />
               </div>
               <button type="submit" disabled={loading}
-                className="w-full bg-primary hover:bg-primary-hover text-[#0a0a0a] font-bold rounded-lg py-2.5 transition-all duration-200 shadow-lg shadow-primary/15 disabled:opacity-50 disabled:cursor-not-allowed">
+                className="w-full bg-primary hover:bg-primary-hover text-white font-bold rounded-lg py-2.5 transition-all duration-200 shadow-lg shadow-primary/15 disabled:opacity-50 disabled:cursor-not-allowed">
                 {loading ? (isTR ? "Kayit yapiliyor..." : "Creating account...") : (isTR ? "Ucretsiz Baslat" : "Start Free")}
               </button>
             </form>

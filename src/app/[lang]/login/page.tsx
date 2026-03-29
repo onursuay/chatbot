@@ -56,9 +56,9 @@ function FloatingCanvas() {
         { type: "bot", color: "139,92,246" },
         { type: "crm-contact", color: "59,130,246" },
         { type: "crm-pipeline", color: "245,158,11" },
-        { type: "crm-chart", color: "99,102,241" },
-        { type: "mail", color: "99,102,241" },
-        { type: "chat", color: "99,102,241" },
+        { type: "crm-chart", color: "17,157,88" },
+        { type: "mail", color: "17,157,88" },
+        { type: "chat", color: "17,157,88" },
       ]
       icons = Array.from({ length: 28 }, (_, i) => {
         const t = types[i % types.length]
@@ -478,7 +478,7 @@ export default function LoginPage() {
                 icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M12 8V4M8 8V6M16 8V6" strokeLinecap="round"/><circle cx="8.5" cy="14" r="1.5" fill="currentColor"/><circle cx="15.5" cy="14" r="1.5" fill="currentColor"/><path d="M9.5 17.5h5" strokeLinecap="round"/></svg>,
                 titleTR: "AI Chatbot & Otomasyon", titleEN: "AI Chatbot & Automation",
                 descTR: "Yapay zeka destekli otomatik yanıtlar ve iş akışları", descEN: "AI-powered auto replies and workflow automation",
-                colors: ["#8B5CF6", "#6366F1"],
+                colors: ["#8B5CF6", "#119d58"],
               },
             ].map((feat, i) => (
               <div key={i} className="group flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300">
@@ -570,7 +570,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-primary hover:bg-primary-hover text-[#0a2e24] font-bold rounded-lg py-3 transition-all duration-200 shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+                  className="w-full bg-primary hover:bg-primary-hover text-white font-bold rounded-lg py-3 transition-all duration-200 shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
                 >
                   {loading
                     ? (isTR ? "Giris yapiliyor..." : "Signing in...")

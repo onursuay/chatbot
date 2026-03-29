@@ -5,23 +5,23 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Primary — Indigo accent
+        // Primary — Green accent
         primary: {
-          DEFAULT: "#6366F1",
-          light: "#818CF8",
-          hover: "#4F46E5",
-          deep: "#1E1B4B",    // text on primary buttons
-          50: "#EEF2FF",
-          100: "#E0E7FF",
-          200: "#C7D2FE",
-          300: "#A5B4FC",
-          400: "#818CF8",
-          500: "#6366F1",
-          600: "#4F46E5",
-          700: "#4338CA",
-          800: "#3730A3",
-          900: "#312E81",
-          950: "#1E1B4B",
+          DEFAULT: "#119d58",
+          light: "#15b866",
+          hover: "#0e8249",
+          deep: "#FFFFFF",    // text on primary buttons (white)
+          50: "#EAFBF1",
+          100: "#D0F5E0",
+          200: "#A3EBC3",
+          300: "#6DDEA0",
+          400: "#2CC974",
+          500: "#119d58",
+          600: "#0e8249",
+          700: "#0C6B3D",
+          800: "#0A5531",
+          900: "#084527",
+          950: "#042E1A",
         },
         // Ink — Text colors (dark on light)
         ink: {
@@ -116,12 +116,12 @@ const config: Config = {
       boxShadow: {
         "card": "0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)",
         "card-hover": "0 4px 12px rgba(0,0,0,0.08)",
-        "card-active": "0 0 0 2px rgba(99,102,241,0.3)",
+        "card-active": "0 0 0 2px rgba(17,157,88,0.3)",
         "elevated": "0 4px 6px -2px rgba(0,0,0,0.03), 0 12px 16px -4px rgba(0,0,0,0.08)",
         "nav": "0 1px 2px rgba(0,0,0,0.04)",
-        "input-focus": "0 0 0 3px rgba(99,102,241,0.2)",
+        "input-focus": "0 0 0 3px rgba(17,157,88,0.2)",
         "button": "0 1px 2px rgba(0,0,0,0.05)",
-        "button-primary": "0 1px 3px rgba(99,102,241,0.3)",
+        "button-primary": "0 1px 3px rgba(17,157,88,0.3)",
         "dropdown": "0 4px 6px -2px rgba(0,0,0,0.05), 0 10px 15px -3px rgba(0,0,0,0.1)",
         "modal": "0 20px 60px -12px rgba(0,0,0,0.15)",
         "sidebar": "2px 0 8px rgba(0,0,0,0.1)",
@@ -132,7 +132,7 @@ const config: Config = {
         "fade-in": { "0%": { opacity: "0" }, "100%": { opacity: "1" } },
         "slide-up": { "0%": { opacity: "0", transform: "translateY(8px)" }, "100%": { opacity: "1", transform: "translateY(0)" } },
         "pulse-soft": { "0%, 100%": { opacity: "1" }, "50%": { opacity: "0.6" } },
-        "ai-glow": { "0%, 100%": { boxShadow: "0 0 0 0 rgba(99,102,241,0)" }, "50%": { boxShadow: "0 0 12px 2px rgba(99,102,241,0.15)" } },
+        "ai-glow": { "0%, 100%": { boxShadow: "0 0 0 0 rgba(17,157,88,0)" }, "50%": { boxShadow: "0 0 12px 2px rgba(17,157,88,0.15)" } },
       },
       animation: {
         "card-enter": "card-enter 0.35s cubic-bezier(0.22,1,0.36,1) forwards",

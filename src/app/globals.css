@@ -81,9 +81,30 @@ body {
   .ds-btn:not(:disabled):active { transform: translateY(1px); }
 
   .ds-btn-primary {
-    @apply ds-btn bg-primary text-primary-deep border-0 shadow-button-primary;
+    @apply ds-btn bg-primary text-white border-0 shadow-button-primary;
+    position: relative;
+    overflow: hidden;
+    z-index: 0;
   }
-  .ds-btn-primary:not(:disabled):hover { @apply bg-primary-hover text-white; }
+  .ds-btn-primary::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    padding: 2px;
+    background: conic-gradient(from var(--snake-angle, 0deg), transparent 60%, #15b866 78%, #fff 85%, #15b866 92%, transparent 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .ds-btn-primary:not(:disabled):hover::before {
+    opacity: 1;
+    animation: snake-rotate 1.5s linear infinite;
+  }
+  .ds-btn-primary:not(:disabled):hover { @apply bg-primary-hover; }
 
   .ds-btn-secondary {
     @apply ds-btn bg-white text-ink border border-surface-300;
@@ -186,7 +207,7 @@ body {
 
   /* --- AI Surface --- */
   .ds-ai-surface { @apply bg-primary-50 border border-primary/15 rounded-card; }
-  .ds-ai-glow { box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.08), 0 1px 8px rgba(99, 102, 241, 0.1); }
+  .ds-ai-glow { box-shadow: 0 0 0 1px rgba(17, 157, 88, 0.08), 0 1px 8px rgba(17, 157, 88, 0.1); }
 
   /* --- Divider --- */
   .ds-divider { @apply h-px bg-surface-300; }
@@ -200,10 +221,20 @@ body {
 
 /* Focus ring */
 *:focus-visible {
-  outline: 2px solid rgba(99, 102, 241, 0.4);
+  outline: 2px solid rgba(17, 157, 88, 0.4);
   outline-offset: 1px;
 }
 textarea:focus { box-shadow: none; }
+
+/* Snake border rotation for primary buttons */
+@property --snake-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes snake-rotate {
+  to { --snake-angle: 360deg; }
+}
 
 /* Select arrow fallback */
 select {
