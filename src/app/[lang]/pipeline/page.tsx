@@ -47,8 +47,10 @@ export default function PipelinePage() {
     try {
       const data = await api<Pipeline[]>("/pipelines", { token })
       setPipelines(data)
-      if (data.length > 0 && !selectedPipelineId) setSelectedPipelineId(data[0].id)
-    } catch {}
+      if (data.length > 0) setSelectedPipelineId(data[0].id)
+    } catch (err: any) {
+      console.error("Pipeline yükleme hatası:", err)
+    }
     setLoading(false)
   }
 
@@ -73,7 +75,9 @@ export default function PipelinePage() {
         }),
       })
       await loadPipelines()
-    } catch {}
+    } catch (err: any) {
+      alert((isTR ? "Pipeline oluşturulamadı: " : "Pipeline creation failed: ") + (err.message || "Bilinmeyen hata"))
+    }
     setCreating(false)
   }
 

@@ -439,7 +439,9 @@ export default function InboxPage() {
                   </div>
                   {/* Unread indicator */}
                   {conv.unread_count > 0 && (
-                    <div className="absolute top-3 right-3 w-2 h-2 bg-primary rounded-full ring-2 ring-white" />
+                    <div className="absolute bottom-3 right-3 min-w-[18px] h-[18px] bg-primary rounded-full ring-2 ring-white flex items-center justify-center">
+                      <span className="text-[9px] font-bold text-white">{conv.unread_count > 9 ? "9+" : conv.unread_count}</span>
+                    </div>
                   )}
                   {/* Delete button on hover */}
                   <button
