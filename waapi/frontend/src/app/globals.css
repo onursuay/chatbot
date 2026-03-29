@@ -289,6 +289,45 @@ body {
   30% { transform: scale(1); opacity: 1; }
 }
 
+/* --- Pricing card rotating glow (Profesyonel) --- */
+.landing-card-glow {
+  position: relative;
+  overflow: visible;
+  z-index: 0;
+}
+.landing-card-glow::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--glow-angle, 0deg),
+    transparent 40%,
+    rgba(17, 157, 88, 0.5) 55%,
+    rgba(21, 184, 102, 0.8) 60%,
+    #fff 62%,
+    rgba(21, 184, 102, 0.8) 64%,
+    rgba(17, 157, 88, 0.5) 69%,
+    transparent 84%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: glow-rotate 3s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@property --glow-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes glow-rotate {
+  to { --glow-angle: 360deg; }
+}
+
 /* --- Smooth Scroll --- */
 html {
   scroll-behavior: smooth;

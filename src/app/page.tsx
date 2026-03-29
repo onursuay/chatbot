@@ -10,7 +10,7 @@ export default function Home() {
     if (token) {
       router.push("/tr/gelen-kutusu")
     } else {
-      router.push("/auth/login")
+      router.push("/landing")
     }
   }, [router])
 
@@ -37,7 +37,6 @@ export default function Home() {
             />
           ))}
         </div>
-        <span className="text-sm text-ink-tertiary">Yükleniyor...</span>
         <style>{`
           @keyframes bounce-dot {
             0%, 80%, 100% { transform: scale(0.4); opacity: 0.3; }

@@ -34,12 +34,22 @@ class EmbeddedSignupRequest(BaseModel):
     code: str
 
 
-class EmbeddedSignupResponse(BaseModel):
-    waba_id: str
+class ConnectedPhoneInfo(BaseModel):
     phone_number: str
     phone_number_id: str
     verified_name: str | None = None
-    message: str = "WhatsApp hesabı başarıyla bağlandı"
+
+
+class ConnectedWabaInfo(BaseModel):
+    waba_id: str
+    waba_name: str
+    business_id: str | None = None
+    phone_numbers: list[ConnectedPhoneInfo] = []
+
+
+class EmbeddedSignupResponse(BaseModel):
+    accounts: list[ConnectedWabaInfo] = []
+    message: str = "WhatsApp hesapları başarıyla bağlandı"
 
 
 @router.post("/connect", response_model=EmbeddedSignupResponse)
@@ -49,13 +59,14 @@ async def connect_whatsapp(
     db: AsyncSession = Depends(get_db),
 ) -> Any:
     """
-    Facebook Login'den gelen authorization code ile WhatsApp hesabını bağla.
+    Facebook Login'den gelen authorization code ile TÜM WhatsApp hesaplarını
+    portfolyo olarak bağla. Birden fazla WABA ve telefon numarası destekler.
     """
     # 1. Code -> Access Token
     token_data = await _exchange_code_for_token(body.code)
     user_access_token = token_data["access_token"]
 
-    # 2. Debug token ile WABA bilgilerini al
+    # 2. Debug token ile TÜM WABA bilgilerini al
     shared_waba_ids = await _get_shared_wabas(user_access_token)
     if not shared_waba_ids:
         raise HTTPException(
@@ -63,95 +74,104 @@ async def connect_whatsapp(
             detail="WhatsApp Business hesabı bulunamadı. Lütfen Embedded Signup'ı tamamlayın.",
         )
 
-    waba_id = shared_waba_ids[0]
-
-    # 3. WABA için System User Token oluştur (subscribe)
-    # Önce business ID'yi alalım
-    waba_details = await _get_waba_details(user_access_token, waba_id)
-    business_id = waba_details.get("on_behalf_of_business_info", {}).get("id")
-
-    # 4. Telefon numaralarını al
-    phone_numbers = await _get_phone_numbers(user_access_token, waba_id)
-    if not phone_numbers:
-        raise HTTPException(
-            status_code=400,
-            detail="Henüz bir telefon numarası eklenmemiş.",
-        )
-
-    phone = phone_numbers[0]
-
-    # 5. WABA'yı uygulamaya subscribe et
-    await _subscribe_waba(user_access_token, waba_id)
-
-    # 6. Webhook'a subscribe ol
-    await _register_phone_number(user_access_token, phone["id"])
-
-    # 7. Veritabanına kaydet
-    # Mevcut WABA var mı kontrol et
-    existing = await db.execute(
-        select(WABAAccount).where(WABAAccount.waba_id == waba_id)
-    )
-    waba_account = existing.scalar_one_or_none()
-
     encrypted_access_token = encrypt_token(user_access_token)
+    connected_accounts: list[ConnectedWabaInfo] = []
+    last_business_id: str | None = None
 
-    if waba_account:
-        # Güncelle
-        waba_account.access_token = encrypted_access_token
-        waba_account.is_active = True
-        waba_account.business_id = business_id
-    else:
-        # Yeni oluştur
-        waba_account = WABAAccount(
-            org_id=current_user.org_id,
+    # 3. TÜM WABA'ları döngüyle kaydet
+    for waba_id in shared_waba_ids:
+        waba_details = await _get_waba_details(user_access_token, waba_id)
+        business_id = waba_details.get("on_behalf_of_business_info", {}).get("id")
+        if business_id:
+            last_business_id = business_id
+
+        # Telefon numaralarını al
+        phone_numbers = await _get_phone_numbers(user_access_token, waba_id)
+
+        # WABA'yı uygulamaya subscribe et
+        await _subscribe_waba(user_access_token, waba_id)
+
+        # Mevcut WABA var mı kontrol et
+        existing = await db.execute(
+            select(WABAAccount).where(WABAAccount.waba_id == waba_id)
+        )
+        waba_account = existing.scalar_one_or_none()
+
+        if waba_account:
+            waba_account.access_token = encrypted_access_token
+            waba_account.is_active = True
+            waba_account.business_id = business_id
+        else:
+            waba_account = WABAAccount(
+                org_id=current_user.org_id,
+                waba_id=waba_id,
+                name=waba_details.get("name", "WhatsApp Business"),
+                access_token=encrypted_access_token,
+                business_id=business_id,
+                is_active=True,
+            )
+            db.add(waba_account)
+            await db.flush()
+
+        # TÜM telefon numaralarını kaydet
+        connected_phones: list[ConnectedPhoneInfo] = []
+        for phone in phone_numbers:
+            existing_phone = await db.execute(
+                select(PhoneNumber).where(PhoneNumber.phone_number_id == phone["id"])
+            )
+            phone_record = existing_phone.scalar_one_or_none()
+
+            if not phone_record:
+                # Yeni numarayı register et
+                await _register_phone_number(user_access_token, phone["id"])
+
+            if phone_record:
+                phone_record.display_number = phone["display_phone_number"]
+                phone_record.verified_name = phone.get("verified_name")
+                phone_record.is_active = True
+            else:
+                phone_record = PhoneNumber(
+                    waba_id=waba_account.id,
+                    org_id=current_user.org_id,
+                    phone_number_id=phone["id"],
+                    display_number=phone["display_phone_number"],
+                    verified_name=phone.get("verified_name"),
+                    quality_rating=phone.get("quality_rating", "GREEN"),
+                    status="CONNECTED",
+                    is_active=True,
+                )
+                db.add(phone_record)
+
+            connected_phones.append(ConnectedPhoneInfo(
+                phone_number=phone["display_phone_number"],
+                phone_number_id=phone["id"],
+                verified_name=phone.get("verified_name"),
+            ))
+
+        connected_accounts.append(ConnectedWabaInfo(
             waba_id=waba_id,
-            name=waba_details.get("name", "WhatsApp Business"),
-            access_token=encrypted_access_token,
+            waba_name=waba_details.get("name", "WhatsApp Business"),
             business_id=business_id,
-            is_active=True,
-        )
-        db.add(waba_account)
-        await db.flush()
-
-    # Telefon numarasını kaydet
-    existing_phone = await db.execute(
-        select(PhoneNumber).where(PhoneNumber.phone_number_id == phone["id"])
-    )
-    phone_record = existing_phone.scalar_one_or_none()
-
-    if phone_record:
-        phone_record.display_number = phone["display_phone_number"]
-        phone_record.verified_name = phone.get("verified_name")
-        phone_record.is_active = True
-    else:
-        phone_record = PhoneNumber(
-            waba_id=waba_account.id,
-            org_id=current_user.org_id,
-            phone_number_id=phone["id"],
-            display_number=phone["display_phone_number"],
-            verified_name=phone.get("verified_name"),
-            quality_rating=phone.get("quality_rating", "GREEN"),
-            status="CONNECTED",
-            is_active=True,
-        )
-        db.add(phone_record)
+            phone_numbers=connected_phones,
+        ))
 
     # Organization'ı güncelle
-    org = await db.get(Organization, current_user.org_id)
-    if org:
-        org.meta_business_id = business_id
+    if last_business_id:
+        org = await db.get(Organization, current_user.org_id)
+        if org:
+            org.meta_business_id = last_business_id
 
     await db.commit()
 
     logger.info(
-        f"WhatsApp bağlandı: org={current_user.org_id}, waba={waba_id}, phone={phone['display_phone_number']}"
+        f"WhatsApp portfolyo bağlandı: org={current_user.org_id}, "
+        f"{len(connected_accounts)} WABA, "
+        f"{sum(len(a.phone_numbers) for a in connected_accounts)} telefon"
     )
 
     return EmbeddedSignupResponse(
-        waba_id=waba_id,
-        phone_number=phone["display_phone_number"],
-        phone_number_id=phone["id"],
-        verified_name=phone.get("verified_name"),
+        accounts=connected_accounts,
+        message=f"{len(connected_accounts)} WhatsApp hesabı başarıyla bağlandı",
     )
 
 
@@ -160,37 +180,51 @@ async def get_connection_status(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
-    """Mevcut WhatsApp bağlantı durumunu döndür."""
+    """Mevcut WhatsApp bağlantı durumunu döndür — TÜM WABA portfolyosu."""
     result = await db.execute(
         select(WABAAccount)
-        .where(WABAAccount.org_id == current_user.org_id, WABAAccount.is_active == True)
+        .where(WABAAccount.org_id == current_user.org_id)
     )
-    waba = result.scalar_one_or_none()
+    wabas = result.scalars().all()
 
-    if not waba:
-        return {"connected": False}
+    if not wabas:
+        return {"connected": False, "accounts": []}
 
-    phones_result = await db.execute(
-        select(PhoneNumber)
-        .where(PhoneNumber.waba_id == waba.id, PhoneNumber.is_active == True)
-    )
-    phones = phones_result.scalars().all()
+    accounts = []
+    for waba in wabas:
+        phones_result = await db.execute(
+            select(PhoneNumber).where(PhoneNumber.waba_id == waba.id)
+        )
+        phones = phones_result.scalars().all()
+
+        accounts.append({
+            "id": str(waba.id),
+            "waba_id": waba.waba_id,
+            "waba_name": waba.name,
+            "business_id": waba.business_id,
+            "is_active": waba.is_active,
+            "phone_numbers": [
+                {
+                    "id": p.phone_number_id,
+                    "number": p.display_number,
+                    "verified_name": p.verified_name,
+                    "quality_rating": p.quality_rating,
+                    "status": p.status,
+                    "is_active": p.is_active,
+                }
+                for p in phones
+            ],
+        })
+
+    active_count = sum(1 for a in accounts if a["is_active"])
 
     return {
-        "connected": True,
-        "waba_id": waba.waba_id,
-        "waba_name": waba.name,
-        "business_id": waba.business_id,
-        "phone_numbers": [
-            {
-                "id": p.phone_number_id,
-                "number": p.display_number,
-                "verified_name": p.verified_name,
-                "quality_rating": p.quality_rating,
-                "status": p.status,
-            }
-            for p in phones
-        ],
+        "connected": active_count > 0,
+        "accounts": accounts,
+        # Legacy compat — ilk aktif WABA
+        "waba_id": next((a["waba_id"] for a in accounts if a["is_active"]), None),
+        "waba_name": next((a["waba_name"] for a in accounts if a["is_active"]), None),
+        "business_id": next((a["business_id"] for a in accounts if a["is_active"]), None),
     }
 
 

@@ -32,9 +32,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Root "/" -> /tr (default dil)
+  // Landing page — pass through to /landing
+  if (pathname === "/landing") {
+    return NextResponse.next()
+  }
+
+  // Root "/" -> landing page
   if (pathname === "/") {
-    return NextResponse.redirect(new URL("/tr/gelen-kutusu", request.url))
+    return NextResponse.rewrite(new URL("/landing", request.url))
   }
 
   // Eski /dashboard/* URL'leri -> /tr/* yönlendir

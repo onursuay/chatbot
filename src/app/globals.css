@@ -219,6 +219,120 @@ body {
   .ds-callout-success { @apply bg-callout-success border border-primary/15 rounded-card p-4; }
 }
 
+/* ============================================
+   LANDING PAGE — Premium Design System
+   ============================================ */
+
+/* --- Primary CTA Button --- */
+.landing-btn-primary {
+  @apply inline-flex items-center gap-2 font-bold rounded-xl px-6 py-3;
+  @apply bg-primary text-white shadow-lg;
+  background-image: linear-gradient(135deg, #119d58 0%, #0e8249 100%);
+  box-shadow: 0 4px 14px -2px rgba(17, 157, 88, 0.4), 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.landing-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -4px rgba(17, 157, 88, 0.45), 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+.landing-btn-primary:active {
+  transform: translateY(0);
+}
+
+/* --- Secondary Button --- */
+.landing-btn-secondary {
+  @apply inline-flex items-center gap-2 font-bold rounded-xl px-6 py-3;
+  @apply bg-white text-ink border border-surface-300;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.landing-btn-secondary:hover {
+  @apply border-surface-400 bg-surface-50;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* --- Gradient Text --- */
+.landing-gradient-text {
+  background: linear-gradient(135deg, #119d58 0%, #15b866 40%, #2CC974 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* --- Reveal Animation --- */
+.landing-reveal {
+  animation: landing-reveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.landing-reveal-delay-1 { animation-delay: 0.15s; opacity: 0; }
+.landing-reveal-delay-2 { animation-delay: 0.3s; opacity: 0; }
+.landing-reveal-delay-3 { animation-delay: 0.45s; opacity: 0; }
+
+@keyframes landing-reveal {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Floating Particles --- */
+@keyframes landing-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.5; }
+  50% { transform: translateY(-20px) rotate(3deg); opacity: 0.8; }
+}
+
+/* --- Typing Dots --- */
+.landing-typing-dot {
+  @apply w-2 h-2 rounded-full bg-primary/60;
+  animation: landing-typing 1.4s ease-in-out infinite;
+}
+@keyframes landing-typing {
+  0%, 60%, 100% { transform: scale(0.6); opacity: 0.3; }
+  30% { transform: scale(1); opacity: 1; }
+}
+
+/* --- Pricing card rotating glow (Profesyonel) --- */
+.landing-card-glow {
+  position: relative;
+  overflow: visible;
+  z-index: 0;
+}
+.landing-card-glow::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--glow-angle, 0deg),
+    transparent 40%,
+    rgba(17, 157, 88, 0.5) 55%,
+    rgba(21, 184, 102, 0.8) 60%,
+    #fff 62%,
+    rgba(21, 184, 102, 0.8) 64%,
+    rgba(17, 157, 88, 0.5) 69%,
+    transparent 84%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: glow-rotate 3s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@property --glow-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes glow-rotate {
+  to { --glow-angle: 360deg; }
+}
+
+/* --- Smooth Scroll --- */
+html {
+  scroll-behavior: smooth;
+}
+
 /* Focus ring */
 *:focus-visible {
   outline: 2px solid rgba(17, 157, 88, 0.4);

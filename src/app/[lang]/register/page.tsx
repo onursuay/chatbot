@@ -63,7 +63,7 @@ export default function RegisterPage() {
                 <span className="text-primary">Chat</span>
               </h1>
             </div>
-            <p className="text-white/30 mt-2 text-sm">{isTR ? "7 gun ucretsiz deneyin" : "Try free for 7 days"}</p>
+            <p className="text-white/30 mt-2 text-sm">{isTR ? "7 gün ücretsiz deneyin" : "Try free for 7 days"}</p>
           </div>
 
           <div className="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-8 backdrop-blur-sm">
@@ -78,34 +78,34 @@ export default function RegisterPage() {
                 <label className="block text-sm text-white/50 mb-1.5">{isTR ? "Ad Soyad" : "Full Name"}</label>
                 <input type="text" value={form.full_name} onChange={(e) => update("full_name", e.target.value)}
                   className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-white placeholder-white/20 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all duration-150"
-                  placeholder={isTR ? "Adiniz Soyadiniz" : "Your Full Name"} required />
+                  placeholder={isTR ? "Adınız Soyadınız" : "Your Full Name"} required />
               </div>
               <div>
-                <label className="block text-sm text-white/50 mb-1.5">{isTR ? "Sirket Adi" : "Company Name"}</label>
+                <label className="block text-sm text-white/50 mb-1.5">{isTR ? "Şirket Adı" : "Company Name"}</label>
                 <input type="text" value={form.org_name} onChange={(e) => update("org_name", e.target.value)}
                   className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-white placeholder-white/20 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all duration-150"
-                  placeholder={isTR ? "Sirketinizin Adi" : "Your Company Name"} required />
+                  placeholder={isTR ? "Şirketinizin Adı" : "Your Company Name"} required />
               </div>
               <div>
                 <label className="block text-sm text-white/50 mb-1.5">{isTR ? "E-posta" : "Email"}</label>
                 <input type="email" value={form.email} onChange={(e) => update("email", e.target.value)}
                   className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-white placeholder-white/20 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all duration-150"
-                  placeholder={isTR ? "ornek@sirket.com" : "example@company.com"} required />
+                  placeholder={isTR ? "örnek@sirket.com" : "example@company.com"} required />
               </div>
               <div>
-                <label className="block text-sm text-white/50 mb-1.5">{isTR ? "Sifre" : "Password"}</label>
+                <label className="block text-sm text-white/50 mb-1.5">{isTR ? "Şifre" : "Password"}</label>
                 <input type="password" value={form.password} onChange={(e) => update("password", e.target.value)}
                   className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-white placeholder-white/20 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all duration-150"
                   placeholder={isTR ? "Minimum 8 karakter" : "Minimum 8 characters"} required minLength={8} />
               </div>
               <button type="submit" disabled={loading}
                 className="w-full bg-primary hover:bg-primary-hover text-white font-bold rounded-lg py-2.5 transition-all duration-200 shadow-lg shadow-primary/15 disabled:opacity-50 disabled:cursor-not-allowed">
-                {loading ? (isTR ? "Kayıt yapılıyor..." : "Creating account...") : (isTR ? "Ucretsiz Baslat" : "Start Free")}
+                {loading ? (isTR ? "Kayıt yapılıyor..." : "Creating account...") : (isTR ? "Ücretsiz Başlat" : "Start Free")}
               </button>
             </form>
 
             <p className="text-center text-white/30 text-sm mt-6">
-              {isTR ? "Zaten hesabin var mi? " : "Already have an account? "}
+              {isTR ? "Zaten hesabın var mı? " : "Already have an account? "}
               <Link href={`/${lang}/login`} className="text-primary hover:text-primary-light transition-colors duration-150">
                 {isTR ? "Giriş Yap" : "Sign In"}
               </Link>

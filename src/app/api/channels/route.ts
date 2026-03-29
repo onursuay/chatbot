@@ -100,77 +100,93 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true })
   }
 
-  // === CONNECT Instagram or Facebook ===
-  const { page_access_token, page_id } = body
+  // === CONNECT Instagram or Facebook — Portfolyo: TÜM sayfaları bağla ===
+  // Tek sayfa bağlama (legacy): page_access_token + page_id
+  // Portfolyo bağlama (yeni): pages dizisi [{page_id, page_access_token}]
+  const { page_access_token, page_id, pages } = body
 
-  if (!channel || !page_access_token || !page_id) {
+  if (!channel) {
+    return NextResponse.json({ detail: "Kanal gerekli" }, { status: 400 })
+  }
+
+  // Portfolyo modu: birden fazla sayfa bağlama
+  const pageList: { page_id: string; page_access_token: string }[] = pages
+    ? pages
+    : (page_access_token && page_id)
+      ? [{ page_id, page_access_token }]
+      : []
+
+  if (!pageList.length) {
     return NextResponse.json({ detail: "Eksik parametreler" }, { status: 400 })
   }
 
-  const res = await fetch(`${GRAPH_API}/${page_id}?fields=name,instagram_business_account&access_token=${page_access_token}`)
-  const pageData = await res.json()
+  const connectedPages: any[] = []
 
-  if (channel === "instagram") {
-    const igAccountId = pageData.instagram_business_account?.id
-    if (!igAccountId) {
-      return NextResponse.json({ detail: "Bu sayfaya bağlı Instagram hesabı bulunamadı" }, { status: 400 })
+  for (const pg of pageList) {
+    const res = await fetch(`${GRAPH_API}/${pg.page_id}?fields=name,instagram_business_account&access_token=${pg.page_access_token}`)
+    const pageData = await res.json()
+
+    if (channel === "instagram") {
+      const igAccountId = pageData.instagram_business_account?.id
+      if (!igAccountId) continue // Bu sayfada IG hesabı yok, atla
+
+      await fetch(`${GRAPH_API}/${pg.page_id}/subscribed_apps`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `subscribed_fields=messages,messaging_postbacks&access_token=${pg.page_access_token}`,
+      })
+
+      await supabase.from("channel_accounts").upsert({
+        org_id: auth.org_id,
+        channel: "instagram",
+        account_id: igAccountId,
+        page_id: pg.page_id,
+        page_name: pageData.name || "Instagram",
+        access_token: pg.page_access_token,
+        is_active: true,
+      }, { onConflict: "org_id,channel,account_id" })
+
+      connectedPages.push({ account_id: igAccountId, page_name: pageData.name, channel: "instagram" })
     }
 
-    // Subscribe to webhooks
-    await fetch(`${GRAPH_API}/${page_id}/subscribed_apps`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `subscribed_fields=messages,messaging_postbacks&access_token=${page_access_token}`,
-    })
+    if (channel === "facebook") {
+      await fetch(`${GRAPH_API}/${pg.page_id}/subscribed_apps`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `subscribed_fields=messages,messaging_postbacks,feed&access_token=${pg.page_access_token}`,
+      })
 
-    // Upsert channel_accounts
-    await supabase.from("channel_accounts").upsert({
-      org_id: auth.org_id,
-      channel: "instagram",
-      account_id: igAccountId,
-      page_id: page_id,
-      page_name: pageData.name || "Instagram",
-      access_token: page_access_token,
-    }, { onConflict: "org_id,channel,account_id" })
+      await supabase.from("channel_accounts").upsert({
+        org_id: auth.org_id,
+        channel: "facebook",
+        account_id: pg.page_id,
+        page_id: pg.page_id,
+        page_name: pageData.name || "Facebook Page",
+        access_token: pg.page_access_token,
+        is_active: true,
+      }, { onConflict: "org_id,channel,account_id" })
 
-    // Backward compat: also update org settings
-    const { data: org } = await supabase.from("organizations").select("settings").eq("id", auth.org_id).single()
-    const settings = org?.settings || {}
-    settings.instagram_page_id = page_id
-    settings.instagram_account_id = igAccountId
-    settings.instagram_page_name = pageData.name
-    settings.instagram_page_token = page_access_token
-    await supabase.from("organizations").update({ settings }).eq("id", auth.org_id)
-
-    return NextResponse.json({ success: true, page_name: pageData.name })
+      connectedPages.push({ account_id: pg.page_id, page_name: pageData.name, channel: "facebook" })
+    }
   }
 
-  if (channel === "facebook") {
-    await fetch(`${GRAPH_API}/${page_id}/subscribed_apps`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `subscribed_fields=messages,messaging_postbacks,feed&access_token=${page_access_token}`,
-    })
-
-    await supabase.from("channel_accounts").upsert({
-      org_id: auth.org_id,
-      channel: "facebook",
-      account_id: page_id,
-      page_id: page_id,
-      page_name: pageData.name || "Facebook Page",
-      access_token: page_access_token,
-    }, { onConflict: "org_id,channel,account_id" })
-
-    // Backward compat
+  // Backward compat: ilk sayfayı org settings'e kaydet
+  if (connectedPages.length > 0) {
     const { data: org } = await supabase.from("organizations").select("settings").eq("id", auth.org_id).single()
     const settings = org?.settings || {}
-    settings.facebook_page_id = page_id
-    settings.facebook_page_name = pageData.name
-    settings.facebook_page_token = page_access_token
+    const first = connectedPages[0]
+    if (channel === "instagram") {
+      settings.instagram_page_name = first.page_name
+    } else if (channel === "facebook") {
+      settings.facebook_page_name = first.page_name
+    }
     await supabase.from("organizations").update({ settings }).eq("id", auth.org_id)
-
-    return NextResponse.json({ success: true, page_name: pageData.name })
   }
 
-  return NextResponse.json({ detail: "Bilinmeyen kanal" }, { status: 400 })
+  return NextResponse.json({
+    success: true,
+    connected_count: connectedPages.length,
+    pages: connectedPages,
+    message: `${connectedPages.length} hesap başarıyla bağlandı`,
+  })
 }
