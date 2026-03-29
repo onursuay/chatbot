@@ -453,7 +453,7 @@ export default function LoginPage() {
               <div className="inline-flex items-center gap-3 mb-4">
                 <Image src="/logo.png" alt="YO Dijital" width={52} height={52} className="invert rounded-xl" />
               </div>
-              <p className="text-white/50 text-lg leading-relaxed">
+              <p className="text-white/50 text-base leading-relaxed whitespace-nowrap">
                 {isTR
                   ? "Tüm kanallarınızı tek platformda yönetin. Mesajlaşma, CRM ve yapay zeka bir arada."
                   : "Manage all your channels in one platform. Messaging, CRM and AI combined."}

@@ -1,8 +1,60 @@
 /**
  * Gemini AI service — chatbot yanıt üretimi
+ * Knowledge base + system prompt + konuşma geçmişi ile akıllı yanıt üretir.
  */
 
 import { getServiceSupabase } from "./supabase"
+
+interface KnowledgeBaseItem {
+  id: string
+  title: string
+  content: string
+  type: string
+  category: string | null
+}
+
+/**
+ * System prompt + knowledge base bilgilerini birleştirerek
+ * kapsamlı bir system instruction oluşturur.
+ */
+function buildSystemInstruction(
+  systemPrompt: string | null,
+  knowledgeBaseText: string,
+  knowledgeBaseItems: KnowledgeBaseItem[]
+): string {
+  const parts: string[] = []
+
+  // Ana system prompt
+  if (systemPrompt) {
+    parts.push(systemPrompt.trim())
+  }
+
+  // Knowledge base bölümü — yalnızca içerik varsa ekle
+  const hasKbText = knowledgeBaseText.trim().length > 0
+  const hasKbItems = knowledgeBaseItems.length > 0
+
+  if (hasKbText || hasKbItems) {
+    parts.push("\n--- BİLGİ BANKASI ---")
+
+    if (hasKbText) {
+      parts.push(knowledgeBaseText.trim())
+    }
+
+    for (const item of knowledgeBaseItems) {
+      const label = item.category || item.type || ""
+      parts.push(`\n## ${item.title} (${label})\n${item.content}`)
+    }
+
+    parts.push("\n--- BİLGİ BANKASI SONU ---")
+
+    parts.push(
+      "\nMüşteri sorularına yukarıdaki bilgi bankasına dayanarak doğru ve tutarlı yanıt ver.\n" +
+      'Bilgi bankasında olmayan konularda "Bu konuda bilgim yok, size yardımcı olabilecek bir yetkili ile bağlantı kurabilirim" şeklinde yanıt ver.'
+    )
+  }
+
+  return parts.join("\n")
+}
 
 export async function getAIResponse(
   orgId: string,
@@ -23,6 +75,26 @@ export async function getAIResponse(
 
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) return "AI servisi yapilandirilmamis."
+
+  // Knowledge base text — config.settings.knowledge_base veya config.knowledge_base
+  const knowledgeBaseText: string =
+    config.settings?.knowledge_base ||
+    config.knowledge_base ||
+    ""
+
+  // Knowledge base items — veritabanından al
+  const { data: kbItems } = await supabase
+    .from("knowledge_base_items")
+    .select("id, title, content, type, category")
+    .eq("org_id", orgId)
+    .order("created_at", { ascending: true })
+
+  // Kapsamlı system instruction oluştur
+  const systemInstruction = buildSystemInstruction(
+    config.system_prompt,
+    knowledgeBaseText,
+    (kbItems || []) as KnowledgeBaseItem[]
+  )
 
   // Son 20 mesajı al
   const { data: messages } = await supabase
@@ -55,7 +127,7 @@ export async function getAIResponse(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents,
-        systemInstruction: { parts: [{ text: config.system_prompt }] },
+        systemInstruction: { parts: [{ text: systemInstruction }] },
         generationConfig: {
           temperature: config.temperature || 0.7,
           maxOutputTokens: maxTokens,
