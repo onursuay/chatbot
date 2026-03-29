@@ -101,9 +101,19 @@ export default function RegisterPage() {
               : "Transform your customer communication"}
           </h1>
           <p className="text-emerald-100/80 text-lg leading-relaxed mb-12 max-w-lg">
-            {isTR
-              ? "WhatsApp, Instagram, Facebook ve daha fazlasını tek platformdan yönetin. AI destekli chatbot ile 7/24 müşteri desteği sağlayın."
-              : "Manage WhatsApp, Instagram, Facebook and more from one platform. Provide 24/7 customer support with AI-powered chatbot."}
+            {isTR ? (
+              <>
+                WhatsApp, Instagram, Facebook ve daha fazlasını tek platformdan yönetin.
+                <br />
+                AI destekli chatbot ile 7/24 müşteri desteği sağlayın.
+              </>
+            ) : (
+              <>
+                Manage WhatsApp, Instagram, Facebook and more from one platform.
+                <br />
+                Provide 24/7 customer support with AI-powered chatbot.
+              </>
+            )}
           </p>
 
           {/* What you get */}
