@@ -49,25 +49,23 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50/50 via-white to-emerald-50/30 flex flex-col">
       {/* Header */}
-      <header className="px-6 py-4 flex items-center justify-between max-w-7xl mx-auto w-full">
-        <Link href="/" className="flex items-center gap-2.5">
-          <Image src="/logo-yo.png" alt="YO Dijital" width={36} height={36} />
-          <span className="font-bold text-lg text-gray-900">YO<span className="text-emerald-600">dijital</span></span>
-        </Link>
-        <Link
-          href={`/${lang}/register`}
-          className="text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
-        >
-          {isTR ? "Hesap Oluştur" : "Create Account"} &rarr;
+      <header className="px-8 py-5 flex items-center max-w-7xl mx-auto w-full">
+        <Link href="/" className="flex items-center gap-3">
+          <Image src="/logo-yo.png" alt="YO Dijital" width={44} height={44} />
+          <div className="flex gap-1">
+            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+            <span className="w-2 h-2 bg-emerald-300 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+          </div>
         </Link>
       </header>
 
       {/* Main */}
       <main className="flex-1 flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-[960px] flex items-center gap-16">
+        <div className="w-full max-w-[1080px] flex items-center gap-20">
 
           {/* Left - Branding (desktop) */}
-          <div className="hidden lg:flex flex-col flex-1 max-w-[440px]">
+          <div className="hidden lg:flex flex-col flex-1 max-w-[500px]">
             <h1 className="text-3xl font-bold text-gray-900 leading-tight mb-3">
               {isTR
                 ? "Müşterilerinizle iletişimi güçlendirin"
@@ -153,7 +151,7 @@ export default function LoginPage() {
           </div>
 
           {/* Right - Login Card */}
-          <div className="w-full max-w-[420px] mx-auto lg:mx-0">
+          <div className="w-full max-w-[460px] mx-auto lg:mx-0">
             {/* Mobile logo */}
             <div className="text-center mb-6 lg:hidden">
               <Image src="/logo-yo.png" alt="YO Dijital" width={48} height={48} className="mx-auto mb-2" />
@@ -162,7 +160,7 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xl shadow-gray-200/40 p-8">
+            <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xl shadow-gray-200/40 p-10">
               <h2 className="text-xl font-bold text-gray-900 mb-1">
                 {isTR ? "Giriş Yap" : "Sign In"}
               </h2>

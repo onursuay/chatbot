@@ -54,25 +54,23 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50/50 via-white to-emerald-50/30 flex flex-col">
       {/* Header */}
-      <header className="px-6 py-4 flex items-center justify-between max-w-7xl mx-auto w-full">
-        <Link href="/" className="flex items-center gap-2.5">
-          <Image src="/logo-yo.png" alt="YO Dijital" width={36} height={36} />
-          <span className="font-bold text-lg text-gray-900">YO<span className="text-emerald-600">dijital</span></span>
-        </Link>
-        <Link
-          href={`/${lang}/login`}
-          className="text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
-        >
-          {isTR ? "Giriş Yap" : "Sign In"} &rarr;
+      <header className="px-8 py-5 flex items-center max-w-7xl mx-auto w-full">
+        <Link href="/" className="flex items-center gap-3">
+          <Image src="/logo-yo.png" alt="YO Dijital" width={44} height={44} />
+          <div className="flex gap-1">
+            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+            <span className="w-2 h-2 bg-emerald-300 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+          </div>
         </Link>
       </header>
 
       {/* Main */}
       <main className="flex-1 flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-[960px] flex items-center gap-16">
+        <div className="w-full max-w-[1080px] flex items-center gap-20">
 
           {/* Left - Branding (desktop) */}
-          <div className="hidden lg:flex flex-col flex-1 max-w-[440px]">
+          <div className="hidden lg:flex flex-col flex-1 max-w-[500px]">
             <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-full w-fit mb-4">
               <svg viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5"><path d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"/></svg>
               {isTR ? "14 gün ücretsiz deneyin" : "14 days free trial"}
@@ -127,7 +125,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Right - Register Card */}
-          <div className="w-full max-w-[420px] mx-auto lg:mx-0">
+          <div className="w-full max-w-[460px] mx-auto lg:mx-0">
             {/* Mobile logo */}
             <div className="text-center mb-6 lg:hidden">
               <Image src="/logo-yo.png" alt="YO Dijital" width={48} height={48} className="mx-auto mb-2" />
@@ -136,7 +134,7 @@ export default function RegisterPage() {
               </p>
             </div>
 
-            <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xl shadow-gray-200/40 p-8">
+            <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xl shadow-gray-200/40 p-10">
               <h2 className="text-xl font-bold text-gray-900 mb-1">
                 {isTR ? "Ücretsiz Başlayın" : "Start Free"}
               </h2>
