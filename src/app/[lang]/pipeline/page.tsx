@@ -63,12 +63,12 @@ export default function PipelinePage() {
         body: JSON.stringify({
           name: isTR ? "Satış Pipeline" : "Sales Pipeline",
           stages: [
-            { name: isTR ? "Yeni" : "New", position: 1, color: "#3B82F6" },
-            { name: isTR ? "İletişimde" : "Contacted", position: 2, color: "#F59E0B" },
-            { name: isTR ? "Teklif Verildi" : "Proposal", position: 3, color: "#8B5CF6" },
-            { name: isTR ? "Müzakere" : "Negotiation", position: 4, color: "#EC4899" },
-            { name: isTR ? "Kazanıldı" : "Won", position: 5, color: "#10B981" },
-            { name: isTR ? "Kaybedildi" : "Lost", position: 6, color: "#EF4444" },
+            { name: isTR ? "Yeni" : "New", sort_order: 0, color: "#3B82F6" },
+            { name: isTR ? "İletişimde" : "Contacted", sort_order: 1, color: "#F59E0B" },
+            { name: isTR ? "Teklif Verildi" : "Proposal", sort_order: 2, color: "#8B5CF6" },
+            { name: isTR ? "Müzakere" : "Negotiation", sort_order: 3, color: "#EC4899" },
+            { name: isTR ? "Kazanıldı" : "Won", sort_order: 4, color: "#10B981", is_win: true },
+            { name: isTR ? "Kaybedildi" : "Lost", sort_order: 5, color: "#EF4444", is_loss: true },
           ],
         }),
       })
@@ -133,8 +133,8 @@ export default function PipelinePage() {
           <h2 className="ds-page-title">{t("pipeline")}</h2>
           <p className="ds-page-subtitle">CRM deal management</p>
         </div>
-        <div className="flex gap-2.5">
-          {pipelines.length > 0 ? (
+        {pipelines.length > 0 && (
+          <div className="flex gap-2.5">
             <select
               value={selectedPipelineId}
               onChange={(e) => setSelectedPipelineId(e.target.value)}
@@ -144,14 +144,8 @@ export default function PipelinePage() {
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
-          ) : !loading && (
-            <button onClick={createDefaultPipeline} disabled={creating} className="ds-btn-primary">
-              {creating
-                ? (isTR ? "Oluşturuluyor..." : "Creating...")
-                : (isTR ? "+ Pipeline Oluştur" : "+ Create Pipeline")}
-            </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       <div className="flex-1 overflow-x-auto p-6">
