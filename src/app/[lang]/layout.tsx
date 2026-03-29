@@ -25,6 +25,11 @@ export default function LangLayout({ children, params }: { children: React.React
   const [hintPhase, setHintPhase] = useState<"logo" | "button">("logo")
   const hintTimer = useRef<NodeJS.Timeout | null>(null)
 
+  // ===== SIDEBAR TIP CARDS =====
+  const [tipIndex, setTipIndex] = useState(0)
+  const [tipVisible, setTipVisible] = useState(true)
+  const [tipDismissed, setTipDismissed] = useState(false)
+
   const isNoLayoutPage = NO_LAYOUT_PAGES.some((p) => pathname.endsWith(p))
 
   // Aktif sayfanin grubunu otomatik ac
@@ -158,6 +163,90 @@ export default function LangLayout({ children, params }: { children: React.React
     } else { setLoading(false) }
   }, [user, router, setAuth, logout])
 
+  // Tip cards data
+  const tipCards = [
+    {
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8 text-primary">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+      titleTR: "Akıllı Gelen Kutusu",
+      titleEN: "Smart Inbox",
+      descTR: "WhatsApp, Instagram ve Facebook mesajlarını tek panelden yönetin",
+      descEN: "Manage WhatsApp, Instagram & Facebook messages from one panel",
+      color: "#119d58",
+    },
+    {
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8 text-accent-violet">
+          <path d="M12 2a4 4 0 014 4v2H8V6a4 4 0 014-4z" strokeLinecap="round"/>
+          <rect x="3" y="8" width="18" height="12" rx="2" strokeLinecap="round"/>
+          <circle cx="8.5" cy="14" r="1.5" fill="currentColor"/>
+          <circle cx="15.5" cy="14" r="1.5" fill="currentColor"/>
+          <path d="M9.5 17.5h5" strokeLinecap="round"/>
+        </svg>
+      ),
+      titleTR: "AI Chatbot",
+      titleEN: "AI Chatbot",
+      descTR: "Yapay zeka ile 7/24 otomatik müşteri yanıtları oluşturun",
+      descEN: "Create 24/7 automated customer responses with AI",
+      color: "#8B5CF6",
+    },
+    {
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8 text-accent-blue">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" strokeLinecap="round" strokeLinejoin="round"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+      titleTR: "CRM & Pipeline",
+      titleEN: "CRM & Pipeline",
+      descTR: "Müşteri adaylarını takip edin, satış süreçlerinizi görselleştirin",
+      descEN: "Track leads and visualize your sales pipeline",
+      color: "#3B82F6",
+    },
+    {
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8 text-accent-yellow">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+      titleTR: "Toplu Mesaj Gönderimi",
+      titleEN: "Broadcast Messages",
+      descTR: "Binlerce müşteriye kişiselleştirilmiş mesajlar gönderin",
+      descEN: "Send personalized messages to thousands of customers",
+      color: "#F59E0B",
+    },
+    {
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8 text-accent-red">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <path d="M3 9h18M9 21V9" strokeLinecap="round"/>
+        </svg>
+      ),
+      titleTR: "Analiz & Raporlar",
+      titleEN: "Analytics & Reports",
+      descTR: "Detaylı istatistikler ve performans raporlarıyla büyüyün",
+      descEN: "Grow with detailed statistics and performance reports",
+      color: "#EF4444",
+    },
+  ]
+
+  // Tip card auto-rotation
+  useEffect(() => {
+    if (tipDismissed || collapsed) return
+    const interval = setInterval(() => {
+      setTipVisible(false)
+      setTimeout(() => {
+        setTipIndex((prev) => (prev + 1) % tipCards.length)
+        setTipVisible(true)
+      }, 400)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [tipDismissed, collapsed, tipCards.length])
+
   if (isNoLayoutPage) return <>{children}</>
 
   if (loading || !ready) {
@@ -289,6 +378,89 @@ export default function LangLayout({ children, params }: { children: React.React
             )
           })}
         </nav>
+
+        {/* Tip Cards */}
+        {!collapsed && !tipDismissed && (
+          <div className="px-2.5 pb-2 shrink-0">
+            <div
+              className="relative rounded-card-sm overflow-hidden transition-all duration-400"
+              style={{
+                background: `linear-gradient(135deg, ${tipCards[tipIndex].color}18, ${tipCards[tipIndex].color}08)`,
+                border: `1px solid ${tipCards[tipIndex].color}25`,
+              }}
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setTipDismissed(true)}
+                className="absolute top-1.5 right-1.5 w-5 h-5 flex items-center justify-center rounded-full text-sidebar-text hover:text-white hover:bg-white/10 transition-colors z-10"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3 h-3">
+                  <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round"/>
+                </svg>
+              </button>
+
+              {/* Card content */}
+              <div
+                className="p-3 transition-all duration-400"
+                style={{
+                  opacity: tipVisible ? 1 : 0,
+                  transform: tipVisible ? "translateY(0)" : "translateY(8px)",
+                }}
+              >
+                {/* Icon with glow */}
+                <div
+                  className="w-12 h-12 rounded-lg flex items-center justify-center mb-2.5"
+                  style={{ background: `${tipCards[tipIndex].color}20` }}
+                >
+                  {tipCards[tipIndex].icon}
+                </div>
+
+                {/* Text */}
+                <h4 className="text-white text-[13px] font-semibold mb-1 leading-tight">
+                  {lang === "tr" ? tipCards[tipIndex].titleTR : tipCards[tipIndex].titleEN}
+                </h4>
+                <p className="text-sidebar-text text-[11px] leading-relaxed">
+                  {lang === "tr" ? tipCards[tipIndex].descTR : tipCards[tipIndex].descEN}
+                </p>
+
+                {/* Progress dots */}
+                <div className="flex items-center gap-1.5 mt-3">
+                  {tipCards.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => { setTipVisible(false); setTimeout(() => { setTipIndex(i); setTipVisible(true) }, 300) }}
+                      className="relative h-1.5 rounded-full transition-all duration-300 overflow-hidden"
+                      style={{
+                        width: i === tipIndex ? 20 : 8,
+                        background: i === tipIndex ? "transparent" : "rgba(255,255,255,0.2)",
+                      }}
+                    >
+                      {i === tipIndex && (
+                        <>
+                          <div className="absolute inset-0 rounded-full" style={{ background: "rgba(255,255,255,0.2)" }} />
+                          <div
+                            className="absolute inset-0 rounded-full"
+                            style={{
+                              background: tipCards[tipIndex].color,
+                              animation: "tip-progress 5s linear forwards",
+                              transformOrigin: "left",
+                            }}
+                          />
+                        </>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <style>{`
+              @keyframes tip-progress {
+                from { transform: scaleX(0); }
+                to { transform: scaleX(1); }
+              }
+            `}</style>
+          </div>
+        )}
 
         {/* User */}
         <div className="px-2 py-2.5 border-t border-sidebar-border">
