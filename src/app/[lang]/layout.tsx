@@ -105,8 +105,12 @@ export default function LangLayout({ children, params }: { children: React.React
   const toggleCollapsed = useCallback(() => { setCollapsed((p) => !p) }, [])
   const toggleGroup = useCallback((group: string) => {
     setOpenGroups((prev) =>
-      prev.includes(group) ? prev.filter((g) => g !== group) : [...prev, group]
+      prev.includes(group) ? [] : [group]
     )
+  }, [])
+
+  const closeAllGroups = useCallback(() => {
+    setOpenGroups([])
   }, [])
 
   // ===== NAV ITEMS =====
@@ -521,7 +525,7 @@ export default function LangLayout({ children, params }: { children: React.React
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-auto" onClick={closeAllGroups}>{children}</main>
       </div>
     </div>
   )
