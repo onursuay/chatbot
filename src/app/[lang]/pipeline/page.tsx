@@ -15,7 +15,8 @@ interface Pipeline {
 interface Stage {
   id: string
   name: string
-  position: number
+  position?: number
+  sort_order?: number
   color: string | null
 }
 
@@ -46,8 +47,10 @@ export default function PipelinePage() {
     if (!token) return
     try {
       const data = await api<Pipeline[]>("/pipelines", { token })
+      console.log("Pipeline data:", JSON.stringify(data, null, 2))
       setPipelines(data)
-      if (data.length > 0) setSelectedPipelineId(data[0].id)
+      if (data.length > 0 && !selectedPipelineId) setSelectedPipelineId(data[0].id)
+      else if (data.length > 0 && !data.find(p => p.id === selectedPipelineId)) setSelectedPipelineId(data[0].id)
     } catch (err: any) {
       console.error("Pipeline yükleme hatası:", err)
     }
@@ -59,7 +62,7 @@ export default function PipelinePage() {
     if (!token) return
     setCreating(true)
     try {
-      await api("/pipelines", {
+      const created = await api<any>("/pipelines", {
         method: "POST",
         token,
         body: JSON.stringify({
@@ -74,8 +77,11 @@ export default function PipelinePage() {
           ],
         }),
       })
+      console.log("Pipeline created:", JSON.stringify(created, null, 2))
+      if (created?.id) setSelectedPipelineId(created.id)
       await loadPipelines()
     } catch (err: any) {
+      console.error("Pipeline oluşturma hatası:", err)
       alert((isTR ? "Pipeline oluşturulamadı: " : "Pipeline creation failed: ") + (err.message || "Bilinmeyen hata"))
     }
     setCreating(false)
@@ -94,7 +100,7 @@ export default function PipelinePage() {
   }, [getToken, selectedPipelineId])
 
   const selectedPipeline = pipelines.find((p) => p.id === selectedPipelineId)
-  const stages = selectedPipeline?.stages?.sort((a, b) => a.position - b.position) || []
+  const stages = selectedPipeline?.stages?.sort((a, b) => (a.sort_order ?? a.position ?? 0) - (b.sort_order ?? b.position ?? 0)) || []
 
   const getLeadsForStage = (stageId: string) => leads.filter((l) => l.stage_id === stageId)
 
