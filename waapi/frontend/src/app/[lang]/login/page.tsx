@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
-import Image from "next/image"
 import { api } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
 import { useI18n, localePath, type Lang } from "@/lib/i18n"
@@ -48,32 +47,19 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50/50 via-white to-emerald-50/30 flex flex-col">
-      {/* Header */}
-      <header className="px-6 py-4 flex items-center justify-between max-w-7xl mx-auto w-full">
-        <Link href="/" className="flex items-center gap-2.5">
-          <Image src="/logo-yo.png" alt="YO Dijital" width={36} height={36} />
-          <span className="font-bold text-lg text-gray-900">YO<span className="text-emerald-600">dijital</span></span>
-        </Link>
-        <Link
-          href={`/${lang}/register`}
-          className="text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
-        >
-          {isTR ? "Hesap Oluştur" : "Create Account"} &rarr;
-        </Link>
-      </header>
 
       {/* Main */}
       <main className="flex-1 flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-[960px] flex items-center gap-16">
 
-          {/* Left - Branding (desktop) */}
-          <div className="hidden lg:flex flex-col flex-1 max-w-[440px]">
-            <h1 className="text-3xl font-bold text-gray-900 leading-tight mb-3">
+          {/* Left - Green Card (desktop) */}
+          <div className="hidden lg:flex flex-col flex-1 max-w-[440px] bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-3xl p-10 text-white shadow-2xl shadow-emerald-600/25">
+            <h1 className="text-3xl font-bold leading-tight mb-3">
               {isTR
                 ? "Müşterilerinizle iletişimi güçlendirin"
                 : "Empower your customer communication"}
             </h1>
-            <p className="text-gray-500 text-base leading-relaxed mb-8">
+            <p className="text-emerald-100 text-base leading-relaxed mb-8">
               {isTR
                 ? "Mesajlaşma, CRM ve yapay zeka bir arada! Tüm kanallarınızı tek platformda yönetin."
                 : "Messaging, CRM and AI combined! Manage all your channels in one platform."}
@@ -92,8 +78,6 @@ export default function LoginPage() {
                   titleEN: "Omni-Channel Messaging",
                   descTR: "WhatsApp, Instagram, Facebook tek ekrandan",
                   descEN: "WhatsApp, Instagram, Facebook in one screen",
-                  color: "text-emerald-600",
-                  bg: "bg-emerald-50",
                 },
                 {
                   icon: (
@@ -107,8 +91,6 @@ export default function LoginPage() {
                   titleEN: "CRM & Pipeline",
                   descTR: "Müşteri yönetimi ve satış takibi",
                   descEN: "Customer management and sales tracking",
-                  color: "text-blue-600",
-                  bg: "bg-blue-50",
                 },
                 {
                   icon: (
@@ -123,30 +105,28 @@ export default function LoginPage() {
                   titleEN: "AI Chatbot & Automation",
                   descTR: "Yapay zeka destekli otomatik yanıtlar",
                   descEN: "AI-powered automatic responses",
-                  color: "text-violet-600",
-                  bg: "bg-violet-50",
                 },
               ].map((f, i) => (
                 <div key={i} className="flex items-start gap-3.5">
-                  <div className={`w-9 h-9 rounded-lg ${f.bg} ${f.color} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                  <div className="w-9 h-9 rounded-lg bg-white/15 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
                     {f.icon}
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900">{isTR ? f.titleTR : f.titleEN}</h3>
-                    <p className="text-xs text-gray-400 mt-0.5">{isTR ? f.descTR : f.descEN}</p>
+                    <h3 className="text-sm font-semibold text-white">{isTR ? f.titleTR : f.titleEN}</h3>
+                    <p className="text-xs text-emerald-200 mt-0.5">{isTR ? f.descTR : f.descEN}</p>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Trust badges */}
-            <div className="flex items-center gap-4 mt-8 pt-6 border-t border-gray-100">
-              <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-emerald-500"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd"/></svg>
+            <div className="flex items-center gap-4 mt-8 pt-6 border-t border-white/20">
+              <div className="flex items-center gap-1.5 text-xs text-emerald-100">
+                <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-white"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd"/></svg>
                 {isTR ? "Kredi kartı gerekmez" : "No credit card required"}
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-emerald-500"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd"/></svg>
+              <div className="flex items-center gap-1.5 text-xs text-emerald-100">
+                <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-white"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd"/></svg>
                 {isTR ? "14 gün ücretsiz" : "14 days free"}
               </div>
             </div>
@@ -154,9 +134,8 @@ export default function LoginPage() {
 
           {/* Right - Login Card */}
           <div className="w-full max-w-[420px] mx-auto lg:mx-0">
-            {/* Mobile logo */}
+            {/* Mobile title */}
             <div className="text-center mb-6 lg:hidden">
-              <Image src="/logo-yo.png" alt="YO Dijital" width={48} height={48} className="mx-auto mb-2" />
               <p className="text-gray-400 text-sm">
                 {isTR ? "Hesabınıza giriş yapın" : "Sign in to your account"}
               </p>

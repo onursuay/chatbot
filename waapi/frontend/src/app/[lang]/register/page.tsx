@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
-import Image from "next/image"
 import { api } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
 import { useI18n, localePath, type Lang } from "@/lib/i18n"
@@ -53,37 +52,24 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50/50 via-white to-emerald-50/30 flex flex-col">
-      {/* Header */}
-      <header className="px-6 py-4 flex items-center justify-between max-w-7xl mx-auto w-full">
-        <Link href="/" className="flex items-center gap-2.5">
-          <Image src="/logo-yo.png" alt="YO Dijital" width={36} height={36} />
-          <span className="font-bold text-lg text-gray-900">YO<span className="text-emerald-600">dijital</span></span>
-        </Link>
-        <Link
-          href={`/${lang}/login`}
-          className="text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
-        >
-          {isTR ? "Giriş Yap" : "Sign In"} &rarr;
-        </Link>
-      </header>
 
       {/* Main */}
       <main className="flex-1 flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-[960px] flex items-center gap-16">
 
-          {/* Left - Branding (desktop) */}
-          <div className="hidden lg:flex flex-col flex-1 max-w-[440px]">
-            <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-full w-fit mb-4">
+          {/* Left - Green Card (desktop) */}
+          <div className="hidden lg:flex flex-col flex-1 max-w-[440px] bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-3xl p-10 text-white shadow-2xl shadow-emerald-600/25">
+            <div className="inline-flex items-center gap-2 bg-white/15 text-white text-xs font-semibold px-3 py-1.5 rounded-full w-fit mb-4">
               <svg viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5"><path d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"/></svg>
               {isTR ? "14 gün ücretsiz deneyin" : "14 days free trial"}
             </div>
 
-            <h1 className="text-3xl font-bold text-gray-900 leading-tight mb-3">
+            <h1 className="text-3xl font-bold leading-tight mb-3">
               {isTR
                 ? "Müşteri iletişiminizi dönüştürün"
                 : "Transform your customer communication"}
             </h1>
-            <p className="text-gray-500 text-base leading-relaxed mb-8">
+            <p className="text-emerald-100 text-base leading-relaxed mb-8">
               {isTR
                 ? "WhatsApp, Instagram, Facebook ve daha fazlasını tek platformdan yönetin. AI destekli chatbot ile 7/24 müşteri desteği sağlayın."
                 : "Manage WhatsApp, Instagram, Facebook and more from one platform. Provide 24/7 customer support with AI-powered chatbot."}
@@ -105,22 +91,22 @@ export default function RegisterPage() {
                 "Detailed analytics and reports",
               ]).map((item, i) => (
                 <div key={i} className="flex items-center gap-2.5">
-                  <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-emerald-500 flex-shrink-0"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd"/></svg>
-                  <span className="text-sm text-gray-600">{item}</span>
+                  <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-white flex-shrink-0"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd"/></svg>
+                  <span className="text-sm text-emerald-100">{item}</span>
                 </div>
               ))}
             </div>
 
             {/* Social proof */}
-            <div className="mt-8 pt-6 border-t border-gray-100 flex items-center gap-3">
+            <div className="mt-8 pt-6 border-t border-white/20 flex items-center gap-3">
               <div className="flex -space-x-2">
                 {["#3B82F6", "#8B5CF6", "#EC4899", "#F59E0B"].map((c, i) => (
-                  <div key={i} className="w-7 h-7 rounded-full border-2 border-white flex items-center justify-center text-white text-[10px] font-bold" style={{ backgroundColor: c }}>
+                  <div key={i} className="w-7 h-7 rounded-full border-2 border-emerald-600 flex items-center justify-center text-white text-[10px] font-bold" style={{ backgroundColor: c }}>
                     {["A", "M", "E", "K"][i]}
                   </div>
                 ))}
               </div>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-emerald-200">
                 {isTR ? "500+ işletme YO Dijital kullanıyor" : "500+ businesses use YO Dijital"}
               </span>
             </div>
@@ -128,9 +114,8 @@ export default function RegisterPage() {
 
           {/* Right - Register Card */}
           <div className="w-full max-w-[420px] mx-auto lg:mx-0">
-            {/* Mobile logo */}
+            {/* Mobile title */}
             <div className="text-center mb-6 lg:hidden">
-              <Image src="/logo-yo.png" alt="YO Dijital" width={48} height={48} className="mx-auto mb-2" />
               <p className="text-gray-400 text-sm">
                 {isTR ? "Ücretsiz hesap oluşturun" : "Create your free account"}
               </p>
