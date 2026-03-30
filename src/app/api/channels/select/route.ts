@@ -56,21 +56,54 @@ export async function POST(request: Request) {
     // Note: accessToken can be null for IG/FB if using page-level tokens from metadata
     // So we don't block on missing accessToken anymore
 
-    // MULTI-ACCOUNT: Upsert by (org_id, channel, platform_id) — don't delete others
+    // MULTI-ACCOUNT: Check if exists, then update or insert
     if (enabled) {
-      const { data: selection, error: dbError } = await supabase
+      // Check if this exact account already exists
+      const { data: existing } = await supabase
         .from("channel_selections")
-        .upsert({
-          org_id: auth.org_id,
-          channel,
-          platform_id,
-          platform_name: platform_name || null,
-          platform_detail: platform_detail || null,
-          metadata: metadata || {},
-          enabled: true,
-        }, { onConflict: "org_id,channel,platform_id" })
-        .select()
-        .single()
+        .select("id")
+        .eq("org_id", auth.org_id)
+        .eq("channel", channel)
+        .eq("platform_id", platform_id)
+        .maybeSingle()
+
+      let selection: any = null
+      let dbError: any = null
+
+      if (existing) {
+        // Update existing
+        const result = await supabase
+          .from("channel_selections")
+          .update({
+            platform_name: platform_name || null,
+            platform_detail: platform_detail || null,
+            metadata: metadata || {},
+            enabled: true,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", existing.id)
+          .select()
+          .single()
+        selection = result.data
+        dbError = result.error
+      } else {
+        // Insert new
+        const result = await supabase
+          .from("channel_selections")
+          .insert({
+            org_id: auth.org_id,
+            channel,
+            platform_id,
+            platform_name: platform_name || null,
+            platform_detail: platform_detail || null,
+            metadata: metadata || {},
+            enabled: true,
+          })
+          .select()
+          .single()
+        selection = result.data
+        dbError = result.error
+      }
 
       if (dbError) {
         console.error("channel_selections insert error:", dbError)
