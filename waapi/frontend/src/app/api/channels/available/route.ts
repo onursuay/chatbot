@@ -5,14 +5,23 @@ import { getServiceSupabase } from "@/lib/supabase"
 const GRAPH_API_VERSION = "v21.0"
 const GRAPH_BASE = `https://graph.facebook.com/${GRAPH_API_VERSION}`
 
-// GET — List available channel assets from Meta
+// GET — List available channel assets
+// Supports both new (meta_connections + Graph API) and legacy (waba_accounts + channel_accounts) systems
 export async function GET(request: Request) {
   const auth = await getAuthUser(request)
   if (!auth) return NextResponse.json({ detail: "Yetkisiz" }, { status: 401 })
 
   const supabase = getServiceSupabase()
 
-  // Get meta_connection for this org
+  // Always fetch current selections
+  const { data: selectionsData } = await supabase
+    .from("channel_selections")
+    .select("*")
+    .eq("org_id", auth.org_id)
+
+  const selections = selectionsData || []
+
+  // 1. Try new meta_connections first
   const { data: connection } = await supabase
     .from("meta_connections")
     .select("*")
@@ -20,70 +29,103 @@ export async function GET(request: Request) {
     .eq("status", "active")
     .maybeSingle()
 
-  if (!connection) {
-    return NextResponse.json({
-      whatsapp: [],
-      instagram: [],
-      pages: [],
-      connected: false,
-      error: "Meta hesabi bagli degil",
-    })
+  if (connection?.access_token) {
+    // Check expiry
+    if (connection.access_expires_at && new Date(connection.access_expires_at) < new Date()) {
+      // Token expired, fall through to legacy
+    } else {
+      // Use Graph API to get fresh data
+      try {
+        const [whatsappResult, pagesResult] = await Promise.allSettled([
+          fetchWhatsAppAccounts(connection.access_token),
+          fetchPagesAndInstagram(connection.access_token),
+        ])
+
+        const whatsapp = whatsappResult.status === "fulfilled" ? whatsappResult.value : []
+        const pagesData = pagesResult.status === "fulfilled" ? pagesResult.value : { pages: [], instagram: [] }
+
+        return NextResponse.json({
+          whatsapp,
+          instagram: pagesData.instagram,
+          pages: pagesData.pages,
+          selections,
+          connected: true,
+          source: "meta_connections",
+        })
+      } catch (e: any) {
+        console.error("Graph API error, falling back to legacy:", e)
+        // Fall through to legacy
+      }
+    }
   }
 
-  // Check if token is expired
-  if (new Date(connection.expires_at) < new Date()) {
-    return NextResponse.json({
-      whatsapp: [],
-      instagram: [],
-      pages: [],
-      connected: false,
-      error: "token_expired",
-    })
-  }
+  // 2. Legacy fallback: Read from waba_accounts + channel_accounts in DB
+  const [wabaResult, channelResult] = await Promise.all([
+    supabase
+      .from("waba_accounts")
+      .select("id, waba_id, name, business_id, phone_numbers(*)")
+      .eq("org_id", auth.org_id),
+    supabase
+      .from("channel_accounts")
+      .select("*")
+      .eq("org_id", auth.org_id)
+      .eq("is_active", true),
+  ])
 
-  const accessToken = connection.access_token
+  const wabaAccounts = wabaResult.data || []
+  const channelAccounts = channelResult.data || []
 
-  try {
-    // Fetch all 3 in parallel + current selections from DB
-    const [whatsappResult, pagesResult, selectionsResult] = await Promise.allSettled([
-      fetchWhatsAppAccounts(accessToken),
-      fetchPagesAndInstagram(accessToken),
-      supabase
-        .from("channel_selections")
-        .select("*")
-        .eq("org_id", auth.org_id),
-    ])
+  // Transform waba_accounts to the same format
+  const whatsapp = wabaAccounts.map((waba: any) => ({
+    business_id: waba.business_id || "",
+    business_name: "",
+    waba_id: waba.waba_id,
+    waba_name: waba.name || waba.waba_id,
+    phone_numbers: (waba.phone_numbers || []).map((p: any) => ({
+      id: p.phone_number_id || p.id,
+      display_phone_number: p.display_number || p.number || "",
+      verified_name: p.verified_name || "",
+      quality_rating: p.quality_rating || "UNKNOWN",
+    })),
+  }))
 
-    const whatsapp =
-      whatsappResult.status === "fulfilled" ? whatsappResult.value : []
-    const pagesData =
-      pagesResult.status === "fulfilled" ? pagesResult.value : { pages: [], instagram: [] }
-    const selections =
-      selectionsResult.status === "fulfilled" && selectionsResult.value.data
-        ? selectionsResult.value.data
-        : []
+  // Transform channel_accounts to instagram/pages format
+  const instagram = channelAccounts
+    .filter((a: any) => a.channel === "instagram")
+    .map((a: any) => ({
+      id: a.account_id,
+      name: a.page_name || a.account_id,
+      username: "",
+      page_id: a.page_id,
+      page_name: a.page_name,
+    }))
 
-    return NextResponse.json({
-      whatsapp,
-      instagram: pagesData.instagram,
-      pages: pagesData.pages,
-      selections,
-      connected: true,
-    })
-  } catch (e: any) {
-    console.error("Channels available error:", e)
-    return NextResponse.json(
-      { detail: e.message || "Kanal bilgileri alinamadi" },
-      { status: 500 }
-    )
-  }
+  const pages = channelAccounts
+    .filter((a: any) => a.channel === "facebook")
+    .map((a: any) => ({
+      id: a.page_id || a.account_id,
+      name: a.page_name || a.account_id,
+      access_token: a.access_token || "",
+    }))
+
+  const hasData = whatsapp.length > 0 || instagram.length > 0 || pages.length > 0
+
+  return NextResponse.json({
+    whatsapp,
+    instagram,
+    pages,
+    selections,
+    connected: hasData,
+    source: "legacy",
+  })
 }
 
 // WhatsApp: /me/businesses -> WABAs -> phone_numbers
 async function fetchWhatsAppAccounts(accessToken: string) {
-  const bizRes = await fetch(`${GRAPH_BASE}/me/businesses`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  })
+  const bizRes = await fetch(
+    `${GRAPH_BASE}/me/businesses?fields=id,name`,
+    { headers: { Authorization: `Bearer ${accessToken}` } }
+  )
   const bizData = await bizRes.json()
 
   if (!bizData.data || bizData.data.length === 0) return []
