@@ -35,6 +35,7 @@ interface InstagramAccount {
   profile_picture_url?: string
   page_id: string
   page_name: string
+  page_access_token?: string
 }
 
 interface PageAccount {
