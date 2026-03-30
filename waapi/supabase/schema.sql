@@ -776,6 +776,8 @@ alter table call_logs enable row level security;
 alter table email_logs enable row level security;
 alter table lead_scoring_rules enable row level security;
 alter table saved_filters enable row level security;
+alter table meta_connections enable row level security;
+alter table channel_selections enable row level security;
 
 -- Service role icin full access (API routes service_role key kullanacak)
 
@@ -812,7 +814,8 @@ begin
       'custom_field_definitions','custom_field_values','activity_logs',
       'webhook_configs','web_forms','salesbot_flows','salesbot_flow_steps',
       'salesbot_flow_sessions','dashboard_widgets','team_invitations',
-      'call_logs','email_logs','lead_scoring_rules','saved_filters'
+      'call_logs','email_logs','lead_scoring_rules','saved_filters',
+      'meta_connections','channel_selections'
     ])
   loop
     execute format(
@@ -841,9 +844,48 @@ create table knowledge_base_items (
 create index idx_kbi_org on knowledge_base_items(org_id);
 
 -- ============================================
+-- Meta OAuth Connections (tek OAuth, uc kanal)
+-- ============================================
+create table meta_connections (
+  id uuid primary key default uuid_generate_v4(),
+  org_id uuid not null references organizations(id) on delete cascade,
+  access_token text,
+  access_expires_at timestamptz,
+  token_type text default 'long_lived',
+  scopes text,
+  status text default 'active',  -- active | revoked | expired
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique(org_id)
+);
+
+create index idx_meta_connections_org on meta_connections(org_id);
+
+-- ============================================
+-- Channel Selections (kanal bazli hesap secimi)
+-- ============================================
+create table channel_selections (
+  id uuid primary key default uuid_generate_v4(),
+  org_id uuid not null references organizations(id) on delete cascade,
+  channel text not null,          -- whatsapp | instagram | messenger
+  platform_id text not null,      -- waba_phone_id / ig_user_id / page_id
+  platform_name text,             -- "My Tostcu" / "Yaratan Kadinlar"
+  platform_detail text,           -- telefon no / ig username / sayfa url
+  enabled boolean default true,
+  metadata jsonb,                 -- kanal bazli ek bilgi (waba_id, page_access_token vs)
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique(org_id, channel)
+);
+
+create index idx_channel_selections_org on channel_selections(org_id);
+
+-- ============================================
 -- Realtime — Supabase Realtime icin tablolari etkinlestir
 -- ============================================
 alter publication supabase_realtime add table messages;
 alter publication supabase_realtime add table conversations;
 alter publication supabase_realtime add table leads;
 alter publication supabase_realtime add table tasks;
+alter publication supabase_realtime add table meta_connections;
+alter publication supabase_realtime add table channel_selections;
