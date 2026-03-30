@@ -875,7 +875,7 @@ create table channel_selections (
   metadata jsonb,                 -- kanal bazli ek bilgi (waba_id, page_access_token vs)
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique(org_id, channel)
+  unique(org_id, channel, platform_id)
 );
 
 create index idx_channel_selections_org on channel_selections(org_id);
@@ -889,3 +889,7 @@ alter publication supabase_realtime add table leads;
 alter publication supabase_realtime add table tasks;
 alter publication supabase_realtime add table meta_connections;
 alter publication supabase_realtime add table channel_selections;
+
+-- Migration: Allow multiple accounts per channel
+-- ALTER TABLE channel_selections DROP CONSTRAINT channel_selections_org_id_channel_key;
+-- ALTER TABLE channel_selections ADD CONSTRAINT channel_selections_org_id_channel_platform_key UNIQUE(org_id, channel, platform_id);

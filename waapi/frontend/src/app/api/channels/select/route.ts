@@ -102,6 +102,63 @@ export async function POST(request: Request) {
   }
 }
 
+// DELETE — Remove a channel selection by id
+export async function DELETE(request: Request) {
+  const auth = await getAuthUser(request)
+  if (!auth) return NextResponse.json({ detail: "Yetkisiz" }, { status: 401 })
+
+  try {
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get("id")
+
+    if (!id) {
+      return NextResponse.json(
+        { detail: "id parametresi zorunludur" },
+        { status: 400 }
+      )
+    }
+
+    const supabase = getServiceSupabase()
+
+    // Ensure the selection belongs to this org
+    const { data: existing } = await supabase
+      .from("channel_selections")
+      .select("id, org_id")
+      .eq("id", id)
+      .eq("org_id", auth.org_id)
+      .maybeSingle()
+
+    if (!existing) {
+      return NextResponse.json(
+        { detail: "Secim bulunamadi" },
+        { status: 404 }
+      )
+    }
+
+    const { error } = await supabase
+      .from("channel_selections")
+      .delete()
+      .eq("id", id)
+      .eq("org_id", auth.org_id)
+
+    if (error) {
+      console.error("channel_selections delete error:", error)
+      return NextResponse.json(
+        { detail: "Secim silinemedi" },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({ message: "Secim kaldirildi", id })
+  } catch (e: any) {
+    console.error("Channel delete error:", e)
+    return NextResponse.json(
+      { detail: e.message || "Silme hatasi" },
+      { status: 500 }
+    )
+  }
+}
+
 async function subscribeWebhook(
   channel: string,
   platformId: string,
