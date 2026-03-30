@@ -31,7 +31,9 @@ export async function POST(request: Request) {
     } else if (object === "instagram") {
       await handleInstagramWebhook(payload)
     } else if (object === "page") {
-      await handleFacebookWebhook(payload)
+      // Instagram DM'ler de object:"page" olarak gelir
+      // Her entry için Instagram mı Facebook mı kontrol et
+      await handlePageWebhook(payload)
     }
 
     return NextResponse.json({ status: "ok" })
@@ -209,7 +211,213 @@ async function handleInstagramWebhook(payload: any) {
 }
 
 // ============================================
-// FACEBOOK MESSENGER WEBHOOK
+// PAGE WEBHOOK — Instagram DM veya Facebook Messenger (ikisi de object:"page" gelir)
+// ============================================
+async function handlePageWebhook(payload: any) {
+  const supabase = getServiceSupabase()
+
+  for (const entry of payload.entry || []) {
+    const pageId = entry.id
+    if (!pageId) continue
+
+    // Önce bu page_id'ye bağlı Instagram hesabı var mı kontrol et
+    const igAccount = await findChannelAccountByPageId(supabase, "instagram", pageId)
+
+    if (igAccount) {
+      // Instagram DM — handleInstagramWebhook mantığı ile işle
+      await handleInstagramEntry(supabase, entry, igAccount)
+    } else {
+      // Facebook Messenger
+      await handleFacebookEntry(supabase, entry, pageId)
+    }
+  }
+}
+
+// ============================================
+// INSTAGRAM ENTRY İŞLE (page webhook'tan gelen)
+// ============================================
+async function handleInstagramEntry(supabase: any, entry: any, channelAccount: any) {
+  const orgId = channelAccount.org_id
+  const accessToken = channelAccount.access_token
+  const accountId = channelAccount.account_id
+  const channelAccountId = channelAccount.id
+  const pageId = entry.id
+
+  for (const messaging of entry.messaging || []) {
+    const senderId = messaging.sender?.id
+    const messageData = messaging.message
+    if (!senderId || !messageData || senderId === pageId || senderId === accountId) continue
+
+    const text = messageData.text || messageData.attachments?.[0]?.type || "[medya]"
+    const msgId = messageData.mid || `ig_${Date.now()}`
+
+    // Deduplikasyon
+    const { data: existing } = await supabase
+      .from("messages")
+      .select("id")
+      .eq("wa_message_id", msgId)
+      .single()
+    if (existing) continue
+
+    // Gönderen bilgisi al
+    const senderName = await getInstagramUsername(accessToken, senderId)
+
+    // Contact bul/oluştur
+    const contact = await getOrCreateContact(supabase, orgId, `ig_${senderId}`, senderName, "instagram")
+
+    // Conversation bul/oluştur
+    const conversation = await getOrCreateConversation(supabase, orgId, contact.id, null, "instagram", channelAccountId)
+
+    // Mesajı kaydet
+    await supabase.from("messages").insert({
+      org_id: orgId,
+      conversation_id: conversation.id,
+      contact_id: contact.id,
+      wa_message_id: msgId,
+      direction: "inbound",
+      type: "text",
+      content: { body: text },
+      status: "received",
+      sender_type: "contact",
+    })
+
+    // Conversation güncelle
+    await supabase
+      .from("conversations")
+      .update({
+        last_message_at: new Date().toISOString(),
+        last_message_preview: text.slice(0, 200),
+        unread_count: (conversation.unread_count || 0) + 1,
+      })
+      .eq("id", conversation.id)
+
+    // Bot aktifse yanıt
+    if (conversation.is_bot_active) {
+      const aiResponse = await getAIResponse(orgId, conversation.id, text)
+      const cleanResponse = aiResponse.replace("[TRANSFER_SALES]", "").replace("[NOT_INTERESTED]", "").trim()
+
+      const replyMsgId = await sendInstagramReply({ access_token: accessToken, account_id: accountId }, senderId, cleanResponse)
+
+      await supabase.from("messages").insert({
+        org_id: orgId,
+        conversation_id: conversation.id,
+        contact_id: contact.id,
+        wa_message_id: replyMsgId,
+        direction: "outbound",
+        type: "text",
+        content: { body: cleanResponse },
+        status: "sent",
+        sender_type: "bot",
+      })
+
+      const convUpdate: any = {
+        last_message_at: new Date().toISOString(),
+        last_message_preview: cleanResponse.slice(0, 200),
+      }
+      if (aiResponse.includes("[TRANSFER_SALES]")) { convUpdate.status = "open"; convUpdate.is_bot_active = false }
+      if (aiResponse.includes("[NOT_INTERESTED]")) { convUpdate.status = "resolved"; convUpdate.is_bot_active = false }
+
+      await supabase.from("conversations").update(convUpdate).eq("id", conversation.id)
+    }
+  }
+}
+
+// ============================================
+// FACEBOOK ENTRY İŞLE (page webhook'tan gelen)
+// ============================================
+async function handleFacebookEntry(supabase: any, entry: any, pageId: string) {
+  // Önce channel_accounts tablosundan bul
+  let channelAccount = await findChannelAccountByPageId(supabase, "facebook", pageId)
+  let orgId: string
+  let accessToken: string
+  let fbPageId: string
+  let channelAccountId: string | null = null
+
+  if (channelAccount) {
+    orgId = channelAccount.org_id
+    accessToken = channelAccount.access_token
+    fbPageId = channelAccount.page_id || channelAccount.account_id
+    channelAccountId = channelAccount.id
+  } else {
+    const org = await findOrgByChannelId(supabase, "facebook_page_id", pageId)
+    if (!org) return
+    orgId = org.id
+    accessToken = org.settings?.facebook_page_token
+    fbPageId = org.settings?.facebook_page_id
+  }
+
+  for (const messaging of entry.messaging || []) {
+    const senderId = messaging.sender?.id
+    const messageData = messaging.message
+    if (!senderId || !messageData || senderId === pageId) continue
+
+    const text = messageData.text || messageData.attachments?.[0]?.type || "[medya]"
+    const msgId = messageData.mid || `fb_${Date.now()}`
+
+    const { data: existing } = await supabase
+      .from("messages")
+      .select("id")
+      .eq("wa_message_id", msgId)
+      .single()
+    if (existing) continue
+
+    const senderName = await getFacebookUsername(accessToken, senderId)
+    const contact = await getOrCreateContact(supabase, orgId, `fb_${senderId}`, senderName, "facebook")
+    const conversation = await getOrCreateConversation(supabase, orgId, contact.id, null, "facebook", channelAccountId)
+
+    await supabase.from("messages").insert({
+      org_id: orgId,
+      conversation_id: conversation.id,
+      contact_id: contact.id,
+      wa_message_id: msgId,
+      direction: "inbound",
+      type: "text",
+      content: { body: text },
+      status: "received",
+      sender_type: "contact",
+    })
+
+    await supabase
+      .from("conversations")
+      .update({
+        last_message_at: new Date().toISOString(),
+        last_message_preview: text.slice(0, 200),
+        unread_count: (conversation.unread_count || 0) + 1,
+      })
+      .eq("id", conversation.id)
+
+    if (conversation.is_bot_active) {
+      const aiResponse = await getAIResponse(orgId, conversation.id, text)
+      const cleanResponse = aiResponse.replace("[TRANSFER_SALES]", "").replace("[NOT_INTERESTED]", "").trim()
+
+      const replyMsgId = await sendFacebookReply({ access_token: accessToken, page_id: fbPageId }, senderId, cleanResponse)
+
+      await supabase.from("messages").insert({
+        org_id: orgId,
+        conversation_id: conversation.id,
+        contact_id: contact.id,
+        wa_message_id: replyMsgId,
+        direction: "outbound",
+        type: "text",
+        content: { body: cleanResponse },
+        status: "sent",
+        sender_type: "bot",
+      })
+
+      const convUpdate: any = {
+        last_message_at: new Date().toISOString(),
+        last_message_preview: cleanResponse.slice(0, 200),
+      }
+      if (aiResponse.includes("[TRANSFER_SALES]")) { convUpdate.status = "open"; convUpdate.is_bot_active = false }
+      if (aiResponse.includes("[NOT_INTERESTED]")) { convUpdate.status = "resolved"; convUpdate.is_bot_active = false }
+
+      await supabase.from("conversations").update(convUpdate).eq("id", conversation.id)
+    }
+  }
+}
+
+// ============================================
+// FACEBOOK MESSENGER WEBHOOK (eski — artık handlePageWebhook kullanılıyor)
 // ============================================
 async function handleFacebookWebhook(payload: any) {
   const supabase = getServiceSupabase()
