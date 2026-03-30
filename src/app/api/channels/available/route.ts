@@ -201,6 +201,7 @@ async function fetchPagesAndInstagram(accessToken: string) {
         profile_picture_url: ig.profile_picture_url,
         page_id: page.id,
         page_name: page.name,
+        page_access_token: page.access_token,
       })
     }
   }

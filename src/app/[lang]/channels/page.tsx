@@ -424,12 +424,13 @@ export default function ChannelsPage() {
     }
   }
 
-  const instagramOptions: ChannelOption[] = (available?.instagram || []).map((ig) => ({
+  const instagramOptions: ChannelOption[] = (available?.instagram || []).map((ig: any) => ({
     id: ig.id,
     label: ig.name || ig.username,
     detail: ig.username ? `@${ig.username}` : ig.id,
     pageId: ig.page_id,
     pageName: ig.page_name,
+    pageAccessToken: ig.page_access_token,
   }))
 
   const pageOptions: ChannelOption[] = (available?.pages || []).map((p) => ({
@@ -526,7 +527,7 @@ export default function ChannelsPage() {
       buildPayload: (opt) => ({
         platformName: opt.label,
         platformDetail: opt.detail,
-        metadata: { page_id: opt.pageId, page_name: opt.pageName },
+        metadata: { page_id: opt.pageId, page_name: opt.pageName, page_access_token: opt.pageAccessToken },
       }),
     },
     {
