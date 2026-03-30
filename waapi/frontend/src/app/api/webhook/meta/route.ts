@@ -78,6 +78,7 @@ async function handleWhatsAppWebhook(payload: any) {
         .select("*")
         .eq("phone_number_id", phoneNumberId)
         .eq("org_id", waba.org_id)
+        .eq("is_active", true)
         .single()
 
       if (!phone) continue

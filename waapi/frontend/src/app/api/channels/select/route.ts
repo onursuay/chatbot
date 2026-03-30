@@ -45,6 +45,16 @@ export async function POST(request: Request) {
       )
     }
 
+    // SINGLE-ACTIVE-PER-CHANNEL: Disable all other selections for this org+channel before enabling new one
+    if (enabled) {
+      await supabase
+        .from("channel_selections")
+        .update({ enabled: false, updated_at: new Date().toISOString() })
+        .eq("org_id", auth.org_id)
+        .eq("channel", channel)
+        .neq("platform_id", platform_id)
+    }
+
     // Upsert channel selection
     const { data: selection, error: dbError } = await supabase
       .from("channel_selections")
@@ -74,6 +84,33 @@ export async function POST(request: Request) {
 
     // Sync to channel_accounts table (used by webhook handler + outbound messages)
     await syncChannelAccount(supabase, auth.org_id, channel, platform_id, platform_name, metadata, enabled ?? true)
+
+    // SINGLE-ACTIVE-PER-CHANNEL: Deactivate other platform-specific records when enabling
+    if (channel === "whatsapp" && enabled) {
+      // Deactivate all other phone numbers for this org
+      await supabase
+        .from("phone_numbers")
+        .update({ is_active: false })
+        .eq("org_id", auth.org_id)
+        .neq("phone_number_id", platform_id)
+
+      // Activate the selected phone number
+      await supabase
+        .from("phone_numbers")
+        .update({ is_active: true })
+        .eq("org_id", auth.org_id)
+        .eq("phone_number_id", platform_id)
+    }
+
+    if ((channel === "instagram" || channel === "messenger") && enabled) {
+      // Deactivate other channel_accounts for same org+channel
+      await supabase
+        .from("channel_accounts")
+        .update({ is_active: false })
+        .eq("org_id", auth.org_id)
+        .eq("channel", channel === "messenger" ? "facebook" : channel)
+        .neq("account_id", platform_id)
+    }
 
     // Subscribe to webhooks if enabled
     let webhookResult: any = null

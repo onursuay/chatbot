@@ -21,6 +21,14 @@ export async function GET(request: Request) {
 
   const selections = selectionsData || []
 
+  // Compute active selection per channel
+  const activeSelections: Record<string, any> = {}
+  for (const sel of selections) {
+    if (sel.enabled) {
+      activeSelections[sel.channel] = sel
+    }
+  }
+
   // 1. Try new meta_connections first
   const { data: connection } = await supabase
     .from("meta_connections")
@@ -49,6 +57,7 @@ export async function GET(request: Request) {
           instagram: pagesData.instagram,
           pages: pagesData.pages,
           selections,
+          activeSelections,
           connected: true,
           source: "meta_connections",
         })
@@ -115,6 +124,7 @@ export async function GET(request: Request) {
     instagram,
     pages,
     selections,
+    activeSelections,
     connected: hasData,
     source: "legacy",
   })

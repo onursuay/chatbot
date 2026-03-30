@@ -59,6 +59,11 @@ interface AvailableResponse {
   instagram: InstagramAccount[]
   pages: PageAccount[]
   selections: ChannelSelection[]
+  activeSelections: {
+    whatsapp?: ChannelSelection
+    instagram?: ChannelSelection
+    messenger?: ChannelSelection
+  }
   connected: boolean
   error?: string
 }
@@ -115,23 +120,11 @@ function BoltIcon() {
   )
 }
 
-/* ─── Toggle Switch ─── */
-
-function Toggle({ enabled, onChange, loading }: { enabled: boolean; onChange: () => void; loading?: boolean }) {
+function SpinnerIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
-    <button
-      onClick={onChange}
-      disabled={loading}
-      className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${
-        enabled ? "bg-primary" : "bg-surface-350"
-      } ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-    >
-      <div
-        className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200 ${
-          enabled ? "translate-x-[22px]" : "translate-x-0.5"
-        }`}
-      />
-    </button>
+    <svg className={`animate-spin ${className}`} viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="31.4 31.4" strokeLinecap="round" />
+    </svg>
   )
 }
 
@@ -162,8 +155,106 @@ function Toast({ message, type, onClose }: { message: string; type: "success" | 
   )
 }
 
+/* ─── Selection Modal ─── */
+
+type ChannelOption = { id: string; label: string; detail: string; [key: string]: any }
+
+function SelectionModal({
+  channel,
+  channelName,
+  options,
+  activeAccount,
+  saving,
+  onSelect,
+  onClose,
+  isTR,
+}: {
+  channel: string
+  channelName: string
+  options: ChannelOption[]
+  activeAccount: ChannelSelection | null
+  saving: boolean
+  onSelect: (opt: ChannelOption) => void
+  onClose: () => void
+  isTR: boolean
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+
+      {/* Modal */}
+      <div className="relative bg-white rounded-2xl shadow-2xl border border-surface-200 w-full max-w-md mx-4 overflow-hidden">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-surface-200">
+          <h3 className="font-bold text-body text-ink">
+            {isTR ? `${channelName} Hesap Sec` : `Select ${channelName} Account`}
+          </h3>
+          <p className="text-xs text-ink-tertiary mt-1">
+            {activeAccount
+              ? (isTR ? "Aktif hesabi degistirmek icin yeni bir hesap secin" : "Select a new account to replace the active one")
+              : (isTR ? "Bu kanal icin bir hesap secin" : "Select an account for this channel")}
+          </p>
+        </div>
+
+        {/* Account list */}
+        <div className="max-h-72 overflow-y-auto">
+          {options.map((opt) => {
+            const isCurrentlyActive = activeAccount?.platform_id === opt.id
+            return (
+              <button
+                key={opt.id}
+                disabled={saving || isCurrentlyActive}
+                onClick={() => !isCurrentlyActive && onSelect(opt)}
+                className={`w-full text-left px-6 py-3.5 transition-colors border-b border-surface-100 last:border-b-0 ${
+                  isCurrentlyActive
+                    ? "bg-emerald-50/60 cursor-default"
+                    : "hover:bg-surface-50 cursor-pointer"
+                } ${saving ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-ink truncate">{opt.label}</div>
+                    <div className="text-xs text-ink/40 font-mono mt-0.5 truncate">{opt.detail}</div>
+                  </div>
+                  {isCurrentlyActive && (
+                    <div className="flex items-center gap-1.5 text-emerald-600 flex-shrink-0">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-5 h-5">
+                        <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      <span className="text-xs font-bold">{isTR ? "Aktif" : "Active"}</span>
+                    </div>
+                  )}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-surface-200 flex items-center justify-between">
+          {saving && (
+            <div className="flex items-center gap-2 text-xs text-ink-tertiary">
+              <SpinnerIcon className="w-4 h-4" />
+              {isTR ? "Kaydediliyor..." : "Saving..."}
+            </div>
+          )}
+          {!saving && <div />}
+          <button
+            onClick={onClose}
+            disabled={saving}
+            className="px-4 py-2 text-sm font-medium text-ink-secondary hover:text-ink bg-surface-50 hover:bg-surface-100 rounded-lg transition-colors disabled:opacity-50"
+          >
+            {isTR ? "Iptal" : "Cancel"}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ════════════════════════════════════════════
-   CHANNELS PAGE — Kanal Yonetimi (Multi-Account)
+   CHANNELS PAGE — Kanal Yonetimi (Single-Active-Per-Channel)
    ════════════════════════════════════════════ */
 
 export default function ChannelsPage() {
@@ -175,14 +266,11 @@ export default function ChannelsPage() {
   // States
   const [metaStatus, setMetaStatus] = useState<MetaStatus | null>(null)
   const [available, setAvailable] = useState<AvailableResponse | null>(null)
-  const [selections, setSelections] = useState<ChannelSelection[]>([])
   const [loading, setLoading] = useState(true)
   const [connecting, setConnecting] = useState(false)
-  const [savingId, setSavingId] = useState<string | null>(null) // platform_id or selection id being saved
+  const [saving, setSaving] = useState(false)
+  const [selectingChannel, setSelectingChannel] = useState<string | null>(null) // which channel's modal is open
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null)
-
-  // "Add account" dropdown open state per channel
-  const [addDropdownOpen, setAddDropdownOpen] = useState<string | null>(null)
 
   const showToast = useCallback((message: string, type: "success" | "error" = "success") => {
     setToast({ message, type })
@@ -201,14 +289,13 @@ export default function ChannelsPage() {
     }
   }, [getToken])
 
-  // Fetch available channels + selections
+  // Fetch available channels + active selections
   const fetchAvailable = useCallback(async () => {
     const token = getToken()
     if (!token) return
     try {
       const data = await api<AvailableResponse>("/channels/available", { token })
       setAvailable(data)
-      setSelections(data.selections || [])
     } catch {
       // Not connected or error
     }
@@ -254,18 +341,17 @@ export default function ChannelsPage() {
     }
   }
 
-  // Add / update a channel selection (POST)
-  const handleSelectChannel = async (
-    channel: "whatsapp" | "instagram" | "messenger",
+  // Select an account for a channel (replaces any existing active account)
+  const handleSelect = async (
+    channel: string,
     platformId: string,
     platformName: string,
     platformDetail: string,
-    metadata: Record<string, any>,
-    enabled: boolean
+    metadata: Record<string, any>
   ) => {
     const token = getToken()
     if (!token) return
-    setSavingId(platformId)
+    setSaving(true)
     try {
       await api("/channels/select", {
         method: "POST",
@@ -276,47 +362,46 @@ export default function ChannelsPage() {
           platform_name: platformName,
           platform_detail: platformDetail,
           metadata,
-          enabled,
+          enabled: true,
         }),
       })
       await fetchAvailable()
-      showToast(isTR ? `${channelLabel(channel)} kaydedildi` : `${channelLabel(channel)} saved`)
+      showToast(isTR ? `${channelLabel(channel)} hesabi secildi` : `${channelLabel(channel)} account selected`)
     } catch (err: any) {
       showToast(err.message || (isTR ? "Kayit hatasi" : "Save error"), "error")
     } finally {
-      setSavingId(null)
+      setSaving(false)
+      setSelectingChannel(null)
     }
   }
 
-  // Remove a channel selection (DELETE)
-  const handleRemoveSelection = async (selectionId: string, channelName: string) => {
+  // Disconnect (disable) current active account for a channel
+  const handleDisconnect = async (channel: string) => {
     const token = getToken()
-    if (!token || !selectionId) return
-    setSavingId(selectionId)
+    if (!token) return
+    const active = available?.activeSelections?.[channel as keyof typeof available.activeSelections]
+    if (!active) return
+    setSaving(true)
     try {
-      await api(`/channels/select?id=${selectionId}`, {
-        method: "DELETE",
+      await api("/channels/select", {
+        method: "POST",
         token,
+        body: JSON.stringify({
+          channel: active.channel,
+          platform_id: active.platform_id,
+          platform_name: active.platform_name || "",
+          platform_detail: active.platform_detail || "",
+          metadata: active.metadata || {},
+          enabled: false,
+        }),
       })
       await fetchAvailable()
-      showToast(isTR ? `${channelName} hesap kaldirildi` : `${channelName} account removed`)
+      showToast(isTR ? `${channelLabel(channel)} baglantisi kesildi` : `${channelLabel(channel)} disconnected`)
     } catch (err: any) {
-      showToast(err.message || (isTR ? "Silme hatasi" : "Remove error"), "error")
+      showToast(err.message || (isTR ? "Hata olustu" : "Error occurred"), "error")
     } finally {
-      setSavingId(null)
+      setSaving(false)
     }
-  }
-
-  // Toggle enable/disable for a specific selection
-  const handleToggleSelection = async (selection: ChannelSelection) => {
-    await handleSelectChannel(
-      selection.channel as "whatsapp" | "instagram" | "messenger",
-      selection.platform_id,
-      selection.platform_name || "",
-      selection.platform_detail || "",
-      selection.metadata || {},
-      !selection.enabled
-    )
   }
 
   function channelLabel(ch: string) {
@@ -326,12 +411,8 @@ export default function ChannelsPage() {
     return ch
   }
 
-  // Get all selections for a channel
-  const getSelections = (channel: string) => selections.filter((s) => s.channel === channel)
-  const getEnabledCount = (channel: string) => selections.filter((s) => s.channel === channel && s.enabled).length
-
   // Build flat option lists
-  const whatsappOptions: { id: string; label: string; detail: string; wabaId: string; wabaName: string }[] = []
+  const whatsappOptions: ChannelOption[] = []
   for (const waba of available?.whatsapp || []) {
     for (const phone of waba.phone_numbers || []) {
       whatsappOptions.push({
@@ -340,11 +421,12 @@ export default function ChannelsPage() {
         detail: phone.display_phone_number,
         wabaId: waba.waba_id,
         wabaName: waba.waba_name,
+        qualityRating: phone.quality_rating,
       })
     }
   }
 
-  const instagramOptions = (available?.instagram || []).map((ig) => ({
+  const instagramOptions: ChannelOption[] = (available?.instagram || []).map((ig) => ({
     id: ig.id,
     label: ig.name || ig.username,
     detail: ig.username ? `@${ig.username}` : ig.id,
@@ -352,7 +434,7 @@ export default function ChannelsPage() {
     pageName: ig.page_name,
   }))
 
-  const pageOptions = (available?.pages || []).map((p) => ({
+  const pageOptions: ChannelOption[] = (available?.pages || []).map((p) => ({
     id: p.id,
     label: p.name,
     detail: p.id,
@@ -369,6 +451,27 @@ export default function ChannelsPage() {
     return null
   }
 
+  const qualityLabel = (rating: string) => {
+    if (rating === "GREEN") return isTR ? "Yuksek" : "High"
+    if (rating === "YELLOW") return isTR ? "Orta" : "Medium"
+    if (rating === "RED") return isTR ? "Dusuk" : "Low"
+    return isTR ? "Bilinmiyor" : "Unknown"
+  }
+
+  const qualityColor = (rating: string) => {
+    if (rating === "GREEN") return "text-emerald-600"
+    if (rating === "YELLOW") return "text-amber-600"
+    if (rating === "RED") return "text-red-600"
+    return "text-ink-tertiary"
+  }
+
+  const qualityDot = (rating: string) => {
+    if (rating === "GREEN") return "bg-emerald-500"
+    if (rating === "YELLOW") return "bg-amber-500"
+    if (rating === "RED") return "bg-red-500"
+    return "bg-surface-350"
+  }
+
   // Format expiry date
   const formatExpiry = (dateStr: string | null) => {
     if (!dateStr) return ""
@@ -381,13 +484,6 @@ export default function ChannelsPage() {
     return isTR ? `${diffDays} gun kaldi` : `${diffDays} days left`
   }
 
-  const qualityDot = (rating: string) => {
-    if (rating === "GREEN") return "bg-emerald-500"
-    if (rating === "YELLOW") return "bg-amber-500"
-    if (rating === "RED") return "bg-red-500"
-    return "bg-surface-350"
-  }
-
   // Loading state
   if (loading) {
     return <div className="p-7 text-ink-tertiary text-caption">{t("loading")}</div>
@@ -396,8 +492,6 @@ export default function ChannelsPage() {
   const isConnected = metaStatus?.connected === true
 
   // Channel card config
-  type ChannelOption = { id: string; label: string; detail: string; [key: string]: any }
-
   const channelCards: {
     channel: "whatsapp" | "instagram" | "messenger"
     name: string
@@ -457,6 +551,28 @@ export default function ChannelsPage() {
       {/* Toast */}
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
+      {/* Selection Modal */}
+      {selectingChannel && (() => {
+        const card = channelCards.find((c) => c.channel === selectingChannel)
+        if (!card) return null
+        const activeAccount = available?.activeSelections?.[card.channel as keyof typeof available.activeSelections] || null
+        return (
+          <SelectionModal
+            channel={card.channel}
+            channelName={card.name}
+            options={card.options}
+            activeAccount={activeAccount}
+            saving={saving}
+            onSelect={(opt) => {
+              const payload = card.buildPayload(opt)
+              handleSelect(card.channel, opt.id, payload.platformName, payload.platformDetail, payload.metadata)
+            }}
+            onClose={() => !saving && setSelectingChannel(null)}
+            isTR={isTR}
+          />
+        )
+      })()}
+
       {/* Page Header */}
       <div className="ds-page-header">
         <div>
@@ -494,9 +610,7 @@ export default function ChannelsPage() {
               >
                 {connecting ? (
                   <>
-                    <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="31.4 31.4" strokeLinecap="round" />
-                    </svg>
+                    <SpinnerIcon />
                     {isTR ? "Yonlendiriliyor..." : "Redirecting..."}
                   </>
                 ) : (
@@ -544,166 +658,119 @@ export default function ChannelsPage() {
         {isConnected && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {channelCards.map((card) => {
-              const channelSelections = getSelections(card.channel)
-              const enabledCount = getEnabledCount(card.channel)
+              const activeAccount = available?.activeSelections?.[card.channel as keyof typeof available.activeSelections] || null
               const hasOptions = card.options.length > 0
-
-              // Unselected options (not yet added)
-              const selectedPlatformIds = new Set(channelSelections.map((s) => s.platform_id))
-              const unselectedOptions = card.options.filter((o) => !selectedPlatformIds.has(o.id))
-              const isDropdownOpen = addDropdownOpen === card.channel
+              const quality = activeAccount && card.channel === "whatsapp"
+                ? getQualityRating(activeAccount.platform_id)
+                : null
 
               return (
                 <div
                   key={card.channel}
                   className={`bg-white rounded-xl border transition-all duration-200 ${
-                    enabledCount > 0 ? "border-surface-300 shadow-card" : "border-surface-300 border-dashed"
+                    activeAccount ? "border-surface-300 shadow-card" : "border-surface-300 border-dashed"
                   }`}
                 >
-                  {/* Card Header: Icon + Name + Count */}
+                  {/* Card Header: Icon + Name */}
                   <div className="p-5 pb-3">
-                    <div className="flex items-center gap-3 mb-1">
+                    <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 ${card.iconBg} rounded-xl flex items-center justify-center shadow-md`}>
                         {card.icon}
                       </div>
-                      <div className="flex-1">
+                      <div>
                         <h3 className="font-bold text-body text-ink">{card.name}</h3>
                         <p className="text-[11px] text-ink-tertiary">{card.subtitle}</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Status summary */}
-                  <div className="px-5 pb-3">
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="text-ink-tertiary font-medium">Status:</span>
-                      {channelSelections.length > 0 ? (
-                        <span className={`inline-flex items-center gap-1.5 font-bold ${enabledCount > 0 ? "text-emerald-600" : "text-ink-tertiary"}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${enabledCount > 0 ? "bg-emerald-500 animate-pulse" : "bg-surface-350"}`} />
-                          {enabledCount > 0
-                            ? (isTR ? `${enabledCount} hesap bagli` : `${enabledCount} account${enabledCount > 1 ? "s" : ""} connected`)
-                            : (isTR ? "Tumu devre disi" : "All disabled")}
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 font-medium text-ink-tertiary">
-                          <span className="w-1.5 h-1.5 rounded-full bg-surface-350" />
-                          {isTR ? "Hesap eklenmemis" : "No accounts added"}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                  {/* ─── Card Body: State-based content ─── */}
+                  <div className="px-5 pb-5">
 
-                  {/* ─── Selected Accounts List ─── */}
-                  {channelSelections.length > 0 && (
-                    <div className="px-5 pb-3">
-                      <div className="rounded-lg border border-surface-200 overflow-hidden divide-y divide-surface-200">
-                        {channelSelections.map((sel) => {
-                          const isSelSaving = savingId === sel.platform_id || savingId === sel.id
-                          const quality = card.channel === "whatsapp" ? getQualityRating(sel.platform_id) : null
-
-                          return (
-                            <div key={sel.id || sel.platform_id} className="bg-surface-50 px-3 py-2.5">
-                              <div className="flex items-center gap-2">
-                                {/* Toggle */}
-                                <Toggle
-                                  enabled={sel.enabled}
-                                  loading={isSelSaving}
-                                  onChange={() => handleToggleSelection(sel)}
-                                />
-
-                                {/* Account info */}
-                                <div className="flex-1 min-w-0">
-                                  <div className="text-xs font-semibold text-ink truncate">
-                                    {sel.platform_name || "-"}
-                                  </div>
-                                  <div className="flex items-center gap-1.5 mt-0.5">
-                                    {sel.platform_detail && (
-                                      <span className="text-[11px] text-ink/40 font-mono truncate">{sel.platform_detail}</span>
-                                    )}
-                                    {quality && (
-                                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${qualityDot(quality)}`} title={`Quality: ${quality}`} />
-                                    )}
-                                  </div>
-                                </div>
-
-                                {/* Remove button */}
-                                <button
-                                  onClick={() => sel.id && handleRemoveSelection(sel.id, card.name)}
-                                  disabled={isSelSaving}
-                                  className="text-xs font-medium text-red-400 hover:text-red-600 transition-colors disabled:opacity-40 flex-shrink-0 px-1.5 py-0.5 rounded hover:bg-red-50"
-                                  title={isTR ? "Kaldir" : "Remove"}
-                                >
-                                  {isSelSaving ? (
-                                    <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
-                                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="31.4 31.4" strokeLinecap="round" />
-                                    </svg>
-                                  ) : (
-                                    isTR ? "Kes" : "Remove"
-                                  )}
-                                </button>
-                              </div>
-                            </div>
-                          )
-                        })}
+                    {/* State D: No available accounts for this channel */}
+                    {!hasOptions && (
+                      <div className="py-6 px-3 rounded-lg bg-surface-50 border border-dashed border-surface-300 text-center">
+                        <p className="text-sm text-ink-tertiary font-medium">
+                          {isTR ? "Kullanilabilir hesap yok" : "No accounts available"}
+                        </p>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* ─── Add Account Dropdown ─── */}
-                  <div className="border-t border-surface-300/60 px-5 py-4">
-                    {hasOptions && unselectedOptions.length > 0 ? (
-                      <div className="relative">
+                    {/* State B: Connected, no active account for this channel */}
+                    {hasOptions && !activeAccount && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <span className="w-2.5 h-2.5 rounded-full bg-surface-350" />
+                          <span className="text-sm text-ink-tertiary font-medium">
+                            {isTR ? "Hesap secilmemis" : "No account selected"}
+                          </span>
+                        </div>
                         <button
-                          onClick={() => setAddDropdownOpen(isDropdownOpen ? null : card.channel)}
-                          className="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold text-primary border border-primary/30 rounded-lg hover:bg-primary-50 transition-colors"
+                          onClick={() => setSelectingChannel(card.channel)}
+                          disabled={saving}
+                          className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-bold text-primary border border-primary/30 rounded-lg hover:bg-primary-50 transition-colors disabled:opacity-50"
                         >
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
                             <path d="M12 5v14m-7-7h14" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
-                          {isTR ? "Hesap Ekle" : "Add Account"}
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={`w-3.5 h-3.5 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}>
-                            <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
+                          {isTR ? "Hesap Sec" : "Select Account"}
                         </button>
+                      </div>
+                    )}
 
-                        {/* Dropdown list */}
-                        {isDropdownOpen && (
-                          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-surface-300 rounded-lg shadow-lg z-10 max-h-48 overflow-y-auto">
-                            {unselectedOptions.map((opt) => {
-                              const isOptSaving = savingId === opt.id
-                              return (
-                                <button
-                                  key={opt.id}
-                                  disabled={isOptSaving}
-                                  onClick={() => {
-                                    const payload = card.buildPayload(opt)
-                                    handleSelectChannel(
-                                      card.channel,
-                                      opt.id,
-                                      payload.platformName,
-                                      payload.platformDetail,
-                                      payload.metadata,
-                                      true
-                                    )
-                                    setAddDropdownOpen(null)
-                                  }}
-                                  className="w-full text-left px-3 py-2.5 hover:bg-surface-50 transition-colors text-xs border-b border-surface-100 last:border-b-0 disabled:opacity-50"
-                                >
-                                  <div className="font-semibold text-ink">{opt.label}</div>
-                                  <div className="text-ink/40 font-mono mt-0.5">{opt.detail}</div>
-                                </button>
-                              )
-                            })}
+                    {/* State C: Active account selected */}
+                    {hasOptions && activeAccount && (
+                      <div>
+                        {/* Active status badge */}
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                          <span className="text-sm font-bold text-emerald-600">
+                            {isTR ? "Aktif" : "Active"}
+                          </span>
+                        </div>
+
+                        {/* Account details */}
+                        <div className="rounded-lg bg-surface-50 border border-surface-200 p-3.5 mb-4">
+                          <div className="text-sm font-semibold text-ink">
+                            {activeAccount.platform_name || "-"}
                           </div>
-                        )}
-                      </div>
-                    ) : hasOptions && unselectedOptions.length === 0 ? (
-                      <div className="py-2 text-center text-xs text-ink-tertiary">
-                        {isTR ? "Tum hesaplar eklendi" : "All accounts added"}
-                      </div>
-                    ) : (
-                      <div className="py-2 px-3 rounded-lg bg-surface-50 border border-dashed border-surface-300 text-xs text-ink-tertiary text-center">
-                        {isTR ? "Kullanilabilir hesap yok" : "No accounts available"}
+                          {activeAccount.platform_detail && (
+                            <div className="text-xs text-ink/50 font-mono mt-1">
+                              {activeAccount.platform_detail}
+                            </div>
+                          )}
+                          {quality && (
+                            <div className="flex items-center gap-1.5 mt-2 text-xs">
+                              <span className="text-ink-tertiary">{isTR ? "Kalite:" : "Quality:"}</span>
+                              <span className={`w-2 h-2 rounded-full ${qualityDot(quality)}`} />
+                              <span className={`font-semibold ${qualityColor(quality)}`}>
+                                {qualityLabel(quality)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Action buttons */}
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setSelectingChannel(card.channel)}
+                            disabled={saving}
+                            className="flex-1 py-2 text-xs font-bold text-primary border border-primary/30 rounded-lg hover:bg-primary-50 transition-colors disabled:opacity-50"
+                          >
+                            {isTR ? "Degistir" : "Change"}
+                          </button>
+                          <button
+                            onClick={() => handleDisconnect(card.channel)}
+                            disabled={saving}
+                            className="flex-1 py-2 text-xs font-bold text-red-500 border border-red-200 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
+                          >
+                            {saving ? (
+                              <SpinnerIcon className="w-3.5 h-3.5 mx-auto" />
+                            ) : (
+                              isTR ? "Baglantiyi Kes" : "Disconnect"
+                            )}
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -740,8 +807,8 @@ export default function ChannelsPage() {
             <li className="flex items-start gap-2.5">
               <span className="w-5 h-5 rounded-full bg-primary-50 text-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
               {isTR
-                ? "Her kanala birden fazla hesap ekleyebilir, toggle ile aktif/pasif yapabilirsiniz"
-                : "You can add multiple accounts per channel and toggle them on/off individually"}
+                ? "Her kanal icin bir hesap secin — \"Degistir\" ile istediginiz zaman degistirebilirsiniz"
+                : "Select one account per channel — use \"Change\" to switch anytime"}
             </li>
           </ul>
         </div>

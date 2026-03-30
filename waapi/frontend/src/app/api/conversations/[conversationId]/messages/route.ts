@@ -96,13 +96,19 @@ export async function POST(
         .from("channel_accounts")
         .select("*")
         .eq("id", channelAccountId)
+        .eq("is_active", true)
         .single()
 
-      if (chAccount) {
-        accessToken = chAccount.access_token
-        accountId = chAccount.account_id
-        pageId = chAccount.page_id
+      if (!chAccount) {
+        return NextResponse.json(
+          { detail: "Bu kanal hesabı aktif değil. Lütfen Kanallar sayfasından aktif hesap seçin." },
+          { status: 400 }
+        )
       }
+
+      accessToken = chAccount.access_token
+      accountId = chAccount.account_id
+      pageId = chAccount.page_id
     }
 
     // Fallback to org.settings for old conversations without channel_account_id
@@ -153,10 +159,14 @@ export async function POST(
       .from("phone_numbers")
       .select("*, waba:waba_accounts(*)")
       .eq("id", conv.phone_number_id)
+      .eq("is_active", true)
       .single()
 
     if (!phone) {
-      return NextResponse.json({ detail: "Telefon numarasi bulunamadi" }, { status: 400 })
+      return NextResponse.json(
+        { detail: "Bu kanal hesabı aktif değil. Lütfen Kanallar sayfasından aktif hesap seçin." },
+        { status: 400 }
+      )
     }
 
     // Access token'ı decrypt et (DB'de Fernet ile şifreli saklanıyor)
