@@ -77,8 +77,7 @@ export async function GET(request: Request) {
     supabase
       .from("channel_accounts")
       .select("*")
-      .eq("org_id", auth.org_id)
-      .eq("is_active", true),
+      .eq("org_id", auth.org_id),
   ])
 
   const wabaAccounts = wabaResult.data || []

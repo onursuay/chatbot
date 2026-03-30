@@ -261,7 +261,7 @@ export default function ChannelsPage() {
   const { getToken } = useAuth()
   const { t } = useI18n()
 
-  const isTR = t("loading") === "Yukleniyor..."
+  const isTR = t("loading") === "Yükleniyor..."
 
   // States
   const [metaStatus, setMetaStatus] = useState<MetaStatus | null>(null)
