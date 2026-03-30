@@ -50,10 +50,10 @@ export default function LoginPage() {
 
       {/* Main */}
       <main className="flex-1 flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-[960px] flex items-center gap-16">
+        <div className="w-full max-w-[1100px] flex items-stretch gap-10">
 
           {/* Left - Green Card (desktop) */}
-          <div className="hidden lg:flex flex-col flex-1 max-w-[440px] bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-3xl p-10 text-white shadow-2xl shadow-emerald-600/25">
+          <div className="hidden lg:flex flex-col flex-1 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-3xl p-12 text-white shadow-2xl shadow-emerald-600/25 justify-center">
             <h1 className="text-3xl font-bold leading-tight mb-3">
               {isTR
                 ? "Müşterilerinizle iletişimi güçlendirin"

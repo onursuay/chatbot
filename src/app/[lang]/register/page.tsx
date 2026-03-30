@@ -55,10 +55,10 @@ export default function RegisterPage() {
 
       {/* Main */}
       <main className="flex-1 flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-[960px] flex items-center gap-16">
+        <div className="w-full max-w-[1100px] flex items-stretch gap-10">
 
           {/* Left - Green Card (desktop) */}
-          <div className="hidden lg:flex flex-col flex-1 max-w-[440px] bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-3xl p-10 text-white shadow-2xl shadow-emerald-600/25">
+          <div className="hidden lg:flex flex-col flex-1 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-3xl p-12 text-white shadow-2xl shadow-emerald-600/25 justify-center">
             <div className="inline-flex items-center gap-2 bg-white/15 text-white text-xs font-semibold px-3 py-1.5 rounded-full w-fit mb-4">
               <svg viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5"><path d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"/></svg>
               {isTR ? "14 gün ücretsiz deneyin" : "14 days free trial"}
