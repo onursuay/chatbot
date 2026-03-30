@@ -59,10 +59,6 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
-    if (!turnstileToken) {
-      setError(lang === "tr" ? "Lütfen doğrulamayı tamamlayın" : "Please complete the verification")
-      return
-    }
     setLoading(true)
     try {
       const tokens = await api("/auth/login", {
@@ -258,7 +254,7 @@ export default function LoginPage() {
 
                 <button
                   type="submit"
-                  disabled={loading || !turnstileToken}
+                  disabled={loading}
                   className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl py-3.5 transition-all duration-200 shadow-lg shadow-emerald-600/25 disabled:opacity-50 disabled:cursor-not-allowed text-sm mt-2"
                 >
                   {loading

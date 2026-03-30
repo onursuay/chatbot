@@ -63,10 +63,6 @@ export default function RegisterPage() {
       setError(lang === "tr" ? "Geçerli bir e-posta adresi girin" : "Enter a valid email address")
       return
     }
-    if (!turnstileToken) {
-      setError(lang === "tr" ? "Lütfen doğrulamayı tamamlayın" : "Please complete the verification")
-      return
-    }
     setLoading(true)
     try {
       const tokens = await api("/auth/register", {
@@ -292,7 +288,7 @@ export default function RegisterPage() {
 
                 <button
                   type="submit"
-                  disabled={loading || !turnstileToken}
+                  disabled={loading}
                   className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl py-3.5 transition-all duration-200 shadow-lg shadow-emerald-600/25 disabled:opacity-50 disabled:cursor-not-allowed text-sm mt-2"
                 >
                   {loading
