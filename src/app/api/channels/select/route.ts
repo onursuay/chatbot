@@ -115,12 +115,34 @@ export async function POST(request: Request) {
 
       // Subscribe to webhooks
       let webhookResult: any = null
-      // Instagram/Messenger: page_access_token gerekli, user token yetmez
-      const whAccessToken = (channel === "instagram" || channel === "messenger")
-        ? (metadata?.page_access_token || accessToken)
-        : (accessToken || metadata?.page_access_token)
+      let whAccessToken = accessToken
 
-      console.log("[SELECT] channel:", channel, "hasPageToken:", !!metadata?.page_access_token, "hasAccessToken:", !!accessToken, "metadata keys:", Object.keys(metadata || {}))
+      // Instagram/Messenger: page_access_token gerekli, user token yetmez
+      if ((channel === "instagram" || channel === "messenger") && metadata?.page_id && accessToken) {
+        // Frontend'den token gelmemiş olabilir — Graph API'den page token al
+        let pageToken = metadata?.page_access_token
+        if (!pageToken) {
+          try {
+            const pageRes = await fetch(
+              `${GRAPH_BASE}/${metadata.page_id}?fields=access_token&access_token=${accessToken}`
+            )
+            const pageData = await pageRes.json()
+            pageToken = pageData.access_token
+            console.log("[SELECT] Page token fetched from Graph API for page:", metadata.page_id, "success:", !!pageToken)
+          } catch (e) {
+            console.error("[SELECT] Failed to fetch page token:", e)
+          }
+        }
+        if (pageToken) {
+          whAccessToken = pageToken
+          // metadata'ya da kaydet ki channel_accounts'a yazılsın
+          metadata.page_access_token = pageToken
+          // Sync tablosunu tekrar güncelle (token ile)
+          await syncRuntimeTables(supabase, auth.org_id, channel, platform_id, platform_name, metadata, true)
+        }
+      }
+
+      console.log("[SELECT] channel:", channel, "usingPageToken:", whAccessToken !== accessToken)
 
       if (whAccessToken) {
         try {
