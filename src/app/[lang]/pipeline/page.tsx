@@ -54,9 +54,10 @@ export default function PipelinePage() {
       withoutStages.forEach(p => {
         api(`/pipelines/${p.id}`, { method: "DELETE", token }).catch(() => {})
       })
-      setPipelines(withStages.length > 0 ? withStages : data)
-      if (sorted.length > 0 && !selectedPipelineId) setSelectedPipelineId(sorted[0].id)
-      else if (sorted.length > 0 && !sorted.find(p => p.id === selectedPipelineId)) setSelectedPipelineId(sorted[0].id)
+      const active = withStages.length > 0 ? withStages : data
+      setPipelines(active)
+      if (active.length > 0 && !selectedPipelineId) setSelectedPipelineId(active[0].id)
+      else if (active.length > 0 && !active.find(p => p.id === selectedPipelineId)) setSelectedPipelineId(active[0].id)
     } catch (err: any) {
       console.error("Pipeline yükleme hatası:", err)
     }
