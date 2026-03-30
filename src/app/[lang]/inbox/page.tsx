@@ -10,6 +10,7 @@ type Channel = "all" | "whatsapp" | "instagram" | "facebook"
 
 interface Conversation {
   id: string
+  contact_id?: string
   contact_name: string | null
   contact_phone: string | null
   contact_email?: string | null
@@ -20,6 +21,11 @@ interface Conversation {
   is_bot_active: boolean
   channel?: string
   tags?: string[]
+  lead_id?: string | null
+  lead_stage_id?: string | null
+  lead_stage_name?: string | null
+  lead_stage_color?: string | null
+  lead_pipeline_id?: string | null
 }
 
 interface Message {
@@ -130,6 +136,46 @@ export default function InboxPage() {
   // Delete conversation
   const [deleteTarget, setDeleteTarget] = useState<Conversation | null>(null)
   const [deleting, setDeleting] = useState(false)
+
+  // Pipeline stages
+  const [pipelineStages, setPipelineStages] = useState<{ id: string; name: string; color: string; sort_order: number }[]>([])
+  const [showStageDropdown, setShowStageDropdown] = useState(false)
+
+  // Load pipeline stages
+  useEffect(() => {
+    const token = getToken()
+    if (!token) return
+    api<any[]>("/pipelines", { token }).then((pipelines) => {
+      if (pipelines?.length > 0) {
+        const stages = pipelines[0].stages || pipelines[0].pipeline_stages || []
+        setPipelineStages(stages.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0)))
+      }
+    }).catch(() => {})
+  }, [getToken])
+
+  // Change lead stage
+  const changeLeadStage = async (conv: Conversation, stageId: string) => {
+    const token = getToken()
+    if (!token || !conv.lead_id) return
+    try {
+      await api("/leads", {
+        method: "PATCH",
+        token,
+        body: JSON.stringify({ id: conv.lead_id, stage_id: stageId }),
+      })
+      // Update local state
+      const stage = pipelineStages.find(s => s.id === stageId)
+      setConversations(prev => prev.map(c =>
+        c.id === conv.id ? { ...c, lead_stage_id: stageId, lead_stage_name: stage?.name || null, lead_stage_color: stage?.color || null } : c
+      ))
+      if (selectedConv?.id === conv.id) {
+        setSelectedConv(prev => prev ? { ...prev, lead_stage_id: stageId, lead_stage_name: stage?.name || null, lead_stage_color: stage?.color || null } : prev)
+      }
+    } catch (err) {
+      console.error("Lead stage update failed:", err)
+    }
+    setShowStageDropdown(false)
+  }
 
   // Load conversations
   const loadConversations = () => {
@@ -432,9 +478,19 @@ export default function InboxPage() {
                           {conv.last_message_at ? formatTime(conv.last_message_at) : ""}
                         </span>
                       </div>
-                      <p className="text-caption text-ink-tertiary line-clamp-1">
-                        {conv.last_message_preview || t("no_message")}
-                      </p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-caption text-ink-tertiary line-clamp-1 flex-1">
+                          {conv.last_message_preview || t("no_message")}
+                        </p>
+                        {conv.lead_stage_name && (
+                          <span
+                            className="shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full text-white"
+                            style={{ backgroundColor: conv.lead_stage_color || "#6B7280" }}
+                          >
+                            {conv.lead_stage_name}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   {/* Unread indicator */}
@@ -480,9 +536,39 @@ export default function InboxPage() {
                   </span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-body-medium text-ink">
-                    {selectedConv.contact_name || selectedConv.contact_phone}
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-body-medium text-ink">
+                      {selectedConv.contact_name || selectedConv.contact_phone}
+                    </h3>
+                    {/* Pipeline Stage Badge */}
+                    {selectedConv.lead_stage_name && pipelineStages.length > 0 && (
+                      <div className="relative">
+                        <button
+                          onClick={() => setShowStageDropdown(!showStageDropdown)}
+                          className="text-[10px] font-medium px-2 py-0.5 rounded-full text-white cursor-pointer hover:opacity-80 transition-opacity"
+                          style={{ backgroundColor: selectedConv.lead_stage_color || "#6B7280" }}
+                        >
+                          {selectedConv.lead_stage_name} ▾
+                        </button>
+                        {showStageDropdown && (
+                          <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-xl border border-surface-300 py-1 z-50 min-w-[140px]">
+                            {pipelineStages.map((stage) => (
+                              <button
+                                key={stage.id}
+                                onClick={() => changeLeadStage(selectedConv, stage.id)}
+                                className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-surface-50 transition-colors ${
+                                  stage.id === selectedConv.lead_stage_id ? "font-bold" : ""
+                                }`}
+                              >
+                                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: stage.color }} />
+                                {stage.name}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                   <p className="text-micro text-ink-tertiary flex items-center gap-1.5">
                     {getChannelLabel(selectedConv.channel)}
                     {selectedConv.last_message_at && (
