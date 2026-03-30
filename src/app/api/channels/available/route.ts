@@ -53,6 +53,8 @@ export async function GET(request: Request) {
         const whatsapp = whatsappResult.status === "fulfilled" ? whatsappResult.value : []
         const pagesData = pagesResult.status === "fulfilled" ? pagesResult.value : { pages: [], instagram: [] }
 
+        console.log("[AVAILABLE] instagram count:", pagesData.instagram.length, "first ig has token:", !!pagesData.instagram[0]?.page_access_token)
+
         return NextResponse.json({
           whatsapp,
           instagram: pagesData.instagram,
