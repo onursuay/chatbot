@@ -115,7 +115,13 @@ export async function POST(request: Request) {
 
       // Subscribe to webhooks
       let webhookResult: any = null
-      const whAccessToken = accessToken || metadata?.page_access_token
+      // Instagram/Messenger: page_access_token gerekli, user token yetmez
+      const whAccessToken = (channel === "instagram" || channel === "messenger")
+        ? (metadata?.page_access_token || accessToken)
+        : (accessToken || metadata?.page_access_token)
+
+      console.log("[SELECT] channel:", channel, "hasPageToken:", !!metadata?.page_access_token, "hasAccessToken:", !!accessToken, "metadata keys:", Object.keys(metadata || {}))
+
       if (whAccessToken) {
         try {
           webhookResult = await subscribeWebhook(channel, platform_id, metadata, whAccessToken)
