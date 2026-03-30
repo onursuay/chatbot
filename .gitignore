@@ -30,3 +30,6 @@ Icon?
 
 # Claude
 .claude/
+
+# Duplicate frontend (Vercel uses root src/)
+waapi/frontend/
