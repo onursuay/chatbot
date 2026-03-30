@@ -71,6 +71,25 @@ create table phone_numbers (
 );
 
 -- ============================================
+-- 4b. Channel Accounts (webhook + mesaj gonderi icin)
+-- ============================================
+create table if not exists channel_accounts (
+  id uuid primary key default uuid_generate_v4(),
+  org_id uuid not null references organizations(id) on delete cascade,
+  channel text not null,
+  account_id text not null,
+  page_id text,
+  page_name text,
+  access_token text,
+  is_active boolean default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique(org_id, channel, account_id)
+);
+
+create index idx_channel_accounts_org on channel_accounts(org_id);
+
+-- ============================================
 -- 5. Companies (Sirket profilleri — Kommo)
 -- ============================================
 create table companies (
@@ -128,6 +147,7 @@ create table conversations (
   org_id uuid not null references organizations(id) on delete cascade,
   contact_id uuid not null references contacts(id) on delete cascade,
   phone_number_id uuid references phone_numbers(id),
+  channel_account_id uuid references channel_accounts(id) on delete set null,
   status text not null default 'open',
   assigned_to uuid references users(id),
   labels text[] default '{}',
@@ -776,6 +796,7 @@ alter table call_logs enable row level security;
 alter table email_logs enable row level security;
 alter table lead_scoring_rules enable row level security;
 alter table saved_filters enable row level security;
+alter table channel_accounts enable row level security;
 alter table meta_connections enable row level security;
 alter table channel_selections enable row level security;
 
@@ -815,7 +836,7 @@ begin
       'webhook_configs','web_forms','salesbot_flows','salesbot_flow_steps',
       'salesbot_flow_sessions','dashboard_widgets','team_invitations',
       'call_logs','email_logs','lead_scoring_rules','saved_filters',
-      'meta_connections','channel_selections'
+      'channel_accounts','meta_connections','channel_selections'
     ])
   loop
     execute format(

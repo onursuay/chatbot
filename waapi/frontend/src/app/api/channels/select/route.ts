@@ -72,6 +72,9 @@ export async function POST(request: Request) {
       )
     }
 
+    // Sync to channel_accounts table (used by webhook handler + outbound messages)
+    await syncChannelAccount(supabase, auth.org_id, channel, platform_id, platform_name, metadata, enabled ?? true)
+
     // Subscribe to webhooks if enabled
     let webhookResult: any = null
     if (enabled) {
@@ -123,7 +126,7 @@ export async function DELETE(request: Request) {
     // Ensure the selection belongs to this org
     const { data: existing } = await supabase
       .from("channel_selections")
-      .select("id, org_id")
+      .select("id, org_id, channel, platform_id")
       .eq("id", id)
       .eq("org_id", auth.org_id)
       .maybeSingle()
@@ -147,6 +150,17 @@ export async function DELETE(request: Request) {
         { detail: "Secim silinemedi" },
         { status: 500 }
       )
+    }
+
+    // Also deactivate the corresponding channel_accounts row
+    const channelForAccount = existing.channel === "messenger" ? "facebook" : existing.channel
+    if (channelForAccount === "instagram" || channelForAccount === "facebook") {
+      await supabase
+        .from("channel_accounts")
+        .update({ is_active: false })
+        .eq("org_id", auth.org_id)
+        .eq("channel", channelForAccount)
+        .eq("account_id", existing.platform_id)
     }
 
     return NextResponse.json({ message: "Secim kaldirildi", id })
@@ -236,5 +250,52 @@ async function subscribeWebhook(
 
     default:
       return { success: false, error: `Bilinmeyen kanal: ${channel}` }
+  }
+}
+
+// Sync channel selection into channel_accounts table
+// This bridges channel_selections (UI) with channel_accounts (webhook + outbound)
+async function syncChannelAccount(
+  supabase: any,
+  org_id: string,
+  channel: string,
+  platform_id: string,
+  platform_name: string | null,
+  metadata: any,
+  enabled: boolean
+) {
+  try {
+    if (channel === "instagram") {
+      const { error } = await supabase.from("channel_accounts").upsert(
+        {
+          org_id,
+          channel: "instagram",
+          account_id: platform_id, // ig_user_id
+          page_id: metadata?.page_id || null,
+          page_name: platform_name || metadata?.page_name || null,
+          access_token: metadata?.page_access_token || null,
+          is_active: enabled,
+        },
+        { onConflict: "org_id,channel,account_id" }
+      )
+      if (error) console.error("channel_accounts upsert (instagram) error:", error)
+    } else if (channel === "messenger" || channel === "facebook") {
+      const { error } = await supabase.from("channel_accounts").upsert(
+        {
+          org_id,
+          channel: "facebook",
+          account_id: platform_id, // page_id
+          page_id: platform_id,
+          page_name: platform_name || null,
+          access_token: metadata?.page_access_token || null,
+          is_active: enabled,
+        },
+        { onConflict: "org_id,channel,account_id" }
+      )
+      if (error) console.error("channel_accounts upsert (facebook) error:", error)
+    }
+    // WhatsApp: no sync needed — waba_accounts + phone_numbers already handle it
+  } catch (e) {
+    console.error("syncChannelAccount error:", e)
   }
 }
