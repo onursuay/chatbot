@@ -60,9 +60,9 @@ interface AvailableResponse {
   pages: PageAccount[]
   selections: ChannelSelection[]
   activeSelections: {
-    whatsapp?: ChannelSelection
-    instagram?: ChannelSelection
-    messenger?: ChannelSelection
+    whatsapp?: ChannelSelection[]
+    instagram?: ChannelSelection[]
+    messenger?: ChannelSelection[]
   }
   connected: boolean
   error?: string
@@ -163,7 +163,7 @@ function SelectionModal({
   channel,
   channelName,
   options,
-  activeAccount,
+  activeAccounts,
   saving,
   onSelect,
   onClose,
@@ -172,7 +172,7 @@ function SelectionModal({
   channel: string
   channelName: string
   options: ChannelOption[]
-  activeAccount: ChannelSelection | null
+  activeAccounts: ChannelSelection[]
   saving: boolean
   onSelect: (opt: ChannelOption) => void
   onClose: () => void
@@ -188,11 +188,11 @@ function SelectionModal({
         {/* Header */}
         <div className="px-6 py-4 border-b border-surface-200">
           <h3 className="font-bold text-body text-ink">
-            {isTR ? `${channelName} Hesap Seç` : `Select ${channelName} Account`}
+            {isTR ? `${channelName} Hesap Ekle` : `Add ${channelName} Account`}
           </h3>
           <p className="text-xs text-ink-tertiary mt-1">
-            {activeAccount
-              ? (isTR ? "Aktif hesabı değiştirmek için yeni bir hesap seçin" : "Select a new account to replace the active one")
+            {activeAccounts.length > 0
+              ? (isTR ? "Yeni bir hesap daha ekleyin veya zaten ekli olanları görün" : "Add another account or see already added ones")
               : (isTR ? "Bu kanal için bir hesap seçin" : "Select an account for this channel")}
           </p>
         </div>
@@ -200,7 +200,7 @@ function SelectionModal({
         {/* Account list */}
         <div className="max-h-72 overflow-y-auto">
           {options.map((opt) => {
-            const isCurrentlyActive = activeAccount?.platform_id === opt.id
+            const isCurrentlyActive = activeAccounts.some(a => a.platform_id === opt.id)
             return (
               <button
                 key={opt.id}
@@ -375,28 +375,26 @@ export default function ChannelsPage() {
     }
   }
 
-  // Disconnect (disable) current active account for a channel
-  const handleDisconnect = async (channel: string) => {
+  // Disconnect (disable) a specific account
+  const handleDisconnect = async (selection: ChannelSelection) => {
     const token = getToken()
     if (!token) return
-    const active = available?.activeSelections?.[channel as keyof typeof available.activeSelections]
-    if (!active) return
     setSaving(true)
     try {
       await api("/channels/select", {
         method: "POST",
         token,
         body: JSON.stringify({
-          channel: active.channel,
-          platform_id: active.platform_id,
-          platform_name: active.platform_name || "",
-          platform_detail: active.platform_detail || "",
-          metadata: active.metadata || {},
+          channel: selection.channel,
+          platform_id: selection.platform_id,
+          platform_name: selection.platform_name || "",
+          platform_detail: selection.platform_detail || "",
+          metadata: selection.metadata || {},
           enabled: false,
         }),
       })
       await fetchAvailable()
-      showToast(isTR ? `${channelLabel(channel)} bağlantısı kesildi` : `${channelLabel(channel)} disconnected`)
+      showToast(isTR ? "Hesap bağlantısı kesildi" : "Account disconnected")
     } catch (err: any) {
       showToast(err.message || (isTR ? "Hata oluştu" : "Error occurred"), "error")
     } finally {
@@ -555,13 +553,13 @@ export default function ChannelsPage() {
       {selectingChannel && (() => {
         const card = channelCards.find((c) => c.channel === selectingChannel)
         if (!card) return null
-        const activeAccount = available?.activeSelections?.[card.channel as keyof typeof available.activeSelections] || null
+        const activeAccounts = available?.activeSelections?.[card.channel as keyof typeof available.activeSelections] || []
         return (
           <SelectionModal
             channel={card.channel}
             channelName={card.name}
             options={card.options}
-            activeAccount={activeAccount}
+            activeAccounts={activeAccounts}
             saving={saving}
             onSelect={(opt) => {
               const payload = card.buildPayload(opt)
@@ -658,17 +656,14 @@ export default function ChannelsPage() {
         {isConnected && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {channelCards.map((card) => {
-              const activeAccount = available?.activeSelections?.[card.channel as keyof typeof available.activeSelections] || null
+              const activeAccounts = available?.activeSelections?.[card.channel as keyof typeof available.activeSelections] || []
               const hasOptions = card.options.length > 0
-              const quality = activeAccount && card.channel === "whatsapp"
-                ? getQualityRating(activeAccount.platform_id)
-                : null
 
               return (
                 <div
                   key={card.channel}
                   className={`bg-white rounded-xl border transition-all duration-200 ${
-                    activeAccount ? "border-surface-300 shadow-card" : "border-surface-300 border-dashed"
+                    activeAccounts.length > 0 ? "border-surface-300 shadow-card" : "border-surface-300 border-dashed"
                   }`}
                 >
                   {/* Card Header: Icon + Name */}
@@ -687,7 +682,7 @@ export default function ChannelsPage() {
                   {/* ─── Card Body: State-based content ─── */}
                   <div className="px-5 pb-5">
 
-                    {/* State D: No available accounts for this channel */}
+                    {/* No available accounts for this channel */}
                     {!hasOptions && (
                       <div className="py-6 px-3 rounded-lg bg-surface-50 border border-dashed border-surface-300 text-center">
                         <p className="text-sm text-ink-tertiary font-medium">
@@ -696,8 +691,8 @@ export default function ChannelsPage() {
                       </div>
                     )}
 
-                    {/* State B: Connected, no active account for this channel */}
-                    {hasOptions && !activeAccount && (
+                    {/* No active accounts yet */}
+                    {hasOptions && activeAccounts.length === 0 && (
                       <div>
                         <div className="flex items-center gap-2 mb-4">
                           <span className="w-2.5 h-2.5 rounded-full bg-surface-350" />
@@ -718,59 +713,67 @@ export default function ChannelsPage() {
                       </div>
                     )}
 
-                    {/* State C: Active account selected */}
-                    {hasOptions && activeAccount && (
+                    {/* One or more active accounts */}
+                    {hasOptions && activeAccounts.length > 0 && (
                       <div>
                         {/* Active status badge */}
                         <div className="flex items-center gap-2 mb-3">
                           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                           <span className="text-sm font-bold text-emerald-600">
-                            {isTR ? "Aktif" : "Active"}
+                            {activeAccounts.length} {isTR ? "Aktif Hesap" : "Active Account(s)"}
                           </span>
                         </div>
 
-                        {/* Account details */}
-                        <div className="rounded-lg bg-surface-50 border border-surface-200 p-3.5 mb-4">
-                          <div className="text-sm font-semibold text-ink">
-                            {activeAccount.platform_name || "-"}
-                          </div>
-                          {activeAccount.platform_detail && (
-                            <div className="text-xs text-ink/50 font-mono mt-1">
-                              {activeAccount.platform_detail}
-                            </div>
-                          )}
-                          {quality && (
-                            <div className="flex items-center gap-1.5 mt-2 text-xs">
-                              <span className="text-ink-tertiary">{isTR ? "Kalite:" : "Quality:"}</span>
-                              <span className={`w-2 h-2 rounded-full ${qualityDot(quality)}`} />
-                              <span className={`font-semibold ${qualityColor(quality)}`}>
-                                {qualityLabel(quality)}
-                              </span>
-                            </div>
-                          )}
+                        {/* List each active account */}
+                        <div className="space-y-2 mb-4">
+                          {activeAccounts.map((acct) => {
+                            const quality = card.channel === "whatsapp" ? getQualityRating(acct.platform_id) : null
+                            return (
+                              <div key={acct.platform_id} className="rounded-lg bg-surface-50 border border-surface-200 p-3.5">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="min-w-0 flex-1">
+                                    <div className="text-sm font-semibold text-ink truncate">
+                                      {acct.platform_name || "-"}
+                                    </div>
+                                    {acct.platform_detail && (
+                                      <div className="text-xs text-ink/50 font-mono mt-1 truncate">
+                                        {acct.platform_detail}
+                                      </div>
+                                    )}
+                                    {quality && (
+                                      <div className="flex items-center gap-1.5 mt-2 text-xs">
+                                        <span className="text-ink-tertiary">{isTR ? "Kalite:" : "Quality:"}</span>
+                                        <span className={`w-2 h-2 rounded-full ${qualityDot(quality)}`} />
+                                        <span className={`font-semibold ${qualityColor(quality)}`}>
+                                          {qualityLabel(quality)}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <button
+                                    onClick={() => handleDisconnect(acct)}
+                                    disabled={saving}
+                                    className="text-xs font-bold text-red-500 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 transition-colors disabled:opacity-50 flex-shrink-0"
+                                  >
+                                    {saving ? <SpinnerIcon className="w-3.5 h-3.5" /> : (isTR ? "Kaldır" : "Remove")}
+                                  </button>
+                                </div>
+                              </div>
+                            )
+                          })}
                         </div>
 
-                        {/* Action buttons */}
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => setSelectingChannel(card.channel)}
-                            disabled={saving}
-                            className="flex-1 py-2 text-xs font-bold text-primary border border-primary/30 rounded-lg hover:bg-primary-50 transition-colors disabled:opacity-50"
-                          >
-                            {isTR ? "Değiştir" : "Change"}
-                          </button>
-                          <button
-                            onClick={() => handleDisconnect(card.channel)}
-                            disabled={saving}
-                            className="flex-1 py-2 text-xs font-bold text-red-500 border border-red-200 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
-                          >
-                            {saving ? (
-                              <SpinnerIcon className="w-3.5 h-3.5 mx-auto" />
-                            ) : (
-                              isTR ? "Bağlantıyı Kes" : "Disconnect"
-                            )}
-                          </button>
-                        </div>
+                        {/* Add more accounts button */}
+                        <button
+                          onClick={() => setSelectingChannel(card.channel)}
+                          disabled={saving}
+                          className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-bold text-primary border border-primary/30 rounded-lg hover:bg-primary-50 transition-colors disabled:opacity-50"
+                        >
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
+                            <path d="M12 5v14m-7-7h14" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                          {isTR ? "Hesap Ekle" : "Add Account"}
+                        </button>
                       </div>
                     )}
                   </div>
@@ -807,8 +810,8 @@ export default function ChannelsPage() {
             <li className="flex items-start gap-2.5">
               <span className="w-5 h-5 rounded-full bg-primary-50 text-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
               {isTR
-                ? "Her kanal icin bir hesap secin — \"Değiştir\" ile istediginiz zaman degistirebilirsiniz"
-                : "Select one account per channel — use \"Change\" to switch anytime"}
+                ? "Her kanal icin bir veya birden fazla hesap ekleyin — istediginiz zaman ekleyip cikarabilirsiniz"
+                : "Add one or more accounts per channel — add or remove anytime"}
             </li>
           </ul>
         </div>

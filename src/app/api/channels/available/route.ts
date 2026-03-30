@@ -21,11 +21,12 @@ export async function GET(request: Request) {
 
   const selections = selectionsData || []
 
-  // Compute active selection per channel
-  const activeSelections: Record<string, any> = {}
+  // Compute active selections per channel (multi-account)
+  const activeSelections: Record<string, any[]> = {}
   for (const sel of selections) {
     if (sel.enabled) {
-      activeSelections[sel.channel] = sel
+      if (!activeSelections[sel.channel]) activeSelections[sel.channel] = []
+      activeSelections[sel.channel].push(sel)
     }
   }
 

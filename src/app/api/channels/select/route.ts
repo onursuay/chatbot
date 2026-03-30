@@ -5,7 +5,7 @@ import { getServiceSupabase } from "@/lib/supabase"
 const GRAPH_API_VERSION = "v21.0"
 const GRAPH_BASE = `https://graph.facebook.com/${GRAPH_API_VERSION}`
 
-// POST — Save channel selection (single-active-per-channel)
+// POST — Save channel selection (multi-account-per-channel)
 export async function POST(request: Request) {
   const auth = await getAuthUser(request)
   if (!auth) return NextResponse.json({ detail: "Yetkisiz" }, { status: 401 })
@@ -56,20 +56,11 @@ export async function POST(request: Request) {
     // Note: accessToken can be null for IG/FB if using page-level tokens from metadata
     // So we don't block on missing accessToken anymore
 
-    // SINGLE-ACTIVE-PER-CHANNEL: Delete all other selections for this channel, then insert new one
-    // This approach works regardless of unique constraint (org_id,channel) or (org_id,channel,platform_id)
+    // MULTI-ACCOUNT: Upsert by (org_id, channel, platform_id) — don't delete others
     if (enabled) {
-      // Delete all existing selections for this org+channel
-      await supabase
-        .from("channel_selections")
-        .delete()
-        .eq("org_id", auth.org_id)
-        .eq("channel", channel)
-
-      // Insert the new selection
       const { data: selection, error: dbError } = await supabase
         .from("channel_selections")
-        .insert({
+        .upsert({
           org_id: auth.org_id,
           channel,
           platform_id,
@@ -77,7 +68,7 @@ export async function POST(request: Request) {
           platform_detail: platform_detail || null,
           metadata: metadata || {},
           enabled: true,
-        })
+        }, { onConflict: "org_id,channel,platform_id" })
         .select()
         .single()
 
@@ -174,13 +165,7 @@ async function syncRuntimeTables(
 ) {
   if (channel === "whatsapp") {
     if (enabled) {
-      // Deactivate ALL phone numbers for this org first
-      await supabase
-        .from("phone_numbers")
-        .update({ is_active: false })
-        .eq("org_id", orgId)
-
-      // Activate ONLY the selected phone number
+      // Activate the selected phone number (multi-account: don't deactivate others)
       await supabase
         .from("phone_numbers")
         .update({ is_active: true })
@@ -199,14 +184,7 @@ async function syncRuntimeTables(
     const dbChannel = channel === "messenger" ? "facebook" : channel
 
     if (enabled) {
-      // Deactivate ALL channel_accounts for this org+channel first
-      await supabase
-        .from("channel_accounts")
-        .update({ is_active: false })
-        .eq("org_id", orgId)
-        .eq("channel", dbChannel)
-
-      // Upsert and activate the selected account
+      // Upsert and activate the selected account (multi-account: don't deactivate others)
       await supabase
         .from("channel_accounts")
         .upsert({
