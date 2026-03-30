@@ -47,10 +47,16 @@ export default function PipelinePage() {
     if (!token) return
     try {
       const data = await api<Pipeline[]>("/pipelines", { token })
-      console.log("Pipeline data:", JSON.stringify(data, null, 2))
-      setPipelines(data)
-      if (data.length > 0 && !selectedPipelineId) setSelectedPipelineId(data[0].id)
-      else if (data.length > 0 && !data.find(p => p.id === selectedPipelineId)) setSelectedPipelineId(data[0].id)
+      // Boş pipeline'ları backend'den sil, sadece stage'leri olanları göster
+      const withStages = data.filter(p => p.stages && p.stages.length > 0)
+      const withoutStages = data.filter(p => !p.stages || p.stages.length === 0)
+      // Boş olanları arka planda temizle
+      withoutStages.forEach(p => {
+        api(`/pipelines/${p.id}`, { method: "DELETE", token }).catch(() => {})
+      })
+      setPipelines(withStages.length > 0 ? withStages : data)
+      if (sorted.length > 0 && !selectedPipelineId) setSelectedPipelineId(sorted[0].id)
+      else if (sorted.length > 0 && !sorted.find(p => p.id === selectedPipelineId)) setSelectedPipelineId(sorted[0].id)
     } catch (err: any) {
       console.error("Pipeline yükleme hatası:", err)
     }
