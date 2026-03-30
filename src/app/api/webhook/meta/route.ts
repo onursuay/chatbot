@@ -26,14 +26,19 @@ export async function POST(request: Request) {
     const payload = await request.json()
     const object = payload.object
 
+    // DEBUG: Gelen her webhook'u logla
+    console.log("[WEBHOOK] object:", object, "entries:", payload.entry?.length, JSON.stringify(payload).slice(0, 500))
+
     if (object === "whatsapp_business_account") {
       await handleWhatsAppWebhook(payload)
     } else if (object === "instagram") {
+      console.log("[WEBHOOK] Instagram webhook geldi!")
       await handleInstagramWebhook(payload)
     } else if (object === "page") {
-      // Instagram DM'ler de object:"page" olarak gelir
-      // Her entry için Instagram mı Facebook mı kontrol et
+      console.log("[WEBHOOK] Page webhook geldi — Instagram/Messenger ayrımı yapılacak")
       await handlePageWebhook(payload)
+    } else {
+      console.log("[WEBHOOK] Bilinmeyen object:", object)
     }
 
     return NextResponse.json({ status: "ok" })
@@ -223,11 +228,15 @@ async function handlePageWebhook(payload: any) {
     // Önce bu page_id'ye bağlı Instagram hesabı var mı kontrol et
     const igAccount = await findChannelAccountByPageId(supabase, "instagram", pageId)
 
+    console.log("[PAGE WEBHOOK] pageId:", pageId, "igAccount:", igAccount ? "FOUND" : "NOT FOUND")
+
     if (igAccount) {
-      // Instagram DM — handleInstagramWebhook mantığı ile işle
+      console.log("[PAGE WEBHOOK] → Instagram olarak işleniyor, org:", igAccount.org_id)
       await handleInstagramEntry(supabase, entry, igAccount)
     } else {
       // Facebook Messenger
+      const fbAccount = await findChannelAccountByPageId(supabase, "facebook", pageId)
+      console.log("[PAGE WEBHOOK] → Facebook olarak işleniyor, fbAccount:", fbAccount ? "FOUND" : "NOT FOUND")
       await handleFacebookEntry(supabase, entry, pageId)
     }
   }
