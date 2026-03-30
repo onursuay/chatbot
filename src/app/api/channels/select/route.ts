@@ -217,19 +217,39 @@ async function syncRuntimeTables(
     const dbChannel = channel === "messenger" ? "facebook" : channel
 
     if (enabled) {
-      // Upsert and activate the selected account (multi-account: don't deactivate others)
-      await supabase
+      // Check if this channel_account already exists
+      const { data: existingCA } = await supabase
         .from("channel_accounts")
-        .upsert({
-          org_id: orgId,
-          channel: dbChannel,
-          account_id: platformId,
-          page_id: metadata?.page_id || platformId,
-          page_name: platformName || metadata?.page_name || null,
-          access_token: metadata?.page_access_token || null,
-          is_active: true,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: "org_id,channel,account_id" })
+        .select("id")
+        .eq("org_id", orgId)
+        .eq("channel", dbChannel)
+        .eq("account_id", platformId)
+        .maybeSingle()
+
+      if (existingCA) {
+        await supabase
+          .from("channel_accounts")
+          .update({
+            page_id: metadata?.page_id || platformId,
+            page_name: platformName || metadata?.page_name || null,
+            access_token: metadata?.page_access_token || null,
+            is_active: true,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", existingCA.id)
+      } else {
+        await supabase
+          .from("channel_accounts")
+          .insert({
+            org_id: orgId,
+            channel: dbChannel,
+            account_id: platformId,
+            page_id: metadata?.page_id || platformId,
+            page_name: platformName || metadata?.page_name || null,
+            access_token: metadata?.page_access_token || null,
+            is_active: true,
+          })
+      }
     } else {
       // Deactivate this specific channel_account
       await supabase
