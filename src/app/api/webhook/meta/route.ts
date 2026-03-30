@@ -78,6 +78,7 @@ async function handleWhatsAppWebhook(payload: any) {
         .select("*")
         .eq("phone_number_id", phoneNumberId)
         .eq("org_id", waba.org_id)
+        .eq("is_active", true)
         .single()
 
       if (!phone) continue
@@ -149,7 +150,7 @@ async function handleInstagramWebhook(payload: any) {
       const contact = await getOrCreateContact(supabase, orgId, `ig_${senderId}`, senderName, "instagram")
 
       // Conversation bul/oluştur
-      const conversation = await getOrCreateConversation(supabase, orgId, contact.id, null, "instagram", channelAccountId, senderName)
+      const conversation = await getOrCreateConversation(supabase, orgId, contact.id, null, "instagram", channelAccountId)
 
       // Mesajı kaydet
       await supabase.from("messages").insert({
@@ -261,7 +262,7 @@ async function handleFacebookWebhook(payload: any) {
       const contact = await getOrCreateContact(supabase, orgId, `fb_${senderId}`, senderName, "facebook")
 
       // Conversation bul/oluştur
-      const conversation = await getOrCreateConversation(supabase, orgId, contact.id, null, "facebook", channelAccountId, senderName)
+      const conversation = await getOrCreateConversation(supabase, orgId, contact.id, null, "facebook", channelAccountId)
 
       // Mesajı kaydet
       await supabase.from("messages").insert({
@@ -465,7 +466,7 @@ async function processWhatsAppMessage(
     console.error("[Webhook] Contact olusturulamadi:", senderWaId)
     return
   }
-  const conversation = await getOrCreateConversation(supabase, waba.org_id, contact.id, phone.id, "whatsapp", null, senderName)
+  const conversation = await getOrCreateConversation(supabase, waba.org_id, contact.id, phone.id, "whatsapp")
   if (!conversation) {
     console.error("[Webhook] Conversation olusturulamadi:", contact.id)
     return
@@ -609,8 +610,7 @@ async function getOrCreateContact(
 // ============================================
 async function getOrCreateConversation(
   supabase: any, orgId: string, contactId: string, phoneNumberId: string | null,
-  channel: string = "whatsapp", channelAccountId: string | null = null,
-  contactName: string | null = null
+  channel: string = "whatsapp", channelAccountId: string | null = null
 ) {
   const { data: existing } = await supabase
     .from("conversations")
@@ -638,70 +638,5 @@ async function getOrCreateConversation(
     .select()
     .single()
 
-  // Yeni konuşma oluştuğunda otomatik lead oluştur
-  if (newConv) {
-    await autoCreateLead(supabase, orgId, contactId, contactName, channel, newConv.id)
-  }
-
   return newConv
-}
-
-// ============================================
-// Otomatik Lead oluştur (yeni konuşma başladığında)
-// ============================================
-async function autoCreateLead(
-  supabase: any, orgId: string, contactId: string,
-  contactName: string | null, channel: string, conversationId: string
-) {
-  try {
-    // Bu contact için zaten aktif lead var mı kontrol et
-    const { data: existingLead } = await supabase
-      .from("leads")
-      .select("id")
-      .eq("org_id", orgId)
-      .eq("contact_id", contactId)
-      .eq("status", "active")
-      .single()
-
-    if (existingLead) return // Zaten aktif lead var, tekrar oluşturma
-
-    // Org'un varsayılan (ilk) pipeline ve ilk stage'ini bul
-    const { data: pipeline } = await supabase
-      .from("pipelines")
-      .select("id, pipeline_stages(id, sort_order)")
-      .eq("org_id", orgId)
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true })
-      .limit(1)
-      .single()
-
-    if (!pipeline || !pipeline.pipeline_stages?.length) return
-
-    // İlk stage (Yeni)
-    const firstStage = pipeline.pipeline_stages.sort(
-      (a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0)
-    )[0]
-
-    const channelLabel = channel === "instagram" ? "Instagram" : channel === "facebook" ? "Messenger" : "WhatsApp"
-    const title = contactName
-      ? `${contactName} - ${channelLabel}`
-      : `${channelLabel} Lead`
-
-    await supabase
-      .from("leads")
-      .insert({
-        org_id: orgId,
-        title,
-        pipeline_id: pipeline.id,
-        stage_id: firstStage.id,
-        contact_id: contactId,
-        status: "active",
-        value: 0,
-        currency: "TRY",
-        tags: [channel],
-        attributes: { channel, conversation_id: conversationId, auto_created: true },
-      })
-  } catch (err) {
-    console.error("Auto lead creation failed:", err)
-  }
 }

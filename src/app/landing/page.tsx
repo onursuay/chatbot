@@ -420,7 +420,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white text-ink font-sans antialiased">
       {/* ═══════════ HEADER — Dark pill nav ═══════════ */}
       <header className="absolute top-0 left-0 right-0 z-50 py-3">
-        <div className="max-w-[1280px] mx-auto px-6">
+        <div className="max-w-[1600px] mx-auto px-6">
           <div className="flex items-center justify-between rounded-2xl px-5 py-2.5 bg-sidebar/90 backdrop-blur-lg shadow-[0_2px_12px_rgba(0,0,0,0.15)]">
             {/* Logo */}
             <a href="/" className="flex items-center gap-2 shrink-0">
@@ -505,7 +505,7 @@ export default function LandingPage() {
         <div className="absolute top-20 -left-32 w-96 h-96 bg-primary/8 rounded-full blur-3xl" />
         <div className="absolute bottom-0 -right-32 w-96 h-96 bg-accent-blue/6 rounded-full blur-3xl" />
 
-        <div className="relative max-w-[1280px] mx-auto px-6">
+        <div className="relative max-w-[1600px] mx-auto px-6">
           <div className="max-w-5xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 border border-primary/15 mb-4 landing-reveal">
               <Sparkles className="w-4 h-4 text-primary" />
@@ -536,7 +536,7 @@ export default function LandingPage() {
 
           {/* Hero Dashboard Mockup — wider */}
           <div className="mt-10 md:mt-12 landing-reveal landing-reveal-delay-3">
-            <div className="relative max-w-[1120px] mx-auto">
+            <div className="relative max-w-[1400px] mx-auto">
               <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-primary/5 to-transparent rounded-3xl blur-2xl scale-105" />
 
               <div className="relative bg-white rounded-2xl md:rounded-3xl shadow-[0_25px_80px_-12px_rgba(0,0,0,0.15)] border border-surface-300/50 overflow-hidden">
@@ -690,7 +690,7 @@ export default function LandingPage() {
 
       {/* ═══════════ STATS BAR ═══════════ */}
       <section className="py-6 bg-surface-50 border-y border-surface-300/50">
-        <div className="max-w-[1280px] mx-auto px-6">
+        <div className="max-w-[1600px] mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
               { value: 5000, suffix: "+", label: "Aktif İşletme" },
@@ -711,7 +711,7 @@ export default function LandingPage() {
 
       {/* ═══════════ FEATURES ═══════════ */}
       <section id="features" className="py-8 md:py-10">
-        <div className="max-w-[1280px] mx-auto px-6">
+        <div className="max-w-[1600px] mx-auto px-6">
           <SectionHeader badge="Özellikler" title="İşletmenizi büyütecek her şey tek platformda" subtitle="WhatsApp, Instagram, Facebook Messenger ve daha fazlasını tek panelden yönetin. AI destekli otomasyonlarla müşteri deneyimini dönüştürün." />
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
@@ -731,7 +731,7 @@ export default function LandingPage() {
 
       {/* ═══════════ HOW IT WORKS ═══════════ */}
       <section id="how-it-works" className="py-8 md:py-10 bg-gradient-to-b from-surface-50 to-white">
-        <div className="max-w-[1280px] mx-auto px-6">
+        <div className="max-w-[1600px] mx-auto px-6">
           <SectionHeader badge="Nasıl Çalışır" title="3 adımda başlayın" subtitle="Dakikalar içinde tüm mesajlaşma kanallarınızı bağlayın ve müşterilerinizle iletişimi dönüştürün." />
 
           <div className="grid md:grid-cols-3 gap-5 mt-6">
@@ -748,7 +748,7 @@ export default function LandingPage() {
 
       {/* ═══════════ AI SHOWCASE ═══════════ */}
       <section className="py-8 md:py-10 overflow-hidden">
-        <div className="max-w-[1280px] mx-auto px-6">
+        <div className="max-w-[1600px] mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-10 items-center">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-50 border border-violet-200 mb-5">
@@ -808,8 +808,8 @@ export default function LandingPage() {
 
       {/* ═══════════ CHANNELS ═══════════ */}
       <section className="py-5 md:py-6 bg-gradient-to-b from-white via-surface-50 to-white">
-        <div className="max-w-[1280px] mx-auto px-6">
-          <SectionHeader badge="Kanallar" title="Tüm mesajlaşma kanalları tek çatı altında toplandı" subtitle="Müşterileriniz nerede olursa olsun, onlara ulaşın. Tek gelen kutusu, tüm kanallar." />
+        <div className="max-w-[1600px] mx-auto px-6">
+          <SectionHeader badge="Kanallar" title="Tüm mesajlaşma kanalları tek çatı altında" subtitle="Müşterileriniz nerede olursa olsun, onlara ulaşın. Tek gelen kutusu, tüm kanallar." />
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mt-6">
             {[
@@ -832,7 +832,7 @@ export default function LandingPage() {
 
       {/* ═══════════ PRICING ═══════════ */}
       <section id="pricing" className="py-8 md:py-10">
-        <div className="max-w-[1280px] mx-auto px-6">
+        <div className="max-w-[1600px] mx-auto px-6">
           <SectionHeader badge="Fiyatlandırma" title="İşletmenize uygun planı seçin" subtitle="Tüm planlarda 14 gün ücretsiz deneme. Kredi kartı gerekmez." />
 
           {/* Dönem seçici — Kommo style pill tabs */}
@@ -859,7 +859,7 @@ export default function LandingPage() {
           </div>
 
           {/* 4 Plan kartları */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 max-w-[1120px] mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 max-w-[1400px] mx-auto">
             {[
               {
                 name: "Temel",
@@ -981,7 +981,7 @@ export default function LandingPage() {
           </div>
 
           {/* Karşılaştırma Tablosu */}
-          <div className="mt-8 max-w-[1120px] mx-auto">
+          <div className="mt-8 max-w-[1400px] mx-auto">
             {/* Açıklama + Toggle */}
             <div className="text-center mb-6">
               <p className="text-base text-ink/50 mb-4">
@@ -1082,7 +1082,7 @@ export default function LandingPage() {
 
       {/* ═══════════ TESTIMONIALS ═══════════ */}
       <section id="testimonials" className="py-8 md:py-10 bg-gradient-to-b from-surface-50 to-white">
-        <div className="max-w-[1280px] mx-auto px-6">
+        <div className="max-w-[1600px] mx-auto px-6">
           <SectionHeader badge="Referanslar" title="Müşterilerimiz ne diyor?" subtitle="Binlerce işletme YO Dijital ile mesajlaşarak satışlarını artırıyor." />
 
           <div className="grid md:grid-cols-3 gap-5 mt-6">
@@ -1124,7 +1124,7 @@ export default function LandingPage() {
 
       {/* ═══════════ FOOTER ═══════════ */}
       <footer className="bg-white border-t border-surface-300/50 py-8">
-        <div className="max-w-[1280px] mx-auto px-6">
+        <div className="max-w-[1600px] mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2.5 mb-4">
@@ -1215,11 +1215,11 @@ function SidebarItem({ icon: Icon, label, active, badge, badgeText }: { icon: an
 function SectionHeader({ badge, title, subtitle }: { badge: string; title: string; subtitle: string }) {
   const { ref, inView } = useInView()
   return (
-    <div ref={ref} className={`text-center max-w-4xl mx-auto transition-all duration-700 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+    <div ref={ref} className={`text-center max-w-3xl mx-auto transition-all duration-700 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
       <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 border border-primary/15 mb-3">
         <span className="text-sm font-semibold text-primary-700">{badge}</span>
       </div>
-      <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight mb-3 whitespace-nowrap">{title}</h2>
+      <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight mb-3">{title}</h2>
       <p className="text-base text-ink/50 leading-relaxed">{subtitle}</p>
     </div>
   )

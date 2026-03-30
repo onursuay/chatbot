@@ -15,8 +15,7 @@ interface Pipeline {
 interface Stage {
   id: string
   name: string
-  position?: number
-  sort_order?: number
+  position: number
   color: string | null
 }
 
@@ -47,17 +46,8 @@ export default function PipelinePage() {
     if (!token) return
     try {
       const data = await api<Pipeline[]>("/pipelines", { token })
-      // Boş pipeline'ları backend'den sil, sadece stage'leri olanları göster
-      const withStages = data.filter(p => p.stages && p.stages.length > 0)
-      const withoutStages = data.filter(p => !p.stages || p.stages.length === 0)
-      // Boş olanları arka planda temizle
-      withoutStages.forEach(p => {
-        api(`/pipelines/${p.id}`, { method: "DELETE", token }).catch(() => {})
-      })
-      const active = withStages.length > 0 ? withStages : data
-      setPipelines(active)
-      if (active.length > 0 && !selectedPipelineId) setSelectedPipelineId(active[0].id)
-      else if (active.length > 0 && !active.find(p => p.id === selectedPipelineId)) setSelectedPipelineId(active[0].id)
+      setPipelines(data)
+      if (data.length > 0) setSelectedPipelineId(data[0].id)
     } catch (err: any) {
       console.error("Pipeline yükleme hatası:", err)
     }
@@ -69,7 +59,7 @@ export default function PipelinePage() {
     if (!token) return
     setCreating(true)
     try {
-      const created = await api<any>("/pipelines", {
+      await api("/pipelines", {
         method: "POST",
         token,
         body: JSON.stringify({
@@ -84,11 +74,8 @@ export default function PipelinePage() {
           ],
         }),
       })
-      console.log("Pipeline created:", JSON.stringify(created, null, 2))
-      if (created?.id) setSelectedPipelineId(created.id)
       await loadPipelines()
     } catch (err: any) {
-      console.error("Pipeline oluşturma hatası:", err)
       alert((isTR ? "Pipeline oluşturulamadı: " : "Pipeline creation failed: ") + (err.message || "Bilinmeyen hata"))
     }
     setCreating(false)
@@ -107,7 +94,7 @@ export default function PipelinePage() {
   }, [getToken, selectedPipelineId])
 
   const selectedPipeline = pipelines.find((p) => p.id === selectedPipelineId)
-  const stages = selectedPipeline?.stages?.sort((a, b) => (a.sort_order ?? a.position ?? 0) - (b.sort_order ?? b.position ?? 0)) || []
+  const stages = selectedPipeline?.stages?.sort((a, b) => a.position - b.position) || []
 
   const getLeadsForStage = (stageId: string) => leads.filter((l) => l.stage_id === stageId)
 

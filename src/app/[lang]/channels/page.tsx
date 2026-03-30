@@ -1,56 +1,79 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { api } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
 import { useI18n } from "@/lib/i18n"
 
-const META_APP_ID = process.env.NEXT_PUBLIC_META_APP_ID || ""
-const META_CONFIG_ID = process.env.NEXT_PUBLIC_META_CONFIG_ID || ""
+/* ─── Types ─── */
 
-interface PhoneNumber {
-  id: string
-  db_id?: string
-  number: string
-  verified_name: string | null
-  quality_rating: string
-  status: string
-  is_active?: boolean
+interface MetaStatus {
+  connected: boolean
+  status: string | null
+  expires_at: string | null
+  scopes: string[]
+  updated_at?: string
 }
 
-interface WABAAccount {
-  id?: string
+interface WhatsAppAccount {
+  business_id: string
+  business_name: string
   waba_id: string
   waba_name: string
-  business_id: string
-  is_active?: boolean
-  phone_numbers: PhoneNumber[]
+  phone_numbers: {
+    id: string
+    display_phone_number: string
+    verified_name: string
+    quality_rating: string
+  }[]
 }
 
-interface ChannelAccountInfo {
+interface InstagramAccount {
   id: string
-  channel: string
-  account_id: string
+  name: string
+  username: string
+  profile_picture_url?: string
   page_id: string
   page_name: string
-  is_active: boolean
 }
 
-interface ChannelStatus {
+interface PageAccount {
+  id: string
+  name: string
+  access_token: string
+}
+
+interface ChannelSelection {
+  id?: string
+  org_id: string
+  channel: string
+  platform_id: string
+  platform_name: string | null
+  platform_detail: string | null
+  metadata: Record<string, any>
+  enabled: boolean
+}
+
+interface AvailableResponse {
+  whatsapp: WhatsAppAccount[]
+  instagram: InstagramAccount[]
+  pages: PageAccount[]
+  selections: ChannelSelection[]
+  activeSelections: {
+    whatsapp?: ChannelSelection
+    instagram?: ChannelSelection
+    messenger?: ChannelSelection
+  }
   connected: boolean
-  accounts: WABAAccount[]
-  channel_accounts: ChannelAccountInfo[]
-}
-
-declare global {
-  interface Window { FB: any; fbAsyncInit: () => void }
+  error?: string
 }
 
 /* ─── SVG Icons ─── */
+
 function WhatsAppIcon() {
   return (
     <svg className="w-7 h-7" viewBox="0 0 24 24" fill="white">
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
     </svg>
   )
 }
@@ -58,9 +81,9 @@ function WhatsAppIcon() {
 function InstagramIcon() {
   return (
     <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none">
-      <rect x="2" y="2" width="20" height="20" rx="5" stroke="white" strokeWidth="2"/>
-      <circle cx="12" cy="12" r="5" stroke="white" strokeWidth="2"/>
-      <circle cx="18" cy="6" r="1.5" fill="white"/>
+      <rect x="2" y="2" width="20" height="20" rx="5" stroke="white" strokeWidth="2" />
+      <circle cx="12" cy="12" r="5" stroke="white" strokeWidth="2" />
+      <circle cx="18" cy="6" r="1.5" fill="white" />
     </svg>
   )
 }
@@ -68,442 +91,728 @@ function InstagramIcon() {
 function MessengerIcon() {
   return (
     <svg className="w-7 h-7" viewBox="0 0 24 24" fill="white">
-      <path d="M12 2C6.477 2 2 6.145 2 11.243c0 2.908 1.434 5.503 3.678 7.2V22l3.378-1.855c.9.25 1.855.384 2.944.384 5.523 0 10-4.144 10-9.243C22 6.145 17.523 2 12 2z"/>
+      <path d="M12 2C6.477 2 2 6.145 2 11.243c0 2.908 1.434 5.503 3.678 7.2V22l3.378-1.855c.9.25 1.855.384 2.944.384 5.523 0 10-4.144 10-9.243C22 6.145 17.523 2 12 2z" />
     </svg>
   )
 }
 
-function RefreshIcon() {
+function LinkIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
-      <path d="M1 4v6h6M23 20v-6h-6" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" strokeLinecap="round" strokeLinejoin="round"/>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
+      <path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
 
-/* ─── Toggle Switch ─── */
-function Toggle({ enabled, onChange, loading }: { enabled: boolean; onChange: () => void; loading?: boolean }) {
+function CheckCircleIcon() {
   return (
-    <button
-      onClick={onChange}
-      disabled={loading}
-      className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${
-        enabled ? "bg-primary" : "bg-surface-350"
-      } ${loading ? "opacity-50" : ""}`}
-    >
-      <div
-        className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200 ${
-          enabled ? "translate-x-[22px]" : "translate-x-0.5"
-        }`}
-      />
-    </button>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   )
 }
 
-/* ─── Account Selector Modal ─── */
-function AccountSelector({
-  accounts,
-  selectedId,
+function BoltIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+      <path d="M13 10V3L4 14h7v7l9-11h-7z" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function SpinnerIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={`animate-spin ${className}`} viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="31.4 31.4" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+/* ─── Toast ─── */
+
+function Toast({ message, type, onClose }: { message: string; type: "success" | "error"; onClose: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 4000)
+    return () => clearTimeout(timer)
+  }, [onClose])
+
+  return (
+    <div className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg border text-sm font-medium animate-in slide-in-from-top-2 ${
+      type === "success"
+        ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+        : "bg-red-50 border-red-200 text-red-800"
+    }`}>
+      {type === "success" ? (
+        <CheckCircleIcon />
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+          <path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
+      {message}
+      <button onClick={onClose} className="ml-2 opacity-50 hover:opacity-100">&times;</button>
+    </div>
+  )
+}
+
+/* ─── Selection Modal ─── */
+
+type ChannelOption = { id: string; label: string; detail: string; [key: string]: any }
+
+function SelectionModal({
+  channel,
+  channelName,
+  options,
+  activeAccount,
+  saving,
   onSelect,
   onClose,
+  isTR,
 }: {
-  accounts: { id: string; name: string; detail?: string }[]
-  selectedId: string | null
-  onSelect: (id: string) => void
+  channel: string
+  channelName: string
+  options: ChannelOption[]
+  activeAccount: ChannelSelection | null
+  saving: boolean
+  onSelect: (opt: ChannelOption) => void
   onClose: () => void
+  isTR: boolean
 }) {
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-modal border border-surface-300 p-5 w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
-        <h3 className="font-bold text-body text-ink mb-4">Hesap Seçin</h3>
-        <div className="space-y-2 max-h-[300px] overflow-y-auto">
-          {accounts.map((acc) => (
-            <button
-              key={acc.id}
-              onClick={() => { onSelect(acc.id); onClose() }}
-              className={`w-full text-left px-4 py-3 rounded-lg border transition-all ${
-                acc.id === selectedId
-                  ? "border-primary bg-primary-50"
-                  : "border-surface-300 hover:border-primary/30 hover:bg-surface-50"
-              }`}
-            >
-              <div className="font-semibold text-sm text-ink">{acc.name}</div>
-              {acc.detail && <div className="text-xs text-ink/50 mt-0.5">{acc.detail}</div>}
-            </button>
-          ))}
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+
+      {/* Modal */}
+      <div className="relative bg-white rounded-2xl shadow-2xl border border-surface-200 w-full max-w-md mx-4 overflow-hidden">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-surface-200">
+          <h3 className="font-bold text-body text-ink">
+            {isTR ? `${channelName} Hesap Seç` : `Select ${channelName} Account`}
+          </h3>
+          <p className="text-xs text-ink-tertiary mt-1">
+            {activeAccount
+              ? (isTR ? "Aktif hesabı değiştirmek için yeni bir hesap seçin" : "Select a new account to replace the active one")
+              : (isTR ? "Bu kanal için bir hesap seçin" : "Select an account for this channel")}
+          </p>
         </div>
-        <button onClick={onClose} className="mt-4 w-full py-2 text-sm font-medium text-ink/50 hover:text-ink transition-colors">
-          İptal
-        </button>
+
+        {/* Account list */}
+        <div className="max-h-72 overflow-y-auto">
+          {options.map((opt) => {
+            const isCurrentlyActive = activeAccount?.platform_id === opt.id
+            return (
+              <button
+                key={opt.id}
+                disabled={saving || isCurrentlyActive}
+                onClick={() => !isCurrentlyActive && onSelect(opt)}
+                className={`w-full text-left px-6 py-3.5 transition-colors border-b border-surface-100 last:border-b-0 ${
+                  isCurrentlyActive
+                    ? "bg-emerald-50/60 cursor-default"
+                    : "hover:bg-surface-50 cursor-pointer"
+                } ${saving ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-ink truncate">{opt.label}</div>
+                    <div className="text-xs text-ink/40 font-mono mt-0.5 truncate">{opt.detail}</div>
+                  </div>
+                  {isCurrentlyActive && (
+                    <div className="flex items-center gap-1.5 text-emerald-600 flex-shrink-0">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-5 h-5">
+                        <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      <span className="text-xs font-bold">{isTR ? "Aktif" : "Active"}</span>
+                    </div>
+                  )}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-surface-200 flex items-center justify-between">
+          {saving && (
+            <div className="flex items-center gap-2 text-xs text-ink-tertiary">
+              <SpinnerIcon className="w-4 h-4" />
+              {isTR ? "Kaydediliyor..." : "Saving..."}
+            </div>
+          )}
+          {!saving && <div />}
+          <button
+            onClick={onClose}
+            disabled={saving}
+            className="px-4 py-2 text-sm font-medium text-ink-secondary hover:text-ink bg-surface-50 hover:bg-surface-100 rounded-lg transition-colors disabled:opacity-50"
+          >
+            {isTR ? "İptal" : "Cancel"}
+          </button>
+        </div>
       </div>
     </div>
   )
 }
 
 /* ════════════════════════════════════════════
-   CHANNELS PAGE — Portfolyo Yönetimi
+   CHANNELS PAGE — Kanal Yönetimi (Single-Active-Per-Channel)
    ════════════════════════════════════════════ */
+
 export default function ChannelsPage() {
   const { getToken } = useAuth()
   const { t } = useI18n()
-  const [status, setStatus] = useState<ChannelStatus | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [connecting, setConnecting] = useState<string | null>(null)
-  const [toggling, setToggling] = useState<string | null>(null)
-  const [selectorOpen, setSelectorOpen] = useState<string | null>(null)
 
   const isTR = t("loading") === "Yükleniyor..."
 
-  // Facebook SDK
-  useEffect(() => {
-    if (window.FB) return
-    window.fbAsyncInit = () => {
-      window.FB.init({ appId: META_APP_ID, cookie: true, xfbml: true, version: "v21.0" })
-    }
-    if (!document.getElementById("fb-sdk")) {
-      const script = document.createElement("script")
-      script.id = "fb-sdk"
-      script.src = "https://connect.facebook.net/tr_TR/sdk.js"
-      script.async = true; script.defer = true
-      document.body.appendChild(script)
-    }
+  // States
+  const [metaStatus, setMetaStatus] = useState<MetaStatus | null>(null)
+  const [available, setAvailable] = useState<AvailableResponse | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [connecting, setConnecting] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [selectingChannel, setSelectingChannel] = useState<string | null>(null) // which channel's modal is open
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null)
+
+  const showToast = useCallback((message: string, type: "success" | "error" = "success") => {
+    setToast({ message, type })
   }, [])
 
-  const reload = async () => {
+  // Fetch meta connection status
+  const fetchMetaStatus = useCallback(async () => {
     const token = getToken()
     if (!token) return
-    const data = await api<ChannelStatus>("/channels/status", { token })
-    setStatus(data)
-  }
-
-  useEffect(() => { reload().finally(() => setLoading(false)) }, [getToken])
-
-  /* ── WhatsApp Embedded Signup — Portfolyo ── */
-  const connectWhatsApp = () => {
-    if (!window.FB) return alert("Facebook SDK yüklenemedi. Sayfayı yenileyin.")
-    setConnecting("whatsapp")
-    window.FB.login(
-      (response: any) => {
-        if (response.authResponse?.code) {
-          sendWhatsAppCode(response.authResponse.code)
-        } else { setConnecting(null) }
-      },
-      {
-        config_id: META_CONFIG_ID,
-        response_type: "code",
-        override_default_response_type: true,
-        extras: { setup: {}, featureType: "", sessionInfoVersion: "3" },
-      }
-    )
-  }
-
-  const sendWhatsAppCode = async (code: string) => {
     try {
-      const token = getToken()
-      if (!token) return
-      await api("/embedded-signup/connect", { method: "POST", token, body: JSON.stringify({ code }) })
-      await reload()
-    } catch (err: any) {
-      alert(err.message || "Bağlantı hatası")
-    } finally { setConnecting(null) }
-  }
-
-  /* ── Instagram / Facebook — Portfolyo: TÜM sayfaları bağla ── */
-  const connectChannel = (channel: "instagram" | "facebook") => {
-    if (!window.FB) return alert("Facebook SDK yüklenemedi")
-    setConnecting(channel)
-
-    window.FB.login(
-      (response: any) => {
-        if (response.authResponse) {
-          window.FB.api("/me/accounts", { access_token: response.authResponse.accessToken }, async (pagesRes: any) => {
-            if (pagesRes.data && pagesRes.data.length > 0) {
-              const token = getToken()
-              if (!token) { setConnecting(null); return }
-              try {
-                // TÜM sayfaları portfolyo olarak gönder
-                const pages = pagesRes.data.map((p: any) => ({
-                  page_id: p.id,
-                  page_access_token: p.access_token,
-                }))
-                await api("/channels", {
-                  method: "POST", token,
-                  body: JSON.stringify({ channel, pages }),
-                })
-                await reload()
-              } catch (err: any) {
-                alert(err.message || "Bağlantı hatası")
-              }
-            }
-            setConnecting(null)
-          })
-        } else { setConnecting(null) }
-      },
-      {
-        scope: channel === "instagram"
-          ? "instagram_basic,instagram_manage_messages,pages_show_list,pages_messaging"
-          : "pages_show_list,pages_messaging,pages_read_engagement",
-      }
-    )
-  }
-
-  /* ── Toggle bağlantı aç/kapat ── */
-  const toggleConnection = async (channel: string, currentlyConnected: boolean) => {
-    setToggling(channel)
-    const token = getToken()
-    if (!token) return
-
-    if (currentlyConnected) {
-      // Bağlantıyı kes
-      try {
-        await api("/channels", {
-          method: "POST", token,
-          body: JSON.stringify({ channel, action: "disconnect" }),
-        })
-        await reload()
-      } catch {}
-    } else {
-      // Bağlantı kur
-      if (channel === "whatsapp") connectWhatsApp()
-      else connectChannel(channel as "instagram" | "facebook")
+      const data = await api<MetaStatus>("/meta/status", { token })
+      setMetaStatus(data)
+      return data
+    } catch {
+      setMetaStatus({ connected: false, status: null, expires_at: null, scopes: [] })
     }
-    setToggling(null)
-  }
+  }, [getToken])
 
-  /* ── Aktif hesabı değiştir — sadece seçili olanı aktif yap ── */
-  const switchAccount = async (channel: string, accountId: string) => {
+  // Fetch available channels + active selections
+  const fetchAvailable = useCallback(async () => {
     const token = getToken()
     if (!token) return
-    // Bu kanal içindeki mevcut aktif hesapları deaktif et, seçileni aktif yap
-    // Şimdilik basit: mevcut bağlı, seçilen zaten bağlı. Gelecekte genişletilebilir.
-    await reload()
+    try {
+      const data = await api<AvailableResponse>("/channels/available", { token })
+      setAvailable(data)
+    } catch {
+      // Not connected or error
+    }
+  }, [getToken])
+
+  // Initial load
+  useEffect(() => {
+    const init = async () => {
+      const status = await fetchMetaStatus()
+      if (status?.connected) {
+        await fetchAvailable()
+      }
+      setLoading(false)
+    }
+    init()
+  }, [fetchMetaStatus, fetchAvailable])
+
+  // Check URL for ?connected=true (OAuth callback redirect)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get("connected") === "true") {
+      showToast(isTR ? "Meta hesabı başarıyla bağlandı!" : "Meta account connected successfully!")
+      window.history.replaceState({}, "", window.location.pathname)
+      fetchMetaStatus().then((status) => {
+        if (status?.connected) fetchAvailable()
+      })
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Connect to Meta via OAuth
+  const handleConnect = async () => {
+    const token = getToken()
+    if (!token) return
+    setConnecting(true)
+    try {
+      const data = await api<{ url: string }>("/meta/connect", { token })
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (err: any) {
+      showToast(err.message || (isTR ? "Bağlantı hatası" : "Connection error"), "error")
+      setConnecting(false)
+    }
   }
 
-  /* ── Data ── */
-  const wabaAccounts = status?.accounts || []
-  const allChannelAccounts = status?.channel_accounts || []
-  const instagramAccounts = allChannelAccounts.filter(a => a.channel === "instagram")
-  const facebookAccounts = allChannelAccounts.filter(a => a.channel === "facebook")
+  // Select an account for a channel (replaces any existing active account)
+  const handleSelect = async (
+    channel: string,
+    platformId: string,
+    platformName: string,
+    platformDetail: string,
+    metadata: Record<string, any>
+  ) => {
+    const token = getToken()
+    if (!token) return
+    setSaving(true)
+    try {
+      await api("/channels/select", {
+        method: "POST",
+        token,
+        body: JSON.stringify({
+          channel,
+          platform_id: platformId,
+          platform_name: platformName,
+          platform_detail: platformDetail,
+          metadata,
+          enabled: true,
+        }),
+      })
+      await fetchAvailable()
+      showToast(isTR ? `${channelLabel(channel)} hesabı seçildi` : `${channelLabel(channel)} account selected`)
+    } catch (err: any) {
+      showToast(err.message || (isTR ? "Kayıt hatası" : "Save error"), "error")
+    } finally {
+      setSaving(false)
+      setSelectingChannel(null)
+    }
+  }
 
-  // Aktif WhatsApp hesabı — ilk WABA'nın ilk numarası
-  const activeWaba = wabaAccounts[0]
-  const activePhone = activeWaba?.phone_numbers?.[0]
+  // Disconnect (disable) current active account for a channel
+  const handleDisconnect = async (channel: string) => {
+    const token = getToken()
+    if (!token) return
+    const active = available?.activeSelections?.[channel as keyof typeof available.activeSelections]
+    if (!active) return
+    setSaving(true)
+    try {
+      await api("/channels/select", {
+        method: "POST",
+        token,
+        body: JSON.stringify({
+          channel: active.channel,
+          platform_id: active.platform_id,
+          platform_name: active.platform_name || "",
+          platform_detail: active.platform_detail || "",
+          metadata: active.metadata || {},
+          enabled: false,
+        }),
+      })
+      await fetchAvailable()
+      showToast(isTR ? `${channelLabel(channel)} bağlantısı kesildi` : `${channelLabel(channel)} disconnected`)
+    } catch (err: any) {
+      showToast(err.message || (isTR ? "Hata oluştu" : "Error occurred"), "error")
+    } finally {
+      setSaving(false)
+    }
+  }
 
-  // Aktif Instagram/Facebook hesabı
-  const activeIg = instagramAccounts[0]
-  const activeFb = facebookAccounts[0]
+  function channelLabel(ch: string) {
+    if (ch === "whatsapp") return "WhatsApp"
+    if (ch === "instagram") return "Instagram"
+    if (ch === "messenger") return "Messenger"
+    return ch
+  }
 
-  if (loading) return <div className="p-7 text-ink-tertiary text-caption">{t("loading")}</div>
+  // Build flat option lists
+  const whatsappOptions: ChannelOption[] = []
+  for (const waba of available?.whatsapp || []) {
+    for (const phone of waba.phone_numbers || []) {
+      whatsappOptions.push({
+        id: phone.id,
+        label: phone.verified_name || waba.waba_name,
+        detail: phone.display_phone_number,
+        wabaId: waba.waba_id,
+        wabaName: waba.waba_name,
+        qualityRating: phone.quality_rating,
+      })
+    }
+  }
 
-  const channels = [
+  const instagramOptions: ChannelOption[] = (available?.instagram || []).map((ig) => ({
+    id: ig.id,
+    label: ig.name || ig.username,
+    detail: ig.username ? `@${ig.username}` : ig.id,
+    pageId: ig.page_id,
+    pageName: ig.page_name,
+  }))
+
+  const pageOptions: ChannelOption[] = (available?.pages || []).map((p) => ({
+    id: p.id,
+    label: p.name,
+    detail: p.id,
+    accessToken: p.access_token,
+  }))
+
+  // Get quality rating for a WhatsApp phone number
+  const getQualityRating = (platformId: string) => {
+    for (const waba of available?.whatsapp || []) {
+      for (const p of waba.phone_numbers) {
+        if (p.id === platformId) return p.quality_rating
+      }
+    }
+    return null
+  }
+
+  const qualityLabel = (rating: string) => {
+    if (rating === "GREEN") return isTR ? "Yüksek" : "High"
+    if (rating === "YELLOW") return isTR ? "Orta" : "Medium"
+    if (rating === "RED") return isTR ? "Düşük" : "Low"
+    return isTR ? "Bilinmiyor" : "Unknown"
+  }
+
+  const qualityColor = (rating: string) => {
+    if (rating === "GREEN") return "text-emerald-600"
+    if (rating === "YELLOW") return "text-amber-600"
+    if (rating === "RED") return "text-red-600"
+    return "text-ink-tertiary"
+  }
+
+  const qualityDot = (rating: string) => {
+    if (rating === "GREEN") return "bg-emerald-500"
+    if (rating === "YELLOW") return "bg-amber-500"
+    if (rating === "RED") return "bg-red-500"
+    return "bg-surface-350"
+  }
+
+  // Format expiry date
+  const formatExpiry = (dateStr: string | null) => {
+    if (!dateStr) return ""
+    const d = new Date(dateStr)
+    const now = new Date()
+    const diffMs = d.getTime() - now.getTime()
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+    if (diffDays <= 0) return isTR ? "Süresi dolmuş" : "Expired"
+    if (diffDays === 1) return isTR ? "1 gün kaldı" : "1 day left"
+    return isTR ? `${diffDays} gün kaldı` : `${diffDays} days left`
+  }
+
+  // Loading state
+  if (loading) {
+    return <div className="p-7 text-ink-tertiary text-caption">{t("loading")}</div>
+  }
+
+  const isConnected = metaStatus?.connected === true
+
+  // Channel card config
+  const channelCards: {
+    channel: "whatsapp" | "instagram" | "messenger"
+    name: string
+    subtitle: string
+    icon: React.ReactNode
+    iconBg: string
+    options: ChannelOption[]
+    buildPayload: (opt: ChannelOption) => {
+      platformName: string
+      platformDetail: string
+      metadata: Record<string, any>
+    }
+  }[] = [
     {
-      id: "whatsapp",
+      channel: "whatsapp",
       name: "WhatsApp",
+      subtitle: "WhatsApp Business API",
       icon: <WhatsAppIcon />,
       iconBg: "bg-[#25D366]",
-      connected: wabaAccounts.length > 0,
-      activeAccount: activeWaba?.waba_name || null,
-      activeDetail: activePhone?.number || null,
-      allAccounts: wabaAccounts.map(w => ({
-        id: w.waba_id,
-        name: w.waba_name,
-        detail: w.phone_numbers?.map(p => p.number).join(", "),
-      })),
-      onConnect: connectWhatsApp,
+      options: whatsappOptions,
+      buildPayload: (opt) => ({
+        platformName: opt.label,
+        platformDetail: opt.detail,
+        metadata: { waba_id: opt.wabaId, waba_name: opt.wabaName },
+      }),
     },
     {
-      id: "instagram",
-      name: "Instagram DM",
+      channel: "instagram",
+      name: "Instagram",
+      subtitle: "Instagram Direct Messages",
       icon: <InstagramIcon />,
       iconBg: "bg-gradient-to-br from-[#833AB4] via-[#E1306C] to-[#F77737]",
-      connected: instagramAccounts.length > 0,
-      activeAccount: activeIg?.page_name || null,
-      activeDetail: activeIg?.account_id || null,
-      allAccounts: instagramAccounts.map(a => ({
-        id: a.id,
-        name: a.page_name || a.account_id,
-        detail: a.account_id,
-      })),
-      onConnect: () => connectChannel("instagram"),
+      options: instagramOptions,
+      buildPayload: (opt) => ({
+        platformName: opt.label,
+        platformDetail: opt.detail,
+        metadata: { page_id: opt.pageId, page_name: opt.pageName },
+      }),
     },
     {
-      id: "facebook",
+      channel: "messenger",
       name: "Messenger",
+      subtitle: "Facebook Messenger",
       icon: <MessengerIcon />,
       iconBg: "bg-[#0084FF]",
-      connected: facebookAccounts.length > 0,
-      activeAccount: activeFb?.page_name || null,
-      activeDetail: activeFb?.page_id || null,
-      allAccounts: facebookAccounts.map(a => ({
-        id: a.id,
-        name: a.page_name || a.account_id,
-        detail: a.page_id,
-      })),
-      onConnect: () => connectChannel("facebook"),
+      options: pageOptions,
+      buildPayload: (opt) => ({
+        platformName: opt.label,
+        platformDetail: opt.detail,
+        metadata: { page_id: opt.id, page_access_token: opt.accessToken },
+      }),
     },
   ]
 
   return (
     <div className="h-full flex flex-col overflow-y-auto">
+      {/* Toast */}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
+      {/* Selection Modal */}
+      {selectingChannel && (() => {
+        const card = channelCards.find((c) => c.channel === selectingChannel)
+        if (!card) return null
+        const activeAccount = available?.activeSelections?.[card.channel as keyof typeof available.activeSelections] || null
+        return (
+          <SelectionModal
+            channel={card.channel}
+            channelName={card.name}
+            options={card.options}
+            activeAccount={activeAccount}
+            saving={saving}
+            onSelect={(opt) => {
+              const payload = card.buildPayload(opt)
+              handleSelect(card.channel, opt.id, payload.platformName, payload.platformDetail, payload.metadata)
+            }}
+            onClose={() => !saving && setSelectingChannel(null)}
+            isTR={isTR}
+          />
+        )
+      })()}
+
+      {/* Page Header */}
       <div className="ds-page-header">
         <div>
-          <h2 className="ds-page-title">{isTR ? "Kanallar" : "Channels"}</h2>
-          <p className="ds-page-subtitle">{isTR ? "Mesajlaşma kanallarınızı bağlayın ve yönetin" : "Connect and manage your messaging channels"}</p>
+          <h2 className="ds-page-title">{isTR ? "Kanal Yönetimi" : "Channel Management"}</h2>
+          <p className="ds-page-subtitle">
+            {isTR
+              ? "Meta hesabinizi baglayarak WhatsApp, Instagram ve Messenger kanallarini tek yerden yonetin"
+              : "Connect your Meta account to manage WhatsApp, Instagram and Messenger from one place"}
+          </p>
         </div>
       </div>
 
-      <div className="p-7">
-        {/* Üst bilgi kartı */}
-        <div className="ds-card p-5 mb-6 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-primary">
-              <path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+      <div className="p-7 space-y-6">
+        {/* ─── Connection Status Banner ─── */}
+        {!isConnected ? (
+          <div className="ds-card p-6">
+            <div className="flex flex-col sm:flex-row items-center gap-5">
+              <div className="w-16 h-16 rounded-2xl bg-primary-50 flex items-center justify-center flex-shrink-0">
+                <LinkIcon />
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <h3 className="font-bold text-lg text-ink">
+                  {isTR ? "Meta Hesabınızı Bağlayın" : "Connect Your Meta Account"}
+                </h3>
+                <p className="text-caption text-ink-secondary mt-1">
+                  {isTR
+                    ? "WhatsApp, Instagram ve Messenger kanallarini kullanabilmek icin tek bir Meta OAuth baglantisi yeterlidir."
+                    : "A single Meta OAuth connection is enough to use WhatsApp, Instagram and Messenger channels."}
+                </p>
+              </div>
+              <button
+                onClick={handleConnect}
+                disabled={connecting}
+                className="ds-btn-primary px-8 py-3 text-base font-bold flex items-center gap-2 flex-shrink-0"
+              >
+                {connecting ? (
+                  <>
+                    <SpinnerIcon />
+                    {isTR ? "Yönlendiriliyor..." : "Redirecting..."}
+                  </>
+                ) : (
+                  <>
+                    <BoltIcon />
+                    {isTR ? "Hesabımı Bağla" : "Connect My Account"}
+                  </>
+                )}
+              </button>
+            </div>
           </div>
-          <div>
-            <h3 className="font-bold text-body text-ink">{isTR ? "Kanal Entegrasyonu" : "Channel Integration"}</h3>
-            <p className="text-caption text-ink-secondary mt-0.5">
-              {isTR
-                ? "Mesajlaşma platformlarınızı bağlayarak tüm kanalları tek bir yerden yönetin."
-                : "Connect your messaging platforms to manage all channels from one place."}
-            </p>
-          </div>
-        </div>
-
-        {/* Kanal Kartları */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {channels.map((ch) => (
-            <div
-              key={ch.id}
-              className={`bg-white rounded-xl border transition-all duration-200 ${
-                ch.connected ? "border-surface-300 shadow-card" : "border-surface-300 border-dashed"
-              }`}
-            >
-              {/* Kart Üst: İkon + İsim + Toggle */}
-              <div className="p-5">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 ${ch.iconBg} rounded-xl flex items-center justify-center shadow-md`}>
-                      {ch.icon}
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-body text-ink">{ch.name}</h3>
-                    </div>
-                  </div>
-                  <Toggle
-                    enabled={ch.connected}
-                    loading={toggling === ch.id || connecting === ch.id}
-                    onChange={() => {
-                      if (ch.connected) {
-                        if (confirm(isTR ? `${ch.name} bağlantısını kesmek istediğinize emin misiniz?` : `Disconnect ${ch.name}?`)) {
-                          toggleConnection(ch.id, true)
-                        }
-                      } else {
-                        ch.onConnect()
-                      }
-                    }}
-                  />
+        ) : (
+          <div className="ds-card p-5 border-emerald-200 bg-emerald-50/30">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+                  <CheckCircleIcon />
                 </div>
-
-                {/* Durum badge */}
-                <div className="ml-[52px]">
-                  {ch.connected ? (
-                    <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-600">
-                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                      {isTR ? "Bağlı" : "Connected"}
-                    </span>
-                  ) : (
-                    <span className="text-[11px] font-medium text-ink-tertiary">
-                      {isTR ? "Bağlanmadı" : "Not Connected"}
-                    </span>
-                  )}
+                <div>
+                  <h3 className="font-bold text-body text-emerald-800">
+                    {isTR ? "Meta Hesabı Bağlı" : "Meta Account Connected"}
+                  </h3>
+                  <p className="text-xs text-emerald-600 mt-0.5">
+                    {metaStatus?.expires_at && formatExpiry(metaStatus.expires_at)}
+                    {metaStatus?.scopes && metaStatus.scopes.length > 0 && (
+                      <span className="ml-2 opacity-60">
+                        {metaStatus.scopes.length} {isTR ? "izin" : "permission"}{metaStatus.scopes.length > 1 ? (isTR ? "" : "s") : ""}
+                      </span>
+                    )}
+                  </p>
                 </div>
               </div>
-
-              {/* Hesap bilgisi + Değiştir butonu (bağlıysa) */}
-              {ch.connected && ch.activeAccount ? (
-                <div className="border-t border-surface-300/60 px-5 py-4 bg-surface-50/50">
-                  <div className="text-[11px] font-semibold text-ink-tertiary uppercase tracking-wider mb-2">
-                    {isTR ? "Hesap:" : "Account:"}
-                  </div>
-                  <div className="text-sm font-medium text-ink">{ch.activeAccount}</div>
-                  {ch.activeDetail && (
-                    <div className="text-xs text-ink/40 mt-0.5 font-mono">{ch.activeDetail}</div>
-                  )}
-
-                  {/* Hesabı Değiştir butonu — sadece birden fazla hesap varsa */}
-                  <button
-                    onClick={() => {
-                      if (ch.allAccounts.length > 1) {
-                        setSelectorOpen(ch.id)
-                      } else {
-                        ch.onConnect()
-                      }
-                    }}
-                    className="mt-3 w-full flex items-center justify-center gap-2 py-2 text-xs font-semibold text-ink/50 bg-white rounded-lg border border-surface-300 hover:border-primary/30 hover:text-primary transition-all"
-                  >
-                    <RefreshIcon />
-                    {isTR ? "Hesabı Değiştir" : "Change Account"}
-                  </button>
-                </div>
-              ) : !ch.connected ? (
-                <div className="border-t border-surface-300/60 px-5 py-4">
-                  <button
-                    onClick={ch.onConnect}
-                    disabled={connecting === ch.id}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-bold text-white bg-primary rounded-lg hover:bg-primary-hover transition-colors disabled:opacity-50 shadow-button-primary"
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
-                      <path d="M13 10V3L4 14h7v7l9-11h-7z" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    {connecting === ch.id
-                      ? (isTR ? "Bağlanıyor..." : "Connecting...")
-                      : (isTR ? `${ch.name}'ı Bağla` : `Connect ${ch.name}`)}
-                  </button>
-                </div>
-              ) : null}
+              <button
+                onClick={handleConnect}
+                disabled={connecting}
+                className="text-sm font-medium text-emerald-700 hover:text-emerald-900 underline underline-offset-2 transition-colors"
+              >
+                {isTR ? "Yeniden Bağla" : "Reconnect"}
+              </button>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
 
-        {/* Nasıl çalışır */}
-        <div className="mt-6 ds-card p-5">
-          <h3 className="ds-section-title mb-2">{isTR ? "Nasıl Çalışır?" : "How it works?"}</h3>
-          <ul className="text-caption text-ink-secondary space-y-2">
-            <li className="flex items-start gap-2">
+        {/* ─── Channel Cards Grid ─── */}
+        {isConnected && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {channelCards.map((card) => {
+              const activeAccount = available?.activeSelections?.[card.channel as keyof typeof available.activeSelections] || null
+              const hasOptions = card.options.length > 0
+              const quality = activeAccount && card.channel === "whatsapp"
+                ? getQualityRating(activeAccount.platform_id)
+                : null
+
+              return (
+                <div
+                  key={card.channel}
+                  className={`bg-white rounded-xl border transition-all duration-200 ${
+                    activeAccount ? "border-surface-300 shadow-card" : "border-surface-300 border-dashed"
+                  }`}
+                >
+                  {/* Card Header: Icon + Name */}
+                  <div className="p-5 pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 ${card.iconBg} rounded-xl flex items-center justify-center shadow-md`}>
+                        {card.icon}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-body text-ink">{card.name}</h3>
+                        <p className="text-[11px] text-ink-tertiary">{card.subtitle}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ─── Card Body: State-based content ─── */}
+                  <div className="px-5 pb-5">
+
+                    {/* State D: No available accounts for this channel */}
+                    {!hasOptions && (
+                      <div className="py-6 px-3 rounded-lg bg-surface-50 border border-dashed border-surface-300 text-center">
+                        <p className="text-sm text-ink-tertiary font-medium">
+                          {isTR ? "Kullanılabilir hesap yok" : "No accounts available"}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* State B: Connected, no active account for this channel */}
+                    {hasOptions && !activeAccount && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <span className="w-2.5 h-2.5 rounded-full bg-surface-350" />
+                          <span className="text-sm text-ink-tertiary font-medium">
+                            {isTR ? "Hesap seçilmemiş" : "No account selected"}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => setSelectingChannel(card.channel)}
+                          disabled={saving}
+                          className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-bold text-primary border border-primary/30 rounded-lg hover:bg-primary-50 transition-colors disabled:opacity-50"
+                        >
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
+                            <path d="M12 5v14m-7-7h14" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                          {isTR ? "Hesap Seç" : "Select Account"}
+                        </button>
+                      </div>
+                    )}
+
+                    {/* State C: Active account selected */}
+                    {hasOptions && activeAccount && (
+                      <div>
+                        {/* Active status badge */}
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                          <span className="text-sm font-bold text-emerald-600">
+                            {isTR ? "Aktif" : "Active"}
+                          </span>
+                        </div>
+
+                        {/* Account details */}
+                        <div className="rounded-lg bg-surface-50 border border-surface-200 p-3.5 mb-4">
+                          <div className="text-sm font-semibold text-ink">
+                            {activeAccount.platform_name || "-"}
+                          </div>
+                          {activeAccount.platform_detail && (
+                            <div className="text-xs text-ink/50 font-mono mt-1">
+                              {activeAccount.platform_detail}
+                            </div>
+                          )}
+                          {quality && (
+                            <div className="flex items-center gap-1.5 mt-2 text-xs">
+                              <span className="text-ink-tertiary">{isTR ? "Kalite:" : "Quality:"}</span>
+                              <span className={`w-2 h-2 rounded-full ${qualityDot(quality)}`} />
+                              <span className={`font-semibold ${qualityColor(quality)}`}>
+                                {qualityLabel(quality)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Action buttons */}
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setSelectingChannel(card.channel)}
+                            disabled={saving}
+                            className="flex-1 py-2 text-xs font-bold text-primary border border-primary/30 rounded-lg hover:bg-primary-50 transition-colors disabled:opacity-50"
+                          >
+                            {isTR ? "Değiştir" : "Change"}
+                          </button>
+                          <button
+                            onClick={() => handleDisconnect(card.channel)}
+                            disabled={saving}
+                            className="flex-1 py-2 text-xs font-bold text-red-500 border border-red-200 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
+                          >
+                            {saving ? (
+                              <SpinnerIcon className="w-3.5 h-3.5 mx-auto" />
+                            ) : (
+                              isTR ? "Bağlantıyı Kes" : "Disconnect"
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* ─── How It Works ─── */}
+        <div className="ds-card p-5">
+          <h3 className="ds-section-title mb-3">
+            {isTR ? "Nasıl Çalışır?" : "How it works?"}
+          </h3>
+          <ul className="text-caption text-ink-secondary space-y-2.5">
+            <li className="flex items-start gap-2.5">
               <span className="w-5 h-5 rounded-full bg-primary-50 text-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
-              {isTR ? "Bağlamak istediğiniz kanalın toggle butonunu açın" : "Turn on the toggle for the channel you want to connect"}
+              {isTR
+                ? "\"Hesabımı Bağla\" butonuna tiklayin — Meta OAuth sayfasina yonlendirileceksiniz"
+                : "Click \"Connect My Account\" — you'll be redirected to Meta OAuth page"}
             </li>
-            <li className="flex items-start gap-2">
+            <li className="flex items-start gap-2.5">
               <span className="w-5 h-5 rounded-full bg-primary-50 text-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
-              {isTR ? "Facebook penceresi açılır — tüm hesaplarınızı seçin ve onaylayın" : "Facebook window opens — select all your accounts and approve"}
+              {isTR
+                ? "Meta hesabinizi onaylayin — WhatsApp, Instagram ve Facebook izinlerini verin"
+                : "Approve your Meta account — grant WhatsApp, Instagram and Facebook permissions"}
             </li>
-            <li className="flex items-start gap-2">
+            <li className="flex items-start gap-2.5">
               <span className="w-5 h-5 rounded-full bg-primary-50 text-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
-              {isTR ? "Tüm seçtiğiniz hesaplar portfolyonuza eklenir" : "All selected accounts are added to your portfolio"}
+              {isTR
+                ? "Geri dondugunuzde mevcut kanallariniz yuklenir — kullanmak istediginizi secin"
+                : "When you return, available channels load — select the ones you want to use"}
             </li>
-            <li className="flex items-start gap-2">
+            <li className="flex items-start gap-2.5">
               <span className="w-5 h-5 rounded-full bg-primary-50 text-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
-              {isTR ? "\"Hesabı Değiştir\" ile istediğiniz hesabı aktif edin" : "Use \"Change Account\" to activate the account you want"}
+              {isTR
+                ? "Her kanal icin bir hesap secin — \"Değiştir\" ile istediginiz zaman degistirebilirsiniz"
+                : "Select one account per channel — use \"Change\" to switch anytime"}
             </li>
           </ul>
         </div>
       </div>
-
-      {/* Hesap Seçici Modal */}
-      {selectorOpen && (() => {
-        const ch = channels.find(c => c.id === selectorOpen)
-        if (!ch) return null
-        return (
-          <AccountSelector
-            accounts={ch.allAccounts}
-            selectedId={ch.allAccounts[0]?.id || null}
-            onSelect={(id) => switchAccount(ch.id, id)}
-            onClose={() => setSelectorOpen(null)}
-          />
-        )
-      })()}
     </div>
   )
 }
