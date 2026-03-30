@@ -188,12 +188,12 @@ function SelectionModal({
         {/* Header */}
         <div className="px-6 py-4 border-b border-surface-200">
           <h3 className="font-bold text-body text-ink">
-            {isTR ? `${channelName} Hesap Sec` : `Select ${channelName} Account`}
+            {isTR ? `${channelName} Hesap Seç` : `Select ${channelName} Account`}
           </h3>
           <p className="text-xs text-ink-tertiary mt-1">
             {activeAccount
-              ? (isTR ? "Aktif hesabi degistirmek icin yeni bir hesap secin" : "Select a new account to replace the active one")
-              : (isTR ? "Bu kanal icin bir hesap secin" : "Select an account for this channel")}
+              ? (isTR ? "Aktif hesabı değiştirmek için yeni bir hesap seçin" : "Select a new account to replace the active one")
+              : (isTR ? "Bu kanal için bir hesap seçin" : "Select an account for this channel")}
           </p>
         </div>
 
@@ -245,7 +245,7 @@ function SelectionModal({
             disabled={saving}
             className="px-4 py-2 text-sm font-medium text-ink-secondary hover:text-ink bg-surface-50 hover:bg-surface-100 rounded-lg transition-colors disabled:opacity-50"
           >
-            {isTR ? "Iptal" : "Cancel"}
+            {isTR ? "İptal" : "Cancel"}
           </button>
         </div>
       </div>
@@ -254,7 +254,7 @@ function SelectionModal({
 }
 
 /* ════════════════════════════════════════════
-   CHANNELS PAGE — Kanal Yonetimi (Single-Active-Per-Channel)
+   CHANNELS PAGE — Kanal Yönetimi (Single-Active-Per-Channel)
    ════════════════════════════════════════════ */
 
 export default function ChannelsPage() {
@@ -317,7 +317,7 @@ export default function ChannelsPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     if (params.get("connected") === "true") {
-      showToast(isTR ? "Meta hesabi basariyla baglandi!" : "Meta account connected successfully!")
+      showToast(isTR ? "Meta hesabı başarıyla bağlandı!" : "Meta account connected successfully!")
       window.history.replaceState({}, "", window.location.pathname)
       fetchMetaStatus().then((status) => {
         if (status?.connected) fetchAvailable()
@@ -336,7 +336,7 @@ export default function ChannelsPage() {
         window.location.href = data.url
       }
     } catch (err: any) {
-      showToast(err.message || (isTR ? "Baglanti hatasi" : "Connection error"), "error")
+      showToast(err.message || (isTR ? "Bağlantı hatası" : "Connection error"), "error")
       setConnecting(false)
     }
   }
@@ -366,9 +366,9 @@ export default function ChannelsPage() {
         }),
       })
       await fetchAvailable()
-      showToast(isTR ? `${channelLabel(channel)} hesabi secildi` : `${channelLabel(channel)} account selected`)
+      showToast(isTR ? `${channelLabel(channel)} hesabı seçildi` : `${channelLabel(channel)} account selected`)
     } catch (err: any) {
-      showToast(err.message || (isTR ? "Kayit hatasi" : "Save error"), "error")
+      showToast(err.message || (isTR ? "Kayıt hatası" : "Save error"), "error")
     } finally {
       setSaving(false)
       setSelectingChannel(null)
@@ -396,9 +396,9 @@ export default function ChannelsPage() {
         }),
       })
       await fetchAvailable()
-      showToast(isTR ? `${channelLabel(channel)} baglantisi kesildi` : `${channelLabel(channel)} disconnected`)
+      showToast(isTR ? `${channelLabel(channel)} bağlantısı kesildi` : `${channelLabel(channel)} disconnected`)
     } catch (err: any) {
-      showToast(err.message || (isTR ? "Hata olustu" : "Error occurred"), "error")
+      showToast(err.message || (isTR ? "Hata oluştu" : "Error occurred"), "error")
     } finally {
       setSaving(false)
     }
@@ -452,9 +452,9 @@ export default function ChannelsPage() {
   }
 
   const qualityLabel = (rating: string) => {
-    if (rating === "GREEN") return isTR ? "Yuksek" : "High"
+    if (rating === "GREEN") return isTR ? "Yüksek" : "High"
     if (rating === "YELLOW") return isTR ? "Orta" : "Medium"
-    if (rating === "RED") return isTR ? "Dusuk" : "Low"
+    if (rating === "RED") return isTR ? "Düşük" : "Low"
     return isTR ? "Bilinmiyor" : "Unknown"
   }
 
@@ -479,9 +479,9 @@ export default function ChannelsPage() {
     const now = new Date()
     const diffMs = d.getTime() - now.getTime()
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-    if (diffDays <= 0) return isTR ? "Suresi dolmus" : "Expired"
-    if (diffDays === 1) return isTR ? "1 gun kaldi" : "1 day left"
-    return isTR ? `${diffDays} gun kaldi` : `${diffDays} days left`
+    if (diffDays <= 0) return isTR ? "Süresi dolmuş" : "Expired"
+    if (diffDays === 1) return isTR ? "1 gün kaldı" : "1 day left"
+    return isTR ? `${diffDays} gün kaldı` : `${diffDays} days left`
   }
 
   // Loading state
@@ -576,7 +576,7 @@ export default function ChannelsPage() {
       {/* Page Header */}
       <div className="ds-page-header">
         <div>
-          <h2 className="ds-page-title">{isTR ? "Kanal Yonetimi" : "Channel Management"}</h2>
+          <h2 className="ds-page-title">{isTR ? "Kanal Yönetimi" : "Channel Management"}</h2>
           <p className="ds-page-subtitle">
             {isTR
               ? "Meta hesabinizi baglayarak WhatsApp, Instagram ve Messenger kanallarini tek yerden yonetin"
@@ -595,7 +595,7 @@ export default function ChannelsPage() {
               </div>
               <div className="flex-1 text-center sm:text-left">
                 <h3 className="font-bold text-lg text-ink">
-                  {isTR ? "Meta Hesabinizi Baglayin" : "Connect Your Meta Account"}
+                  {isTR ? "Meta Hesabınızı Bağlayın" : "Connect Your Meta Account"}
                 </h3>
                 <p className="text-caption text-ink-secondary mt-1">
                   {isTR
@@ -611,12 +611,12 @@ export default function ChannelsPage() {
                 {connecting ? (
                   <>
                     <SpinnerIcon />
-                    {isTR ? "Yonlendiriliyor..." : "Redirecting..."}
+                    {isTR ? "Yönlendiriliyor..." : "Redirecting..."}
                   </>
                 ) : (
                   <>
                     <BoltIcon />
-                    {isTR ? "Hesabimi Bagla" : "Connect My Account"}
+                    {isTR ? "Hesabımı Bağla" : "Connect My Account"}
                   </>
                 )}
               </button>
@@ -631,7 +631,7 @@ export default function ChannelsPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-body text-emerald-800">
-                    {isTR ? "Meta Hesabi Bagli" : "Meta Account Connected"}
+                    {isTR ? "Meta Hesabı Bağlı" : "Meta Account Connected"}
                   </h3>
                   <p className="text-xs text-emerald-600 mt-0.5">
                     {metaStatus?.expires_at && formatExpiry(metaStatus.expires_at)}
@@ -648,7 +648,7 @@ export default function ChannelsPage() {
                 disabled={connecting}
                 className="text-sm font-medium text-emerald-700 hover:text-emerald-900 underline underline-offset-2 transition-colors"
               >
-                {isTR ? "Yeniden Bagla" : "Reconnect"}
+                {isTR ? "Yeniden Bağla" : "Reconnect"}
               </button>
             </div>
           </div>
@@ -691,7 +691,7 @@ export default function ChannelsPage() {
                     {!hasOptions && (
                       <div className="py-6 px-3 rounded-lg bg-surface-50 border border-dashed border-surface-300 text-center">
                         <p className="text-sm text-ink-tertiary font-medium">
-                          {isTR ? "Kullanilabilir hesap yok" : "No accounts available"}
+                          {isTR ? "Kullanılabilir hesap yok" : "No accounts available"}
                         </p>
                       </div>
                     )}
@@ -702,7 +702,7 @@ export default function ChannelsPage() {
                         <div className="flex items-center gap-2 mb-4">
                           <span className="w-2.5 h-2.5 rounded-full bg-surface-350" />
                           <span className="text-sm text-ink-tertiary font-medium">
-                            {isTR ? "Hesap secilmemis" : "No account selected"}
+                            {isTR ? "Hesap seçilmemiş" : "No account selected"}
                           </span>
                         </div>
                         <button
@@ -713,7 +713,7 @@ export default function ChannelsPage() {
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
                             <path d="M12 5v14m-7-7h14" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
-                          {isTR ? "Hesap Sec" : "Select Account"}
+                          {isTR ? "Hesap Seç" : "Select Account"}
                         </button>
                       </div>
                     )}
@@ -757,7 +757,7 @@ export default function ChannelsPage() {
                             disabled={saving}
                             className="flex-1 py-2 text-xs font-bold text-primary border border-primary/30 rounded-lg hover:bg-primary-50 transition-colors disabled:opacity-50"
                           >
-                            {isTR ? "Degistir" : "Change"}
+                            {isTR ? "Değiştir" : "Change"}
                           </button>
                           <button
                             onClick={() => handleDisconnect(card.channel)}
@@ -767,7 +767,7 @@ export default function ChannelsPage() {
                             {saving ? (
                               <SpinnerIcon className="w-3.5 h-3.5 mx-auto" />
                             ) : (
-                              isTR ? "Baglantiyi Kes" : "Disconnect"
+                              isTR ? "Bağlantıyı Kes" : "Disconnect"
                             )}
                           </button>
                         </div>
@@ -783,13 +783,13 @@ export default function ChannelsPage() {
         {/* ─── How It Works ─── */}
         <div className="ds-card p-5">
           <h3 className="ds-section-title mb-3">
-            {isTR ? "Nasil Calisir?" : "How it works?"}
+            {isTR ? "Nasıl Çalışır?" : "How it works?"}
           </h3>
           <ul className="text-caption text-ink-secondary space-y-2.5">
             <li className="flex items-start gap-2.5">
               <span className="w-5 h-5 rounded-full bg-primary-50 text-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
               {isTR
-                ? "\"Hesabimi Bagla\" butonuna tiklayin — Meta OAuth sayfasina yonlendirileceksiniz"
+                ? "\"Hesabımı Bağla\" butonuna tiklayin — Meta OAuth sayfasina yonlendirileceksiniz"
                 : "Click \"Connect My Account\" — you'll be redirected to Meta OAuth page"}
             </li>
             <li className="flex items-start gap-2.5">
@@ -807,7 +807,7 @@ export default function ChannelsPage() {
             <li className="flex items-start gap-2.5">
               <span className="w-5 h-5 rounded-full bg-primary-50 text-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
               {isTR
-                ? "Her kanal icin bir hesap secin — \"Degistir\" ile istediginiz zaman degistirebilirsiniz"
+                ? "Her kanal icin bir hesap secin — \"Değiştir\" ile istediginiz zaman degistirebilirsiniz"
                 : "Select one account per channel — use \"Change\" to switch anytime"}
             </li>
           </ul>
