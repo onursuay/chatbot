@@ -262,14 +262,6 @@ export default function DashboardPage() {
 
   return (
     <div className="h-full flex flex-col overflow-y-auto">
-      {/* Page Header */}
-      <div className="ds-page-header">
-        <div>
-          <h2 className="ds-page-title">{t("dashboard")}</h2>
-          <p className="ds-page-subtitle">{t("dashboard_subtitle")}</p>
-        </div>
-      </div>
-
       <div className="p-7 space-y-6">
         {/* KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
