@@ -352,7 +352,7 @@ export default function InboxPage() {
             <h2 className="text-page-title">{t("inbox")}</h2>
             <button
               onClick={() => setShowNewConv(true)}
-              className="ds-btn-primary ds-btn-sm gap-1"
+              className="ds-btn-sm gap-1 bg-[#4995d1] text-white border-0 shadow-sm hover:bg-[#3d82b8] rounded-btn font-bold text-micro px-3 h-btn-h-sm flex items-center"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
                 <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
@@ -370,7 +370,7 @@ export default function InboxPage() {
                   onClick={() => setActiveChannel(ch.id)}
                   className={`px-3 py-1.5 rounded-btn text-micro font-bold whitespace-nowrap flex items-center gap-1.5 transition-all duration-150 ${
                     isActive
-                      ? "bg-primary text-white shadow-button-primary"
+                      ? "bg-[#4995d1] text-white shadow-sm"
                       : "bg-surface-150 text-ink-secondary hover:bg-surface-150"
                   }`}
                 >
@@ -403,7 +403,7 @@ export default function InboxPage() {
                   onClick={() => setSelectedConv(conv)}
                   className={`w-full p-3 rounded-card-sm text-left transition-all duration-150 relative group ${
                     isSelected
-                      ? "bg-primary/5 border border-primary/15 shadow-card"
+                      ? "bg-[#ecf5fc] border border-[#4995d1]/20 shadow-card"
                       : "hover:bg-surface-150 border border-transparent"
                   }`}
                 >
@@ -425,7 +425,7 @@ export default function InboxPage() {
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start mb-0.5">
-                        <h3 className={`text-ui truncate ${isSelected ? "text-primary font-bold" : "font-bold text-ink"}`}>
+                        <h3 className={`text-ui truncate ${isSelected ? "text-[#4995d1] font-bold" : "font-bold text-ink"}`}>
                           {conv.contact_name || conv.contact_phone || t("unknown")}
                         </h3>
                         <span className={`text-micro shrink-0 ml-2 ${conv.unread_count > 0 ? "font-bold text-primary" : "text-ink-tertiary"}`}>
@@ -461,7 +461,7 @@ export default function InboxPage() {
       </section>
 
       {/* ===== CENTER PANEL - Active Chat ===== */}
-      <section className="flex-1 flex flex-col bg-surface min-w-0">
+      <section className="flex-1 flex flex-col bg-surface min-w-0 border-x border-[#4995d1]/30">
         {selectedConv ? (
           <>
             {/* Chat Header */}
@@ -506,7 +506,7 @@ export default function InboxPage() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 no-scrollbar bg-surface-50">
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 no-scrollbar bg-[#ecf5fc]">
               {messageGroups.map((group, gi) => (
                 <div key={gi} className="space-y-3">
                   {/* Date separator */}
@@ -705,7 +705,7 @@ export default function InboxPage() {
 
       {/* ===== RIGHT PANEL - Contact Info / AI Insights ===== */}
       {selectedConv && showContactInfo && (
-        <aside className="hidden xl:flex w-[300px] flex-col border-l border-surface-300 bg-white p-5 overflow-y-auto no-scrollbar shrink-0">
+        <aside className="hidden xl:flex w-[300px] flex-col border-l border-[#4995d1]/30 bg-[#ecf5fc] p-5 overflow-y-auto no-scrollbar shrink-0">
           {/* Profile */}
           <div className="text-center mb-6 pt-2">
             <div className={`w-16 h-16 rounded-avatar mx-auto ${getAvatarColor(selectedConv.contact_name)} flex items-center justify-center text-white text-xl font-bold mb-3 ring-4 ring-white`}>
@@ -724,7 +724,7 @@ export default function InboxPage() {
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-primary">
                   <path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z" />
                 </svg>
-                <h3 className="text-section-label uppercase tracking-wider text-primary">{t("ai_summary_title")}</h3>
+                <h3 className="text-section-label uppercase tracking-wider text-[#4995d1]">{t("ai_summary_title")}</h3>
               </div>
               <p className="text-caption text-ink-secondary leading-relaxed">
                 {selectedConv.contact_name || t("unknown")} - {getChannelLabel(selectedConv.channel)} {t("online").toLowerCase()}.
@@ -746,7 +746,7 @@ export default function InboxPage() {
 
             {/* Customer Details */}
             <div>
-              <h3 className="text-section-label uppercase tracking-wider text-ink-tertiary mb-3">{t("customer_details")}</h3>
+              <h3 className="text-section-label uppercase tracking-wider text-[#4995d1] mb-3">{t("customer_details")}</h3>
               <div className="space-y-2.5">
                 {selectedConv.contact_email && (
                   <div className="flex items-center gap-2.5 p-2 rounded-card-sm hover:bg-surface-150 transition-colors">
@@ -782,7 +782,7 @@ export default function InboxPage() {
             {/* Tags */}
             <div>
               <div className="flex justify-between items-center mb-3">
-                <h3 className="text-section-label uppercase tracking-wider text-ink-tertiary">{t("tags_label")}</h3>
+                <h3 className="text-section-label uppercase tracking-wider text-[#4995d1]">{t("tags_label")}</h3>
                 <button
                   onClick={() => setShowTagInput((v) => !v)}
                   className="text-micro font-bold text-primary hover:text-primary-600 transition-colors"
