@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { api } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
 import { useI18n, localePath, type Lang } from "@/lib/i18n"
@@ -16,6 +17,7 @@ export default function LoginPage() {
   const params = useParams()
   const { setAuth } = useAuth()
   const { lang, t, setLang } = useI18n()
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     const urlLang = (params.lang as string) || "tr"
@@ -23,6 +25,58 @@ export default function LoginPage() {
       setLang(urlLang as Lang)
     }
   }, [params.lang])
+
+  // Neural network animation
+  useEffect(() => {
+    const c = canvasRef.current
+    if (!c) return
+    const ctx = c.getContext("2d")
+    if (!ctx) return
+
+    let animId: number
+    let w = 0, h = 0
+    const nodes: { x: number; y: number; vx: number; vy: number; r: number }[] = []
+    const pulses: { from: number; to: number; t: number; speed: number }[] = []
+
+    function resize() {
+      w = c!.width = c!.offsetWidth
+      h = c!.height = c!.offsetHeight
+    }
+    resize()
+    window.addEventListener("resize", resize)
+
+    for (let i = 0; i < 35; i++) {
+      nodes.push({ x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3, r: Math.random() * 2 + 1.5 })
+    }
+
+    function draw() {
+      ctx!.clearRect(0, 0, w, h)
+      for (const n of nodes) { n.x += n.vx; n.y += n.vy; if (n.x < 0 || n.x > w) n.vx *= -1; if (n.y < 0 || n.y > h) n.vy *= -1 }
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x, dy = nodes[i].y - nodes[j].y, dist = Math.sqrt(dx * dx + dy * dy)
+          if (dist < 180) {
+            ctx!.beginPath(); ctx!.moveTo(nodes[i].x, nodes[i].y); ctx!.lineTo(nodes[j].x, nodes[j].y)
+            ctx!.strokeStyle = `rgba(255,255,255,${(1 - dist / 180) * 0.35})`; ctx!.lineWidth = 0.8; ctx!.stroke()
+            if (Math.random() < 0.008 && pulses.length < 15) pulses.push({ from: i, to: j, t: 0, speed: 0.008 + Math.random() * 0.008 })
+          }
+        }
+      }
+      for (let p = pulses.length - 1; p >= 0; p--) {
+        const pulse = pulses[p]; pulse.t += pulse.speed
+        if (pulse.t > 1) { pulses.splice(p, 1); continue }
+        const f = nodes[pulse.from], t2 = nodes[pulse.to]
+        const px = f.x + (t2.x - f.x) * pulse.t, py = f.y + (t2.y - f.y) * pulse.t
+        const glow = Math.sin(pulse.t * Math.PI)
+        ctx!.beginPath(); ctx!.arc(px, py, 2, 0, Math.PI * 2); ctx!.fillStyle = `rgba(16,185,129,${glow * 0.8})`; ctx!.fill()
+      }
+      for (const n of nodes) { ctx!.beginPath(); ctx!.arc(n.x, n.y, n.r, 0, Math.PI * 2); ctx!.fillStyle = "rgba(255,255,255,0.25)"; ctx!.fill() }
+      animId = requestAnimationFrame(draw)
+    }
+    draw()
+
+    return () => { cancelAnimationFrame(animId); window.removeEventListener("resize", resize) }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,181 +100,100 @@ export default function LoginPage() {
   const isTR = lang === "tr"
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50/50 via-white to-emerald-50/30 flex flex-col">
+    <div className="min-h-screen bg-[#060609] flex flex-col items-center justify-center px-4 py-6 relative overflow-hidden" style={{ fontSize: "16px" }}>
+      {/* Neural network canvas */}
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true" />
 
-      {/* Main */}
-      <main className="flex-1 flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-[1100px] flex items-stretch gap-10">
+      <div className="w-full max-w-md relative z-10 flex-1 flex flex-col items-center justify-center">
+        {/* Logo */}
+        <div className="flex justify-center mb-5">
+          <Link href="/">
+            <Image src="/logo-yo.png" alt="YO Dijital" width={80} height={28} className="brightness-0 invert" priority />
+          </Link>
+        </div>
 
-          {/* Left - Green Card (desktop) */}
-          <div className="hidden lg:flex flex-col flex-1 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-3xl p-12 text-white shadow-2xl shadow-emerald-600/25 justify-center">
-            <h1 className="text-3xl font-bold leading-tight mb-3">
-              {isTR
-                ? "Müşterilerinizle iletişimi güçlendirin"
-                : "Empower your customer communication"}
-            </h1>
-            <p className="text-emerald-100 text-base leading-relaxed mb-8">
-              {isTR
-                ? "Mesajlaşma, CRM ve yapay zeka bir arada! Tüm kanallarınızı tek platformda yönetin."
-                : "Messaging, CRM and AI combined! Manage all your channels in one platform."}
+        {/* Card */}
+        <div className="w-full bg-white/[0.04] border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
+          <h1 className="text-2xl font-bold text-white text-center mb-2">
+            {isTR ? "Giriş Yap" : "Log In"}
+          </h1>
+          <p className="text-base text-gray-400 text-center mb-8">
+            {isTR ? "Hesabınıza giriş yaparak devam edin" : "Sign in to your account"}
+          </p>
+
+          {error && (
+            <div className="mb-6 rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
+              <p className="text-sm text-red-400">{error}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                {isTR ? "E-posta" : "Email"}
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={isTR ? "örnek@sirket.com" : "example@company.com"}
+                className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-base text-white placeholder-gray-500 outline-none transition focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30"
+                autoComplete="email"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                {isTR ? "Şifre" : "Password"}
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="********"
+                className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-base text-white placeholder-gray-500 outline-none transition focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30"
+                autoComplete="current-password"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:from-emerald-600 hover:to-teal-600 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {loading
+                ? (isTR ? "Giriş yapılıyor..." : "Signing in...")
+                : (isTR ? "Giriş Yap" : "Log In")}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-500">
+              {isTR ? "Hesabınız yok mu? " : "Don't have an account? "}
+              <Link href={`/${lang}/register`} className="text-emerald-400 hover:text-emerald-300 font-medium transition">
+                {isTR ? "Ücretsiz Başlayın" : "Start Free"}
+              </Link>
             </p>
-
-            {/* Features */}
-            <div className="space-y-4">
-              {[
-                {
-                  icon: (
-                    <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" stroke="currentColor" strokeWidth={1.5}>
-                      <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  ),
-                  titleTR: "Çoklu Kanal Mesajlaşma",
-                  titleEN: "Omni-Channel Messaging",
-                  descTR: "WhatsApp, Instagram, Facebook tek ekrandan",
-                  descEN: "WhatsApp, Instagram, Facebook in one screen",
-                },
-                {
-                  icon: (
-                    <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" stroke="currentColor" strokeWidth={1.5}>
-                      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <circle cx="9" cy="7" r="4"/>
-                      <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  ),
-                  titleTR: "CRM & Pipeline",
-                  titleEN: "CRM & Pipeline",
-                  descTR: "Müşteri yönetimi ve satış takibi",
-                  descEN: "Customer management and sales tracking",
-                },
-                {
-                  icon: (
-                    <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" stroke="currentColor" strokeWidth={1.5}>
-                      <rect x="3" y="8" width="18" height="12" rx="2"/>
-                      <path d="M12 8V4M8 8V6M16 8V6" strokeLinecap="round"/>
-                      <circle cx="8.5" cy="14" r="1.5" fill="currentColor"/>
-                      <circle cx="15.5" cy="14" r="1.5" fill="currentColor"/>
-                    </svg>
-                  ),
-                  titleTR: "AI Chatbot & Otomasyon",
-                  titleEN: "AI Chatbot & Automation",
-                  descTR: "Yapay zeka destekli otomatik yanıtlar",
-                  descEN: "AI-powered automatic responses",
-                },
-              ].map((f, i) => (
-                <div key={i} className="flex items-start gap-3.5">
-                  <div className="w-9 h-9 rounded-lg bg-white/15 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
-                    {f.icon}
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-white">{isTR ? f.titleTR : f.titleEN}</h3>
-                    <p className="text-xs text-emerald-200 mt-0.5">{isTR ? f.descTR : f.descEN}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Trust badges */}
-            <div className="flex items-center gap-4 mt-8 pt-6 border-t border-white/20">
-              <div className="flex items-center gap-1.5 text-xs text-emerald-100">
-                <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-white"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd"/></svg>
-                {isTR ? "Kredi kartı gerekmez" : "No credit card required"}
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-emerald-100">
-                <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-white"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd"/></svg>
-                {isTR ? "14 gün ücretsiz" : "14 days free"}
-              </div>
-            </div>
-          </div>
-
-          {/* Right - Login Card */}
-          <div className="w-full max-w-[420px] mx-auto lg:mx-0">
-            {/* Mobile title */}
-            <div className="text-center mb-6 lg:hidden">
-              <p className="text-gray-400 text-sm">
-                {isTR ? "Hesabınıza giriş yapın" : "Sign in to your account"}
-              </p>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xl shadow-gray-200/40 p-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-1">
-                {isTR ? "Giriş Yap" : "Sign In"}
-              </h2>
-              <p className="text-sm text-gray-400 mb-6">
-                {isTR ? "Hesabınıza giriş yaparak devam edin" : "Continue by signing in to your account"}
-              </p>
-
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 rounded-lg p-3 mb-4 text-sm">
-                  {error}
-                </div>
-              )}
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    {isTR ? "E-posta" : "Email"}
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all text-sm"
-                    placeholder={isTR ? "örnek@sirket.com" : "example@company.com"}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    {isTR ? "Şifre" : "Password"}
-                  </label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all text-sm"
-                    placeholder="********"
-                    required
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl py-3 transition-all duration-200 shadow-lg shadow-emerald-600/20 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                >
-                  {loading
-                    ? (isTR ? "Giriş yapılıyor..." : "Signing in...")
-                    : (isTR ? "Giriş Yap" : "Sign In")}
-                </button>
-              </form>
-
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200" /></div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="bg-white px-3 text-gray-400">{isTR ? "veya" : "or"}</span>
-                </div>
-              </div>
-
-              <p className="text-center text-sm text-gray-500">
-                {isTR ? "Hesabınız yok mu? " : "Don't have an account? "}
-                <Link href={`/${lang}/register`} className="text-emerald-600 hover:text-emerald-700 font-semibold transition-colors">
-                  {isTR ? "Ücretsiz Başlayın" : "Start Free"}
-                </Link>
-              </p>
-            </div>
           </div>
         </div>
-      </main>
+
+        <div className="mt-6 text-center">
+          <Link href="/" className="text-sm text-gray-500 hover:text-emerald-400 transition">
+            {isTR ? "← Ana sayfaya dön" : "← Back to homepage"}
+          </Link>
+        </div>
+      </div>
 
       {/* Footer */}
-      <footer className="px-6 py-4 border-t border-gray-100">
+      <footer className="w-full px-6 py-4 border-t border-white/5 relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span className="text-xs text-gray-400">© 2024-2026 YO Dijital. {isTR ? "Tüm hakları saklıdır." : "All rights reserved."}</span>
+          <span className="text-xs text-gray-600">© 2024-2026 YO Dijital. {isTR ? "Tüm hakları saklıdır." : "All rights reserved."}</span>
           <div className="flex items-center gap-4">
-            <a href={`/${lang}/privacy-policy`} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">{t("footer_privacy")}</a>
-            <a href={`/${lang}/cookie-policy`} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">{t("footer_cookie")}</a>
-            <a href={`/${lang}/terms-of-service`} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">{t("footer_terms")}</a>
+            <a href={`/${lang}/privacy-policy`} className="text-xs text-gray-600 hover:text-gray-400 transition-colors">{t("footer_privacy")}</a>
+            <a href={`/${lang}/cookie-policy`} className="text-xs text-gray-600 hover:text-gray-400 transition-colors">{t("footer_cookie")}</a>
+            <a href={`/${lang}/terms-of-service`} className="text-xs text-gray-600 hover:text-gray-400 transition-colors">{t("footer_terms")}</a>
           </div>
         </div>
       </footer>

@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YO Dijital — Proje Sunumu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #fafbfc;
+            color: #1a1a2e;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Header ── */
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #f3f4f6;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .header-inner {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 32px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .header-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px; height: 28px;
+            background: linear-gradient(135deg, #4338ca, #6366f1);
+            border-radius: 7px;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 800;
+        }
+        .header-divider {
+            width: 1px; height: 20px; background: #e5e7eb;
+        }
+        .header-title {
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-badge {
+            font-size: 11px;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .header-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Main Container ── */
+        .main {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 40px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 48px;
+        }
+
+        /* ── Hero Banner ── */
+        .hero {
+            position: relative;
+            overflow: hidden;
+            border-radius: 24px;
+            background: linear-gradient(to bottom right, #1a1a2e, #16213e, #0f3460);
+            padding: 40px;
+        }
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .hero-glow1 {
+            position: absolute;
+            top: -80px; right: -80px;
+            width: 288px; height: 288px;
+            border-radius: 50%;
+            background: rgba(99,102,241,0.1);
+            filter: blur(48px);
+        }
+        .hero-glow2 {
+            position: absolute;
+            bottom: -64px; left: -64px;
+            width: 224px; height: 224px;
+            border-radius: 50%;
+            background: rgba(168,85,247,0.1);
+            filter: blur(48px);
+        }
+        .hero-glow3 {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 384px; height: 384px;
+            border-radius: 50%;
+            background: rgba(59,130,246,0.05);
+            filter: blur(48px);
+        }
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            opacity: 0.03;
+            background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .hero-dot {
+            position: absolute;
+            border-radius: 50%;
+            animation: pulse 3s infinite;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+        .hero-left { flex: 1; }
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 9999px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 16px;
+        }
+        .hero-eyebrow-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+        .hero h1 {
+            font-size: clamp(24px, 3.5vw, 30px);
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+        .hero-desc {
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.7;
+            max-width: 400px;
+        }
+        .hero-stats {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .hero-stat {
+            text-align: center;
+        }
+        .hero-stat-val {
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+        }
+        .hero-stat-label {
+            font-size: 10px;
+            color: rgba(255,255,255,0.4);
+            margin-top: 2px;
+        }
+        /* Hero right ring */
+        .hero-ring-wrap {
+            flex-shrink: 0;
+            position: relative;
+            width: 192px; height: 192px;
+        }
+        .hero-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .hero-ring-1 { inset: 0; animation: spin 20s linear infinite; }
+        .hero-ring-2 { inset: 16px; border-color: rgba(255,255,255,0.1); animation: spin 15s linear infinite reverse; }
+        .hero-ring-3 { inset: 32px; border-color: rgba(255,255,255,0.1); animation: spin 25s linear infinite; }
+        .hero-platform {
+            position: absolute;
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 9px;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .hero-center-logo {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hero-center-box {
+            width: 64px; height: 64px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 800;
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* ── Section ── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .section-num {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px; height: 28px;
+            border-radius: 8px;
+            background: #4f46e5;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        /* ── Indigo callout ── */
+        .callout {
+            border-radius: 16px;
+            background: linear-gradient(to bottom right, #4f46e5, #4338ca);
+            padding: 24px;
+            color: #fff;
+            margin-bottom: 24px;
+        }
+        .callout-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 4px;
+        }
+        .callout-text {
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        /* ── Problem → Solution ── */
+        .ps-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        .ps-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #f3f4f6;
+            padding: 10px 16px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        }
+        .ps-icon {
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+        .ps-icon.bad { background: #fef2f2; color: #f87171; }
+        .ps-icon.good { background: #ecfdf5; color: #22c55e; }
+        .ps-text { font-size: 13px; }
+        .ps-text.muted { color: #6b7280; }
+        .ps-text.bold { font-weight: 600; color: #15803d; }
+        .ps-arrow { color: #d1d5db; font-size: 14px; }
+
+        /* ── Bar chart ── */
+        .bar-chart {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid #f3f4f6;
+            padding: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            margin-bottom: 24px;
+        }
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .bar-row:last-child { margin-bottom: 0; }
+        .bar-label {
+            font-size: 12px;
+            font-weight: 500;
+            width: 112px;
+            flex-shrink: 0;
+        }
+        .bar-track {
+            flex: 1;
+            height: 12px;
+            background: #f3f4f6;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.7s;
+        }
+        .bar-val {
+            font-size: 12px;
+            font-weight: 700;
+            width: 40px;
+            text-align: right;
+        }
+
+        /* ── Tags ── */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 9999px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 500;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        }
+
+        /* ── Module Cards ── */
+        .mod-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .mod-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #f3f4f6;
+            padding: 16px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            transition: box-shadow 0.2s;
+        }
+        .mod-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        }
+        .mod-icon {
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .mod-name {
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .mod-desc {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 2px;
+            line-height: 1.5;
+        }
+
+        /* ── Cost card ── */
+        .cost-card {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #f3f4f6;
+            padding: 16px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        }
+        .cost-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .cost-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .cost-logo {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .cost-name {
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .cost-badge {
+            font-size: 13px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 9999px;
+        }
+        .cost-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px 12px;
+            font-size: 11px;
+            color: #4b5563;
+        }
+        .cost-note {
+            font-size: 10px;
+            color: #9ca3af;
+            margin-top: 6px;
+        }
+
+        /* ── Table ── */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .data-table thead tr {
+            background: #f9fafb;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        .data-table th {
+            text-align: left;
+            padding: 10px 16px;
+            font-weight: 600;
+        }
+        .data-table th.right { text-align: right; }
+        .data-table td {
+            padding: 10px 16px;
+            border-bottom: 1px solid #f9fafb;
+        }
+        .data-table td.right { text-align: right; }
+        .data-table td.muted { color: #9ca3af; }
+        .data-table td.green { color: #16a34a; font-weight: 700; }
+        .data-table td.red { color: #ef4444; font-weight: 700; }
+        .data-table td.bold { font-weight: 500; }
+        .data-table tbody tr:hover { background: rgba(249,250,251,0.5); }
+
+        /* ── Pricing cards ── */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .price-card {
+            border-radius: 16px;
+            border: 2px solid #e5e7eb;
+            padding: 20px;
+            background: #fff;
+            transition: box-shadow 0.2s;
+        }
+        .price-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
+        .price-card.pop {
+            border-color: #6366f1;
+            background: rgba(238,242,255,0.3);
+            box-shadow: 0 4px 16px rgba(99,102,241,0.1);
+        }
+        .pop-badge {
+            display: inline-block;
+            background: #4f46e5;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            margin-bottom: 8px;
+        }
+        .price-plan-name {
+            font-size: 16px;
+            font-weight: 700;
+        }
+        .price-amount {
+            margin-top: 8px;
+        }
+        .price-amount-val {
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .price-amount-per {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        .price-yearly {
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+        .price-yearly .green { font-weight: 600; color: #16a34a; }
+        .price-features {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 11px;
+            color: #4b5563;
+        }
+
+        /* ── Visual bar chart (gelir-gider) ── */
+        .vis-chart {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid #f3f4f6;
+            padding: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            margin-bottom: 16px;
+        }
+        .vis-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 24px;
+            height: 176px;
+            padding: 0 16px;
+        }
+        .vis-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .vis-col-bars {
+            width: 100%;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 6px;
+            height: 144px;
+        }
+        .vis-bar {
+            width: 28px;
+            border-radius: 6px 6px 0 0;
+            transition: height 0.7s;
+        }
+        .vis-bar.gelir { background: #c7d2fe; }
+        .vis-bar.kar { background: #4ade80; }
+        .vis-label {
+            font-size: 10px;
+            text-align: center;
+            font-weight: 500;
+            color: #6b7280;
+            line-height: 1.3;
+        }
+        .vis-legend {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 16px;
+            font-size: 11px;
+        }
+        .vis-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .vis-legend-dot {
+            width: 10px; height: 10px;
+            border-radius: 3px;
+        }
+
+        /* ── Total cost block ── */
+        .total-block {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid #f3f4f6;
+            padding: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            margin-bottom: 32px;
+        }
+        .total-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 2px solid #f3f4f6;
+        }
+        .total-label {
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .total-val {
+            font-size: 20px;
+            font-weight: 800;
+        }
+        .total-val-sub {
+            font-size: 14px;
+            color: #6b7280;
+            margin-left: 8px;
+        }
+
+        /* ── Break-even ── */
+        .breakeven {
+            background: linear-gradient(to right, #4f46e5, #7c3aed);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            color: #fff;
+        }
+        .breakeven-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 4px;
+        }
+        .breakeven-val {
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .breakeven-val .sep {
+            color: rgba(255,255,255,0.6);
+            font-weight: 400;
+            margin: 0 8px;
+        }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #9ca3af;
+            padding-top: 24px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        /* ── Sub label ── */
+        .sub-label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .sub-label-sm {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-bottom: 16px;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .main { padding: 24px 16px; }
+            .hero { padding: 24px; }
+            .hero-content { flex-direction: column; }
+            .hero-ring-wrap { display: none; }
+            .ps-grid { grid-template-columns: 1fr; }
+            .mod-grid { grid-template-columns: 1fr; }
+            .pricing-grid { grid-template-columns: 1fr; }
+            .cost-grid-2 { grid-template-columns: 1fr !important; }
+        }
+
+        @media print {
+            .header { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<div class="header">
+    <div class="header-inner">
+        <div class="header-left">
+            <div class="header-logo">YO</div>
+            <div class="header-divider"></div>
+            <span class="header-title">AI İşletme İletişim Platformu + CRM</span>
+        </div>
+        <div class="header-right">
+            <span class="header-badge">Ürün Sunumu</span>
+            <span class="header-dot"></span>
+        </div>
+    </div>
+</div>
+
+<div class="main">
+
+    <!-- ═══════ HERO ═══════ -->
+    <div class="hero">
+        <div class="hero-bg">
+            <div class="hero-glow1"></div>
+            <div class="hero-glow2"></div>
+            <div class="hero-glow3"></div>
+            <div class="hero-grid"></div>
+            <div class="hero-dot" style="top:24px;right:48px;width:8px;height:8px;background:rgba(129,140,248,0.4);animation-duration:3s;"></div>
+            <div class="hero-dot" style="top:64px;right:128px;width:6px;height:6px;background:rgba(168,85,247,0.3);animation-duration:4s;animation-delay:1s;"></div>
+            <div class="hero-dot" style="bottom:32px;left:80px;width:8px;height:8px;background:rgba(96,165,250,0.3);animation-duration:3.5s;animation-delay:0.5s;"></div>
+            <div class="hero-dot" style="bottom:64px;right:80px;width:4px;height:4px;background:rgba(129,140,248,0.4);animation-duration:2.5s;animation-delay:1.5s;"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-left">
+                <div class="hero-eyebrow">
+                    <span class="hero-eyebrow-dot"></span>
+                    SaaS Ürün Sunumu
+                </div>
+                <h1>AI İşletme İletişim<br>Platformu + CRM</h1>
+                <p class="hero-desc">WhatsApp, Instagram, Facebook ve Web Chat kanallarını tek merkezde toplayın, CRM pipeline ile yönetin, AI ile aksiyona dönüştürün.</p>
+                <div class="hero-stats">
+                    <div class="hero-stat"><div class="hero-stat-val">22+</div><div class="hero-stat-label">Modül</div></div>
+                    <div class="hero-stat"><div class="hero-stat-val">4</div><div class="hero-stat-label">Kanal</div></div>
+                    <div class="hero-stat"><div class="hero-stat-val">7/24</div><div class="hero-stat-label">AI</div></div>
+                    <div class="hero-stat"><div class="hero-stat-val">∞</div><div class="hero-stat-label">Mesaj</div></div>
+                </div>
+            </div>
+            <div class="hero-ring-wrap">
+                <div class="hero-ring hero-ring-1"></div>
+                <div class="hero-ring hero-ring-2"></div>
+                <div class="hero-ring hero-ring-3"></div>
+                <!-- Platforms on ring -->
+                <div class="hero-platform" style="background:#1877F2;left:82px;top:0px;">Meta</div>
+                <div class="hero-platform" style="background:#25D366;left:158px;top:59px;">WA</div>
+                <div class="hero-platform" style="background:#E4405F;left:129px;top:152px;">IG</div>
+                <div class="hero-platform" style="background:#0084FF;left:35px;top:152px;">Msg</div>
+                <div class="hero-platform" style="background:#6366f1;left:6px;top:59px;">Web</div>
+                <div class="hero-center-logo">
+                    <div class="hero-center-box">YO</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ SECTION 1: AMAÇ & AVANTAJLAR ═══════ -->
+    <section>
+        <div class="section-header">
+            <span class="section-num">1</span>
+            <h2 class="section-title">Amaç ve Avantajlar</h2>
+        </div>
+
+        <div class="callout">
+            <div class="callout-label">Ne yapar?</div>
+            <div class="callout-text">WhatsApp, Instagram, Facebook Messenger ve Web Chat kanallarından gelen tüm mesajları tek merkezde toplar, CRM pipeline ile yönetir, AI chatbot ve otomasyon ile aksiyona dönüştürür.</div>
+        </div>
+
+        <p class="sub-label">Hangi sorunu çözer?</p>
+        <div class="ps-grid">
+            <div class="ps-item">
+                <span class="ps-icon bad">✗</span>
+                <span class="ps-text muted">Mesajlar farklı platformlarda dağınık</span>
+                <span class="ps-arrow">→</span>
+                <span class="ps-icon good">✓</span>
+                <span class="ps-text bold">Tek gelen kutusunda birleşir</span>
+            </div>
+            <div class="ps-item">
+                <span class="ps-icon bad">✗</span>
+                <span class="ps-text muted">Müşteri takibi yok</span>
+                <span class="ps-arrow">→</span>
+                <span class="ps-icon good">✓</span>
+                <span class="ps-text bold">CRM Pipeline ile takip</span>
+            </div>
+            <div class="ps-item">
+                <span class="ps-icon bad">✗</span>
+                <span class="ps-text muted">Mesai dışında yanıt yok</span>
+                <span class="ps-arrow">→</span>
+                <span class="ps-icon good">✓</span>
+                <span class="ps-text bold">7/24 AI Chatbot</span>
+            </div>
+            <div class="ps-item">
+                <span class="ps-icon bad">✗</span>
+                <span class="ps-text muted">Manuel tekrarlayan işler</span>
+                <span class="ps-arrow">→</span>
+                <span class="ps-icon good">✓</span>
+                <span class="ps-text bold">Otomasyon & Flow Builder</span>
+            </div>
+            <div class="ps-item">
+                <span class="ps-icon bad">✗</span>
+                <span class="ps-text muted">Toplu iletişim imkanı yok</span>
+                <span class="ps-arrow">→</span>
+                <span class="ps-icon good">✓</span>
+                <span class="ps-text bold">Toplu mesaj & kampanya</span>
+            </div>
+        </div>
+
+        <p class="sub-label">Kanal Bazlı Müşteri Erişimi</p>
+        <div class="bar-chart">
+            <div class="bar-row">
+                <span class="bar-label">WhatsApp</span>
+                <div class="bar-track"><div class="bar-fill" style="width:45%;background:#25D366;"></div></div>
+                <span class="bar-val">%45</span>
+            </div>
+            <div class="bar-row">
+                <span class="bar-label">Instagram DM</span>
+                <div class="bar-track"><div class="bar-fill" style="width:25%;background:#E4405F;"></div></div>
+                <span class="bar-val">%25</span>
+            </div>
+            <div class="bar-row">
+                <span class="bar-label">Facebook Messenger</span>
+                <div class="bar-track"><div class="bar-fill" style="width:20%;background:#1877F2;"></div></div>
+                <span class="bar-val">%20</span>
+            </div>
+            <div class="bar-row">
+                <span class="bar-label">Web Chat</span>
+                <div class="bar-track"><div class="bar-fill" style="width:10%;background:#6366f1;"></div></div>
+                <span class="bar-val">%10</span>
+            </div>
+        </div>
+
+        <div class="tags">
+            <span class="tag">Çok kanallı toplama</span>
+            <span class="tag">AI Chatbot</span>
+            <span class="tag">CRM Pipeline</span>
+            <span class="tag">Toplu mesaj</span>
+            <span class="tag">Flow Builder</span>
+            <span class="tag">Otomasyon</span>
+            <span class="tag">Entegrasyonlar</span>
+            <span class="tag">Analitik</span>
+            <span class="tag">Ekip yönetimi</span>
+        </div>
+    </section>
+
+    <!-- ═══════ SECTION 2: MODÜLLER (SİDEBAR) ═══════ -->
+    <section>
+        <div class="section-header">
+            <span class="section-num">2</span>
+            <h2 class="section-title">Modüller (Sidebar)</h2>
+        </div>
+
+        <div class="mod-grid">
+            <div class="mod-card">
+                <div class="mod-icon" style="background:#6366f1;">📊</div>
+                <div><div class="mod-name">Dashboard</div><div class="mod-desc">KPI'lar, kanal istatistikleri, pipeline özeti, aktivite akışı</div></div>
+            </div>
+            <div class="mod-card">
+                <div class="mod-icon" style="background:#3b82f6;">📥</div>
+                <div><div class="mod-name">Gelen Kutusu</div><div class="mod-desc">Tüm kanallardan mesajları tek ekranda yönetme, filtreleme</div></div>
+            </div>
+            <div class="mod-card">
+                <div class="mod-icon" style="background:#8b5cf6;">🔀</div>
+                <div><div class="mod-name">Pipeline</div><div class="mod-desc">Kanban board, sürükle-bırak ile aşama değiştirme</div></div>
+            </div>
+            <div class="mod-card">
+                <div class="mod-icon" style="background:#22c55e;">🤖</div>
+                <div><div class="mod-name">AI Chatbot</div><div class="mod-desc">Gemini destekli 7/24 otomatik yanıt, bilgi tabanı yönetimi</div></div>
+            </div>
+            <div class="mod-card">
+                <div class="mod-icon" style="background:#ec4899;">📢</div>
+                <div><div class="mod-name">Toplu Mesaj</div><div class="mod-desc">Segmentli kampanya gönderimi, Meta onaylı şablonlar</div></div>
+            </div>
+            <div class="mod-card">
+                <div class="mod-icon" style="background:#f59e0b;">👥</div>
+                <div><div class="mod-name">Kişiler</div><div class="mod-desc">Müşteri veritabanı, etiketleme, iletişim bilgileri</div></div>
+            </div>
+            <div class="mod-card">
+                <div class="mod-icon" style="background:#eab308;">⚡</div>
+                <div><div class="mod-name">Otomasyon</div><div class="mod-desc">Tetikleyici → aksiyon kuralları, anahtar kelime tetikleme</div></div>
+            </div>
+            <div class="mod-card">
+                <div class="mod-icon" style="background:#14b8a6;">🔧</div>
+                <div><div class="mod-name">Akış Oluşturucu</div><div class="mod-desc">Sürükle-bırak görsel iş akışı tasarımcısı</div></div>
+            </div>
+            <div class="mod-card">
+                <div class="mod-icon" style="background:#0ea5e9;">📝</div>
+                <div><div class="mod-name">Şablonlar</div><div class="mod-desc">Meta onaylı WhatsApp mesaj şablonları oluşturma</div></div>
+            </div>
+            <div class="mod-card">
+                <div class="mod-icon" style="background:#a855f7;">📱</div>
+                <div><div class="mod-name">Kanallar</div><div class="mod-desc">WhatsApp, Instagram, Facebook, Web Chat bağlantısı</div></div>
+            </div>
+            <div class="mod-card">
+                <div class="mod-icon" style="background:#f43f5e;">🔗</div>
+                <div><div class="mod-name">Entegrasyonlar</div><div class="mod-desc">Shopify, Stripe, HubSpot, Zapier, Make, n8n bağlantıları</div></div>
+            </div>
+            <div class="mod-card">
+                <div class="mod-icon" style="background:#64748b;">🎯</div>
+                <div><div class="mod-name">Müşteri Adayları</div><div class="mod-desc">Lead veritabanı, puanlama, potansiyel değer takibi</div></div>
+            </div>
+            <div class="mod-card">
+                <div class="mod-icon" style="background:#059669;">🏢</div>
+                <div><div class="mod-name">Şirketler</div><div class="mod-desc">Kurumsal müşteri ve organizasyon yönetimi</div></div>
+            </div>
+            <div class="mod-card">
+                <div class="mod-icon" style="background:#d946ef;">✅</div>
+                <div><div class="mod-name">Görevler</div><div class="mod-desc">Ekip görevleri atama, önceliklendirme, takip</div></div>
+            </div>
+            <div class="mod-card">
+                <div class="mod-icon" style="background:#0284c7;">📈</div>
+                <div><div class="mod-name">Raporlar</div><div class="mod-desc">Mesaj performansı, bot çözüm oranı, kampanya metrikleri</div></div>
+            </div>
+            <div class="mod-card">
+                <div class="mod-icon" style="background:#78716c;">📜</div>
+                <div><div class="mod-name">Aktivite & Diğer</div><div class="mod-desc">Denetim kaydı, ekip yönetimi, faturalandırma, ayarlar</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════ SECTION 3: MALİYET VE KAZANÇ ═══════ -->
+    <section>
+        <div class="section-header">
+            <span class="section-num">3</span>
+            <h2 class="section-title">Maliyet ve Kazanç</h2>
+        </div>
+
+        <!-- Sabit Maliyet -->
+        <p class="sub-label">Aylık Sabit Altyapı</p>
+        <div class="mod-grid cost-grid-2" style="margin-bottom:24px;">
+            <!-- Supabase -->
+            <div class="cost-card">
+                <div class="cost-header">
+                    <div class="cost-header-left">
+                        <div class="cost-logo" style="background:#ecfdf5;color:#16a34a;">S</div>
+                        <span class="cost-name">Supabase Pro</span>
+                    </div>
+                    <span class="cost-badge" style="background:#ecfdf5;color:#15803d;">$25/ay</span>
+                </div>
+                <div class="cost-details">
+                    <p>• 8GB DB (oto. genişleme)</p>
+                    <p>• 250GB bandwidth</p>
+                    <p>• 100GB storage</p>
+                    <p>• 100K auth user</p>
+                    <p>• Günlük backup</p>
+                    <p>• Always on</p>
+                </div>
+            </div>
+            <!-- Vercel -->
+            <div class="cost-card">
+                <div class="cost-header">
+                    <div class="cost-header-left">
+                        <div class="cost-logo" style="background:#eff6ff;color:#2563eb;">▲</div>
+                        <span class="cost-name">Vercel Pro</span>
+                    </div>
+                    <span class="cost-badge" style="background:#eff6ff;color:#1d4ed8;">$20/ay</span>
+                </div>
+                <div class="cost-details">
+                    <p>• 1TB data transfer</p>
+                    <p>• 10M edge request</p>
+                    <p>• Custom domain</p>
+                    <p>• Analytics</p>
+                </div>
+                <div class="cost-note">Trafiğe göre artabilir</div>
+            </div>
+            <!-- WhatsApp API -->
+            <div class="cost-card">
+                <div class="cost-header">
+                    <div class="cost-header-left">
+                        <div class="cost-logo" style="background:#ecfdf5;color:#16a34a;">W</div>
+                        <span class="cost-name">Meta WhatsApp API</span>
+                    </div>
+                    <span class="cost-badge" style="background:#ecfdf5;color:#15803d;">~$0.03-0.08</span>
+                </div>
+                <div class="cost-details">
+                    <p>• Konuşma başı ücret</p>
+                    <p>• İlk 1.000 bedava/ay</p>
+                </div>
+                <div class="cost-note">Kullanıma göre değişken</div>
+            </div>
+            <!-- Diğerleri -->
+            <div class="cost-card">
+                <div style="display:flex;flex-direction:column;gap:12px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <div class="cost-logo" style="background:#fffbeb;color:#b45309;width:24px;height:24px;border-radius:4px;font-size:10px;">G</div>
+                            <span style="font-size:12px;font-weight:600;">Google Gemini API</span>
+                        </div>
+                        <span class="cost-badge" style="background:#fffbeb;color:#92400e;font-size:11px;">$5-20/ay</span>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <div class="cost-logo" style="background:#faf5ff;color:#7c3aed;width:24px;height:24px;border-radius:4px;font-size:10px;">E</div>
+                            <span style="font-size:12px;font-weight:600;">ElevenLabs</span>
+                        </div>
+                        <span class="cost-badge" style="background:#faf5ff;color:#6d28d9;font-size:11px;">$22+/ay</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toplam Maliyet Bar -->
+        <div class="total-block">
+            <p class="sub-label" style="margin-bottom:16px;">Toplam Aylık Sabit Maliyet</p>
+            <div class="bar-row">
+                <span class="bar-label">Supabase Pro</span>
+                <div class="bar-track"><div class="bar-fill" style="width:40%;background:#22c55e;"></div></div>
+                <span class="bar-val">$25</span>
+            </div>
+            <div class="bar-row">
+                <span class="bar-label">ElevenLabs</span>
+                <div class="bar-track"><div class="bar-fill" style="width:35%;background:#8b5cf6;"></div></div>
+                <span class="bar-val">$22</span>
+            </div>
+            <div class="bar-row">
+                <span class="bar-label">Vercel Pro</span>
+                <div class="bar-track"><div class="bar-fill" style="width:32%;background:#3b82f6;"></div></div>
+                <span class="bar-val">$20</span>
+            </div>
+            <div class="bar-row">
+                <span class="bar-label">Gemini API (~ort)</span>
+                <div class="bar-track"><div class="bar-fill" style="width:19%;background:#f59e0b;"></div></div>
+                <span class="bar-val">$12</span>
+            </div>
+            <div class="bar-row">
+                <span class="bar-label">WhatsApp API (~ort)</span>
+                <div class="bar-track"><div class="bar-fill" style="width:16%;background:#25D366;"></div></div>
+                <span class="bar-val">$10</span>
+            </div>
+            <div class="total-row">
+                <span class="total-label">TOPLAM</span>
+                <div>
+                    <span class="total-val">~$89/ay</span>
+                    <span class="total-val-sub">(~₺3.115)</span>
+                </div>
+            </div>
+            <div class="cost-note" style="margin-top:8px;">ElevenLabs arama ücreti ve WhatsApp API konuşma ücreti kullanıma göre değişir</div>
+        </div>
+
+        <!-- SaaS Fiyatlandırma -->
+        <p class="sub-label">SaaS Abonelik Fiyatlandırması</p>
+        <div class="pricing-grid">
+            <div class="price-card">
+                <div class="price-plan-name">Starter</div>
+                <div class="price-amount">
+                    <span class="price-amount-val">$29</span>
+                    <span class="price-amount-per">/ay</span>
+                </div>
+                <div class="price-yearly">Yıllık: $23/ay <span class="green">%20 indirim</span></div>
+                <div class="price-features">
+                    <p>✓ 1 WhatsApp numarası</p>
+                    <p>✓ 2 kullanıcı</p>
+                    <p>✓ 1.000 mesaj/ay</p>
+                    <p>✓ AI Chatbot</p>
+                    <p>✓ Toplu mesaj</p>
+                </div>
+            </div>
+            <div class="price-card pop">
+                <span class="pop-badge">Popüler</span>
+                <div class="price-plan-name">Pro</div>
+                <div class="price-amount">
+                    <span class="price-amount-val">$79</span>
+                    <span class="price-amount-per">/ay</span>
+                </div>
+                <div class="price-yearly">Yıllık: $63/ay <span class="green">%20 indirim</span></div>
+                <div class="price-features">
+                    <p>✓ 3 WhatsApp numarası</p>
+                    <p>✓ 5 kullanıcı</p>
+                    <p>✓ Sınırsız mesaj</p>
+                    <p>✓ Flow Builder</p>
+                    <p>✓ Detaylı analitik</p>
+                    <p>✓ Öncelikli destek</p>
+                </div>
+            </div>
+            <div class="price-card">
+                <div class="price-plan-name">Business</div>
+                <div class="price-amount">
+                    <span class="price-amount-val">$199</span>
+                    <span class="price-amount-per">/ay</span>
+                </div>
+                <div class="price-yearly">Yıllık: $159/ay <span class="green">%20 indirim</span></div>
+                <div class="price-features">
+                    <p>✓ Sınırsız WhatsApp</p>
+                    <p>✓ 20 kullanıcı</p>
+                    <p>✓ Sınırsız mesaj</p>
+                    <p>✓ Instagram + FB DM</p>
+                    <p>✓ Shopify, API erişimi</p>
+                    <p>✓ Özel entegrasyon</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gelir-Gider -->
+        <p class="sub-label">Gelir-Gider Projeksiyonu</p>
+        <p class="sub-label-sm">Sabit: ~$89/ay. 100 müşteri senaryosunda plan dağılımı: %50 Starter, %30 Pro, %20 Business.</p>
+
+        <div class="vis-chart">
+            <div class="vis-bars">
+                <div class="vis-col">
+                    <div class="vis-col-bars">
+                        <div class="vis-bar gelir" style="height:8%;"></div>
+                        <div class="vis-bar kar" style="height:0%;"></div>
+                    </div>
+                    <div class="vis-label">10 müşteri<br>(Starter)</div>
+                </div>
+                <div class="vis-col">
+                    <div class="vis-col-bars">
+                        <div class="vis-bar gelir" style="height:10%;"></div>
+                        <div class="vis-bar kar" style="height:7%;"></div>
+                    </div>
+                    <div class="vis-label">10 müşteri<br>(Pro)</div>
+                </div>
+                <div class="vis-col">
+                    <div class="vis-col-bars">
+                        <div class="vis-bar gelir" style="height:42%;"></div>
+                        <div class="vis-bar kar" style="height:38%;"></div>
+                    </div>
+                    <div class="vis-label">50 müşteri<br>(mix)</div>
+                </div>
+                <div class="vis-col">
+                    <div class="vis-col-bars">
+                        <div class="vis-bar gelir" style="height:100%;"></div>
+                        <div class="vis-bar kar" style="height:98%;"></div>
+                    </div>
+                    <div class="vis-label">100 müşteri<br>(mix)</div>
+                </div>
+            </div>
+            <div class="vis-legend">
+                <div class="vis-legend-item"><div class="vis-legend-dot" style="background:#c7d2fe;"></div> Gelir</div>
+                <div class="vis-legend-item"><div class="vis-legend-dot" style="background:#4ade80;"></div> Net Kâr</div>
+            </div>
+        </div>
+
+        <!-- Tablo -->
+        <div style="background:#fff;border-radius:16px;border:1px solid #f3f4f6;box-shadow:0 1px 2px rgba(0,0,0,0.04);overflow:hidden;margin-bottom:16px;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Senaryo</th>
+                        <th class="right">Aylık Gelir</th>
+                        <th class="right">Sabit</th>
+                        <th class="right">Net Kâr</th>
+                        <th class="right">Yıllık Gelir</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="bold">10 müşteri (Starter)</td>
+                        <td class="right">$290</td>
+                        <td class="right muted">$89</td>
+                        <td class="right green">+$201</td>
+                        <td class="right">$3.480</td>
+                    </tr>
+                    <tr>
+                        <td class="bold">10 müşteri (Pro)</td>
+                        <td class="right">$790</td>
+                        <td class="right muted">$89</td>
+                        <td class="right green">+$701</td>
+                        <td class="right">$9.480</td>
+                    </tr>
+                    <tr>
+                        <td class="bold">50 müşteri (mix)</td>
+                        <td class="right">$3.900</td>
+                        <td class="right muted">$89</td>
+                        <td class="right green">+$3.811</td>
+                        <td class="right">$46.800</td>
+                    </tr>
+                    <tr>
+                        <td class="bold">100 müşteri (mix)</td>
+                        <td class="right">$7.800</td>
+                        <td class="right muted">$89</td>
+                        <td class="right green">+$7.711</td>
+                        <td class="right">$93.600</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="cost-note" style="margin-bottom:32px;">Mix dağılım: %50 Starter ($29), %30 Pro ($79), %20 Business ($199). WhatsApp API kullanım ücreti hariç.</p>
+
+        <!-- Break-even -->
+        <div class="breakeven">
+            <p class="breakeven-label">Break-even Noktası</p>
+            <p class="breakeven-val">~4 müşteri (Starter)<span class="sep">veya</span>~2 müşteri (Pro)</p>
+        </div>
+    </section>
+
+    <p class="footer">© 2024-2026 Yo Dijital. Tüm hakları saklıdır.</p>
+
+</div>
+
+</body>
+</html>

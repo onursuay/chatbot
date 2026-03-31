@@ -47,7 +47,7 @@ export default function LangLayout({ children, params }: { children: React.React
       ]},
       { group: t("nav_ai"), items: [
         { href: localePath("chatbot", lang) }, { href: localePath("automation", lang) },
-        { href: localePath("flow-builder", lang) },
+        { href: localePath("knowledge-base", lang) }, { href: localePath("flow-builder", lang) },
       ]},
       { group: t("nav_integration"), items: [
         { href: localePath("channels", lang) }, { href: localePath("integrations", lang) },
@@ -133,6 +133,7 @@ export default function LangLayout({ children, params }: { children: React.React
     { group: t("nav_ai"), items: [
       { href: localePath("chatbot", lang), label: t("nav_chatbot"), icon: <IconBot />, badge: "AI" },
       { href: localePath("automation", lang), label: t("nav_automation"), icon: <IconAutomation /> },
+      { href: localePath("knowledge-base", lang), label: t("nav_knowledge_base"), icon: <IconKnowledgeBase />, badge: "AI" },
       { href: localePath("flow-builder", lang), label: t("nav_flow_builder"), icon: <IconFlow /> },
     ]},
     { group: t("nav_integration"), items: [
@@ -591,6 +592,9 @@ function IconAnalytics() {
 }
 function IconFlow() {
   return (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-[18px] h-[18px]"><path d="M6 3v6M18 15v6M6 9a3 3 0 100 6 3 3 0 000-6zM18 9a3 3 0 100 6 3 3 0 000-6z" /><path d="M9 12h6" /></svg>)
+}
+function IconKnowledgeBase() {
+  return (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-[18px] h-[18px]"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" /><path d="M8 7h8M8 11h5" /></svg>)
 }
 function IconChannels() {
   return (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-[18px] h-[18px]"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>)
