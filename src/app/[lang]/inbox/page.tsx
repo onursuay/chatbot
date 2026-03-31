@@ -461,7 +461,7 @@ export default function InboxPage() {
       </section>
 
       {/* ===== CENTER PANEL - Active Chat ===== */}
-      <section className="flex-1 flex flex-col bg-surface min-w-0 border-x border-[#4995d1]/30">
+      <section className="flex-1 flex flex-col bg-surface min-w-0">
         {selectedConv ? (
           <>
             {/* Chat Header */}
@@ -705,7 +705,7 @@ export default function InboxPage() {
 
       {/* ===== RIGHT PANEL - Contact Info / AI Insights ===== */}
       {selectedConv && showContactInfo && (
-        <aside className="hidden xl:flex w-[300px] flex-col border-l border-[#4995d1]/30 bg-[#ecf5fc] p-5 overflow-y-auto no-scrollbar shrink-0">
+        <aside className="hidden xl:flex w-[300px] flex-col border-l border-surface-300 bg-white p-5 overflow-y-auto no-scrollbar shrink-0">
           {/* Profile */}
           <div className="text-center mb-6 pt-2">
             <div className={`w-16 h-16 rounded-avatar mx-auto ${getAvatarColor(selectedConv.contact_name)} flex items-center justify-center text-white text-xl font-bold mb-3 ring-4 ring-white`}>
