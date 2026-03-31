@@ -705,118 +705,87 @@ export default function InboxPage() {
 
       {/* ===== RIGHT PANEL - Contact Info / AI Insights ===== */}
       {selectedConv && showContactInfo && (
-        <aside className="hidden xl:flex w-[320px] flex-col border-l border-surface-300 bg-gradient-to-b from-slate-50/80 to-white overflow-y-auto no-scrollbar shrink-0">
+        <aside className="hidden xl:flex w-[300px] flex-col border-l border-surface-300 bg-white p-5 overflow-y-auto no-scrollbar shrink-0">
+          {/* Profile */}
+          <div className="text-center mb-6 pt-2">
+            <div className={`w-16 h-16 rounded-avatar mx-auto ${getAvatarColor(selectedConv.contact_name)} flex items-center justify-center text-white text-xl font-bold mb-3 ring-4 ring-white`}>
+              {getInitials(selectedConv.contact_name)}
+            </div>
+            <h2 className="font-bold text-body-medium text-ink">{selectedConv.contact_name || t("unknown")}</h2>
+            <p className="text-micro text-ink-tertiary mt-0.5">
+              {t("individual_customer")} {selectedConv.contact_phone ? `\u2022 ${selectedConv.contact_phone}` : ""}
+            </p>
+          </div>
 
-          {/* ── Profile Hero ── */}
-          <div className="relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460]" />
-            <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-            <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-indigo-500/10 blur-2xl" />
-            <div className="absolute -bottom-8 -left-8 w-24 h-24 rounded-full bg-purple-500/10 blur-2xl" />
-            <div className="relative z-10 flex flex-col items-center pt-8 pb-6 px-5">
-              <div className={`w-[72px] h-[72px] rounded-2xl ${getAvatarColor(selectedConv.contact_name)} flex items-center justify-center text-white text-2xl font-extrabold shadow-lg shadow-black/20 ring-[3px] ring-white/10`}>
-                {getInitials(selectedConv.contact_name)}
+          <div className="space-y-5">
+            {/* AI Insights Card */}
+            <div className="ds-ai-surface p-4">
+              <div className="flex items-center gap-2 mb-2.5">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-primary">
+                  <path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z" />
+                </svg>
+                <h3 className="text-section-label uppercase tracking-wider text-primary">{t("ai_summary_title")}</h3>
               </div>
-              <h2 className="font-bold text-[15px] text-white mt-3 tracking-tight">{selectedConv.contact_name || t("unknown")}</h2>
-              <p className="text-[11px] text-white/50 mt-0.5">
-                {t("individual_customer")} {selectedConv.contact_phone ? `\u2022 ${selectedConv.contact_phone}` : ""}
+              <p className="text-caption text-ink-secondary leading-relaxed">
+                {selectedConv.contact_name || t("unknown")} - {getChannelLabel(selectedConv.channel)} {t("online").toLowerCase()}.
+                {selectedConv.is_bot_active && ` ${t("ai_bot")} ${t("active").toLowerCase()}.`}
               </p>
-              <div className="flex items-center gap-2 mt-3">
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold backdrop-blur-sm border ${
-                  selectedConv.status === "open"
-                    ? "bg-emerald-500/15 text-emerald-300 border-emerald-400/20"
-                    : selectedConv.status === "resolved"
-                    ? "bg-white/10 text-white/60 border-white/10"
-                    : "bg-amber-500/15 text-amber-300 border-amber-400/20"
+              <div className="mt-3 flex gap-1.5 flex-wrap">
+                <span className="ds-badge-primary text-[9px]">
+                  {getChannelLabel(selectedConv.channel)}
+                </span>
+                <span className={`ds-badge text-[9px] ${
+                  selectedConv.status === "open" ? "bg-emerald-50 text-emerald-700" :
+                  selectedConv.status === "resolved" ? "bg-surface-150 text-ink-secondary" : "bg-amber-50 text-amber-700"
                 }`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${
-                    selectedConv.status === "open" ? "bg-emerald-400 animate-pulse" :
-                    selectedConv.status === "resolved" ? "bg-white/40" : "bg-amber-400 animate-pulse"
-                  }`} />
                   {selectedConv.status === "open" ? t("open") :
                    selectedConv.status === "resolved" ? t("resolved") : t("assigned")}
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/10 text-white/70 backdrop-blur-sm border border-white/10">
-                  {getChannelLabel(selectedConv.channel)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="px-4 py-4 space-y-4 flex-1">
-
-            {/* ── AI Insights Card ── */}
-            <div className="relative overflow-hidden rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-50/80 via-white to-purple-50/50 p-4">
-              <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-400/5 rounded-full blur-xl" />
-              <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 rounded-md bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-sm">
-                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-white">
-                      <path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-[11px] font-bold uppercase tracking-wider text-indigo-600">{t("ai_summary_title")}</h3>
-                </div>
-                <p className="text-[12px] text-slate-600 leading-relaxed">
-                  {selectedConv.contact_name || t("unknown")} - {getChannelLabel(selectedConv.channel)} {t("online").toLowerCase()}.
-                  {selectedConv.is_bot_active && ` ${t("ai_bot")} ${t("active").toLowerCase()}.`}
-                </p>
-                <div className="mt-3 flex gap-1.5 flex-wrap">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-bold bg-indigo-100 text-indigo-700">
-                    {getChannelLabel(selectedConv.channel)}
-                  </span>
-                  {selectedConv.is_bot_active && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-bold bg-purple-100 text-purple-700">
-                      <svg viewBox="0 0 24 24" fill="currentColor" className="w-2.5 h-2.5"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z" /></svg>
-                      AI Bot
-                    </span>
-                  )}
-                </div>
               </div>
             </div>
 
-            {/* ── Customer Details ── */}
+            {/* Customer Details */}
             <div>
-              <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">{t("customer_details")}</h3>
-              <div className="space-y-1.5">
+              <h3 className="text-section-label uppercase tracking-wider text-ink-tertiary mb-3">{t("customer_details")}</h3>
+              <div className="space-y-2.5">
                 {selectedConv.contact_email && (
-                  <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white border border-slate-100 hover:border-slate-200 hover:shadow-sm transition-all group">
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center text-indigo-400 group-hover:from-blue-100 group-hover:to-indigo-100 transition-colors">
+                  <div className="flex items-center gap-2.5 p-2 rounded-card-sm hover:bg-surface-150 transition-colors">
+                    <div className="w-8 h-8 rounded-[6px] bg-surface-150 flex items-center justify-center text-ink-tertiary">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
                         <rect x="2" y="4" width="20" height="16" rx="2" />
                         <path d="M22 7l-10 6L2 7" />
                       </svg>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{t("email_label")}</p>
-                      <p className="text-[13px] font-medium text-slate-700 truncate">{selectedConv.contact_email}</p>
+                    <div>
+                      <p className="text-micro text-ink-tertiary">{t("email_label")}</p>
+                      <p className="text-ui text-ink">{selectedConv.contact_email}</p>
                     </div>
                   </div>
                 )}
                 {selectedConv.contact_phone && (
-                  <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white border border-slate-100 hover:border-slate-200 hover:shadow-sm transition-all group">
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-50 to-green-50 flex items-center justify-center text-emerald-400 group-hover:from-emerald-100 group-hover:to-green-100 transition-colors">
+                  <div className="flex items-center gap-2.5 p-2 rounded-card-sm hover:bg-surface-150 transition-colors">
+                    <div className="w-8 h-8 rounded-[6px] bg-surface-150 flex items-center justify-center text-ink-tertiary">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
                         <rect x="5" y="2" width="14" height="20" rx="2" />
                         <line x1="12" y1="18" x2="12.01" y2="18" />
                       </svg>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{t("phone_label")}</p>
-                      <p className="text-[13px] font-medium text-slate-700">{selectedConv.contact_phone}</p>
+                    <div>
+                      <p className="text-micro text-ink-tertiary">{t("phone_label")}</p>
+                      <p className="text-ui text-ink">{selectedConv.contact_phone}</p>
                     </div>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* ── Tags ── */}
+            {/* Tags */}
             <div>
-              <div className="flex justify-between items-center mb-2 px-1">
-                <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{t("tags_label")}</h3>
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-section-label uppercase tracking-wider text-ink-tertiary">{t("tags_label")}</h3>
                 <button
                   onClick={() => setShowTagInput((v) => !v)}
-                  className="text-[10px] font-bold text-indigo-500 hover:text-indigo-700 transition-colors"
+                  className="text-micro font-bold text-primary hover:text-primary-600 transition-colors"
                 >{t("add_tag_btn")}</button>
               </div>
               {showTagInput && (
@@ -844,32 +813,29 @@ export default function InboxPage() {
               )}
               <div className="flex flex-wrap gap-1.5">
                 {selectedConv.is_bot_active && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 border border-indigo-100">
-                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-2.5 h-2.5 text-indigo-500"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z" /></svg>
-                    AI Bot
-                  </span>
+                  <span className="ds-badge-ai">AI Bot</span>
                 )}
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                <span className="ds-badge bg-blue-50 text-blue-700">
                   {getChannelLabel(selectedConv.channel)}
                 </span>
-                <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold border ${
-                  selectedConv.status === "open" ? "bg-emerald-50 text-emerald-700 border-emerald-100" :
-                  selectedConv.status === "resolved" ? "bg-slate-50 text-slate-500 border-slate-200" :
-                  "bg-amber-50 text-amber-700 border-amber-100"
+                <span className={`ds-badge ${
+                  selectedConv.status === "open" ? "bg-emerald-50 text-emerald-700" :
+                  selectedConv.status === "resolved" ? "bg-surface-150 text-ink-secondary" :
+                  "bg-amber-50 text-amber-700"
                 }`}>
                   {selectedConv.status === "open" ? t("open") :
                    selectedConv.status === "resolved" ? t("resolved") : t("assigned")}
                 </span>
                 {(selectedConv.tags || []).map((tag, i) => (
-                  <span key={i} className="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-slate-50 text-slate-600 border border-slate-200">{tag}</span>
+                  <span key={i} className="ds-badge-neutral">{tag}</span>
                 ))}
               </div>
             </div>
 
-            {/* ── Archive Button ── */}
+            {/* Archive Button */}
             <button
               onClick={() => updateConversation({ status: "resolved" })}
-              className="w-full py-2.5 rounded-xl text-[12px] font-bold transition-all bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/30 hover:from-indigo-600 hover:to-indigo-700 active:scale-[0.98]"
+              className="w-full py-2.5 bg-primary-50 text-primary-700 rounded-btn text-micro font-bold hover:bg-primary/20 transition-colors border border-primary/20"
             >
               {t("archive_conversation")}
             </button>
