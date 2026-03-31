@@ -425,7 +425,7 @@ export default function InboxPage() {
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start mb-0.5">
-                        <h3 className={`text-ui truncate ${isSelected ? "text-[#4995d1] font-bold" : "font-bold text-ink"}`}>
+                        <h3 className={`text-ui truncate ${isSelected ? "text-ink font-bold" : "font-bold text-ink"}`}>
                           {conv.contact_name || conv.contact_phone || t("unknown")}
                         </h3>
                         <span className={`text-micro shrink-0 ml-2 ${conv.unread_count > 0 ? "font-bold text-primary" : "text-ink-tertiary"}`}>
@@ -506,7 +506,7 @@ export default function InboxPage() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 no-scrollbar bg-[#ecf5fc]">
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 no-scrollbar bg-white">
               {messageGroups.map((group, gi) => (
                 <div key={gi} className="space-y-3">
                   {/* Date separator */}
@@ -583,7 +583,7 @@ export default function InboxPage() {
                     <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-primary">
                       <path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z" />
                     </svg>
-                    <span className="text-micro font-bold text-primary">{t("ai_suggestions_ready")}</span>
+                    <span className="text-micro font-bold text-ink">{t("ai_suggestions_ready")}</span>
                   </div>
                 </div>
               )}
@@ -835,7 +835,7 @@ export default function InboxPage() {
             {/* Archive Button */}
             <button
               onClick={() => updateConversation({ status: "resolved" })}
-              className="w-full py-2.5 bg-[#ecf5fc] text-primary-700 rounded-btn text-micro font-bold hover:bg-[#ddedf8] transition-colors border border-[#4995d1]/20"
+              className="w-full py-2.5 bg-[#ecf5fc] text-ink rounded-btn text-micro font-bold hover:bg-[#ddedf8] transition-colors border border-[#4995d1]/20"
             >
               {t("archive_conversation")}
             </button>
