@@ -506,7 +506,7 @@ export default function InboxPage() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 no-scrollbar bg-[#ecf5fc]">
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 no-scrollbar bg-white">
               {messageGroups.map((group, gi) => (
                 <div key={gi} className="space-y-3">
                   {/* Date separator */}
