@@ -2,6 +2,9 @@ import { NextResponse } from "next/server"
 import { getServiceSupabase } from "@/lib/supabase"
 import { getAuthUser } from "@/lib/jwt"
 
+// Next.js App Router body size limit (varsayılan 4.5MB → 35MB)
+export const runtime = "nodejs"
+
 // GET — Knowledge base items listesi
 export async function GET(request: Request) {
   const auth = await getAuthUser(request)
