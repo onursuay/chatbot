@@ -506,7 +506,7 @@ export default function InboxPage() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 no-scrollbar bg-white">
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 no-scrollbar bg-[#ecf5fc]">
               {messageGroups.map((group, gi) => (
                 <div key={gi} className="space-y-3">
                   {/* Date separator */}
@@ -540,7 +540,7 @@ export default function InboxPage() {
                           className={`px-4 py-2.5 text-ui leading-relaxed ${
                             isOutbound
                               ? isBot
-                                ? "bg-[#E8F5E9] border border-[#C8E6C9] text-[#1B5E20] rounded-[6px] rounded-br-sm"
+                                ? "bg-[#ecf5fc] border border-[#4995d1]/20 text-[#1B5E20] rounded-[6px] rounded-br-sm"
                                 : "bg-[#DCF8C6] text-[#111B21] rounded-[6px] rounded-br-sm"
                               : "bg-white text-[#111B21] rounded-[6px] rounded-bl-sm shadow-sm border border-surface-300"
                           }`}
@@ -835,7 +835,7 @@ export default function InboxPage() {
             {/* Archive Button */}
             <button
               onClick={() => updateConversation({ status: "resolved" })}
-              className="w-full py-2.5 bg-primary-50 text-primary-700 rounded-btn text-micro font-bold hover:bg-primary/20 transition-colors border border-primary/20"
+              className="w-full py-2.5 bg-[#ecf5fc] text-primary-700 rounded-btn text-micro font-bold hover:bg-[#ddedf8] transition-colors border border-[#4995d1]/20"
             >
               {t("archive_conversation")}
             </button>

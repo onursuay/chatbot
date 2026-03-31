@@ -162,8 +162,8 @@ export default function KnowledgeBasePage() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Validate size (5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    // Validate size (35MB)
+    if (file.size > 35 * 1024 * 1024) {
       showToast("error", t("kb_file_too_large"))
       if (fileRef.current) fileRef.current.value = ""
       return

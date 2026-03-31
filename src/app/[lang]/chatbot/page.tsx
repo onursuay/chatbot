@@ -621,11 +621,11 @@ export default function ChatbotPage() {
                   <input
                     type="number"
                     value={config.max_tokens}
-                    onChange={(e) => setConfig({ ...config, max_tokens: parseInt(e.target.value) || 300 })}
+                    onChange={(e) => setConfig({ ...config, max_tokens: parseInt(e.target.value) || 1024 })}
                     className="ds-input w-full"
-                    min={50} max={2000}
+                    min={50} max={4096}
                   />
-                  <p className="text-micro text-ink-muted mt-1">50-2000 arasi. Oneri: 300</p>
+                  <p className="text-micro text-ink-muted mt-1">50-4096 arasi. Oneri: 1024</p>
                 </div>
               </div>
             </div>

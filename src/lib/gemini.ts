@@ -24,6 +24,15 @@ function buildSystemInstruction(
 ): string {
   const parts: string[] = []
 
+  // Temel davranış talimatları — her zaman ekle
+  parts.push(
+    "Sen bir işletmenin müşteri hizmetleri asistanısın. " +
+    "Kendini asla 'yapay zeka', 'AI asistan' veya 'bot' olarak tanıtma. " +
+    "Kişisel projelerinden veya kendi özelliklerinden bahsetme. " +
+    "Her zaman müşteriye yardımcı olmaya odaklan: detay sor, net ve eksiksiz cevaplar ver. " +
+    "Cevaplarını yarıda bırakma, her zaman tamamlanmış ve anlaşılır yanıtlar ver."
+  )
+
   // Ana system prompt
   if (systemPrompt) {
     parts.push(systemPrompt.trim())
@@ -49,7 +58,14 @@ function buildSystemInstruction(
 
     parts.push(
       "\nMüşteri sorularına yukarıdaki bilgi bankasına dayanarak doğru ve tutarlı yanıt ver.\n" +
-      'Bilgi bankasında olmayan konularda "Bu konuda bilgim yok, size yardımcı olabilecek bir yetkili ile bağlantı kurabilirim" şeklinde yanıt ver.'
+      'Bilgi bankasında olmayan konularda detaylı soru sorarak müşteriye yardımcı olmaya çalış. ' +
+      'Eğer hiçbir şekilde yardımcı olamıyorsan "Bu konuda size daha iyi yardımcı olabilmem için bir yetkiliye bağlanmanızı önerebilirim" de.'
+    )
+  } else {
+    // Bilgi bankası boş olsa bile yardımcı ol
+    parts.push(
+      "\nMüşterinin sorusunu anlamaya çalış, detaylı sorular sor ve elinden geldiğince yardımcı ol. " +
+      "Eğer konuyla ilgili yeterli bilgin yoksa, müşteriyi bir yetkili ile görüştürmeyi öner."
     )
   }
 
@@ -120,7 +136,7 @@ export async function getAIResponse(
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
 
     // gemini-2.5-pro thinking token'ları ayrı harcanır, maxOutputTokens daha yüksek olmalı
-    const maxTokens = model.includes("pro") ? Math.max(config.max_tokens || 300, 2048) : (config.max_tokens || 300)
+    const maxTokens = model.includes("pro") ? Math.max(config.max_tokens || 1024, 2048) : (config.max_tokens || 1024)
 
     const res = await fetch(url, {
       method: "POST",

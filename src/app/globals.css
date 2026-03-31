@@ -149,7 +149,7 @@ body {
   .ds-badge-danger { @apply ds-badge bg-red-50 text-red-700; }
   .ds-badge-neutral { @apply ds-badge bg-surface-150 text-ink-secondary; }
   .ds-badge-info { @apply ds-badge bg-blue-50 text-blue-700; }
-  .ds-badge-ai { @apply ds-badge bg-primary-50 text-primary-700 border border-primary/20; }
+  .ds-badge-ai { @apply ds-badge bg-[#ecf5fc] text-primary-700 border border-[#4995d1]/20; }
 
   /* --- Status Dot --- */
   .ds-status-dot { @apply w-2 h-2 rounded-full; }
@@ -206,7 +206,7 @@ body {
   .ds-chip-active { @apply bg-primary-50 text-primary-700 border-primary/30; }
 
   /* --- AI Surface --- */
-  .ds-ai-surface { @apply bg-primary-50 border border-primary/15 rounded-card; }
+  .ds-ai-surface { @apply bg-[#ecf5fc] border border-[#4995d1]/15 rounded-card; }
   .ds-ai-glow { box-shadow: 0 0 0 1px rgba(17, 157, 88, 0.08), 0 1px 8px rgba(17, 157, 88, 0.1); }
 
   /* --- Divider --- */
