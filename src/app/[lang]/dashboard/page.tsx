@@ -115,7 +115,7 @@ export default function DashboardPage() {
       value: `₺${(kpi.active_deals_value ?? 0).toLocaleString("tr-TR")}`,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5">
-          <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+          <path d="M20 12V8H6a2 2 0 01-2-2c0-1.1.9-2 2-2h12v4" /><path d="M4 6v12c0 1.1.9 2 2 2h14v-4" /><path d="M18 12a2 2 0 000 4h4v-4h-4z" />
         </svg>
       ),
       accent: "text-emerald-700",
