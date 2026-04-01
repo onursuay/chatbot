@@ -293,7 +293,6 @@ export default function ChannelsPage() {
   const [loading, setLoading] = useState(true)
   const [connecting, setConnecting] = useState(false)
   const [disconnectingMeta, setDisconnectingMeta] = useState(false)
-  const [confirmDisconnectMeta, setConfirmDisconnectMeta] = useState(false)
   const [saving, setSaving] = useState(false)
   const [selectingChannel, setSelectingChannel] = useState<string | null>(null) // which channel's modal is open
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null)
@@ -376,7 +375,7 @@ export default function ChannelsPage() {
       await api("/meta/disconnect", { method: "POST", token })
       setMetaStatus({ connected: false, status: null, expires_at: null, scopes: [] })
       setAvailable(null)
-      setConfirmDisconnectMeta(false)
+
       showToast(isTR ? "Meta hesabı kaldırıldı" : "Meta account disconnected")
     } catch (err: any) {
       showToast(err.message || (isTR ? "Bağlantı kesilemedi" : "Disconnect failed"), "error")
@@ -689,7 +688,7 @@ export default function ChannelsPage() {
                 checked={isConnected}
                 onChange={() => {
                   if (isConnected) {
-                    setConfirmDisconnectMeta(true)
+                    handleDisconnectMeta()
                   } else {
                     handleConnect()
                   }
@@ -699,33 +698,6 @@ export default function ChannelsPage() {
             </div>
           </div>
 
-          {/* Confirm disconnect */}
-          {confirmDisconnectMeta && (
-            <div className="mt-4 pt-4 border-t border-surface-200 flex items-center justify-between flex-wrap gap-3">
-              <p className="text-sm text-red-700 font-medium">
-                {isTR
-                  ? "Tüm kanal bağlantıları ve seçimler silinecek. Emin misiniz?"
-                  : "All channel connections and selections will be removed. Are you sure?"}
-              </p>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleDisconnectMeta}
-                  disabled={disconnectingMeta}
-                  className="text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50 flex items-center gap-1.5"
-                >
-                  {disconnectingMeta && <SpinnerIcon className="w-3.5 h-3.5" />}
-                  {isTR ? "Evet, Kaldır" : "Yes, Remove"}
-                </button>
-                <button
-                  onClick={() => setConfirmDisconnectMeta(false)}
-                  disabled={disconnectingMeta}
-                  className="text-xs font-medium text-ink-secondary bg-surface-50 hover:bg-surface-100 border border-surface-200 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
-                >
-                  {isTR ? "İptal" : "Cancel"}
-                </button>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* ─── Channel Cards Grid ─── */}
