@@ -64,45 +64,54 @@ export async function GET(request: Request) {
     .order("updated_at", { ascending: false })
     .limit(20)
 
-  // 5. Active connection varsa page subscription durumunu kontrol et
+  // 5. Active connection varsa page subscription + page-IG link doğrula
+  // channel_accounts'tan raw token'ı al (maskelenmemiş)
+  const { data: rawAccounts } = await supabase
+    .from("channel_accounts")
+    .select("id, org_id, channel, account_id, page_id, is_active, access_token")
+    .eq("is_active", true)
+
   let pageSubscriptions: any[] = []
-  for (const conn of connections || []) {
-    if (conn.status !== "active") continue
-    const { data: fullConn } = await supabase
-      .from("meta_connections")
-      .select("access_token")
-      .eq("org_id", conn.org_id)
-      .single()
-    if (!fullConn?.access_token) continue
+  let pageIgLinks: any[] = []
 
-    // Instagram channel_accounts bul
-    const igAccounts = (channelAccounts || []).filter(
-      (ca: any) => ca.org_id === conn.org_id && ca.channel === "instagram" && ca.is_active
-    )
+  for (const ig of (rawAccounts || []).filter((ca: any) => ca.channel === "instagram")) {
+    const pageId = ig.page_id || ig.account_id
+    const token = ig.access_token
 
-    for (const ig of igAccounts) {
-      const pageId = ig.page_id || ig.account_id
-      try {
-        // Page subscription durumunu kontrol et
-        const token = ig.access_token || fullConn.access_token
-        const subRes = await fetch(`${GRAPH_BASE}/${pageId}/subscribed_apps`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        const subData = await subRes.json()
-        pageSubscriptions.push({
-          org_id: conn.org_id,
-          page_id: pageId,
-          ig_account_id: ig.account_id,
-          subscription: subData,
-        })
-      } catch (e: any) {
-        pageSubscriptions.push({
-          org_id: conn.org_id,
-          page_id: pageId,
-          ig_account_id: ig.account_id,
-          error: e.message,
-        })
-      }
+    // Page subscription kontrolü
+    try {
+      const subRes = await fetch(`${GRAPH_BASE}/${pageId}/subscribed_apps`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const subData = await subRes.json()
+      pageSubscriptions.push({
+        org_id: ig.org_id,
+        page_id: pageId,
+        ig_account_id: ig.account_id,
+        subscription: subData,
+      })
+    } catch (e: any) {
+      pageSubscriptions.push({ org_id: ig.org_id, page_id: pageId, ig_account_id: ig.account_id, error: e.message })
+    }
+
+    // Page → IG link doğrulama (Graph API'den live kontrol)
+    try {
+      const linkRes = await fetch(
+        `${GRAPH_BASE}/${pageId}?fields=id,name,instagram_business_account,connected_instagram_account&access_token=${token}`
+      )
+      const linkData = await linkRes.json()
+      const liveIgId = linkData.instagram_business_account?.id || linkData.connected_instagram_account?.id || null
+      pageIgLinks.push({
+        org_id: ig.org_id,
+        page_id: pageId,
+        db_ig_account_id: ig.account_id,
+        graph_ig_account_id: liveIgId,
+        match: liveIgId === ig.account_id,
+        page_name: linkData.name || null,
+        raw: linkData,
+      })
+    } catch (e: any) {
+      pageIgLinks.push({ org_id: ig.org_id, page_id: pageId, db_ig_account_id: ig.account_id, error: e.message })
     }
   }
 
@@ -113,6 +122,7 @@ export async function GET(request: Request) {
     channel_accounts: maskedAccounts,
     channel_selections: selections,
     page_subscriptions: pageSubscriptions,
+    page_ig_links: pageIgLinks,
     notes: [
       "Bu endpoint GECICi debug icin eklendi — sorun cozulunce kaldirilacak",
       "Webhook route'ta export const dynamic = 'force-dynamic' eklendi",
