@@ -269,6 +269,8 @@ export default function ChannelsPage() {
   const [available, setAvailable] = useState<AvailableResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [connecting, setConnecting] = useState(false)
+  const [disconnectingMeta, setDisconnectingMeta] = useState(false)
+  const [confirmDisconnectMeta, setConfirmDisconnectMeta] = useState(false)
   const [saving, setSaving] = useState(false)
   const [selectingChannel, setSelectingChannel] = useState<string | null>(null) // which channel's modal is open
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null)
@@ -339,6 +341,24 @@ export default function ChannelsPage() {
     } catch (err: any) {
       showToast(err.message || (isTR ? "Bağlantı hatası" : "Connection error"), "error")
       setConnecting(false)
+    }
+  }
+
+  // Fully disconnect Meta root account
+  const handleDisconnectMeta = async () => {
+    const token = getToken()
+    if (!token) return
+    setDisconnectingMeta(true)
+    try {
+      await api("/meta/disconnect", { method: "POST", token })
+      setMetaStatus({ connected: false, status: null, expires_at: null, scopes: [] })
+      setAvailable(null)
+      setConfirmDisconnectMeta(false)
+      showToast(isTR ? "Meta hesabı kaldırıldı" : "Meta account disconnected")
+    } catch (err: any) {
+      showToast(err.message || (isTR ? "Bağlantı kesilemedi" : "Disconnect failed"), "error")
+    } finally {
+      setDisconnectingMeta(false)
     }
   }
 
@@ -643,13 +663,45 @@ export default function ChannelsPage() {
                   </p>
                 </div>
               </div>
-              <button
-                onClick={handleConnect}
-                disabled={connecting}
-                className="text-sm font-medium text-emerald-700 hover:text-emerald-900 underline underline-offset-2 transition-colors"
-              >
-                {isTR ? "Yeniden Bağla" : "Reconnect"}
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleConnect}
+                  disabled={connecting || disconnectingMeta}
+                  className="text-sm font-medium text-emerald-700 hover:text-emerald-900 underline underline-offset-2 transition-colors disabled:opacity-50"
+                >
+                  {isTR ? "Yeniden Bağla" : "Reconnect"}
+                </button>
+                {!confirmDisconnectMeta ? (
+                  <button
+                    onClick={() => setConfirmDisconnectMeta(true)}
+                    disabled={connecting || disconnectingMeta}
+                    className="text-sm font-medium text-red-600 hover:text-red-800 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 transition-colors disabled:opacity-50"
+                  >
+                    {isTR ? "Meta Hesabını Kaldır" : "Disconnect Meta Account"}
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-red-700 font-medium">
+                      {isTR ? "Tüm kanal verileri silinecek. Emin misiniz?" : "All channel data will be removed. Are you sure?"}
+                    </span>
+                    <button
+                      onClick={handleDisconnectMeta}
+                      disabled={disconnectingMeta}
+                      className="text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                    >
+                      {disconnectingMeta ? <SpinnerIcon className="w-3.5 h-3.5" /> : null}
+                      {isTR ? "Evet, Kaldır" : "Yes, Remove"}
+                    </button>
+                    <button
+                      onClick={() => setConfirmDisconnectMeta(false)}
+                      disabled={disconnectingMeta}
+                      className="text-xs font-medium text-ink-secondary hover:text-ink bg-surface-50 hover:bg-surface-100 border border-surface-200 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
+                    >
+                      {isTR ? "İptal" : "Cancel"}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
