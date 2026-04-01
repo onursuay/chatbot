@@ -142,6 +142,12 @@ export default function InboxPage() {
     loadConversations()
   }, [getToken])
 
+  // Reset selected conversation when channel filter changes
+  useEffect(() => {
+    setSelectedConv(null)
+    setMessages([])
+  }, [activeChannel])
+
   // Start new conversation
   const handleStartConversation = async () => {
     if (!newConvPhone.trim() || !newConvText.trim() || newConvSending) return
