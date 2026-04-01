@@ -133,12 +133,13 @@ export async function GET(request: Request) {
       )
     }
 
-    // 6. Clear stale channel_selections and channel_accounts (Instagram/Facebook)
-    // NOTE: waba_accounts and phone_numbers are NOT deleted — they come from
-    // Embedded Signup and must survive an OAuth reconnect.
+    // 6. Clear stale IG/FB data, reactivate WhatsApp Embedded Signup accounts
     await Promise.all([
       supabase.from("channel_selections").delete().eq("org_id", orgId),
       supabase.from("channel_accounts").delete().eq("org_id", orgId),
+      // Reactivate waba_accounts + phone_numbers that were deactivated on disconnect
+      supabase.from("waba_accounts").update({ is_active: true }).eq("org_id", orgId),
+      supabase.from("phone_numbers").update({ is_active: true }).eq("org_id", orgId),
     ])
 
     // 7. Clear OAuth cookies and redirect
