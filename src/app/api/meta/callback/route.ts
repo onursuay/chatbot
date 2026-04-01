@@ -121,7 +121,18 @@ export async function GET(request: Request) {
       )
     }
 
-    // 5. Clear OAuth cookies and redirect
+    // 5. Clear all stale channel data for this org so the new connection starts clean
+    await Promise.all([
+      supabase.from("channel_selections").delete().eq("org_id", orgId),
+      supabase.from("channel_accounts").delete().eq("org_id", orgId),
+      supabase
+        .from("phone_numbers")
+        .update({ is_active: false })
+        .eq("org_id", orgId),
+      supabase.from("waba_accounts").delete().eq("org_id", orgId),
+    ])
+
+    // 7. Clear OAuth cookies and redirect
     const response = NextResponse.redirect(
       new URL("/channels?connected=true", request.url)
     )
