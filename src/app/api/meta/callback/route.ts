@@ -133,15 +133,12 @@ export async function GET(request: Request) {
       )
     }
 
-    // 6. Clear all stale channel data for this org so the new connection starts clean
+    // 6. Clear stale channel_selections and channel_accounts (Instagram/Facebook)
+    // NOTE: waba_accounts and phone_numbers are NOT deleted — they come from
+    // Embedded Signup and must survive an OAuth reconnect.
     await Promise.all([
       supabase.from("channel_selections").delete().eq("org_id", orgId),
       supabase.from("channel_accounts").delete().eq("org_id", orgId),
-      supabase
-        .from("phone_numbers")
-        .update({ is_active: false })
-        .eq("org_id", orgId),
-      supabase.from("waba_accounts").delete().eq("org_id", orgId),
     ])
 
     // 7. Clear OAuth cookies and redirect

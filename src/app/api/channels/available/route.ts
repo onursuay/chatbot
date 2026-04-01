@@ -84,6 +84,34 @@ export async function GET(request: Request) {
     graphError = graphError || "pages_fetch_failed"
   }
 
+  // WhatsApp DB fallback: if Graph API returned nothing (no Business Manager),
+  // fall back to waba_accounts saved via Embedded Signup.
+  if (whatsapp.length === 0) {
+    const { data: wabaRows } = await supabase
+      .from("waba_accounts")
+      .select("id, waba_id, name, business_id, phone_numbers(*)")
+      .eq("org_id", auth.org_id)
+      .eq("is_active", true)
+    if (wabaRows && wabaRows.length > 0) {
+      console.log("[AVAILABLE] graph api returned no whatsapp — using waba_accounts fallback, count:", wabaRows.length)
+      whatsapp = wabaRows.map((w: any) => ({
+        business_id: w.business_id || "",
+        business_name: "",
+        waba_id: w.waba_id,
+        waba_name: w.name || w.waba_id,
+        phone_numbers: (w.phone_numbers || []).map((p: any) => ({
+          id: p.phone_number_id || p.id,
+          display_phone_number: p.display_number || p.number || "",
+          verified_name: p.verified_name || "",
+          quality_rating: p.quality_rating || "UNKNOWN",
+        })),
+        source: "waba_accounts",
+      }))
+    } else {
+      console.log("[AVAILABLE] whatsapp empty: no graph api results and no waba_accounts in DB")
+    }
+  }
+
   // Log all fetched asset IDs from Graph API
   const fetchedPhoneIds = whatsapp.flatMap((w: any) => w.phone_numbers.map((p: any) => p.id))
   const fetchedWabaIds = whatsapp.map((w: any) => w.waba_id)
