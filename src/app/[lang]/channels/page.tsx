@@ -129,6 +129,29 @@ function SpinnerIcon({ className = "w-5 h-5" }: { className?: string }) {
   )
 }
 
+/* ─── Toggle Switch ─── */
+
+function ToggleSwitch({ checked, onChange, disabled }: { checked: boolean; onChange: () => void; disabled: boolean }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={onChange}
+      disabled={disabled}
+      className={`relative inline-flex h-7 w-12 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer ${
+        checked ? "bg-emerald-500" : "bg-surface-300"
+      }`}
+    >
+      <span
+        className={`inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+          checked ? "translate-x-5" : "translate-x-0"
+        }`}
+      />
+    </button>
+  )
+}
+
 /* ─── Toast ─── */
 
 function Toast({ message, type, onClose }: { message: string; type: "success" | "error"; onClose: () => void }) {
@@ -606,105 +629,104 @@ export default function ChannelsPage() {
       </div>
 
       <div className="p-7 space-y-6">
-        {/* ─── Connection Status Banner ─── */}
-        {!isConnected ? (
-          <div className="ds-card p-6">
-            <div className="flex flex-col sm:flex-row items-center gap-5">
-              <div className="w-16 h-16 rounded-2xl bg-primary-50 flex items-center justify-center flex-shrink-0">
-                <LinkIcon />
+        {/* ─── Meta Connection Toggle Card ─── */}
+        <div className="ds-card p-5">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-4">
+              <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${isConnected ? "bg-emerald-100" : "bg-surface-100"}`}>
+                {isConnected ? (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 text-emerald-600">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5 text-ink-tertiary">
+                    <path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
               </div>
-              <div className="flex-1 text-center sm:text-left">
-                <h3 className="font-bold text-lg text-ink">
-                  {isTR ? "Meta Hesabınızı Bağlayın" : "Connect Your Meta Account"}
-                </h3>
-                <p className="text-caption text-ink-secondary mt-1">
-                  {isTR
-                    ? "WhatsApp, Instagram ve Messenger kanallarini kullanabilmek icin tek bir Meta OAuth baglantisi yeterlidir."
-                    : "A single Meta OAuth connection is enough to use WhatsApp, Instagram and Messenger channels."}
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-body text-ink">Meta {isTR ? "Hesabı" : "Account"}</h3>
+                  {isConnected && (
+                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-700">
+                      {isTR ? "Bağlı" : "Connected"}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-ink-tertiary mt-0.5">
+                  {isConnected ? (
+                    <>
+                      {metaStatus?.expires_at && formatExpiry(metaStatus.expires_at)}
+                      {metaStatus?.scopes && metaStatus.scopes.length > 0 && (
+                        <span className="ml-1.5 opacity-70">
+                          · {metaStatus.scopes.length} {isTR ? "izin" : "permission"}{metaStatus.scopes.length > 1 && !isTR ? "s" : ""}
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    isTR
+                      ? "WhatsApp, Instagram ve Messenger için bağlayın"
+                      : "Connect for WhatsApp, Instagram and Messenger"
+                  )}
                 </p>
               </div>
-              <button
-                onClick={handleConnect}
-                disabled={connecting}
-                className="ds-btn-primary px-8 py-3 text-base font-bold flex items-center gap-2 flex-shrink-0"
-              >
-                {connecting ? (
-                  <>
-                    <SpinnerIcon />
-                    {isTR ? "Yönlendiriliyor..." : "Redirecting..."}
-                  </>
-                ) : (
-                  <>
-                    <BoltIcon />
-                    {isTR ? "Hesabımı Bağla" : "Connect My Account"}
-                  </>
-                )}
-              </button>
             </div>
-          </div>
-        ) : (
-          <div className="ds-card p-5 border-emerald-200 bg-emerald-50/30">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
-                  <CheckCircleIcon />
-                </div>
-                <div>
-                  <h3 className="font-bold text-body text-emerald-800">
-                    {isTR ? "Meta Hesabı Bağlı" : "Meta Account Connected"}
-                  </h3>
-                  <p className="text-xs text-emerald-600 mt-0.5">
-                    {metaStatus?.expires_at && formatExpiry(metaStatus.expires_at)}
-                    {metaStatus?.scopes && metaStatus.scopes.length > 0 && (
-                      <span className="ml-2 opacity-60">
-                        {metaStatus.scopes.length} {isTR ? "izin" : "permission"}{metaStatus.scopes.length > 1 ? (isTR ? "" : "s") : ""}
-                      </span>
-                    )}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
+
+            <div className="flex items-center gap-3">
+              {isConnected && (
                 <button
                   onClick={handleConnect}
                   disabled={connecting || disconnectingMeta}
-                  className="text-sm font-medium text-emerald-700 hover:text-emerald-900 underline underline-offset-2 transition-colors disabled:opacity-50"
+                  className="text-xs font-medium text-ink-tertiary hover:text-ink underline underline-offset-2 transition-colors disabled:opacity-40"
                 >
-                  {isTR ? "Yeniden Bağla" : "Reconnect"}
+                  {connecting
+                    ? (isTR ? "Yönlendiriliyor..." : "Redirecting...")
+                    : (isTR ? "Yeniden Bağla" : "Reconnect")}
                 </button>
-                {!confirmDisconnectMeta ? (
-                  <button
-                    onClick={() => setConfirmDisconnectMeta(true)}
-                    disabled={connecting || disconnectingMeta}
-                    className="text-sm font-medium text-red-600 hover:text-red-800 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 transition-colors disabled:opacity-50"
-                  >
-                    {isTR ? "Meta Hesabını Kaldır" : "Disconnect Meta Account"}
-                  </button>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-red-700 font-medium">
-                      {isTR ? "Tüm kanal verileri silinecek. Emin misiniz?" : "All channel data will be removed. Are you sure?"}
-                    </span>
-                    <button
-                      onClick={handleDisconnectMeta}
-                      disabled={disconnectingMeta}
-                      className="text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50 flex items-center gap-1.5"
-                    >
-                      {disconnectingMeta ? <SpinnerIcon className="w-3.5 h-3.5" /> : null}
-                      {isTR ? "Evet, Kaldır" : "Yes, Remove"}
-                    </button>
-                    <button
-                      onClick={() => setConfirmDisconnectMeta(false)}
-                      disabled={disconnectingMeta}
-                      className="text-xs font-medium text-ink-secondary hover:text-ink bg-surface-50 hover:bg-surface-100 border border-surface-200 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
-                    >
-                      {isTR ? "İptal" : "Cancel"}
-                    </button>
-                  </div>
-                )}
-              </div>
+              )}
+              {(connecting || disconnectingMeta) && <SpinnerIcon className="w-4 h-4 text-ink-tertiary" />}
+              <ToggleSwitch
+                checked={isConnected}
+                onChange={() => {
+                  if (isConnected) {
+                    setConfirmDisconnectMeta(true)
+                  } else {
+                    handleConnect()
+                  }
+                }}
+                disabled={connecting || disconnectingMeta}
+              />
             </div>
           </div>
-        )}
+
+          {/* Confirm disconnect */}
+          {confirmDisconnectMeta && (
+            <div className="mt-4 pt-4 border-t border-surface-200 flex items-center justify-between flex-wrap gap-3">
+              <p className="text-sm text-red-700 font-medium">
+                {isTR
+                  ? "Tüm kanal bağlantıları ve seçimler silinecek. Emin misiniz?"
+                  : "All channel connections and selections will be removed. Are you sure?"}
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleDisconnectMeta}
+                  disabled={disconnectingMeta}
+                  className="text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {disconnectingMeta && <SpinnerIcon className="w-3.5 h-3.5" />}
+                  {isTR ? "Evet, Kaldır" : "Yes, Remove"}
+                </button>
+                <button
+                  onClick={() => setConfirmDisconnectMeta(false)}
+                  disabled={disconnectingMeta}
+                  className="text-xs font-medium text-ink-secondary bg-surface-50 hover:bg-surface-100 border border-surface-200 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
+                >
+                  {isTR ? "İptal" : "Cancel"}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* ─── Channel Cards Grid ─── */}
         {isConnected && (

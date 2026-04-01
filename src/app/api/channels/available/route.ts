@@ -55,12 +55,31 @@ export async function GET(request: Request) {
 
         console.log("[AVAILABLE] instagram count:", pagesData.instagram.length, "first ig has token:", !!pagesData.instagram[0]?.page_access_token)
 
+        // Only keep selections whose platform_id exists in the current live data.
+        // This prevents stale selections from a previous Meta account from showing
+        // as active after a reconnect.
+        const livePhoneIds = new Set(whatsapp.flatMap((w: any) => w.phone_numbers.map((p: any) => p.id)))
+        const liveIgIds = new Set(pagesData.instagram.map((ig: any) => ig.id))
+        const livePageIds = new Set(pagesData.pages.map((p: any) => p.id))
+
+        const liveActiveSelections: Record<string, any[]> = {}
+        for (const sel of selections) {
+          if (!sel.enabled) continue
+          const isLive =
+            (sel.channel === "whatsapp" && livePhoneIds.has(sel.platform_id)) ||
+            (sel.channel === "instagram" && liveIgIds.has(sel.platform_id)) ||
+            (sel.channel === "messenger" && livePageIds.has(sel.platform_id))
+          if (!isLive) continue
+          if (!liveActiveSelections[sel.channel]) liveActiveSelections[sel.channel] = []
+          liveActiveSelections[sel.channel].push(sel)
+        }
+
         return NextResponse.json({
           whatsapp,
           instagram: pagesData.instagram,
           pages: pagesData.pages,
           selections,
-          activeSelections,
+          activeSelections: liveActiveSelections,
           connected: true,
           source: "meta_connections",
         })
