@@ -5,32 +5,25 @@ import { getServiceSupabase } from "@/lib/supabase"
 const GRAPH_API_VERSION = "v21.0"
 const GRAPH_BASE = `https://graph.facebook.com/${GRAPH_API_VERSION}`
 
+const EMPTY = {
+  whatsapp: [] as any[],
+  instagram: [] as any[],
+  pages: [] as any[],
+  selections: [] as any[],
+  activeSelections: {} as Record<string, any[]>,
+  connected: false,
+}
+
 // GET — List available channel assets
-// Supports both new (meta_connections + Graph API) and legacy (waba_accounts + channel_accounts) systems
+// Source of truth: ONLY the active meta_connection token + Meta Graph API.
+// Legacy DB tables (waba_accounts, channel_accounts) are never used as an asset source.
 export async function GET(request: Request) {
   const auth = await getAuthUser(request)
   if (!auth) return NextResponse.json({ detail: "Yetkisiz" }, { status: 401 })
 
   const supabase = getServiceSupabase()
 
-  // Always fetch current selections
-  const { data: selectionsData } = await supabase
-    .from("channel_selections")
-    .select("*")
-    .eq("org_id", auth.org_id)
-
-  const selections = selectionsData || []
-
-  // Compute active selections per channel (multi-account)
-  const activeSelections: Record<string, any[]> = {}
-  for (const sel of selections) {
-    if (sel.enabled) {
-      if (!activeSelections[sel.channel]) activeSelections[sel.channel] = []
-      activeSelections[sel.channel].push(sel)
-    }
-  }
-
-  // 1. Try new meta_connections first
+  // 1. Load active meta connection FIRST — all asset listing derives from this
   const { data: connection } = await supabase
     .from("meta_connections")
     .select("*")
@@ -38,116 +31,135 @@ export async function GET(request: Request) {
     .eq("status", "active")
     .maybeSingle()
 
-  if (connection?.access_token) {
-    // Check expiry
-    if (connection.access_expires_at && new Date(connection.access_expires_at) < new Date()) {
-      // Token expired, fall through to legacy
-    } else {
-      // Use Graph API to get fresh data
-      try {
-        const [whatsappResult, pagesResult] = await Promise.allSettled([
-          fetchWhatsAppAccounts(connection.access_token),
-          fetchPagesAndInstagram(connection.access_token),
-        ])
+  if (!connection?.access_token) {
+    console.log("[AVAILABLE] no active meta connection for org:", auth.org_id)
+    return NextResponse.json({ ...EMPTY, source: "none" })
+  }
 
-        const whatsapp = whatsappResult.status === "fulfilled" ? whatsappResult.value : []
-        const pagesData = pagesResult.status === "fulfilled" ? pagesResult.value : { pages: [], instagram: [] }
+  // Check token expiry using the correct column name
+  const expiresAt = connection.expires_at || connection.access_expires_at
+  if (expiresAt && new Date(expiresAt) < new Date()) {
+    console.log("[AVAILABLE] meta connection token expired for org:", auth.org_id)
+    return NextResponse.json({ ...EMPTY, source: "expired" })
+  }
 
-        console.log("[AVAILABLE] instagram count:", pagesData.instagram.length, "first ig has token:", !!pagesData.instagram[0]?.page_access_token)
+  // 2. Resolve current Meta account identity for isolation enforcement
+  let metaUserId: string | null = connection.meta_user_id || null
+  if (!metaUserId) {
+    try {
+      const meRes = await fetch(`${GRAPH_BASE}/me?fields=id`, {
+        headers: { Authorization: `Bearer ${connection.access_token}` },
+      })
+      const meData = await meRes.json()
+      metaUserId = meData.id || null
+    } catch (e) {
+      console.error("[AVAILABLE] failed to resolve meta user id:", e)
+    }
+  }
+  console.log("[AVAILABLE] active meta_user_id:", metaUserId, "org:", auth.org_id)
 
-        // Only keep selections whose platform_id exists in the current live data.
-        // This prevents stale selections from a previous Meta account from showing
-        // as active after a reconnect.
-        const livePhoneIds = new Set(whatsapp.flatMap((w: any) => w.phone_numbers.map((p: any) => p.id)))
-        const liveIgIds = new Set(pagesData.instagram.map((ig: any) => ig.id))
-        const livePageIds = new Set(pagesData.pages.map((p: any) => p.id))
+  // 3. Fetch assets from Graph API — ONLY source of truth, no DB fallback
+  let whatsapp: any[] = []
+  let pages: any[] = []
+  let instagram: any[] = []
+  let graphError: string | null = null
 
-        const liveActiveSelections: Record<string, any[]> = {}
-        for (const sel of selections) {
-          if (!sel.enabled) continue
-          const isLive =
-            (sel.channel === "whatsapp" && livePhoneIds.has(sel.platform_id)) ||
-            (sel.channel === "instagram" && liveIgIds.has(sel.platform_id)) ||
-            (sel.channel === "messenger" && livePageIds.has(sel.platform_id))
-          if (!isLive) continue
-          if (!liveActiveSelections[sel.channel]) liveActiveSelections[sel.channel] = []
-          liveActiveSelections[sel.channel].push(sel)
-        }
+  const [waResult, pgResult] = await Promise.allSettled([
+    fetchWhatsAppAccounts(connection.access_token),
+    fetchPagesAndInstagram(connection.access_token),
+  ])
 
-        return NextResponse.json({
-          whatsapp,
-          instagram: pagesData.instagram,
-          pages: pagesData.pages,
-          selections,
-          activeSelections: liveActiveSelections,
-          connected: true,
-          source: "meta_connections",
-        })
-      } catch (e: any) {
-        console.error("Graph API error, falling back to legacy:", e)
-        // Fall through to legacy
-      }
+  if (waResult.status === "fulfilled") {
+    whatsapp = waResult.value
+  } else {
+    console.error("[AVAILABLE] whatsapp fetch failed:", waResult.reason)
+    graphError = "whatsapp_fetch_failed"
+  }
+
+  if (pgResult.status === "fulfilled") {
+    pages = pgResult.value.pages
+    instagram = pgResult.value.instagram
+  } else {
+    console.error("[AVAILABLE] pages/instagram fetch failed:", pgResult.reason)
+    graphError = graphError || "pages_fetch_failed"
+  }
+
+  // Log all fetched asset IDs from Graph API
+  const fetchedPhoneIds = whatsapp.flatMap((w: any) => w.phone_numbers.map((p: any) => p.id))
+  const fetchedWabaIds = whatsapp.map((w: any) => w.waba_id)
+  const fetchedIgIds = instagram.map((ig: any) => ig.id)
+  const fetchedPageIds = pages.map((p: any) => p.id)
+
+  console.log("[AVAILABLE] fetched waba_ids:", fetchedWabaIds)
+  console.log("[AVAILABLE] fetched phone_ids:", fetchedPhoneIds)
+  console.log("[AVAILABLE] fetched ig_ids:", fetchedIgIds)
+  console.log("[AVAILABLE] fetched page_ids:", fetchedPageIds)
+
+  // 4. Load channel_selections and filter strictly against live asset IDs.
+  //    Any selection whose platform_id is not in the current account's live data is dropped.
+  const { data: selectionsData } = await supabase
+    .from("channel_selections")
+    .select("*")
+    .eq("org_id", auth.org_id)
+
+  const allSelections = selectionsData || []
+
+  const livePhoneIds = new Set(fetchedPhoneIds)
+  const liveIgIds = new Set(fetchedIgIds)
+  const livePageIds = new Set(fetchedPageIds)
+
+  const activeSelections: Record<string, any[]> = {}
+  const droppedIds: string[] = []
+  const liveSelections: any[] = []
+
+  for (const sel of allSelections) {
+    const isLive =
+      (sel.channel === "whatsapp" && livePhoneIds.has(sel.platform_id)) ||
+      (sel.channel === "instagram" && liveIgIds.has(sel.platform_id)) ||
+      (sel.channel === "messenger" && livePageIds.has(sel.platform_id))
+
+    if (!isLive) {
+      droppedIds.push(`${sel.channel}:${sel.platform_id}`)
+      continue
+    }
+
+    liveSelections.push(sel)
+
+    if (sel.enabled) {
+      if (!activeSelections[sel.channel]) activeSelections[sel.channel] = []
+      activeSelections[sel.channel].push(sel)
     }
   }
 
-  // 2. Legacy fallback: Read from waba_accounts + channel_accounts in DB
-  const [wabaResult, channelResult] = await Promise.all([
-    supabase
-      .from("waba_accounts")
-      .select("id, waba_id, name, business_id, phone_numbers(*)")
-      .eq("org_id", auth.org_id),
-    supabase
-      .from("channel_accounts")
-      .select("*")
-      .eq("org_id", auth.org_id),
-  ])
+  if (droppedIds.length > 0) {
+    console.log("[AVAILABLE] dropped stale asset ids (not in current account):", droppedIds)
+  }
 
-  const wabaAccounts = wabaResult.data || []
-  const channelAccounts = channelResult.data || []
+  // Log rendered/persisted asset IDs
+  const renderedPhoneIds = (activeSelections.whatsapp || []).map((s: any) => s.platform_id)
+  const renderedIgIds = (activeSelections.instagram || []).map((s: any) => s.platform_id)
+  const renderedPageIds = (activeSelections.messenger || []).map((s: any) => s.platform_id)
+  console.log("[AVAILABLE] rendered phone_ids:", renderedPhoneIds)
+  console.log("[AVAILABLE] rendered ig_ids:", renderedIgIds)
+  console.log("[AVAILABLE] rendered page_ids:", renderedPageIds)
 
-  // Transform waba_accounts to the same format
-  const whatsapp = wabaAccounts.map((waba: any) => ({
-    business_id: waba.business_id || "",
-    business_name: "",
-    waba_id: waba.waba_id,
-    waba_name: waba.name || waba.waba_id,
-    phone_numbers: (waba.phone_numbers || []).map((p: any) => ({
-      id: p.phone_number_id || p.id,
-      display_phone_number: p.display_number || p.number || "",
-      verified_name: p.verified_name || "",
-      quality_rating: p.quality_rating || "UNKNOWN",
-    })),
-  }))
-
-  // Transform channel_accounts to instagram/pages format
-  const instagram = channelAccounts
-    .filter((a: any) => a.channel === "instagram")
-    .map((a: any) => ({
-      id: a.account_id,
-      name: a.page_name || a.account_id,
-      username: "",
-      page_id: a.page_id,
-      page_name: a.page_name,
-    }))
-
-  const pages = channelAccounts
-    .filter((a: any) => a.channel === "facebook")
-    .map((a: any) => ({
-      id: a.page_id || a.account_id,
-      name: a.page_name || a.account_id,
-      access_token: a.access_token || "",
-    }))
-
-  const hasData = whatsapp.length > 0 || instagram.length > 0 || pages.length > 0
+  // Log messenger empty state reason
+  if (fetchedPageIds.length === 0) {
+    console.log("[AVAILABLE] messenger empty reason: no pages returned from graph api")
+  } else if (fetchedPageIds.length > 0 && (activeSelections.messenger || []).length === 0) {
+    console.log("[AVAILABLE] messenger: pages available but none selected yet, count:", fetchedPageIds.length)
+  }
 
   return NextResponse.json({
     whatsapp,
     instagram,
     pages,
-    selections,
+    selections: liveSelections,
     activeSelections,
-    connected: hasData,
-    source: "legacy",
+    connected: true,
+    source: "meta_connections",
+    meta_user_id: metaUserId,
+    graph_error: graphError || null,
   })
 }
 

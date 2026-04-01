@@ -91,14 +91,23 @@ export async function GET(request: Request) {
     const expiresIn = longTokenData.expires_in || 5184000
     const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString()
 
-    // 3. Get granted scopes via debug_token
+    // 3. Get Meta user identity — required for account isolation enforcement
+    const meRes = await fetch(`${GRAPH_BASE}/me?fields=id,name`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+    const meData = await meRes.json()
+    const metaUserId: string | null = meData.id || null
+    const metaUserName: string | null = meData.name || null
+    console.log("[CALLBACK] meta_user_id:", metaUserId, "name:", metaUserName, "org:", orgId)
+
+    // 4. Get granted scopes via debug_token
     const debugRes = await fetch(
       `${GRAPH_BASE}/debug_token?input_token=${accessToken}&access_token=${META_APP_ID}|${META_APP_SECRET}`
     )
     const debugData = await debugRes.json()
     const scopes = debugData.data?.scopes || []
 
-    // 4. Upsert into meta_connections
+    // 5. Upsert into meta_connections — store meta_user_id for isolation checks
     const supabase = getServiceSupabase()
     const { error: dbError } = await supabase
       .from("meta_connections")
@@ -109,6 +118,7 @@ export async function GET(request: Request) {
           expires_at: expiresAt,
           scopes,
           status: "active",
+          meta_user_id: metaUserId,
           updated_at: new Date().toISOString(),
         },
         { onConflict: "org_id" }
@@ -121,7 +131,7 @@ export async function GET(request: Request) {
       )
     }
 
-    // 5. Clear all stale channel data for this org so the new connection starts clean
+    // 6. Clear all stale channel data for this org so the new connection starts clean
     await Promise.all([
       supabase.from("channel_selections").delete().eq("org_id", orgId),
       supabase.from("channel_accounts").delete().eq("org_id", orgId),

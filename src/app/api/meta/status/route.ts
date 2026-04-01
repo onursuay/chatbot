@@ -13,22 +13,23 @@ export async function GET(request: Request) {
   // 1. Check new meta_connections table
   const { data: connection } = await supabase
     .from("meta_connections")
-    .select("status, access_token, access_expires_at, scopes, updated_at")
+    .select("status, access_token, expires_at, scopes, updated_at, meta_user_id")
     .eq("org_id", auth.org_id)
     .maybeSingle()
 
   if (connection && connection.access_token) {
-    const isExpired = connection.access_expires_at
-      ? new Date(connection.access_expires_at) < new Date()
+    const isExpired = connection.expires_at
+      ? new Date(connection.expires_at) < new Date()
       : false
     const effectiveStatus = isExpired ? "expired" : connection.status
 
     return NextResponse.json({
       connected: effectiveStatus === "active",
       status: effectiveStatus,
-      expires_at: connection.access_expires_at,
+      expires_at: connection.expires_at,
       scopes: connection.scopes ? (typeof connection.scopes === "string" ? connection.scopes.split(",") : connection.scopes) : [],
       updated_at: connection.updated_at,
+      meta_user_id: connection.meta_user_id || null,
       source: "meta_connections",
     })
   }
