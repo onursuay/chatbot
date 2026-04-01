@@ -121,7 +121,6 @@ export async function GET(request: Request) {
           access_expires_at: expiresAt,
           scopes: scopesStr,
           status: "active",
-          meta_user_id: metaUserId,
           updated_at: new Date().toISOString(),
         },
         { onConflict: "org_id" }
