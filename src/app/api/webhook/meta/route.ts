@@ -4,46 +4,118 @@ import { sendTextMessage, markAsRead } from "@/lib/whatsapp"
 import { getAIResponse } from "@/lib/gemini"
 import { decryptToken } from "@/lib/crypto"
 
+// ============================================
+// FORCE DYNAMIC — Bu olmadan Vercel route'u statik cache'e alabilir
+// ve Meta webhook POST'ları function'a hiç ulaşmaz!
+// ============================================
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
+export const fetchCache = "force-no-store"
+
 const VERIFY_TOKEN = process.env.META_WEBHOOK_VERIFY_TOKEN || "waapi_webhook_verify_2026"
 const GRAPH_API = "https://graph.facebook.com/v21.0"
 
+// Yardımcı: secret/token maskeleme
+function maskSecret(val: string | null | undefined): string {
+  if (!val) return "(empty)"
+  if (val.length <= 10) return "***"
+  return val.slice(0, 6) + "..." + val.slice(-4)
+}
+
 // GET — Meta webhook doğrulama (challenge)
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
+  const url = new URL(request.url)
+  const { searchParams } = url
   const mode = searchParams.get("hub.mode")
   const token = searchParams.get("hub.verify_token")
   const challenge = searchParams.get("hub.challenge")
 
+  // DEBUG: Her GET isteğini logla — Meta verification veya health check
+  console.log("[WEBHOOK][GET] >>>", {
+    path: url.pathname,
+    query: url.search,
+    mode,
+    hasToken: !!token,
+    hasChallenge: !!challenge,
+    userAgent: request.headers.get("user-agent")?.slice(0, 120),
+    xForwardedFor: request.headers.get("x-forwarded-for"),
+    xVercelId: request.headers.get("x-vercel-id"),
+    timestamp: new Date().toISOString(),
+  })
+
   if (mode === "subscribe" && token === VERIFY_TOKEN) {
+    console.log("[WEBHOOK][GET] ✓ Verification passed, returning challenge")
     return new Response(challenge, { status: 200 })
   }
+
+  console.log("[WEBHOOK][GET] ✗ Verification failed — mode:", mode, "token match:", token === VERIFY_TOKEN)
   return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 }
 
 // POST — Gelen webhook'ları işle (WhatsApp + Instagram + Facebook)
 export async function POST(request: Request) {
-  try {
-    const payload = await request.json()
-    const object = payload.object
+  // ============================================
+  // TOP-LEVEL DEBUG — Bu log JSON parse'dan ÖNCE çalışır.
+  // Eğer bu log Vercel'de görünmüyorsa, request function'a ulaşmıyor demektir.
+  // ============================================
+  const arrivalTime = Date.now()
+  const url = new URL(request.url)
+  console.log("[WEBHOOK][POST] >>> REQUEST ARRIVED <<<", {
+    path: url.pathname,
+    method: request.method,
+    contentType: request.headers.get("content-type"),
+    contentLength: request.headers.get("content-length"),
+    userAgent: request.headers.get("user-agent")?.slice(0, 120),
+    xHubSignature: maskSecret(request.headers.get("x-hub-signature-256")),
+    xForwardedFor: request.headers.get("x-forwarded-for"),
+    xVercelId: request.headers.get("x-vercel-id"),
+    host: request.headers.get("host"),
+    timestamp: new Date().toISOString(),
+  })
 
-    // DEBUG: Gelen her webhook'u logla
-    console.log("[WEBHOOK] object:", object, "entries:", payload.entry?.length, JSON.stringify(payload).slice(0, 500))
+  try {
+    const rawBody = await request.text()
+    console.log("[WEBHOOK][POST] raw body length:", rawBody.length, "first 1000:", rawBody.slice(0, 1000))
+
+    let payload: any
+    try {
+      payload = JSON.parse(rawBody)
+    } catch (parseErr) {
+      console.error("[WEBHOOK][POST] JSON parse hatası:", parseErr, "body:", rawBody.slice(0, 500))
+      return NextResponse.json({ status: "ok" })
+    }
+
+    const object = payload.object
+    const entryCount = payload.entry?.length || 0
+    const firstEntryId = payload.entry?.[0]?.id || "(none)"
+    const messagingCount = payload.entry?.[0]?.messaging?.length || 0
+    const changesCount = payload.entry?.[0]?.changes?.length || 0
+
+    console.log("[WEBHOOK][POST] parsed:", {
+      object,
+      entryCount,
+      firstEntryId,
+      messagingCount,
+      changesCount,
+      processingMs: Date.now() - arrivalTime,
+    })
 
     if (object === "whatsapp_business_account") {
       await handleWhatsAppWebhook(payload)
     } else if (object === "instagram") {
-      console.log("[WEBHOOK] Instagram webhook geldi!")
+      console.log("[WEBHOOK][POST] → Instagram webhook geldi! entry.id:", firstEntryId)
       await handleInstagramWebhook(payload)
     } else if (object === "page") {
-      console.log("[WEBHOOK] Page webhook geldi — Instagram/Messenger ayrımı yapılacak")
+      console.log("[WEBHOOK][POST] → Page webhook geldi — entry.id:", firstEntryId, "messaging:", messagingCount)
       await handlePageWebhook(payload)
     } else {
-      console.log("[WEBHOOK] Bilinmeyen object:", object)
+      console.log("[WEBHOOK][POST] → Bilinmeyen object:", object)
     }
 
+    console.log("[WEBHOOK][POST] ✓ done in", Date.now() - arrivalTime, "ms")
     return NextResponse.json({ status: "ok" })
   } catch (e) {
-    console.error("Webhook error:", e)
+    console.error("[WEBHOOK][POST] ✗ HATA:", e)
     return NextResponse.json({ status: "ok" })
   }
 }
@@ -113,6 +185,8 @@ async function handleInstagramWebhook(payload: any) {
     const igAccountId = entry.id
     if (!igAccountId) continue
 
+    console.log("[IG-WEBHOOK] Processing entry, igAccountId:", igAccountId, "messaging count:", entry.messaging?.length || 0)
+
     // Önce channel_accounts tablosundan bul
     let channelAccount = await findChannelAccount(supabase, "instagram", igAccountId)
     let orgId: string
@@ -122,16 +196,27 @@ async function handleInstagramWebhook(payload: any) {
 
     if (channelAccount) {
       orgId = channelAccount.org_id
-      accessToken = channelAccount.access_token
+      // Token decrypt desteği (WhatsApp handler ile tutarlı)
+      try {
+        accessToken = decryptToken(channelAccount.access_token)
+      } catch {
+        accessToken = channelAccount.access_token
+      }
       accountId = channelAccount.account_id
       channelAccountId = channelAccount.id
+      console.log("[IG-WEBHOOK] ✓ channel_accounts'tan bulundu, org:", orgId, "token:", maskSecret(accessToken))
     } else {
       // Fallback: eski yöntem ile org bul (henüz migrate edilmemiş org'lar için)
+      console.log("[IG-WEBHOOK] channel_accounts'ta bulunamadı, fallback deneniyor...")
       const org = await findOrgByChannelId(supabase, "instagram_account_id", igAccountId)
-      if (!org) continue
+      if (!org) {
+        console.log("[IG-WEBHOOK] ✗ Org da bulunamadı, atlanıyor. igAccountId:", igAccountId)
+        continue
+      }
       orgId = org.id
       accessToken = org.settings?.instagram_page_token
       accountId = org.settings?.instagram_account_id
+      console.log("[IG-WEBHOOK] Fallback org bulundu:", orgId)
     }
 
     for (const messaging of entry.messaging || []) {
@@ -225,18 +310,20 @@ async function handlePageWebhook(payload: any) {
     const pageId = entry.id
     if (!pageId) continue
 
+    console.log("[PAGE-WEBHOOK] Processing entry, pageId:", pageId, "messaging count:", entry.messaging?.length || 0)
+
     // Önce bu page_id'ye bağlı Instagram hesabı var mı kontrol et
     const igAccount = await findChannelAccountByPageId(supabase, "instagram", pageId)
 
-    console.log("[PAGE WEBHOOK] pageId:", pageId, "igAccount:", igAccount ? "FOUND" : "NOT FOUND")
+    console.log("[PAGE-WEBHOOK] pageId:", pageId, "igAccount:", igAccount ? `FOUND (id:${igAccount.id}, account_id:${igAccount.account_id})` : "NOT FOUND")
 
     if (igAccount) {
-      console.log("[PAGE WEBHOOK] → Instagram olarak işleniyor, org:", igAccount.org_id)
+      console.log("[PAGE-WEBHOOK] → Instagram olarak işleniyor, org:", igAccount.org_id, "ig_account:", igAccount.account_id)
       await handleInstagramEntry(supabase, entry, igAccount)
     } else {
       // Facebook Messenger
       const fbAccount = await findChannelAccountByPageId(supabase, "facebook", pageId)
-      console.log("[PAGE WEBHOOK] → Facebook olarak işleniyor, fbAccount:", fbAccount ? "FOUND" : "NOT FOUND")
+      console.log("[PAGE-WEBHOOK] → Facebook olarak işleniyor, fbAccount:", fbAccount ? `FOUND (id:${fbAccount.id})` : "NOT FOUND")
       await handleFacebookEntry(supabase, entry, pageId)
     }
   }
@@ -247,7 +334,13 @@ async function handlePageWebhook(payload: any) {
 // ============================================
 async function handleInstagramEntry(supabase: any, entry: any, channelAccount: any) {
   const orgId = channelAccount.org_id
-  const accessToken = channelAccount.access_token
+  // Token decrypt desteği
+  let accessToken: string
+  try {
+    accessToken = decryptToken(channelAccount.access_token)
+  } catch {
+    accessToken = channelAccount.access_token
+  }
   const accountId = channelAccount.account_id
   const channelAccountId = channelAccount.id
   const pageId = entry.id

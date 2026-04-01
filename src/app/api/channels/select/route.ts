@@ -299,35 +299,59 @@ async function subscribeWebhook(
   switch (channel) {
     case "whatsapp": {
       const wabaId = metadata?.waba_id || platformId
+      console.log("[SUBSCRIBE] WhatsApp subscribing, wabaId:", wabaId)
       const res = await fetch(`${GRAPH_BASE}/${wabaId}/subscribed_apps`, {
         method: "POST",
         headers: { Authorization: `Bearer ${accessToken}` },
       })
       const data = await res.json()
+      console.log("[SUBSCRIBE] WhatsApp result:", JSON.stringify(data))
       if (!res.ok) throw new Error(`WhatsApp webhook failed: ${JSON.stringify(data)}`)
       return { success: true, platform: "whatsapp", data }
     }
     case "instagram": {
+      // Instagram Messaging webhook delivery için:
+      // 1) Page'i app'e subscribe et (subscribed_fields ile)
+      // 2) Hem "messages" (Messenger) hem "feed" gerekir
+      //    — Meta, Instagram webhook delivery'sini page subscription üzerinden tetikler
       const pageId = metadata?.page_id || platformId
       const pageToken = metadata?.page_access_token || accessToken
+      const fields = ["messages", "messaging_postbacks", "feed"]
+      console.log("[SUBSCRIBE] Instagram subscribing, pageId:", pageId, "fields:", fields)
       const res = await fetch(`${GRAPH_BASE}/${pageId}/subscribed_apps`, {
         method: "POST",
         headers: { Authorization: `Bearer ${pageToken}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ subscribed_fields: ["messages"] }),
+        body: JSON.stringify({ subscribed_fields: fields }),
       })
       const data = await res.json()
+      console.log("[SUBSCRIBE] Instagram result:", JSON.stringify(data))
       if (!res.ok) throw new Error(`Instagram webhook failed: ${JSON.stringify(data)}`)
+
+      // Ayrıca mevcut subscription'ı doğrula
+      try {
+        const checkRes = await fetch(`${GRAPH_BASE}/${pageId}/subscribed_apps`, {
+          headers: { Authorization: `Bearer ${pageToken}` },
+        })
+        const checkData = await checkRes.json()
+        console.log("[SUBSCRIBE] Instagram subscription verify:", JSON.stringify(checkData))
+      } catch (e) {
+        console.error("[SUBSCRIBE] Instagram subscription verify failed:", e)
+      }
+
       return { success: true, platform: "instagram", data }
     }
     case "messenger": {
       const pageId = metadata?.page_id || platformId
       const pageToken = metadata?.page_access_token || accessToken
+      const fields = ["messages", "messaging_postbacks"]
+      console.log("[SUBSCRIBE] Messenger subscribing, pageId:", pageId, "fields:", fields)
       const res = await fetch(`${GRAPH_BASE}/${pageId}/subscribed_apps`, {
         method: "POST",
         headers: { Authorization: `Bearer ${pageToken}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ subscribed_fields: ["messages", "messaging_postbacks"] }),
+        body: JSON.stringify({ subscribed_fields: fields }),
       })
       const data = await res.json()
+      console.log("[SUBSCRIBE] Messenger result:", JSON.stringify(data))
       if (!res.ok) throw new Error(`Messenger webhook failed: ${JSON.stringify(data)}`)
       return { success: true, platform: "messenger", data }
     }
