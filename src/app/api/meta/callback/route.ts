@@ -133,13 +133,18 @@ export async function GET(request: Request) {
       )
     }
 
-    // 6. Clear stale IG/FB data, reactivate WhatsApp Embedded Signup accounts
+    // 6. Clear all stale channel data on reconnect.
+    // Nullify phone_number_id FK references first to avoid constraint violations.
+    await Promise.all([
+      supabase.from("conversations").update({ phone_number_id: null }).eq("org_id", orgId),
+      supabase.from("broadcasts").update({ phone_number_id: null }).eq("org_id", orgId),
+    ])
+
     await Promise.all([
       supabase.from("channel_selections").delete().eq("org_id", orgId),
       supabase.from("channel_accounts").delete().eq("org_id", orgId),
-      // Reactivate waba_accounts + phone_numbers that were deactivated on disconnect
-      supabase.from("waba_accounts").update({ is_active: true }).eq("org_id", orgId),
-      supabase.from("phone_numbers").update({ is_active: true }).eq("org_id", orgId),
+      supabase.from("phone_numbers").delete().eq("org_id", orgId),
+      supabase.from("waba_accounts").delete().eq("org_id", orgId),
     ])
 
     // 7. Clear OAuth cookies and redirect
