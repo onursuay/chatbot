@@ -34,11 +34,12 @@ export async function GET(request: Request) {
     })
   }
 
-  // 2. Fallback: Check legacy waba_accounts
+  // 2. Fallback: Check legacy waba_accounts (only active ones)
   const { data: wabaAccounts } = await supabase
     .from("waba_accounts")
     .select("id, waba_id, name, access_token")
     .eq("org_id", auth.org_id)
+    .eq("is_active", true)
 
   if (wabaAccounts && wabaAccounts.length > 0) {
     // Legacy connection exists
