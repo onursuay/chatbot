@@ -105,9 +105,12 @@ export async function GET(request: Request) {
       `${GRAPH_BASE}/debug_token?input_token=${accessToken}&access_token=${META_APP_ID}|${META_APP_SECRET}`
     )
     const debugData = await debugRes.json()
-    const scopes = debugData.data?.scopes || []
+    const scopesArray: string[] = debugData.data?.scopes || []
+    const scopesStr = scopesArray.join(",")
+    console.log("[CALLBACK] granted scopes:", scopesStr || "(none)")
 
     // 5. Upsert into meta_connections — store meta_user_id for isolation checks
+    // FIX: column is access_expires_at (not expires_at), scopes is TEXT comma-separated
     const supabase = getServiceSupabase()
     const { error: dbError } = await supabase
       .from("meta_connections")
@@ -115,8 +118,8 @@ export async function GET(request: Request) {
         {
           org_id: orgId,
           access_token: accessToken,
-          expires_at: expiresAt,
-          scopes,
+          access_expires_at: expiresAt,
+          scopes: scopesStr,
           status: "active",
           meta_user_id: metaUserId,
           updated_at: new Date().toISOString(),
