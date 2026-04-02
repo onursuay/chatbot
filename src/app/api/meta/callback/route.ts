@@ -109,10 +109,10 @@ export async function GET(request: Request) {
     const scopesStr = scopesArray.join(",")
     console.log("[CALLBACK] granted scopes:", scopesStr || "(none)")
 
-    // 5. Upsert into meta_connections — store meta_user_id for isolation checks
-    // FIX: column is access_expires_at (not expires_at), scopes is TEXT comma-separated
+    // 5. Upsert into meta_connections
     const supabase = getServiceSupabase()
-    const { error: dbError } = await supabase
+    console.log("[CALLBACK] upserting meta_connections for org:", orgId, "expiresAt:", expiresAt, "scopes:", scopesStr)
+    const { data: upsertData, error: dbError } = await supabase
       .from("meta_connections")
       .upsert(
         {
@@ -125,6 +125,9 @@ export async function GET(request: Request) {
         },
         { onConflict: "org_id" }
       )
+      .select()
+
+    console.log("[CALLBACK] upsert result:", upsertData, "error:", dbError?.message || null)
 
     if (dbError) {
       console.error("meta_connections upsert error:", dbError)
