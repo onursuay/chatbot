@@ -28,9 +28,10 @@ export async function GET(request: Request) {
   }
 
   if (channel && channel !== "all") {
-    // conversations tablosunda "channel" kolonu varsa direkt filtrele,
-    // yoksa metadata JSONB üzerinden filtrele (backward compat)
-    query = query.or(`channel.eq.${channel},metadata->>channel.eq.${channel}`)
+    // migration_channel_column.sql çalıştırıldıktan sonra conversations.channel kolonu mevcut.
+    // Messenger UI'da "messenger" gönderir ama DB'de "facebook" yazılır.
+    const dbChannel = channel === "messenger" ? "facebook" : channel
+    query = query.eq("channel", dbChannel)
   }
 
   if (phoneNumberId) {

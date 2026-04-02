@@ -342,12 +342,20 @@ async function handleInstagramWebhook(payload: any) {
 // ============================================
 // PAGE WEBHOOK — Instagram DM veya Facebook Messenger (ikisi de object:"page" gelir)
 // ============================================
-// Platform tespiti nasıl yapılır:
-//   Meta, Instagram DM'i "page" object ile gönderirken:
-//     messaging[*].recipient.id = Instagram Business Account ID  (≠ pageId)
-//   Facebook Messenger'da:
-//     messaging[*].recipient.id = Facebook Page ID  (= pageId)
-//   Bu farkı kullanarak platform kesin olarak belirlenir.
+// Platform tespiti — güvenli sıra:
+//
+//  1. recipient.id ≠ pageId → Meta Instagram DM formatı
+//     (recipient = IG Business Account ID)
+//     Önce account_id ile, sonra page_id ile ara.
+//
+//  2. recipient.id === pageId → Meta kesinlikle Facebook Messenger
+//     Bu durumda Instagram lookup override edilir.
+//
+//  3. recipient.id yoksa (sadece changes eventi) → page_id ile ara,
+//     Instagram bulunursa Instagram, bulunamazsa Facebook.
+//
+// NOT: Sadece recipient.id bilgisini overriding kural olarak kullan.
+// page_id lookup = fallback. account_id lookup = birincil.
 // ============================================
 async function handlePageWebhook(payload: any) {
   const supabase = getServiceSupabase()
@@ -358,59 +366,51 @@ async function handlePageWebhook(payload: any) {
 
     const msgCount = entry.messaging?.length || 0
     const chgCount = entry.changes?.length || 0
-    // recipient.id: Instagram DM ise IG Business Account ID, Messenger ise Page ID
     const recipientId = entry.messaging?.[0]?.recipient?.id
-    const senderIdFirst = entry.messaging?.[0]?.sender?.id
+    const firstSenderId = entry.messaging?.[0]?.sender?.id
 
-    console.log("[META][RAW] object:page | pageId:", pageId, "| recipientId:", recipientId, "| senderId:", senderIdFirst, "| messaging:", msgCount, "| changes:", chgCount)
+    console.log("[META][RAW] object:page | pageId:", pageId, "| recipientId:", recipientId, "| senderId:", firstSenderId, "| messaging:", msgCount, "| changes:", chgCount)
 
     let igAccount: any = null
-    let platform: "instagram" | "facebook" | "unknown" = "unknown"
 
-    // ── Adım 1: recipient.id ≠ pageId ise bu Instagram DM'dir ──
     if (recipientId && recipientId !== pageId) {
-      // recipient.id = IG Business Account ID → doğrudan account_id ile ara
+      // recipient ≠ page → Instagram DM: recipient = IG Business Account ID
       igAccount = await findChannelAccount(supabase, "instagram", recipientId)
       if (igAccount) {
-        platform = "instagram"
-        console.log("[META][MAPPING] platform=instagram | matched by recipient.id:", recipientId, "| connectedAccountId:", igAccount.id, "| org:", igAccount.org_id)
+        console.log("[META][MAPPING] platform=instagram via recipient.id | acct:", igAccount.id, "| org:", igAccount.org_id)
       } else {
-        console.log("[META][NORMALIZED] recipient.id≠pageId (", recipientId, ") but no Instagram account found — checking page_id fallback")
-        // Fallback: IG hesabı page_id ile kayıtlı olabilir (eski kayıtlar)
+        // Fallback: DB'de page_id üzerinden kayıtlı olabilir
         igAccount = await findChannelAccountByPageId(supabase, "instagram", pageId)
         if (igAccount) {
-          platform = "instagram"
-          console.log("[META][MAPPING] platform=instagram (fallback page_id) | connectedAccountId:", igAccount.id, "| org:", igAccount.org_id)
+          console.log("[META][MAPPING] platform=instagram via page_id fallback | acct:", igAccount.id)
+        } else {
+          console.log("[META][NORMALIZED] recipient≠pageId but no Instagram account found | recipientId:", recipientId, "| pageId:", pageId)
         }
       }
-    }
-
-    // ── Adım 2: recipient.id === pageId ise kesinlikle Facebook Messenger ──
-    if (recipientId === pageId) {
-      platform = "facebook"
-      console.log("[META][NORMALIZED] platform=facebook | recipient.id===pageId confirmed Messenger")
-    }
-
-    // ── Adım 3: messaging yoksa (sadece changes) eski mantığa dön ──
-    if (!recipientId && platform === "unknown") {
+    } else if (!recipientId) {
+      // Messaging eventi yok (changes only) — page_id fallback
       igAccount = await findChannelAccountByPageId(supabase, "instagram", pageId)
       if (igAccount) {
-        platform = "instagram"
-        console.log("[META][MAPPING] platform=instagram (no-messaging fallback) | connectedAccountId:", igAccount.id)
-      } else {
-        platform = "facebook"
-        console.log("[META][NORMALIZED] platform=facebook (no-messaging fallback) | pageId:", pageId)
+        console.log("[META][MAPPING] platform=instagram (no-messaging) via page_id | acct:", igAccount.id)
       }
     }
+    // recipientId === pageId → Facebook Messenger, igAccount = null (doğru)
 
-    if (platform === "instagram" && igAccount) {
+    if (recipientId === pageId && igAccount) {
+      // recipient = pageId → bu mesaj Messenger, yanlışlıkla igAccount bulunmuşsa iptal et
+      console.log("[META][NORMALIZED] recipient.id===pageId → overriding to Facebook Messenger | pageId:", pageId)
+      igAccount = null
+    }
+
+    if (igAccount) {
+      console.log("[META][MAPPING] final=instagram | connectedAccountId:", igAccount.id, "| org:", igAccount.org_id)
       await handleInstagramEntry(supabase, entry, igAccount)
-    } else if (platform === "facebook" || platform === "unknown") {
+    } else {
       const fbAccount = await findChannelAccountByPageId(supabase, "facebook", pageId)
       if (!fbAccount) {
-        console.log("[META][ERROR] mapping_not_found | pageId:", pageId, "| platform:", platform)
+        console.log("[META][ERROR] mapping_not_found | pageId:", pageId, "| no Facebook/Instagram account matched")
       } else {
-        console.log("[META][MAPPING] platform=facebook | connectedAccountId:", fbAccount.id, "| org:", fbAccount.org_id)
+        console.log("[META][MAPPING] final=facebook | connectedAccountId:", fbAccount.id, "| org:", fbAccount.org_id)
       }
       await handleFacebookEntry(supabase, entry, pageId)
     }
