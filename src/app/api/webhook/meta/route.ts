@@ -342,6 +342,13 @@ async function handleInstagramWebhook(payload: any) {
 // ============================================
 // PAGE WEBHOOK — Instagram DM veya Facebook Messenger (ikisi de object:"page" gelir)
 // ============================================
+// Platform tespiti nasıl yapılır:
+//   Meta, Instagram DM'i "page" object ile gönderirken:
+//     messaging[*].recipient.id = Instagram Business Account ID  (≠ pageId)
+//   Facebook Messenger'da:
+//     messaging[*].recipient.id = Facebook Page ID  (= pageId)
+//   Bu farkı kullanarak platform kesin olarak belirlenir.
+// ============================================
 async function handlePageWebhook(payload: any) {
   const supabase = getServiceSupabase()
 
@@ -349,20 +356,62 @@ async function handlePageWebhook(payload: any) {
     const pageId = entry.id
     if (!pageId) continue
 
-    console.log("[PAGE-WEBHOOK] Processing entry, pageId:", pageId, "messaging count:", entry.messaging?.length || 0)
+    const msgCount = entry.messaging?.length || 0
+    const chgCount = entry.changes?.length || 0
+    // recipient.id: Instagram DM ise IG Business Account ID, Messenger ise Page ID
+    const recipientId = entry.messaging?.[0]?.recipient?.id
+    const senderIdFirst = entry.messaging?.[0]?.sender?.id
 
-    // Önce bu page_id'ye bağlı Instagram hesabı var mı kontrol et
-    const igAccount = await findChannelAccountByPageId(supabase, "instagram", pageId)
+    console.log("[META][RAW] object:page | pageId:", pageId, "| recipientId:", recipientId, "| senderId:", senderIdFirst, "| messaging:", msgCount, "| changes:", chgCount)
 
-    console.log("[PAGE-WEBHOOK] pageId:", pageId, "igAccount:", igAccount ? `FOUND (id:${igAccount.id}, account_id:${igAccount.account_id})` : "NOT FOUND")
+    let igAccount: any = null
+    let platform: "instagram" | "facebook" | "unknown" = "unknown"
 
-    if (igAccount) {
-      console.log("[PAGE-WEBHOOK] → Instagram olarak işleniyor, org:", igAccount.org_id, "ig_account:", igAccount.account_id)
+    // ── Adım 1: recipient.id ≠ pageId ise bu Instagram DM'dir ──
+    if (recipientId && recipientId !== pageId) {
+      // recipient.id = IG Business Account ID → doğrudan account_id ile ara
+      igAccount = await findChannelAccount(supabase, "instagram", recipientId)
+      if (igAccount) {
+        platform = "instagram"
+        console.log("[META][MAPPING] platform=instagram | matched by recipient.id:", recipientId, "| connectedAccountId:", igAccount.id, "| org:", igAccount.org_id)
+      } else {
+        console.log("[META][NORMALIZED] recipient.id≠pageId (", recipientId, ") but no Instagram account found — checking page_id fallback")
+        // Fallback: IG hesabı page_id ile kayıtlı olabilir (eski kayıtlar)
+        igAccount = await findChannelAccountByPageId(supabase, "instagram", pageId)
+        if (igAccount) {
+          platform = "instagram"
+          console.log("[META][MAPPING] platform=instagram (fallback page_id) | connectedAccountId:", igAccount.id, "| org:", igAccount.org_id)
+        }
+      }
+    }
+
+    // ── Adım 2: recipient.id === pageId ise kesinlikle Facebook Messenger ──
+    if (recipientId === pageId) {
+      platform = "facebook"
+      console.log("[META][NORMALIZED] platform=facebook | recipient.id===pageId confirmed Messenger")
+    }
+
+    // ── Adım 3: messaging yoksa (sadece changes) eski mantığa dön ──
+    if (!recipientId && platform === "unknown") {
+      igAccount = await findChannelAccountByPageId(supabase, "instagram", pageId)
+      if (igAccount) {
+        platform = "instagram"
+        console.log("[META][MAPPING] platform=instagram (no-messaging fallback) | connectedAccountId:", igAccount.id)
+      } else {
+        platform = "facebook"
+        console.log("[META][NORMALIZED] platform=facebook (no-messaging fallback) | pageId:", pageId)
+      }
+    }
+
+    if (platform === "instagram" && igAccount) {
       await handleInstagramEntry(supabase, entry, igAccount)
-    } else {
-      // Facebook Messenger
+    } else if (platform === "facebook" || platform === "unknown") {
       const fbAccount = await findChannelAccountByPageId(supabase, "facebook", pageId)
-      console.log("[PAGE-WEBHOOK] → Facebook olarak işleniyor, fbAccount:", fbAccount ? `FOUND (id:${fbAccount.id})` : "NOT FOUND")
+      if (!fbAccount) {
+        console.log("[META][ERROR] mapping_not_found | pageId:", pageId, "| platform:", platform)
+      } else {
+        console.log("[META][MAPPING] platform=facebook | connectedAccountId:", fbAccount.id, "| org:", fbAccount.org_id)
+      }
       await handleFacebookEntry(supabase, entry, pageId)
     }
   }
@@ -405,12 +454,21 @@ async function handleInstagramEntry(supabase: any, entry: any, channelAccount: a
 
     // Contact bul/oluştur
     const contact = await getOrCreateContact(supabase, orgId, `ig_${senderId}`, senderName, "instagram")
+    if (!contact) {
+      console.error("[META][ERROR] contact_create_failed | platform:instagram | senderId:", senderId)
+      continue
+    }
+    console.log("[META][NORMALIZED] platform=instagram | connectedAccountId:", channelAccountId, "| customerId:", `ig_${senderId}`, "| recipientId:", pageId, "| senderId:", senderId)
 
     // Conversation bul/oluştur
     const conversation = await getOrCreateConversation(supabase, orgId, contact.id, null, "instagram", channelAccountId)
+    if (!conversation) {
+      console.error("[META][ERROR] conversation_create_failed | platform:instagram | contactId:", contact.id)
+      continue
+    }
 
     // Mesajı kaydet
-    await supabase.from("messages").insert({
+    const { error: msgErr } = await supabase.from("messages").insert({
       org_id: orgId,
       conversation_id: conversation.id,
       contact_id: contact.id,
@@ -421,6 +479,9 @@ async function handleInstagramEntry(supabase: any, entry: any, channelAccount: a
       status: "received",
       sender_type: "contact",
     })
+    if (!msgErr) {
+      console.log("[META][MESSAGE] stored | platform=instagram | msgId:", msgId, "| convId:", conversation.id)
+    }
 
     // Conversation güncelle
     await supabase
@@ -504,9 +565,19 @@ async function handleFacebookEntry(supabase: any, entry: any, pageId: string) {
 
     const senderName = await getFacebookUsername(accessToken, senderId)
     const contact = await getOrCreateContact(supabase, orgId, `fb_${senderId}`, senderName, "facebook")
-    const conversation = await getOrCreateConversation(supabase, orgId, contact.id, null, "facebook", channelAccountId)
+    if (!contact) {
+      console.error("[META][ERROR] contact_create_failed | platform:facebook | senderId:", senderId)
+      continue
+    }
+    console.log("[META][NORMALIZED] platform=messenger | connectedAccountId:", channelAccountId, "| customerId:", `fb_${senderId}`, "| pageId:", pageId)
 
-    await supabase.from("messages").insert({
+    const conversation = await getOrCreateConversation(supabase, orgId, contact.id, null, "facebook", channelAccountId)
+    if (!conversation) {
+      console.error("[META][ERROR] conversation_create_failed | platform:facebook | contactId:", contact.id)
+      continue
+    }
+
+    const { error: msgErr } = await supabase.from("messages").insert({
       org_id: orgId,
       conversation_id: conversation.id,
       contact_id: contact.id,
@@ -517,6 +588,9 @@ async function handleFacebookEntry(supabase: any, entry: any, pageId: string) {
       status: "received",
       sender_type: "contact",
     })
+    if (!msgErr) {
+      console.log("[META][MESSAGE] stored | platform=messenger | msgId:", msgId, "| convId:", conversation.id)
+    }
 
     await supabase
       .from("conversations")
@@ -957,19 +1031,51 @@ async function getOrCreateContact(
 // ============================================
 // Conversation bul/oluştur (kanal bilgisiyle)
 // ============================================
+// Unique key mantığı:
+//   - WhatsApp: (org_id, contact_id, phone_number_id)
+//   - Instagram/Facebook: (org_id, contact_id, channel_account_id)
+//   - Fallback (eski kayıtlar): (org_id, contact_id) — backward compat
+// Bu sayede aynı müşteri farklı kanallarda/hesaplarda ayrı conversation alır.
+// ============================================
 async function getOrCreateConversation(
   supabase: any, orgId: string, contactId: string, phoneNumberId: string | null,
   channel: string = "whatsapp", channelAccountId: string | null = null
 ) {
-  const { data: existing } = await supabase
+  // Unique key: channel_account_id (IG/FB) veya phone_number_id (WA) ile izolasyon
+  let query = supabase
     .from("conversations")
     .select("*")
     .eq("org_id", orgId)
     .eq("contact_id", contactId)
     .in("status", ["open", "assigned"])
-    .single()
 
-  if (existing) return existing
+  if (channelAccountId) {
+    // Instagram / Facebook: hesap bazında izolasyon
+    query = query.eq("channel_account_id", channelAccountId)
+  } else if (phoneNumberId) {
+    // WhatsApp: numara bazında izolasyon
+    query = query.eq("phone_number_id", phoneNumberId)
+  }
+  // channelAccountId ve phoneNumberId yoksa: eski davranış (backward compat)
+
+  const { data: existing, error: findErr } = await query.maybeSingle()
+
+  if (findErr) {
+    console.error("[META][ERROR] conversation_find_failed:", findErr.message, "| org:", orgId, "| contact:", contactId)
+  }
+
+  const uniqueKey = channelAccountId
+    ? `${channel}:acct=${channelAccountId}:contact=${contactId}`
+    : phoneNumberId
+    ? `whatsapp:phone=${phoneNumberId}:contact=${contactId}`
+    : `${channel}:contact=${contactId}`
+
+  if (existing) {
+    console.log("[META][CONVERSATION] found | id:", existing.id, "| key:", uniqueKey)
+    return existing
+  }
+
+  console.log("[META][CONVERSATION] create | key:", uniqueKey)
 
   const insert: any = {
     org_id: orgId,
@@ -977,15 +1083,28 @@ async function getOrCreateConversation(
     status: "open",
     is_bot_active: true,
     metadata: { channel },
+    channel,          // doğrudan channel kolonu (migration sonrası aktif)
   }
   if (phoneNumberId) insert.phone_number_id = phoneNumberId
   if (channelAccountId) insert.channel_account_id = channelAccountId
 
-  const { data: newConv } = await supabase
+  const { data: newConv, error: createErr } = await supabase
     .from("conversations")
     .insert(insert)
     .select()
     .single()
 
+  if (createErr) {
+    console.error("[META][ERROR] conversation_create_failed:", createErr.message, "| key:", uniqueKey)
+    // Race condition ihtimaline karşı tekrar dene (aynı sorgu ile)
+    const { data: retryConv } = await query.maybeSingle()
+    if (retryConv) {
+      console.log("[META][CONVERSATION] race-retry found | id:", retryConv.id)
+      return retryConv
+    }
+    return null
+  }
+
+  console.log("[META][CONVERSATION] created | id:", newConv?.id, "| key:", uniqueKey)
   return newConv
 }

@@ -28,7 +28,9 @@ export async function GET(request: Request) {
   }
 
   if (channel && channel !== "all") {
-    query = query.eq("channel", channel)
+    // conversations tablosunda "channel" kolonu varsa direkt filtrele,
+    // yoksa metadata JSONB üzerinden filtrele (backward compat)
+    query = query.or(`channel.eq.${channel},metadata->>channel.eq.${channel}`)
   }
 
   if (phoneNumberId) {
@@ -54,7 +56,7 @@ export async function GET(request: Request) {
       last_message_preview: conv.last_message_preview,
       unread_count: conv.unread_count,
       is_bot_active: conv.is_bot_active,
-      channel: conv.metadata?.channel || conv.channel || "whatsapp",
+      channel: conv.channel || conv.metadata?.channel || "whatsapp",
       phone_number_id: conv.phone_number_id || null,
       channel_account_id: conv.channel_account_id || null,
       created_at: conv.created_at,
