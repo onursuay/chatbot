@@ -747,19 +747,21 @@ async function handleFacebookWebhook(payload: any) {
 // HELPER: channel_accounts tablosundan hesap bul
 // ============================================
 async function findChannelAccount(supabase: any, channel: string, accountId: string) {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("channel_accounts")
     .select("*")
     .eq("channel", channel)
     .eq("account_id", accountId)
     .eq("is_active", true)
     .maybeSingle()
+
+  console.log(`[META][LOOKUP] findChannelAccount channel=${channel} accountId=${accountId} → ${data ? `FOUND id=${data.id} page_id=${data.page_id}` : `NOT FOUND`}${error ? ` ERR=${error.message}` : ""}`)
   return data
 }
 
 // Facebook webhook'lar page_id ile gelir, account_id veya page_id olabilir
 async function findChannelAccountByPageId(supabase: any, channel: string, pageId: string) {
-  // Önce page_id ile dene
+  // Önce page_id kolonu ile dene
   const { data: byPageId } = await supabase
     .from("channel_accounts")
     .select("*")
@@ -767,9 +769,13 @@ async function findChannelAccountByPageId(supabase: any, channel: string, pageId
     .eq("page_id", pageId)
     .eq("is_active", true)
     .maybeSingle()
-  if (byPageId) return byPageId
 
-  // Fallback: account_id ile dene
+  if (byPageId) {
+    console.log(`[META][LOOKUP] findChannelAccountByPageId channel=${channel} pageId=${pageId} → FOUND via page_id id=${byPageId.id} account_id=${byPageId.account_id}`)
+    return byPageId
+  }
+
+  // Fallback: account_id kolonu ile dene (eski kayıtlar için)
   const { data: byAccountId } = await supabase
     .from("channel_accounts")
     .select("*")
@@ -777,6 +783,18 @@ async function findChannelAccountByPageId(supabase: any, channel: string, pageId
     .eq("account_id", pageId)
     .eq("is_active", true)
     .maybeSingle()
+
+  if (byAccountId) {
+    console.log(`[META][LOOKUP] findChannelAccountByPageId channel=${channel} pageId=${pageId} → FOUND via account_id id=${byAccountId.id}`)
+  } else {
+    // DB'deki tüm aktif hesapları logla (hangileri var görmek için)
+    const { data: allAccounts } = await supabase
+      .from("channel_accounts")
+      .select("id, channel, account_id, page_id")
+      .eq("channel", channel)
+      .eq("is_active", true)
+    console.log(`[META][LOOKUP] findChannelAccountByPageId channel=${channel} pageId=${pageId} → NOT FOUND. Active ${channel} accounts in DB:`, JSON.stringify(allAccounts || []))
+  }
   return byAccountId
 }
 
