@@ -185,6 +185,41 @@ async function handleInstagramWebhook(payload: any) {
     const igAccountId = entry.id
     if (!igAccountId) continue
 
+    // ---- DIAGNOSTIC START ----
+    const hasMessaging = Array.isArray(entry.messaging) && entry.messaging.length > 0
+    const hasChanges = Array.isArray(entry.changes) && entry.changes.length > 0
+    const eventType = hasMessaging ? "messaging" : hasChanges ? "changes" : "unknown"
+    console.log("[IG EVENT TYPE]:", eventType, "| igAccountId:", igAccountId, "| messaging:", entry.messaging?.length || 0, "| changes:", entry.changes?.length || 0)
+
+    if (hasChanges) {
+      for (const ch of entry.changes) {
+        const field = ch.field
+        const val = ch.value
+        console.log("[IG CHANGE] field:", field, "| value keys:", val ? Object.keys(val) : [])
+        // Look for text in changes.value
+        const textInChange = val?.message?.text || val?.text || val?.messages?.[0]?.text || null
+        if (textInChange) {
+          console.log("[IG TEXT FOUND IN CHANGES] field:", field, "| text:", textInChange)
+        } else {
+          console.log("[IG CHANGE VALUE DUMP]:", JSON.stringify(val)?.slice(0, 500))
+        }
+      }
+    }
+
+    if (hasMessaging) {
+      for (const m of entry.messaging) {
+        const text = m.message?.text || m.message?.attachments?.[0]?.type || null
+        if (text) {
+          console.log("[IG TEXT FOUND IN MESSAGING] sender:", m.sender?.id, "| text:", text)
+        }
+      }
+    }
+
+    if (!hasMessaging && !hasChanges) {
+      console.log("[IG EVENT TYPE]: unknown | full entry keys:", Object.keys(entry))
+    }
+    // ---- DIAGNOSTIC END ----
+
     console.log("[IG-WEBHOOK] Processing entry, igAccountId:", igAccountId, "messaging count:", entry.messaging?.length || 0)
 
     // Önce channel_accounts tablosundan bul
