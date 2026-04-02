@@ -31,12 +31,13 @@ export async function GET(request: Request) {
   const challenge = searchParams.get("hub.challenge")
 
   // DEBUG: Her GET isteğini logla — Meta verification veya health check
+  console.log("[WEBHOOK][GET] >>> hub.mode:", mode)
+  console.log("[WEBHOOK][GET] >>> hub.verify_token:", token)
+  console.log("[WEBHOOK][GET] >>> hub.challenge:", challenge)
+  console.log("[WEBHOOK][GET] >>> ENV META_WEBHOOK_VERIFY_TOKEN:", VERIFY_TOKEN)
   console.log("[WEBHOOK][GET] >>>", {
     path: url.pathname,
     query: url.search,
-    mode,
-    hasToken: !!token,
-    hasChallenge: !!challenge,
     userAgent: request.headers.get("user-agent")?.slice(0, 120),
     xForwardedFor: request.headers.get("x-forwarded-for"),
     xVercelId: request.headers.get("x-vercel-id"),
@@ -44,12 +45,15 @@ export async function GET(request: Request) {
   })
 
   if (mode === "subscribe" && token === VERIFY_TOKEN) {
-    console.log("[WEBHOOK][GET] ✓ Verification passed, returning challenge")
-    return new Response(challenge, { status: 200 })
+    console.log("[WEBHOOK][GET] ✓ Verification passed, returning challenge:", challenge)
+    return new Response(challenge ?? "", {
+      status: 200,
+      headers: { "Content-Type": "text/plain" },
+    })
   }
 
   console.log("[WEBHOOK][GET] ✗ Verification failed — mode:", mode, "token match:", token === VERIFY_TOKEN)
-  return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+  return NextResponse.json({ error: "Forbidden", reason: "verify_token_mismatch" }, { status: 403 })
 }
 
 // POST — Gelen webhook'ları işle (WhatsApp + Instagram + Facebook)
