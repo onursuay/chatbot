@@ -19,6 +19,7 @@ interface Conversation {
   unread_count: number
   is_bot_active: boolean
   channel?: string
+  account_label?: string | null
   tags?: string[]
 }
 
@@ -429,7 +430,7 @@ export default function InboxPage() {
                       </div>
                     </div>
                     {/* Content */}
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 pr-6">
                       <div className="flex justify-between items-start mb-0.5">
                         <h3 className={`text-ui truncate ${isSelected ? "text-ink font-bold" : "font-bold text-ink"}`}>
                           {conv.contact_name || conv.contact_phone || t("unknown")}
@@ -438,9 +439,16 @@ export default function InboxPage() {
                           {conv.last_message_at ? formatTime(conv.last_message_at) : ""}
                         </span>
                       </div>
-                      <p className="text-caption text-ink-tertiary line-clamp-1">
-                        {conv.last_message_preview || t("no_message")}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="min-w-0 flex-1 text-caption text-ink-tertiary line-clamp-1">
+                          {conv.last_message_preview || t("no_message")}
+                        </p>
+                        {conv.account_label && (
+                          <span className="shrink-0 max-w-[110px] truncate rounded-full border border-surface-300 bg-white px-2 py-0.5 text-[10px] font-medium text-ink-secondary">
+                            {conv.account_label}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   {/* Unread indicator */}

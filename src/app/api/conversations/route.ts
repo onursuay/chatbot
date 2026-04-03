@@ -18,7 +18,7 @@ export async function GET(request: Request) {
 
   let query = supabase
     .from("conversations")
-    .select("*, contact:contacts(*)")
+    .select("*, contact:contacts(*), phone:phone_numbers(display_number, verified_name), channel_account:channel_accounts(page_name, account_id, page_id)")
     .eq("org_id", auth.org_id)
     .order("last_message_at", { ascending: false, nullsFirst: false })
     .range((page - 1) * perPage, page * perPage - 1)
@@ -45,22 +45,31 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json(
-    (convs || []).map((conv: any) => ({
-      id: conv.id,
-      contact_id: conv.contact_id,
-      contact_name: conv.contact?.name || null,
-      contact_phone: conv.contact?.phone || null,
-      status: conv.status,
-      assigned_to: conv.assigned_to,
-      labels: conv.labels || [],
-      last_message_at: conv.last_message_at,
-      last_message_preview: conv.last_message_preview,
-      unread_count: conv.unread_count,
-      is_bot_active: conv.is_bot_active,
-      channel: conv.channel || conv.metadata?.channel || "whatsapp",
-      phone_number_id: conv.phone_number_id || null,
-      channel_account_id: conv.channel_account_id || null,
-      created_at: conv.created_at,
-    }))
+    (convs || []).map((conv: any) => {
+      const channelValue = conv.channel || conv.metadata?.channel || "whatsapp"
+      const accountLabel =
+        channelValue === "whatsapp"
+          ? conv.phone?.display_number || conv.phone?.verified_name || null
+          : conv.channel_account?.page_name || conv.channel_account?.account_id || conv.channel_account?.page_id || null
+
+      return {
+        id: conv.id,
+        contact_id: conv.contact_id,
+        contact_name: conv.contact?.name || null,
+        contact_phone: conv.contact?.phone || null,
+        status: conv.status,
+        assigned_to: conv.assigned_to,
+        labels: conv.labels || [],
+        last_message_at: conv.last_message_at,
+        last_message_preview: conv.last_message_preview,
+        unread_count: conv.unread_count,
+        is_bot_active: conv.is_bot_active,
+        channel: channelValue,
+        account_label: accountLabel,
+        phone_number_id: conv.phone_number_id || null,
+        channel_account_id: conv.channel_account_id || null,
+        created_at: conv.created_at,
+      }
+    })
   )
 }
