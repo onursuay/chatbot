@@ -14,12 +14,200 @@ export const fetchCache = "force-no-store"
 
 const VERIFY_TOKEN = process.env.META_WEBHOOK_VERIFY_TOKEN || "waapi_webhook_verify_2026"
 const GRAPH_API = "https://graph.facebook.com/v21.0"
+const REQUEST_CONTACT_TAG = "[REQUEST_CONTACT]"
+const CONTACT_REQUEST_MESSAGE =
+  "Dilerseniz iletişim bilgilerinizi iletin, proje yetkilimiz detaylı bilgi vermek için sizi en kısa sürede arasın."
+const CONTACT_FOLLOW_UP_DELAY_MS = 5 * 60 * 1000
+const whatsappContactFollowUpTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
 // Yardımcı: secret/token maskeleme
 function maskSecret(val: string | null | undefined): string {
   if (!val) return "(empty)"
   if (val.length <= 10) return "***"
   return val.slice(0, 6) + "..." + val.slice(-4)
+}
+
+function clearWhatsAppContactFollowUp(conversationId: string) {
+  const timer = whatsappContactFollowUpTimers.get(conversationId)
+  if (timer) {
+    clearTimeout(timer)
+    whatsappContactFollowUpTimers.delete(conversationId)
+  }
+}
+
+function parseAIResponse(aiResponse: string) {
+  const requestContact = aiResponse.includes(REQUEST_CONTACT_TAG)
+  const transferToSales = aiResponse.includes("[TRANSFER_SALES]")
+  const notInterested = aiResponse.includes("[NOT_INTERESTED]")
+  const cleanResponse = requestContact
+    ? CONTACT_REQUEST_MESSAGE
+    : aiResponse
+        .replace(REQUEST_CONTACT_TAG, "")
+        .replace("[TRANSFER_SALES]", "")
+        .replace("[NOT_INTERESTED]", "")
+        .trim()
+
+  return { requestContact, transferToSales, notInterested, cleanResponse }
+}
+
+function looksLikeContactInfo(text: string) {
+  const normalized = text.trim()
+  if (!normalized) return false
+
+  const emailRegex = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i
+  const digitCount = normalized.replace(/\D/g, "").length
+  return emailRegex.test(normalized) || digitCount >= 10
+}
+
+async function getProjectContactInfo(supabase: any, orgId: string) {
+  const { data: company } = await supabase
+    .from("companies")
+    .select("phone, email")
+    .eq("org_id", orgId)
+    .or("phone.not.is.null,email.not.is.null")
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle()
+
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("settings")
+    .eq("id", orgId)
+    .maybeSingle()
+
+  return {
+    phone:
+      company?.phone ||
+      org?.settings?.contact_phone ||
+      org?.settings?.support_phone ||
+      null,
+    email:
+      company?.email ||
+      org?.settings?.contact_email ||
+      org?.settings?.support_email ||
+      null,
+  }
+}
+
+function buildContactFollowUpMessage(contactInfo: { phone: string | null; email: string | null }) {
+  if (contactInfo.phone && contactInfo.email) {
+    return `Sizden cevap alamadım. Dilerseniz ${contactInfo.phone} numaralı telefonumuzu arayabilir veya ${contactInfo.email} adresine e-posta gönderebilirsiniz.`
+  }
+  if (contactInfo.phone) {
+    return `Sizden cevap alamadım. Dilerseniz ${contactInfo.phone} numaralı telefonumuzu arayabilirsiniz.`
+  }
+  if (contactInfo.email) {
+    return `Sizden cevap alamadım. Dilerseniz ${contactInfo.email} adresine e-posta gönderebilirsiniz.`
+  }
+  return "Sizden cevap alamadım. Dilerseniz iletişim bilgilerinizi paylaşabilir, proje yetkilimizin sizinle iletişime geçmesini sağlayabilirsiniz."
+}
+
+async function sendWhatsAppBotMessage(params: {
+  supabase: any
+  orgId: string
+  conversationId: string
+  contactId: string
+  phoneNumberId: string
+  accessToken: string
+  recipientWaId: string
+  text: string
+}) {
+  const result = await sendTextMessage(
+    params.phoneNumberId,
+    params.accessToken,
+    params.recipientWaId,
+    params.text
+  )
+  const waMessageId = result.success ? result.messages?.[0]?.id || null : null
+
+  await params.supabase.from("messages").insert({
+    org_id: params.orgId,
+    conversation_id: params.conversationId,
+    contact_id: params.contactId,
+    wa_message_id: waMessageId,
+    direction: "outbound",
+    type: "text",
+    content: { body: params.text },
+    status: result.success ? "sent" : "failed",
+    sender_type: "bot",
+  })
+
+  return { result, waMessageId }
+}
+
+function scheduleWhatsAppContactFollowUp(params: {
+  conversationId: string
+  orgId: string
+  contactId: string
+  phoneNumberId: string
+  accessToken: string
+  recipientWaId: string
+  requestedAt: string
+}) {
+  clearWhatsAppContactFollowUp(params.conversationId)
+
+  const timer = setTimeout(async () => {
+    const supabase = getServiceSupabase()
+
+    try {
+      const { data: conversation } = await supabase
+        .from("conversations")
+        .select("id, metadata")
+        .eq("id", params.conversationId)
+        .maybeSingle()
+
+      const metadata = conversation?.metadata || {}
+      if (!metadata.awaiting_contact_response || metadata.contact_request_at !== params.requestedAt) {
+        return
+      }
+
+      const { data: replies } = await supabase
+        .from("messages")
+        .select("id")
+        .eq("conversation_id", params.conversationId)
+        .eq("direction", "inbound")
+        .gt("created_at", params.requestedAt)
+        .limit(1)
+
+      if ((replies || []).length > 0) {
+        return
+      }
+
+      const contactInfo = await getProjectContactInfo(supabase, params.orgId)
+      const followUpText = buildContactFollowUpMessage(contactInfo)
+
+      await sendWhatsAppBotMessage({
+        supabase,
+        orgId: params.orgId,
+        conversationId: params.conversationId,
+        contactId: params.contactId,
+        phoneNumberId: params.phoneNumberId,
+        accessToken: params.accessToken,
+        recipientWaId: params.recipientWaId,
+        text: followUpText,
+      })
+
+      await supabase
+        .from("conversations")
+        .update({
+          last_message_at: new Date().toISOString(),
+          last_message_preview: followUpText.slice(0, 200),
+          metadata: {
+            ...metadata,
+            awaiting_contact_response: false,
+            contact_request_at: null,
+            contact_follow_up_sent_at: new Date().toISOString(),
+          },
+        })
+        .eq("id", params.conversationId)
+    } catch (error) {
+      console.error("[WHATSAPP][CONTACT_FOLLOWUP][ERROR]", error)
+    } finally {
+      whatsappContactFollowUpTimers.delete(params.conversationId)
+    }
+  }, CONTACT_FOLLOW_UP_DELAY_MS)
+
+  whatsappContactFollowUpTimers.set(params.conversationId, timer)
 }
 
 // GET — Meta webhook doğrulama (challenge)
@@ -346,7 +534,7 @@ async function handleInstagramWebhook(payload: any) {
       // Bot aktifse yanıt
       if (conversation.is_bot_active) {
         const aiResponse = await getAIResponse(orgId, conversation.id, text)
-        const cleanResponse = aiResponse.replace("[TRANSFER_SALES]", "").replace("[NOT_INTERESTED]", "").trim()
+        const { transferToSales, notInterested, cleanResponse } = parseAIResponse(aiResponse)
 
         // Instagram ile yanıt gönder
         const replyMsgId = await sendInstagramReply({ access_token: accessToken, account_id: accountId }, senderId, cleanResponse)
@@ -367,8 +555,8 @@ async function handleInstagramWebhook(payload: any) {
           last_message_at: new Date().toISOString(),
           last_message_preview: cleanResponse.slice(0, 200),
         }
-        if (aiResponse.includes("[TRANSFER_SALES]")) { convUpdate.status = "open"; convUpdate.is_bot_active = false }
-        if (aiResponse.includes("[NOT_INTERESTED]")) { convUpdate.status = "resolved"; convUpdate.is_bot_active = false }
+        if (transferToSales) { convUpdate.status = "open"; convUpdate.is_bot_active = false }
+        if (notInterested) { convUpdate.status = "resolved"; convUpdate.is_bot_active = false }
 
         await supabase.from("conversations").update(convUpdate).eq("id", conversation.id)
       }
@@ -533,7 +721,7 @@ async function handleInstagramEntry(supabase: any, entry: any, channelAccount: a
     // Bot aktifse yanıt
     if (conversation.is_bot_active) {
       const aiResponse = await getAIResponse(orgId, conversation.id, text)
-      const cleanResponse = aiResponse.replace("[TRANSFER_SALES]", "").replace("[NOT_INTERESTED]", "").trim()
+      const { transferToSales, notInterested, cleanResponse } = parseAIResponse(aiResponse)
 
       const replyMsgId = await sendInstagramReply({ access_token: accessToken, account_id: accountId }, senderId, cleanResponse)
 
@@ -553,8 +741,8 @@ async function handleInstagramEntry(supabase: any, entry: any, channelAccount: a
         last_message_at: new Date().toISOString(),
         last_message_preview: cleanResponse.slice(0, 200),
       }
-      if (aiResponse.includes("[TRANSFER_SALES]")) { convUpdate.status = "open"; convUpdate.is_bot_active = false }
-      if (aiResponse.includes("[NOT_INTERESTED]")) { convUpdate.status = "resolved"; convUpdate.is_bot_active = false }
+      if (transferToSales) { convUpdate.status = "open"; convUpdate.is_bot_active = false }
+      if (notInterested) { convUpdate.status = "resolved"; convUpdate.is_bot_active = false }
 
       await supabase.from("conversations").update(convUpdate).eq("id", conversation.id)
     }
@@ -640,7 +828,7 @@ async function handleFacebookEntry(supabase: any, entry: any, pageId: string) {
 
     if (conversation.is_bot_active) {
       const aiResponse = await getAIResponse(orgId, conversation.id, text)
-      const cleanResponse = aiResponse.replace("[TRANSFER_SALES]", "").replace("[NOT_INTERESTED]", "").trim()
+      const { transferToSales, notInterested, cleanResponse } = parseAIResponse(aiResponse)
 
       const replyMsgId = await sendFacebookReply({ access_token: accessToken, page_id: fbPageId }, senderId, cleanResponse)
 
@@ -660,8 +848,8 @@ async function handleFacebookEntry(supabase: any, entry: any, pageId: string) {
         last_message_at: new Date().toISOString(),
         last_message_preview: cleanResponse.slice(0, 200),
       }
-      if (aiResponse.includes("[TRANSFER_SALES]")) { convUpdate.status = "open"; convUpdate.is_bot_active = false }
-      if (aiResponse.includes("[NOT_INTERESTED]")) { convUpdate.status = "resolved"; convUpdate.is_bot_active = false }
+      if (transferToSales) { convUpdate.status = "open"; convUpdate.is_bot_active = false }
+      if (notInterested) { convUpdate.status = "resolved"; convUpdate.is_bot_active = false }
 
       await supabase.from("conversations").update(convUpdate).eq("id", conversation.id)
     }
@@ -750,7 +938,7 @@ async function handleFacebookWebhook(payload: any) {
       // Bot aktifse yanıt
       if (conversation.is_bot_active) {
         const aiResponse = await getAIResponse(orgId, conversation.id, text)
-        const cleanResponse = aiResponse.replace("[TRANSFER_SALES]", "").replace("[NOT_INTERESTED]", "").trim()
+        const { transferToSales, notInterested, cleanResponse } = parseAIResponse(aiResponse)
 
         // Facebook Messenger ile yanıt gönder
         const replyMsgId = await sendFacebookReply({ access_token: accessToken, page_id: fbPageId }, senderId, cleanResponse)
@@ -771,8 +959,8 @@ async function handleFacebookWebhook(payload: any) {
           last_message_at: new Date().toISOString(),
           last_message_preview: cleanResponse.slice(0, 200),
         }
-        if (aiResponse.includes("[TRANSFER_SALES]")) { convUpdate.status = "open"; convUpdate.is_bot_active = false }
-        if (aiResponse.includes("[NOT_INTERESTED]")) { convUpdate.status = "resolved"; convUpdate.is_bot_active = false }
+        if (transferToSales) { convUpdate.status = "open"; convUpdate.is_bot_active = false }
+        if (notInterested) { convUpdate.status = "resolved"; convUpdate.is_bot_active = false }
 
         await supabase.from("conversations").update(convUpdate).eq("id", conversation.id)
       }
@@ -980,6 +1168,8 @@ async function processWhatsAppMessage(
     direction: "inbound",
   })
 
+  const conversationMetadata = conversation.metadata || {}
+
   await supabase.from("conversations").update({
     last_message_at: new Date().toISOString(),
     last_message_preview: text.slice(0, 200),
@@ -988,35 +1178,89 @@ async function processWhatsAppMessage(
 
   await markAsRead(phone.phone_number_id, accessToken, msgId)
 
+  if (conversationMetadata.awaiting_contact_response) {
+    clearWhatsAppContactFollowUp(conversation.id)
+
+    if (!looksLikeContactInfo(text)) {
+      const contactInfo = await getProjectContactInfo(supabase, waba.org_id)
+      const followUpText = buildContactFollowUpMessage(contactInfo)
+
+      await sendWhatsAppBotMessage({
+        supabase,
+        orgId: waba.org_id,
+        conversationId: conversation.id,
+        contactId: contact.id,
+        phoneNumberId: phone.phone_number_id,
+        accessToken,
+        recipientWaId: senderWaId,
+        text: followUpText,
+      })
+
+      await supabase.from("conversations").update({
+        last_message_at: new Date().toISOString(),
+        last_message_preview: followUpText.slice(0, 200),
+        metadata: {
+          ...conversationMetadata,
+          awaiting_contact_response: false,
+          contact_request_at: null,
+          contact_follow_up_sent_at: new Date().toISOString(),
+        },
+      }).eq("id", conversation.id)
+
+      return
+    }
+
+    await supabase.from("conversations").update({
+      metadata: {
+        ...conversationMetadata,
+        awaiting_contact_response: false,
+        contact_request_at: null,
+      },
+    }).eq("id", conversation.id)
+  }
+
   if (conversation.is_bot_active) {
     const aiResponse = await getAIResponse(waba.org_id, conversation.id, text)
-    const transferToSales = aiResponse.includes("[TRANSFER_SALES]")
-    const notInterested = aiResponse.includes("[NOT_INTERESTED]")
-    const cleanResponse = aiResponse.replace("[TRANSFER_SALES]", "").replace("[NOT_INTERESTED]", "").trim()
+    const { requestContact, transferToSales, notInterested, cleanResponse } = parseAIResponse(aiResponse)
 
-    const result = await sendTextMessage(phone.phone_number_id, accessToken, senderWaId, cleanResponse)
-    const waMessageId = result.success ? result.messages?.[0]?.id || null : null
-
-    await supabase.from("messages").insert({
-      org_id: waba.org_id,
-      conversation_id: conversation.id,
-      contact_id: contact.id,
-      wa_message_id: waMessageId,
-      direction: "outbound",
-      type: "text",
-      content: { body: cleanResponse },
-      status: "sent",
-      sender_type: "bot",
+    await sendWhatsAppBotMessage({
+      supabase,
+      orgId: waba.org_id,
+      conversationId: conversation.id,
+      contactId: contact.id,
+      phoneNumberId: phone.phone_number_id,
+      accessToken,
+      recipientWaId: senderWaId,
+      text: cleanResponse,
     })
 
+    const contactRequestAt = requestContact ? new Date().toISOString() : null
     const convUpdate: any = {
       last_message_at: new Date().toISOString(),
       last_message_preview: cleanResponse.slice(0, 200),
+      metadata: {
+        ...conversationMetadata,
+        awaiting_contact_response: requestContact,
+        contact_request_at: contactRequestAt,
+        contact_follow_up_sent_at: null,
+      },
     }
     if (transferToSales) { convUpdate.status = "open"; convUpdate.is_bot_active = false }
     if (notInterested) { convUpdate.status = "resolved"; convUpdate.is_bot_active = false }
 
     await supabase.from("conversations").update(convUpdate).eq("id", conversation.id)
+
+    if (requestContact && contactRequestAt) {
+      scheduleWhatsAppContactFollowUp({
+        conversationId: conversation.id,
+        orgId: waba.org_id,
+        contactId: contact.id,
+        phoneNumberId: phone.phone_number_id,
+        accessToken,
+        recipientWaId: senderWaId,
+        requestedAt: contactRequestAt,
+      })
+    }
   }
 }
 

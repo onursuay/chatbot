@@ -194,7 +194,7 @@ const translations: Record<string, Record<Lang, string>> = {
   "how_it_works": { tr: "Nasıl Çalışır?", en: "How it Works?" },
   "channel_step1": { tr: "1. Instagram veya Facebook sayfanızı bağlayın", en: "1. Connect your Instagram or Facebook page" },
   "channel_step2": { tr: "2. Gelen DM'ler otomatik olarak Inbox'a düşer", en: "2. Incoming DMs automatically appear in Inbox" },
-  "channel_step3": { tr: "3. AI Bot tüm kanallarda aynı şekilde çalışır", en: "3. AI Bot works the same across all channels" },
+  "channel_step3": { tr: "3. Ceylin tüm kanallarda aynı şekilde çalışır", en: "3. Ceylin works the same across all channels" },
   "channel_step4": { tr: "4. Tek panelden tüm mesajları yönetin", en: "4. Manage all messages from one panel" },
 
   // Integrations
@@ -427,7 +427,7 @@ const translations: Record<string, Record<Lang, string>> = {
   // Misc
   "unknown": { tr: "Bilinmeyen", en: "Unknown" },
   "no_message": { tr: "Mesaj yok", en: "No messages" },
-  "ai_bot": { tr: "AI Bot", en: "AI Bot" },
+  "ai_bot": { tr: "Ceylin", en: "Ceylin" },
   "agent": { tr: "Temsilci", en: "Agent" },
   "new_campaign_form": { tr: "Yeni Kampanya", en: "New Campaign" },
   "new_template_form": { tr: "Yeni Şablon Oluştur", en: "Create New Template" },

@@ -13,6 +13,31 @@ interface KnowledgeBaseItem {
   category: string | null
 }
 
+const REQUEST_CONTACT_TAG = "[REQUEST_CONTACT]"
+
+function normalizeAIResponse(text: string): string {
+  const clean = text.trim()
+  const lower = clean.toLocaleLowerCase("tr-TR")
+
+  const fallbackPatterns = [
+    "bilgi bankas",
+    "bilgi taban",
+    "bulunmamaktad",
+    "bulunamadi",
+    "yetkiliye baglan",
+    "yetkiliye bağlan",
+    "bir yetkiliye",
+    "yardimci olabilecek bir yetkili",
+    "yardımcı olabilecek bir yetkili",
+  ]
+
+  if (fallbackPatterns.some((pattern) => lower.includes(pattern))) {
+    return REQUEST_CONTACT_TAG
+  }
+
+  return clean
+}
+
 /**
  * System prompt + knowledge base bilgilerini birleştirerek
  * kapsamlı bir system instruction oluşturur.
@@ -30,7 +55,8 @@ function buildSystemInstruction(
     "Kendini asla 'yapay zeka', 'AI asistan' veya 'bot' olarak tanıtma. " +
     "Kişisel projelerinden veya kendi özelliklerinden bahsetme. " +
     "Her zaman müşteriye yardımcı olmaya odaklan: detay sor, net ve eksiksiz cevaplar ver. " +
-    "Cevaplarını yarıda bırakma, her zaman tamamlanmış ve anlaşılır yanıtlar ver."
+    "Cevaplarını yarıda bırakma, her zaman tamamlanmış ve anlaşılır yanıtlar ver. " +
+    "Asla 'bilgi bankasında yok', 'bilgiler bulunmamaktadır', 'yetkiliye bağlanmanızı öneririm' gibi ifadeler kullanma."
   )
 
   // Ana system prompt
@@ -58,14 +84,15 @@ function buildSystemInstruction(
 
     parts.push(
       "\nMüşteri sorularına yukarıdaki bilgi bankasına dayanarak doğru ve tutarlı yanıt ver.\n" +
-      'Bilgi bankasında olmayan konularda detaylı soru sorarak müşteriye yardımcı olmaya çalış. ' +
-      'Eğer hiçbir şekilde yardımcı olamıyorsan "Bu konuda size daha iyi yardımcı olabilmem için bir yetkiliye bağlanmanızı önerebilirim" de.'
+      `Yukarıdaki bilgilerle güvenilir ve net cevap ver. ` +
+      `Eğer soruya yeterli ve güvenli cevap veremiyorsan normal bir açıklama yazmak yerine sadece ${REQUEST_CONTACT_TAG} etiketiyle yanıt ver. ` +
+      "Bu durumda bilgi bankasının eksik olduğunu söyleme ve müşteriyi yetkiliye bağlanma cümlesiyle yönlendirme."
     )
   } else {
     // Bilgi bankası boş olsa bile yardımcı ol
     parts.push(
       "\nMüşterinin sorusunu anlamaya çalış, detaylı sorular sor ve elinden geldiğince yardımcı ol. " +
-      "Eğer konuyla ilgili yeterli bilgin yoksa, müşteriyi bir yetkili ile görüştürmeyi öner."
+      `Eğer konuyla ilgili yeterli ve güvenli bilgin yoksa sadece ${REQUEST_CONTACT_TAG} etiketiyle yanıt ver.`
     )
   }
 
@@ -152,8 +179,10 @@ export async function getAIResponse(
     })
 
     const data = await res.json()
-    return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+    const responseText =
+      data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
       "Yanit uretilemedi."
+    return normalizeAIResponse(responseText)
   } catch (e) {
     console.error("Gemini AI hatasi:", e)
     return "Su an teknik bir sorun yasiyoruz. Kisa sure icinde size donus yapacagiz."

@@ -566,7 +566,7 @@ export default function InboxPage() {
                           }`}
                         >
                           {isBot && isOutbound && (
-                            <span className="text-[9px] font-bold px-2 py-0.5 mb-1.5 inline-flex w-fit bg-[#25D366]/12 text-[#1d8f50] rounded-full">
+                            <span className="text-[9px] font-bold px-2 py-0.5 mb-1.5 inline-flex w-fit bg-[#25D366]/12 text-black rounded-full">
                               {t("ai_bot")}
                             </span>
                           )}
@@ -601,7 +601,7 @@ export default function InboxPage() {
               {showAiTypingIndicator && (
                 <div className="flex items-end flex-row-reverse gap-2.5 max-w-[82%] lg:max-w-[74%] ml-auto animate-slide-up">
                   <div className="ds-chat-bubble ds-chat-bubble-bot">
-                    <span className="text-[10px] font-bold text-[#4995d1] block mb-1">{t("ai_bot")}</span>
+                    <span className="text-[10px] font-bold text-black block mb-1">{t("ai_bot")}</span>
                     <div className="ds-typing-row">
                       <span>{t("ai_typing")}</span>
                       <span className="ds-typing-dots" aria-hidden="true">
@@ -839,7 +839,7 @@ export default function InboxPage() {
               )}
               <div className="flex flex-wrap gap-1.5">
                 {selectedConv.is_bot_active && (
-                  <span className="ds-badge-ai">AI Bot</span>
+                  <span className="ds-badge-ai">{t("ai_bot")}</span>
                 )}
                 <span className="ds-badge bg-blue-50 text-blue-700">
                   {getChannelLabel(selectedConv.channel)}

@@ -17,6 +17,25 @@ from app.services import whatsapp_service, ai_service
 from app.utils.security import decrypt_token
 
 logger = logging.getLogger(__name__)
+REQUEST_CONTACT_TAG = "[REQUEST_CONTACT]"
+CONTACT_REQUEST_MESSAGE = (
+    "Dilerseniz iletişim bilgilerinizi iletin, proje yetkilimiz detaylı bilgi vermek için sizi en kısa sürede arasın."
+)
+
+
+def _parse_ai_response(ai_response: str) -> tuple[bool, bool, bool, str]:
+    request_contact = REQUEST_CONTACT_TAG in ai_response
+    transfer_to_sales = "[TRANSFER_SALES]" in ai_response
+    not_interested = "[NOT_INTERESTED]" in ai_response
+    clean_response = (
+        CONTACT_REQUEST_MESSAGE
+        if request_contact
+        else ai_response.replace("[TRANSFER_SALES]", "")
+        .replace("[NOT_INTERESTED]", "")
+        .replace(REQUEST_CONTACT_TAG, "")
+        .strip()
+    )
+    return request_contact, transfer_to_sales, not_interested, clean_response
 
 
 async def route_webhook(payload: dict, db: AsyncSession) -> None:
@@ -192,12 +211,8 @@ async def _process_inbound_message(
         )
 
         # Etiketleri temizle
-        transfer_to_sales = "[TRANSFER_SALES]" in ai_response
-        not_interested = "[NOT_INTERESTED]" in ai_response
-        clean_response = (
-            ai_response.replace("[TRANSFER_SALES]", "")
-            .replace("[NOT_INTERESTED]", "")
-            .strip()
+        request_contact, transfer_to_sales, not_interested, clean_response = _parse_ai_response(
+            ai_response
         )
 
         # Yaniti WhatsApp'a gonder

@@ -13,6 +13,26 @@ from app.models.chatbot import ChatbotConfig
 from app.models.message import Message
 
 logger = logging.getLogger(__name__)
+REQUEST_CONTACT_TAG = "[REQUEST_CONTACT]"
+
+
+def _normalize_ai_response(text: str) -> str:
+    clean = text.strip()
+    lower = clean.lower()
+    fallback_patterns = [
+        "bilgi bankas",
+        "bilgi taban",
+        "bulunmamaktad",
+        "bulunamadi",
+        "yetkiliye baglan",
+        "bir yetkiliye",
+        "yardimci olabilecek bir yetkili",
+    ]
+
+    if any(pattern in lower for pattern in fallback_patterns):
+        return REQUEST_CONTACT_TAG
+
+    return clean
 
 
 def _build_system_instruction(config: ChatbotConfig) -> str:
@@ -49,6 +69,8 @@ KURALLAR:
 - Randevu/rezervasyon istenirse bilgi tabanindaki yonergeleri takip et.
 - Musteri israrla gercek kisiyle konusmak isterse [TRANSFER_SALES] etiketini yanitinin sonuna ekle.
 - Musteri ilgilenmedigini net belirtirse [NOT_INTERESTED] etiketini ekle.
+- Eger soruya yeterli ve guvenli cevap veremiyorsan normal aciklama yazmak yerine sadece [REQUEST_CONTACT] etiketiyle yanit ver.
+- Asla "bilgi bankasinda yok", "bilgiler bulunmamaktadir" veya "yetkiliye baglayalim" gibi ifadeler kullanma.
 - Emoji kullanabilirsin ama abartma.
 - Turkce yanit ver (musteri baska dilde yazarsa o dilde yanit ver).
 """)
@@ -113,7 +135,7 @@ async def get_ai_response(
                 max_output_tokens=config.max_tokens,
             ),
         )
-        return response.text.strip()
+        return _normalize_ai_response(response.text)
     except Exception as e:
         logger.error(f"Gemini AI hatasi: {e}")
         return "Su an teknik bir sorun yasiyoruz. Kisa sure icinde size donus yapacagiz."
