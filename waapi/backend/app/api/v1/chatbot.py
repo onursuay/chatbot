@@ -12,6 +12,12 @@ from app.api.deps import get_current_user, get_current_org
 from app.models.user import User
 from app.models.organization import Organization
 from app.models.chatbot import ChatbotConfig
+from app.services.ai_service import (
+    DEFAULT_CHATBOT_SYSTEM_PROMPT,
+    LEGACY_CHATBOT_NAMES,
+    LEGACY_CHATBOT_SYSTEM_PROMPTS,
+    build_default_chatbot_settings,
+)
 
 router = APIRouter()
 
@@ -70,14 +76,31 @@ async def get_chatbot_config(
         # Yoksa default olustur
         config = ChatbotConfig(
             org_id=org.id,
-            name="AI Asistan",
+            name="Ceylin",
             is_active=True,
-            system_prompt="Sen bir WhatsApp müşteri asistanısın. Müşterilere yardımcı ol, kibar ve profesyonel ol.",
+            system_prompt=DEFAULT_CHATBOT_SYSTEM_PROMPT,
+            settings=build_default_chatbot_settings(),
         )
         db.add(config)
         await db.flush()
 
-    kb = config.settings.get("knowledge_base", "") if config.settings else ""
+    normalized_settings = build_default_chatbot_settings(config.settings)
+    should_backfill_settings = normalized_settings != (config.settings or {})
+    normalized_system_prompt = (config.system_prompt or "").strip()
+    should_backfill_system_prompt = (
+        not normalized_system_prompt
+        or normalized_system_prompt in LEGACY_CHATBOT_SYSTEM_PROMPTS
+    )
+    should_backfill_name = (config.name or "").strip() in LEGACY_CHATBOT_NAMES
+    if should_backfill_settings or should_backfill_system_prompt or should_backfill_name:
+        config.settings = normalized_settings
+        if should_backfill_system_prompt:
+            config.system_prompt = DEFAULT_CHATBOT_SYSTEM_PROMPT
+        if should_backfill_name:
+            config.name = "Ceylin"
+        await db.flush()
+
+    kb = normalized_settings.get("knowledge_base", "")
 
     return ChatbotConfigResponse(
         id=str(config.id),
@@ -113,9 +136,10 @@ async def update_chatbot_config(
     if not config:
         config = ChatbotConfig(
             org_id=org.id,
-            name="AI Asistan",
+            name="Ceylin",
             is_active=True,
-            system_prompt="",
+            system_prompt=DEFAULT_CHATBOT_SYSTEM_PROMPT,
+            settings=build_default_chatbot_settings(),
         )
         db.add(config)
         await db.flush()
@@ -129,7 +153,7 @@ async def update_chatbot_config(
     if req.system_prompt is not None:
         config.system_prompt = req.system_prompt
     if req.knowledge_base is not None:
-        settings = config.settings or {}
+        settings = build_default_chatbot_settings(config.settings)
         settings["knowledge_base"] = req.knowledge_base
         config.settings = settings
     if req.temperature is not None:
@@ -149,7 +173,23 @@ async def update_chatbot_config(
 
     await db.flush()
 
-    kb = config.settings.get("knowledge_base", "") if config.settings else ""
+    normalized_settings = build_default_chatbot_settings(config.settings)
+    should_backfill_settings = normalized_settings != (config.settings or {})
+    normalized_system_prompt = (config.system_prompt or "").strip()
+    should_backfill_system_prompt = (
+        not normalized_system_prompt
+        or normalized_system_prompt in LEGACY_CHATBOT_SYSTEM_PROMPTS
+    )
+    should_backfill_name = (config.name or "").strip() in LEGACY_CHATBOT_NAMES
+    if should_backfill_settings or should_backfill_system_prompt or should_backfill_name:
+        config.settings = normalized_settings
+        if should_backfill_system_prompt:
+            config.system_prompt = DEFAULT_CHATBOT_SYSTEM_PROMPT
+        if should_backfill_name:
+            config.name = "Ceylin"
+        await db.flush()
+
+    kb = normalized_settings.get("knowledge_base", "")
 
     return ChatbotConfigResponse(
         id=str(config.id),

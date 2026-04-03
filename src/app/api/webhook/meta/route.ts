@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server"
 import { getServiceSupabase } from "@/lib/supabase"
 import { sendTextMessage, markAsRead } from "@/lib/whatsapp"
-import { getAIResponse } from "@/lib/gemini"
+import {
+  buildDefaultChatbotSettings,
+  DEFAULT_PROFANITY_CLOSE_MESSAGE,
+  DEFAULT_PROFANITY_CLOSE_THRESHOLD,
+  DEFAULT_PROFANITY_WARNING_MESSAGE,
+  getAIResponse,
+} from "@/lib/gemini"
 import { decryptToken } from "@/lib/crypto"
 
 // ============================================
@@ -32,6 +38,107 @@ function clearWhatsAppContactFollowUp(conversationId: string) {
   if (timer) {
     clearTimeout(timer)
     whatsappContactFollowUpTimers.delete(conversationId)
+  }
+}
+
+function normalizeModerationText(text: string) {
+  const translated = text
+    .toLocaleLowerCase("tr-TR")
+    .replace(/ç/g, "c")
+    .replace(/ğ/g, "g")
+    .replace(/ı/g, "i")
+    .replace(/ö/g, "o")
+    .replace(/ş/g, "s")
+    .replace(/ü/g, "u")
+
+  const spaced = translated.replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ")
+  return {
+    spaced,
+    compact: spaced.replace(/\s+/g, ""),
+    tokens: new Set(spaced.split(" ").filter(Boolean)),
+  }
+}
+
+function containsProfanity(text: string, profanityWords: string[]) {
+  const normalizedText = normalizeModerationText(text)
+  if (!normalizedText.spaced && !normalizedText.compact) return false
+
+  return profanityWords.some((candidate) => {
+    const normalizedCandidate = normalizeModerationText(candidate)
+    const term = normalizedCandidate.spaced
+    const termCompact = normalizedCandidate.compact
+
+    if (!termCompact) return false
+    if (term.includes(" ")) {
+      return normalizedText.spaced.includes(term) || normalizedText.compact.includes(termCompact)
+    }
+    if (termCompact.length <= 3) {
+      return normalizedText.tokens.has(termCompact)
+    }
+    return (
+      normalizedText.tokens.has(termCompact) ||
+      normalizedText.spaced.includes(term) ||
+      normalizedText.compact.includes(termCompact)
+    )
+  })
+}
+
+async function getChatbotModerationSettings(supabase: any, orgId: string) {
+  const { data: config } = await supabase
+    .from("chatbot_configs")
+    .select("id, settings")
+    .eq("org_id", orgId)
+    .eq("is_active", true)
+    .maybeSingle()
+
+  const settings = buildDefaultChatbotSettings(config?.settings)
+  const shouldBackfill =
+    !!config &&
+    (
+      !Array.isArray(config.settings?.profanity_words) ||
+      !config.settings?.profanity_words?.length ||
+      !config.settings?.profanity_warning_message ||
+      !config.settings?.profanity_close_message ||
+      !config.settings?.profanity_close_threshold
+    )
+
+  if (shouldBackfill) {
+    await supabase
+      .from("chatbot_configs")
+      .update({ settings })
+      .eq("id", config.id)
+  }
+
+  return settings
+}
+
+async function getProfanityAction(supabase: any, orgId: string, conversation: any, text: string) {
+  const settings = await getChatbotModerationSettings(supabase, orgId)
+  const profanityWords = Array.isArray(settings.profanity_words) ? settings.profanity_words : []
+
+  if (!containsProfanity(text, profanityWords)) {
+    return null
+  }
+
+  const metadata = conversation.metadata || {}
+  const count = Number(metadata.profanity_count || 0) + 1
+  const threshold = Math.max(Number(settings.profanity_close_threshold) || DEFAULT_PROFANITY_CLOSE_THRESHOLD, 2)
+  const shouldClose = count >= threshold
+  const nowIso = new Date().toISOString()
+
+  return {
+    shouldClose,
+    replyText: shouldClose
+      ? settings.profanity_close_message || DEFAULT_PROFANITY_CLOSE_MESSAGE
+      : settings.profanity_warning_message || DEFAULT_PROFANITY_WARNING_MESSAGE,
+    metadata: {
+      ...metadata,
+      profanity_count: count,
+      profanity_detected: true,
+      last_profanity_at: nowIso,
+      last_profanity_message: text.slice(0, 200),
+      profanity_closed_at: shouldClose ? nowIso : metadata.profanity_closed_at || null,
+    },
   }
 }
 
@@ -533,6 +640,36 @@ async function handleInstagramWebhook(payload: any) {
 
       // Bot aktifse yanıt
       if (conversation.is_bot_active) {
+        const profanityAction = await getProfanityAction(supabase, orgId, conversation, text)
+        if (profanityAction) {
+          const replyMsgId = await sendInstagramReply({ access_token: accessToken, account_id: accountId }, senderId, profanityAction.replyText)
+
+          await supabase.from("messages").insert({
+            org_id: orgId,
+            conversation_id: conversation.id,
+            contact_id: contact.id,
+            wa_message_id: replyMsgId,
+            direction: "outbound",
+            type: "text",
+            content: { body: profanityAction.replyText },
+            status: "sent",
+            sender_type: "bot",
+          })
+
+          const convUpdate: any = {
+            last_message_at: new Date().toISOString(),
+            last_message_preview: profanityAction.replyText.slice(0, 200),
+            metadata: profanityAction.metadata,
+          }
+          if (profanityAction.shouldClose) {
+            convUpdate.status = "resolved"
+            convUpdate.is_bot_active = false
+          }
+
+          await supabase.from("conversations").update(convUpdate).eq("id", conversation.id)
+          continue
+        }
+
         const aiResponse = await getAIResponse(orgId, conversation.id, text)
         const { transferToSales, notInterested, cleanResponse } = parseAIResponse(aiResponse)
 
@@ -720,6 +857,36 @@ async function handleInstagramEntry(supabase: any, entry: any, channelAccount: a
 
     // Bot aktifse yanıt
     if (conversation.is_bot_active) {
+      const profanityAction = await getProfanityAction(supabase, orgId, conversation, text)
+      if (profanityAction) {
+        const replyMsgId = await sendInstagramReply({ access_token: accessToken, account_id: accountId }, senderId, profanityAction.replyText)
+
+        await supabase.from("messages").insert({
+          org_id: orgId,
+          conversation_id: conversation.id,
+          contact_id: contact.id,
+          wa_message_id: replyMsgId,
+          direction: "outbound",
+          type: "text",
+          content: { body: profanityAction.replyText },
+          status: "sent",
+          sender_type: "bot",
+        })
+
+        const convUpdate: any = {
+          last_message_at: new Date().toISOString(),
+          last_message_preview: profanityAction.replyText.slice(0, 200),
+          metadata: profanityAction.metadata,
+        }
+        if (profanityAction.shouldClose) {
+          convUpdate.status = "resolved"
+          convUpdate.is_bot_active = false
+        }
+
+        await supabase.from("conversations").update(convUpdate).eq("id", conversation.id)
+        continue
+      }
+
       const aiResponse = await getAIResponse(orgId, conversation.id, text)
       const { transferToSales, notInterested, cleanResponse } = parseAIResponse(aiResponse)
 
@@ -827,6 +994,36 @@ async function handleFacebookEntry(supabase: any, entry: any, pageId: string) {
       .eq("id", conversation.id)
 
     if (conversation.is_bot_active) {
+      const profanityAction = await getProfanityAction(supabase, orgId, conversation, text)
+      if (profanityAction) {
+        const replyMsgId = await sendFacebookReply({ access_token: accessToken, page_id: fbPageId }, senderId, profanityAction.replyText)
+
+        await supabase.from("messages").insert({
+          org_id: orgId,
+          conversation_id: conversation.id,
+          contact_id: contact.id,
+          wa_message_id: replyMsgId,
+          direction: "outbound",
+          type: "text",
+          content: { body: profanityAction.replyText },
+          status: "sent",
+          sender_type: "bot",
+        })
+
+        const convUpdate: any = {
+          last_message_at: new Date().toISOString(),
+          last_message_preview: profanityAction.replyText.slice(0, 200),
+          metadata: profanityAction.metadata,
+        }
+        if (profanityAction.shouldClose) {
+          convUpdate.status = "resolved"
+          convUpdate.is_bot_active = false
+        }
+
+        await supabase.from("conversations").update(convUpdate).eq("id", conversation.id)
+        continue
+      }
+
       const aiResponse = await getAIResponse(orgId, conversation.id, text)
       const { transferToSales, notInterested, cleanResponse } = parseAIResponse(aiResponse)
 
@@ -937,6 +1134,36 @@ async function handleFacebookWebhook(payload: any) {
 
       // Bot aktifse yanıt
       if (conversation.is_bot_active) {
+        const profanityAction = await getProfanityAction(supabase, orgId, conversation, text)
+        if (profanityAction) {
+          const replyMsgId = await sendFacebookReply({ access_token: accessToken, page_id: fbPageId }, senderId, profanityAction.replyText)
+
+          await supabase.from("messages").insert({
+            org_id: orgId,
+            conversation_id: conversation.id,
+            contact_id: contact.id,
+            wa_message_id: replyMsgId,
+            direction: "outbound",
+            type: "text",
+            content: { body: profanityAction.replyText },
+            status: "sent",
+            sender_type: "bot",
+          })
+
+          const convUpdate: any = {
+            last_message_at: new Date().toISOString(),
+            last_message_preview: profanityAction.replyText.slice(0, 200),
+            metadata: profanityAction.metadata,
+          }
+          if (profanityAction.shouldClose) {
+            convUpdate.status = "resolved"
+            convUpdate.is_bot_active = false
+          }
+
+          await supabase.from("conversations").update(convUpdate).eq("id", conversation.id)
+          continue
+        }
+
         const aiResponse = await getAIResponse(orgId, conversation.id, text)
         const { transferToSales, notInterested, cleanResponse } = parseAIResponse(aiResponse)
 
@@ -1177,6 +1404,39 @@ async function processWhatsAppMessage(
   }).eq("id", conversation.id)
 
   await markAsRead(phone.phone_number_id, accessToken, msgId)
+
+  const profanityAction = await getProfanityAction(supabase, waba.org_id, conversation, text)
+  if (profanityAction) {
+    clearWhatsAppContactFollowUp(conversation.id)
+
+    await sendWhatsAppBotMessage({
+      supabase,
+      orgId: waba.org_id,
+      conversationId: conversation.id,
+      contactId: contact.id,
+      phoneNumberId: phone.phone_number_id,
+      accessToken,
+      recipientWaId: senderWaId,
+      text: profanityAction.replyText,
+    })
+
+    const convUpdate: any = {
+      last_message_at: new Date().toISOString(),
+      last_message_preview: profanityAction.replyText.slice(0, 200),
+      metadata: {
+        ...profanityAction.metadata,
+        awaiting_contact_response: false,
+        contact_request_at: null,
+      },
+    }
+    if (profanityAction.shouldClose) {
+      convUpdate.status = "resolved"
+      convUpdate.is_bot_active = false
+    }
+
+    await supabase.from("conversations").update(convUpdate).eq("id", conversation.id)
+    return
+  }
 
   if (conversationMetadata.awaiting_contact_response) {
     clearWhatsAppContactFollowUp(conversation.id)

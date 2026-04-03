@@ -38,6 +38,95 @@ def _parse_ai_response(ai_response: str) -> tuple[bool, bool, bool, str]:
     return request_contact, transfer_to_sales, not_interested, clean_response
 
 
+def _normalize_moderation_text(text: str) -> tuple[str, str, set[str]]:
+    spaced = (
+        text.lower()
+        .replace("ç", "c")
+        .replace("ğ", "g")
+        .replace("ı", "i")
+        .replace("ö", "o")
+        .replace("ş", "s")
+        .replace("ü", "u")
+    )
+    normalized = " ".join("".join(ch if ch.isalnum() else " " for ch in spaced).split())
+    return normalized, normalized.replace(" ", ""), set(normalized.split()) if normalized else set()
+
+
+def _contains_profanity(text: str, profanity_words: list[str]) -> bool:
+    normalized_text, compact_text, token_set = _normalize_moderation_text(text)
+    if not normalized_text and not compact_text:
+        return False
+
+    for candidate in profanity_words:
+        normalized_candidate, compact_candidate, _ = _normalize_moderation_text(candidate)
+        if not compact_candidate:
+            continue
+        if " " in normalized_candidate:
+            if normalized_candidate in normalized_text or compact_candidate in compact_text:
+                return True
+            continue
+        if len(compact_candidate) <= 3:
+            if compact_candidate in token_set:
+                return True
+            continue
+        if (
+            compact_candidate in token_set
+            or normalized_candidate in normalized_text
+            or compact_candidate in compact_text
+        ):
+            return True
+    return False
+
+
+async def _get_profanity_action(
+    db: AsyncSession,
+    org_id: uuid.UUID,
+    conversation: Conversation,
+    text: str,
+) -> dict | None:
+    result = await db.execute(
+        select(ai_service.ChatbotConfig).where(
+            ai_service.ChatbotConfig.org_id == org_id,
+            ai_service.ChatbotConfig.is_active == True,
+        )
+    )
+    config = result.scalar_one_or_none()
+
+    settings = ai_service.build_default_chatbot_settings(
+        config.settings if config and isinstance(config.settings, dict) else {}
+    )
+    if config and settings != (config.settings or {}):
+        config.settings = settings
+        await db.flush()
+
+    profanity_words = settings.get("profanity_words", [])
+    if not _contains_profanity(text, profanity_words):
+        return None
+
+    metadata = dict(conversation.extra_data or {})
+    count = int(metadata.get("profanity_count", 0)) + 1
+    threshold = max(int(settings.get("profanity_close_threshold", ai_service.DEFAULT_PROFANITY_CLOSE_THRESHOLD)), 2)
+    should_close = count >= threshold
+    now_iso = datetime.now(timezone.utc).isoformat()
+
+    return {
+        "should_close": should_close,
+        "reply_text": (
+            settings.get("profanity_close_message")
+            if should_close
+            else settings.get("profanity_warning_message")
+        ),
+        "metadata": {
+            **metadata,
+            "profanity_count": count,
+            "profanity_detected": True,
+            "last_profanity_at": now_iso,
+            "last_profanity_message": text[:200],
+            "profanity_closed_at": now_iso if should_close else metadata.get("profanity_closed_at"),
+        },
+    }
+
+
 async def route_webhook(payload: dict, db: AsyncSession) -> None:
     """Webhook payload'ini parse et ve dogru tenant'a yonlendir."""
 
@@ -203,6 +292,42 @@ async def _process_inbound_message(
 
     # Okundu bilgisi gonder
     await whatsapp_service.mark_as_read(phone.phone_number_id, access_token, msg_id)
+
+    profanity_action = await _get_profanity_action(db, waba.org_id, conversation, text)
+    if profanity_action:
+        reply_text = profanity_action["reply_text"]
+        result = await whatsapp_service.send_message(
+            phone.phone_number_id, access_token, sender_wa_id, reply_text
+        )
+
+        wa_msg_id = None
+        send_status = "failed"
+        if result and "messages" in result:
+            wa_msg_id = result["messages"][0].get("id")
+            send_status = "sent"
+
+        outbound_msg = Message(
+            org_id=waba.org_id,
+            conversation_id=conversation.id,
+            contact_id=contact.id,
+            wa_message_id=wa_msg_id,
+            direction="outbound",
+            type="text",
+            content={"body": reply_text},
+            status=send_status,
+            sender_type="bot",
+        )
+        db.add(outbound_msg)
+
+        conversation.last_message_at = datetime.now(timezone.utc)
+        conversation.last_message_preview = reply_text[:200]
+        conversation.extra_data = profanity_action["metadata"]
+
+        if profanity_action["should_close"]:
+            conversation.status = "resolved"
+            conversation.is_bot_active = False
+
+        return
 
     # AI chatbot aktifse yanit uret
     if conversation.is_bot_active:

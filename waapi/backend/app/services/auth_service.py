@@ -6,6 +6,7 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.services.ai_service import DEFAULT_CHATBOT_SYSTEM_PROMPT, build_default_chatbot_settings
 from app.models.organization import Organization
 from app.models.user import User
 from app.models.chatbot import ChatbotConfig
@@ -62,8 +63,9 @@ async def register(
     # Default chatbot config
     default_bot = ChatbotConfig(
         org_id=org.id,
-        name="Default Bot",
-        system_prompt="Sen bir WhatsApp asistanisin. Musterilere yardimci ol, kibar ve profesyonel ol. Kisa ve oz yanitlar ver.",
+        name="Ceylin",
+        system_prompt=DEFAULT_CHATBOT_SYSTEM_PROMPT,
+        settings=build_default_chatbot_settings(),
         is_active=True,
     )
     db.add(default_bot)

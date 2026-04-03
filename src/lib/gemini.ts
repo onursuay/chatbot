@@ -14,6 +14,92 @@ interface KnowledgeBaseItem {
 }
 
 const REQUEST_CONTACT_TAG = "[REQUEST_CONTACT]"
+export const DEFAULT_CHATBOT_SYSTEM_PROMPT =
+  "Sen Ceylin'sin. Bir işletmenin müşteri temsilcisi gibi doğal, sıcak ve profesyonel konuşursun. Kendini asla yapay zeka, AI asistan veya bot olarak tanıtmazsın."
+export const DEFAULT_PROFANITY_WARNING_MESSAGE =
+  "Size yardımcı olmak isterim ancak lütfen küfür veya kırıcı ifade kullanmadan devam edelim."
+export const DEFAULT_PROFANITY_CLOSE_MESSAGE =
+  "Bu şekilde devam edemem. Görüşmeyi burada sonlandırıyorum, iyi günler dilerim."
+export const DEFAULT_PROFANITY_CLOSE_THRESHOLD = 2
+export const DEFAULT_PROFANITY_WORDS = [
+  "amk",
+  "aq",
+  "amina koy",
+  "amina koyayim",
+  "amina koyim",
+  "amina",
+  "amcik",
+  "amcuk",
+  "anani sikeyim",
+  "anasini sikeyim",
+  "ananin ami",
+  "ana baci",
+  "orospu",
+  "orosbu",
+  "orospu cocugu",
+  "orospu evladi",
+  "pic",
+  "pic kurusu",
+  "siktir",
+  "sikerim",
+  "sikeyim",
+  "sikik",
+  "sikicem",
+  "sikmis",
+  "sikme",
+  "yarak",
+  "yarrak",
+  "got",
+  "gotveren",
+  "gotlek",
+  "gavat",
+  "ibne",
+  "kahpe",
+  "pust",
+  "pezevenk",
+  "dalyarak",
+  "fuck",
+  "fucking",
+  "shit",
+  "bitch",
+  "asshole",
+  "motherfucker",
+  "bastard",
+  "dick",
+  "cunt",
+]
+const LEGACY_CHATBOT_SYSTEM_PROMPTS = [
+  "Sen bir WhatsApp asistanisin. Musterilere yardimci ol, kibar ve profesyonel ol. Kisa ve oz yanitlar ver.",
+  "Sen bir WhatsApp müşteri asistanısın. Müşterilere yardımcı ol, kibar ve profesyonel ol.",
+  "Sen bir WhatsApp musteri asistansın. Musterilere yardimci ol, kibar ve profesyonel ol.",
+]
+const LEGACY_CHATBOT_NAMES = ["Default Bot", "AI Asistan"]
+
+export function buildDefaultChatbotSettings(settings?: Record<string, any> | null) {
+  const current = settings && typeof settings === "object" ? settings : {}
+  const profanityWords = Array.isArray(current.profanity_words) && current.profanity_words.length > 0
+    ? current.profanity_words.map((word: unknown) => String(word).trim()).filter(Boolean)
+    : DEFAULT_PROFANITY_WORDS
+
+  const mergedSettings: Record<string, any> = {
+    ...current,
+    profanity_words: profanityWords,
+    profanity_warning_message:
+      typeof current.profanity_warning_message === "string" && current.profanity_warning_message.trim()
+        ? current.profanity_warning_message.trim()
+        : DEFAULT_PROFANITY_WARNING_MESSAGE,
+    profanity_close_message:
+      typeof current.profanity_close_message === "string" && current.profanity_close_message.trim()
+        ? current.profanity_close_message.trim()
+        : DEFAULT_PROFANITY_CLOSE_MESSAGE,
+    profanity_close_threshold:
+      typeof current.profanity_close_threshold === "number" && current.profanity_close_threshold >= 2
+        ? current.profanity_close_threshold
+        : DEFAULT_PROFANITY_CLOSE_THRESHOLD,
+  }
+
+  return mergedSettings
+}
 
 function normalizeAIResponse(text: string): string {
   const clean = text.trim()
@@ -51,12 +137,15 @@ function buildSystemInstruction(
 
   // Temel davranış talimatları — her zaman ekle
   parts.push(
-    "Sen bir işletmenin müşteri hizmetleri asistanısın. " +
-    "Kendini asla 'yapay zeka', 'AI asistan' veya 'bot' olarak tanıtma. " +
+    DEFAULT_CHATBOT_SYSTEM_PROMPT + " " +
     "Kişisel projelerinden veya kendi özelliklerinden bahsetme. " +
-    "Her zaman müşteriye yardımcı olmaya odaklan: detay sor, net ve eksiksiz cevaplar ver. " +
-    "Cevaplarını yarıda bırakma, her zaman tamamlanmış ve anlaşılır yanıtlar ver. " +
-    "Asla 'bilgi bankasında yok', 'bilgiler bulunmamaktadır', 'yetkiliye bağlanmanızı öneririm' gibi ifadeler kullanma."
+    "Konuşmanın akışına uyum sağla; her mesaja aynı kalıpla başlama veya bitirme. " +
+    "Özellikle 'yardımcı olabileceğim başka bir konu var mı' benzeri kalıpları gereksiz yere tekrar etme. " +
+    "Soru netse doğrudan ve güven veren bir cevap ver. Eksik bilgi varsa sadece gerçekten gerekli olan kısa bir soru sor. " +
+    "Müşteri teşekkür ederek veya onay vererek konuyu kapatıyorsa sıcak ama kısa bir kapanış yap, konuşmayı gereksiz yere uzatma. " +
+    "Müşteri yeni bilgi veriyor, kararsız kalıyor veya süreç devam ediyorsa bir sonraki mantıklı adımı önererek konuşmayı ilerlet. " +
+    "Cevaplarını yarıda bırakma; tamamlanmış, anlaşılır ve doğal yanıtlar ver. " +
+    "Asla 'bilgi bankasında yok', 'bilgiler bulunmamaktadır' veya 'yetkiliye bağlanmanızı öneririm' gibi ifadeler kullanma."
   )
 
   // Ana system prompt
@@ -84,14 +173,14 @@ function buildSystemInstruction(
 
     parts.push(
       "\nMüşteri sorularına yukarıdaki bilgi bankasına dayanarak doğru ve tutarlı yanıt ver.\n" +
-      `Yukarıdaki bilgilerle güvenilir ve net cevap ver. ` +
+      `Yukarıdaki bilgileri ezber gibi kopyalama; konuşmanın bağlamına göre doğal biçimde özetleyip uyarlayarak cevap ver. ` +
       `Eğer soruya yeterli ve güvenli cevap veremiyorsan normal bir açıklama yazmak yerine sadece ${REQUEST_CONTACT_TAG} etiketiyle yanıt ver. ` +
       "Bu durumda bilgi bankasının eksik olduğunu söyleme ve müşteriyi yetkiliye bağlanma cümlesiyle yönlendirme."
     )
   } else {
     // Bilgi bankası boş olsa bile yardımcı ol
     parts.push(
-      "\nMüşterinin sorusunu anlamaya çalış, detaylı sorular sor ve elinden geldiğince yardımcı ol. " +
+      "\nMüşterinin sorusunu anlamaya çalış, gerekiyorsa tek ve yerinde bir soru sor, elinden geldiğince doğal biçimde yardımcı ol. " +
       `Eğer konuyla ilgili yeterli ve güvenli bilgin yoksa sadece ${REQUEST_CONTACT_TAG} etiketiyle yanıt ver.`
     )
   }
@@ -116,12 +205,37 @@ export async function getAIResponse(
 
   if (!config) return "Bot yapilandirmasi bulunamadi."
 
+  const settings = buildDefaultChatbotSettings(config.settings)
+  const normalizedSystemPrompt = typeof config.system_prompt === "string" ? config.system_prompt.trim() : ""
+  const shouldBackfillSystemPrompt =
+    !normalizedSystemPrompt || LEGACY_CHATBOT_SYSTEM_PROMPTS.includes(normalizedSystemPrompt)
+  const shouldBackfillName =
+    typeof config.name === "string" && LEGACY_CHATBOT_NAMES.includes(config.name.trim())
+  const shouldBackfillSettings =
+    !Array.isArray(config.settings?.profanity_words) ||
+    !config.settings?.profanity_words?.length ||
+    !config.settings?.profanity_warning_message ||
+    !config.settings?.profanity_close_message ||
+    !config.settings?.profanity_close_threshold
+
+  if (shouldBackfillSettings || shouldBackfillSystemPrompt || shouldBackfillName) {
+    const updatePayload: Record<string, any> = {}
+    if (shouldBackfillSettings) updatePayload.settings = settings
+    if (shouldBackfillSystemPrompt) updatePayload.system_prompt = DEFAULT_CHATBOT_SYSTEM_PROMPT
+    if (shouldBackfillName) updatePayload.name = "Ceylin"
+
+    await supabase
+      .from("chatbot_configs")
+      .update(updatePayload)
+      .eq("id", config.id)
+  }
+
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) return "AI servisi yapilandirilmamis."
 
   // Knowledge base text — config.settings.knowledge_base veya config.knowledge_base
   const knowledgeBaseText: string =
-    config.settings?.knowledge_base ||
+    settings.knowledge_base ||
     config.knowledge_base ||
     ""
 
@@ -134,7 +248,7 @@ export async function getAIResponse(
 
   // Kapsamlı system instruction oluştur
   const systemInstruction = buildSystemInstruction(
-    config.system_prompt,
+    shouldBackfillSystemPrompt ? DEFAULT_CHATBOT_SYSTEM_PROMPT : normalizedSystemPrompt,
     knowledgeBaseText,
     (kbItems || []) as KnowledgeBaseItem[]
   )
@@ -164,6 +278,7 @@ export async function getAIResponse(
 
     // gemini-2.5-pro thinking token'ları ayrı harcanır, maxOutputTokens daha yüksek olmalı
     const maxTokens = model.includes("pro") ? Math.max(config.max_tokens || 1024, 2048) : (config.max_tokens || 1024)
+    const effectiveTemperature = Math.max(Number(config.temperature) || 0.7, 0.85)
 
     const res = await fetch(url, {
       method: "POST",
@@ -172,7 +287,8 @@ export async function getAIResponse(
         contents,
         systemInstruction: { parts: [{ text: systemInstruction }] },
         generationConfig: {
-          temperature: config.temperature || 0.7,
+          temperature: effectiveTemperature,
+          topP: 0.95,
           maxOutputTokens: maxTokens,
         },
       }),

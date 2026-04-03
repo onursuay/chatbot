@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { getServiceSupabase } from "@/lib/supabase"
 import { createAccessToken, createRefreshToken } from "@/lib/jwt"
+import { DEFAULT_CHATBOT_SYSTEM_PROMPT, buildDefaultChatbotSettings } from "@/lib/gemini"
 import bcrypt from "bcryptjs"
 
 function slugify(text: string): string {
@@ -77,9 +78,9 @@ export async function POST(request: Request) {
     // Default chatbot config
     await supabase.from("chatbot_configs").insert({
       org_id: org.id,
-      name: "Default Bot",
-      system_prompt:
-        "Sen bir WhatsApp asistanisin. Musterilere yardimci ol, kibar ve profesyonel ol. Kisa ve oz yanitlar ver.",
+      name: "Ceylin",
+      system_prompt: DEFAULT_CHATBOT_SYSTEM_PROMPT,
+      settings: buildDefaultChatbotSettings(),
       is_active: true,
     })
 
