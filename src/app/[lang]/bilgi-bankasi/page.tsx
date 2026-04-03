@@ -157,7 +157,7 @@ export default function KnowledgeBasePage() {
     setUrlFetching(false)
   }
 
-  // Handle file upload (client-side text extraction)
+  // Handle file upload
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -185,54 +185,26 @@ export default function KnowledgeBasePage() {
         const text = await file.text()
         setContent(text.substring(0, 10000))
       } else if (ext === "pdf") {
-        // Read PDF as base64, extract text via basic method
-        const arrayBuffer = await file.arrayBuffer()
-        const bytes = new Uint8Array(arrayBuffer)
-        let text = ""
-        // Simple PDF text extraction - extract text between stream markers
-        const decoder = new TextDecoder("utf-8", { fatal: false })
-        const raw = decoder.decode(bytes)
-        // Extract text from PDF content streams
-        const streamRegex = /stream\r?\n([\s\S]*?)\r?\nendstream/g
-        let match
-        while ((match = streamRegex.exec(raw)) !== null) {
-          const chunk = match[1]
-          // Extract text from Tj/TJ operators
-          const tjRegex = /\(([^)]*)\)\s*Tj/g
-          let tjMatch
-          while ((tjMatch = tjRegex.exec(chunk)) !== null) {
-            text += tjMatch[1] + " "
-          }
-          // Extract text from TJ arrays
-          const tjArrayRegex = /\[([^\]]*)\]\s*TJ/g
-          let arrMatch
-          while ((arrMatch = tjArrayRegex.exec(chunk)) !== null) {
-            const inner = arrMatch[1]
-            const parts = inner.match(/\(([^)]*)\)/g)
-            if (parts) {
-              text += parts.map((p) => p.slice(1, -1)).join("") + " "
-            }
-          }
+        const token = getToken()
+        if (!token) throw new Error(isTR ? "Oturum bulunamadi" : "Session not found")
+
+        const formData = new FormData()
+        formData.append("file", file)
+
+        const response = await fetch("/api/knowledge-base/extract-file", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        })
+
+        const data = await response.json().catch(() => ({}))
+        if (!response.ok) {
+          throw new Error(data.detail || (isTR ? "PDF icerigi okunamadi" : "Failed to read PDF content"))
         }
-        // Fallback: if no text extracted, try raw text between BT/ET
-        if (!text.trim()) {
-          const btRegex = /BT\s([\s\S]*?)ET/g
-          let btMatch
-          while ((btMatch = btRegex.exec(raw)) !== null) {
-            const inner = btMatch[1]
-            const parts = inner.match(/\(([^)]*)\)/g)
-            if (parts) {
-              text += parts.map((p) => p.slice(1, -1)).join("") + " "
-            }
-          }
-        }
-        if (!text.trim()) {
-          text = raw
-            .replace(/[^\x20-\x7E\n\r\t\u00C0-\u024F\u0400-\u04FF\u00E0-\u00FF]/g, " ")
-            .replace(/\s+/g, " ")
-            .trim()
-        }
-        setContent(text.substring(0, 10000) || (isTR ? "(PDF icerigi okunamadi - manuel olarak yapistirin)" : "(Could not read PDF content - paste manually)"))
+
+        setContent((data.content || "").substring(0, 10000))
       } else if (ext === "docx") {
         // DOCX is a ZIP, extract word/document.xml and strip XML tags
         const arrayBuffer = await file.arrayBuffer()
