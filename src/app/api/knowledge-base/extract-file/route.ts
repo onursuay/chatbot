@@ -18,64 +18,68 @@ function normalizeExtractedText(text: string) {
     .trim()
 }
 
-async function extractPdfTextWithParser(buffer: Buffer) {
-  const { PDFParse } = await import("pdf-parse")
-  const parser = new PDFParse({ data: buffer })
+async function extractPdfText(buffer: Uint8Array) {
+  const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs")
+  const loadingTask = pdfjsLib.getDocument({
+    data: buffer,
+    useSystemFonts: true,
+    disableFontFace: true,
+    isEvalSupported: false,
+    useWorkerFetch: false,
+    stopAtErrors: false,
+  })
+  const pdf = await loadingTask.promise
 
   try {
-    const result = await parser.getText()
-    return normalizeExtractedText(result.text || "")
-  } finally {
-    await parser.destroy().catch(() => undefined)
-  }
-}
+    const pages: string[] = []
 
-async function extractPdfTextWithGemini(buffer: Buffer) {
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) return ""
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+      const page = await pdf.getPage(pageNumber)
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: "user",
-            parts: [
-              {
-                text:
-                  "Bu PDF dosyasindaki tum okunabilir metni cikar. Turkce karakterleri dogru koru. " +
-                  "Sadece temiz duz metin don, aciklama veya ozet ekleme.",
-              },
-              {
-                inlineData: {
-                  mimeType: "application/pdf",
-                  data: buffer.toString("base64"),
-                },
-              },
-            ],
-          },
-        ],
-        generationConfig: {
-          temperature: 0,
-          maxOutputTokens: 4096,
-        },
-      }),
+      try {
+        const textContent = await page.getTextContent({ disableNormalization: false })
+        const chunks: string[] = []
+        let previousY: number | null = null
+
+        for (const item of textContent.items) {
+          if (!("str" in item)) continue
+
+          const rawText = item.str || ""
+          const text = rawText.trim()
+          const y = Array.isArray(item.transform) ? Number(item.transform[5]) : null
+
+          if (text) {
+            if (previousY !== null && y !== null && Math.abs(previousY - y) > 4) {
+              chunks.push("\n")
+            } else if (chunks.length > 0 && !chunks[chunks.length - 1].endsWith("\n")) {
+              chunks.push(" ")
+            }
+
+            chunks.push(rawText)
+          }
+
+          if (item.hasEOL) {
+            chunks.push("\n")
+          }
+
+          if (y !== null) {
+            previousY = y
+          }
+        }
+
+        const pageText = normalizeExtractedText(chunks.join(""))
+        if (pageText) {
+          pages.push(pageText)
+        }
+      } finally {
+        page.cleanup()
+      }
     }
-  )
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}))
-    throw new Error(error.error?.message || "AI PDF extraction failed")
+    return normalizeExtractedText(pages.join("\n\n"))
+  } finally {
+    await pdf.destroy()
   }
-
-  const data = await response.json()
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || ""
-  return normalizeExtractedText(text)
 }
 
 export async function POST(request: Request) {
@@ -90,48 +94,38 @@ export async function POST(request: Request) {
   }
 
   const file = fileValue as File
-
   const ext = file.name.split(".").pop()?.toLowerCase()
+
   if (ext !== "pdf") {
     return NextResponse.json({ detail: "Sadece PDF destekleniyor" }, { status: 400 })
   }
 
-  const buffer = Buffer.from(await file.arrayBuffer())
-  const extractionErrors: string[] = []
-
   try {
-    const parsedContent = await extractPdfTextWithParser(buffer)
-    if (parsedContent) {
-      return NextResponse.json({
-        content: parsedContent.substring(0, MAX_CONTENT_LENGTH),
-      })
+    const content = await extractPdfText(new Uint8Array(await file.arrayBuffer()))
+
+    if (!content) {
+      return NextResponse.json(
+        {
+          detail:
+            "PDF icinde secilebilir metin bulunamadi. " +
+            "Sadece metin katmani olan PDF'ler desteklenir; taranmis veya image tabanli PDF'ler desteklenmez.",
+        },
+        { status: 400 }
+      )
     }
+
+    return NextResponse.json({
+      content: content.substring(0, MAX_CONTENT_LENGTH),
+    })
   } catch (err: any) {
-    extractionErrors.push(err?.message || "pdf-parse failed")
+    console.error("[KNOWLEDGE_BASE][PDF_EXTRACT_FAILED]", {
+      file_name: file.name,
+      error: err?.message || "pdf_text_extraction_failed",
+    })
+
+    return NextResponse.json(
+      { detail: err?.message || "PDF icerigi okunamadi" },
+      { status: 400 }
+    )
   }
-
-  try {
-    const aiContent = await extractPdfTextWithGemini(buffer)
-    if (aiContent) {
-      return NextResponse.json({
-        content: aiContent.substring(0, MAX_CONTENT_LENGTH),
-      })
-    }
-  } catch (err: any) {
-    extractionErrors.push(err?.message || "gemini pdf extraction failed")
-  }
-
-  console.error("[KNOWLEDGE_BASE][PDF_EXTRACT_FAILED]", {
-    file_name: file.name,
-    errors: extractionErrors,
-  })
-
-  return NextResponse.json(
-    {
-      detail:
-        extractionErrors[0] ||
-        "PDF icinde okunabilir metin bulunamadi",
-    },
-    { status: 400 }
-  )
 }

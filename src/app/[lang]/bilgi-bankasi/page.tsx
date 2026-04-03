@@ -15,19 +15,6 @@ interface KBItem {
   created_at: string
 }
 
-function normalizePdfText(text: string) {
-  return text
-    .normalize("NFKC")
-    .replace(/\u0000/g, " ")
-    .replace(/\u00ad/g, "")
-    .replace(/\r\n/g, "\n")
-    .replace(/\r/g, "\n")
-    .replace(/[^\S\n]+/g, " ")
-    .replace(/ *\n */g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim()
-}
-
 export default function KnowledgeBasePage() {
   const { getToken } = useAuth()
   const { t, lang } = useI18n()
@@ -198,50 +185,26 @@ export default function KnowledgeBasePage() {
         const text = await file.text()
         setContent(text.substring(0, 10000))
       } else if (ext === "pdf") {
-        let extractedText = ""
+        const token = getToken()
+        if (!token) throw new Error(isTR ? "Oturum bulunamadi" : "Session not found")
 
-        try {
-          const { PDFParse } = await import("pdf-parse")
-          const parser = new PDFParse({ data: new Uint8Array(await file.arrayBuffer()) })
+        const formData = new FormData()
+        formData.append("file", file)
 
-          try {
-            const result = await parser.getText()
-            extractedText = normalizePdfText(result.text || "")
-          } finally {
-            await parser.destroy().catch(() => undefined)
-          }
-        } catch {
-          extractedText = ""
+        const response = await fetch("/api/knowledge-base/extract-file", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        })
+
+        const data = await response.json().catch(() => ({}))
+        if (!response.ok) {
+          throw new Error(data.detail || (isTR ? "PDF icerigi okunamadi" : "Failed to read PDF content"))
         }
 
-        if (!extractedText) {
-          const token = getToken()
-          if (!token) throw new Error(isTR ? "Oturum bulunamadi" : "Session not found")
-
-          const formData = new FormData()
-          formData.append("file", file)
-
-          const response = await fetch("/api/knowledge-base/extract-file", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-          })
-
-          const data = await response.json().catch(() => ({}))
-          if (!response.ok) {
-            throw new Error(data.detail || (isTR ? "PDF icerigi okunamadi" : "Failed to read PDF content"))
-          }
-
-          extractedText = normalizePdfText(data.content || "")
-        }
-
-        if (!extractedText) {
-          throw new Error(isTR ? "PDF icinde okunabilir metin bulunamadi" : "No readable text found in PDF")
-        }
-
-        setContent(extractedText.substring(0, 10000))
+        setContent((data.content || "").substring(0, 10000))
       } else if (ext === "docx") {
         // DOCX is a ZIP, extract word/document.xml and strip XML tags
         const arrayBuffer = await file.arrayBuffer()
