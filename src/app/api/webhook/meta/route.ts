@@ -131,40 +131,77 @@ async function handleWhatsAppWebhook(payload: any) {
   const supabase = getServiceSupabase()
 
   for (const entry of payload.entry || []) {
-    const wabaIdStr = entry.id
-    if (!wabaIdStr) continue
-
-    const { data: waba } = await supabase
-      .from("waba_accounts")
-      .select("*")
-      .eq("waba_id", wabaIdStr)
-      .single()
-
-    if (!waba) continue
-
-    // Access token'ı decrypt et
-    let accessToken: string
-    try {
-      accessToken = decryptToken(waba.access_token)
-    } catch {
-      // Decrypt başarısızsa, token düz metin olabilir
-      accessToken = waba.access_token
-    }
-
     for (const change of entry.changes || []) {
       const value = change.value || {}
       const phoneNumberId = value.metadata?.phone_number_id
+      const displayPhoneNumber = value.metadata?.display_phone_number
+      console.log("[WHATSAPP][NORMALIZED]", {
+        entry_id: entry.id,
+        field: change.field,
+        phone_number_id: phoneNumberId,
+        display_phone_number: displayPhoneNumber,
+        messages_count: (value.messages || []).length,
+        statuses_count: (value.statuses || []).length,
+      })
       if (!phoneNumberId) continue
 
-      const { data: phone } = await supabase
+      const { data: phoneById } = await supabase
         .from("phone_numbers")
         .select("*")
         .eq("phone_number_id", phoneNumberId)
-        .eq("org_id", waba.org_id)
         .eq("is_active", true)
-        .single()
+        .maybeSingle()
 
-      if (!phone) continue
+      let phone = phoneById
+
+      if (!phone && displayPhoneNumber) {
+        const { data: phoneByDisplay } = await supabase
+          .from("phone_numbers")
+          .select("*")
+          .eq("display_number", displayPhoneNumber)
+          .eq("is_active", true)
+          .maybeSingle()
+
+        phone = phoneByDisplay
+      }
+
+      if (!phone) {
+        console.error("[WHATSAPP][ERROR] mapping_not_found", {
+          phone_number_id: phoneNumberId,
+          display_phone_number: displayPhoneNumber,
+        })
+        continue
+      }
+
+      const { data: waba } = await supabase
+        .from("waba_accounts")
+        .select("*")
+        .eq("id", phone.waba_id)
+        .maybeSingle()
+
+      if (!waba) {
+        console.error("[WHATSAPP][ERROR] mapping_not_found", {
+          phone_number_id: phoneNumberId,
+          display_phone_number: displayPhoneNumber,
+        })
+        continue
+      }
+
+      console.log("[WHATSAPP][MAPPING]", {
+        phone_number_id: phone.phone_number_id,
+        display_phone_number: phone.display_number,
+        org_id: waba.org_id,
+        waba_id: waba.waba_id,
+      })
+
+      // Access token'ı decrypt et
+      let accessToken: string
+      try {
+        accessToken = decryptToken(waba.access_token)
+      } catch {
+        // Decrypt başarısızsa, token düz metin olabilir
+        accessToken = waba.access_token
+      }
 
       const contactsData = value.contacts || []
 
@@ -912,6 +949,12 @@ async function processWhatsAppMessage(
     console.error("[Webhook] Conversation olusturulamadi:", contact.id)
     return
   }
+  console.log("[WHATSAPP][CONVERSATION]", {
+    conversation_id: conversation.id,
+    contact_id: contact.id,
+    phone_number_id: phone.phone_number_id,
+    org_id: waba.org_id,
+  })
 
   const validTypes = ["text", "image", "video", "audio", "document", "location"]
   const { error: msgError } = await supabase.from("messages").insert({
@@ -929,6 +972,13 @@ async function processWhatsAppMessage(
     console.error("[Webhook] Mesaj kayit hatasi:", msgError)
     return
   }
+  console.log("[WHATSAPP][MESSAGE]", {
+    wa_message_id: msgId,
+    conversation_id: conversation.id,
+    contact_id: contact.id,
+    type: msgType,
+    direction: "inbound",
+  })
 
   await supabase.from("conversations").update({
     last_message_at: new Date().toISOString(),
