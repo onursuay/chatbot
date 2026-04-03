@@ -508,13 +508,38 @@ export default function KnowledgeBasePage() {
                   onChange={handleFileChange}
                   className="hidden"
                 />
-                <div className="text-3xl mb-2">{fileName ? "\u{2705}" : "\u{1F4E4}"}</div>
                 {fileReading ? (
-                  <p className="text-caption text-ink-tertiary">{t("kb_reading_file")}</p>
+                  <div className="flex flex-col items-center gap-4 py-3">
+                    <div className="relative w-16 h-16">
+                      <div className="absolute inset-0 rounded-full border-[5px] border-primary/10" />
+                      <div className="absolute inset-0 rounded-full border-[5px] border-transparent border-t-primary border-r-primary/55 animate-spin" />
+                      <div className="absolute inset-[14px] rounded-full bg-primary/10 animate-pulse" />
+                    </div>
+                    <div className="w-full max-w-[320px] space-y-2">
+                      <div className="h-2 rounded-full bg-surface-200 overflow-hidden">
+                        <div className="h-full w-2/3 rounded-full bg-gradient-to-r from-primary/15 via-primary to-primary/15 animate-pulse" />
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="h-2 rounded-full bg-surface-150 animate-pulse" />
+                        <div className="h-2 rounded-full bg-surface-150 animate-pulse" style={{ animationDelay: "160ms" }} />
+                        <div className="h-2 rounded-full bg-surface-150 animate-pulse" style={{ animationDelay: "320ms" }} />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-caption text-ink-secondary">
+                      <span className="w-2 h-2 rounded-full bg-primary animate-bounce" />
+                      <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "120ms" }} />
+                      <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "240ms" }} />
+                      <span>{isTR ? "PDF metni hazırlanıyor" : "Preparing PDF text"}</span>
+                    </div>
+                  </div>
                 ) : fileName ? (
-                  <p className="text-caption text-ink-secondary font-bold">{fileName}</p>
+                  <>
+                    <div className="text-3xl mb-2">{"\u{2705}"}</div>
+                    <p className="text-caption text-ink-secondary font-bold">{fileName}</p>
+                  </>
                 ) : (
                   <>
+                    <div className="text-3xl mb-2">{"\u{1F4E4}"}</div>
                     <p className="text-caption text-ink-secondary font-bold mb-1">
                       {isTR ? "Dosya yuklemek icin tiklayin veya surukleyin" : "Click or drag to upload a file"}
                     </p>

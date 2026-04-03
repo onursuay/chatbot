@@ -19,6 +19,23 @@ function normalizeExtractedText(text: string) {
 }
 
 async function extractPdfText(buffer: Uint8Array) {
+  const { PDFParse } = await import("pdf-parse")
+  const parser = new PDFParse({ data: buffer })
+
+  try {
+    try {
+      const result = await parser.getText()
+      const parsedText = normalizeExtractedText(result?.text || "")
+      if (parsedText) {
+        return parsedText
+      }
+    } catch (error) {
+      console.warn("[KNOWLEDGE_BASE][PDF_PARSE_FALLBACK]", error)
+    }
+  } finally {
+    await parser.destroy().catch(() => undefined)
+  }
+
   const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs")
   const loadingTask = pdfjsLib.getDocument({
     data: buffer,
