@@ -111,7 +111,7 @@ export async function POST(request: Request) {
       }
 
       // Sync to runtime tables
-      await syncRuntimeTables(supabase, auth.org_id, channel, platform_id, platform_name, metadata, true)
+      await syncRuntimeTables(supabase, auth.org_id, channel, platform_id, platform_name, platform_detail, metadata, true)
 
       // Subscribe to webhooks
       let webhookResult: any = null
@@ -138,7 +138,7 @@ export async function POST(request: Request) {
           // metadata'ya da kaydet ki channel_accounts'a yazılsın
           metadata.page_access_token = pageToken
           // Sync tablosunu tekrar güncelle (token ile)
-          await syncRuntimeTables(supabase, auth.org_id, channel, platform_id, platform_name, metadata, true)
+          await syncRuntimeTables(supabase, auth.org_id, channel, platform_id, platform_name, platform_detail, metadata, true)
         }
       }
 
@@ -172,7 +172,7 @@ export async function POST(request: Request) {
       }
 
       // Deactivate runtime tables
-      await syncRuntimeTables(supabase, auth.org_id, channel, platform_id, platform_name, metadata, false)
+      await syncRuntimeTables(supabase, auth.org_id, channel, platform_id, platform_name, platform_detail, metadata, false)
 
       return NextResponse.json({ message: "Kanal hesabi devre disi birakildi" })
     }
@@ -209,7 +209,7 @@ export async function DELETE(request: Request) {
   await supabase.from("channel_selections").delete().eq("id", id).eq("org_id", auth.org_id)
 
   // Deactivate runtime tables
-  await syncRuntimeTables(supabase, auth.org_id, sel.channel, sel.platform_id, null, sel.metadata, false)
+  await syncRuntimeTables(supabase, auth.org_id, sel.channel, sel.platform_id, null, null, sel.metadata, false)
 
   return NextResponse.json({ success: true })
 }
@@ -221,17 +221,99 @@ async function syncRuntimeTables(
   channel: string,
   platformId: string,
   platformName: string | null,
+  platformDetail: string | null,
   metadata: any,
   enabled: boolean
 ) {
   if (channel === "whatsapp") {
     if (enabled) {
-      // Activate the selected phone number (multi-account: don't deactivate others)
-      await supabase
-        .from("phone_numbers")
-        .update({ is_active: true })
-        .eq("org_id", orgId)
-        .eq("phone_number_id", platformId)
+      let runtimeWabaId: string | null = null
+      const selectedWabaId = metadata?.waba_id || null
+
+      if (selectedWabaId) {
+        const { data: existingWaba } = await supabase
+          .from("waba_accounts")
+          .select("id")
+          .eq("org_id", orgId)
+          .eq("waba_id", selectedWabaId)
+          .maybeSingle()
+
+        if (existingWaba) {
+          runtimeWabaId = existingWaba.id
+          await supabase
+            .from("waba_accounts")
+            .update({
+              name: metadata?.waba_name || platformName || "WhatsApp Business",
+              is_active: true,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", existingWaba.id)
+        } else {
+          const { data: connection } = await supabase
+            .from("meta_connections")
+            .select("access_token")
+            .eq("org_id", orgId)
+            .eq("status", "active")
+            .maybeSingle()
+
+          if (connection?.access_token) {
+            const { data: newWaba } = await supabase
+              .from("waba_accounts")
+              .insert({
+                org_id: orgId,
+                waba_id: selectedWabaId,
+                name: metadata?.waba_name || platformName || "WhatsApp Business",
+                access_token: connection.access_token,
+                is_active: true,
+              })
+              .select("id")
+              .single()
+
+            runtimeWabaId = newWaba?.id || null
+          }
+        }
+      }
+
+      if (runtimeWabaId) {
+        const { data: existingPhone } = await supabase
+          .from("phone_numbers")
+          .select("id")
+          .eq("org_id", orgId)
+          .eq("phone_number_id", platformId)
+          .maybeSingle()
+
+        if (existingPhone) {
+          await supabase
+            .from("phone_numbers")
+            .update({
+              waba_id: runtimeWabaId,
+              display_number: platformDetail || platformId,
+              verified_name: platformName || null,
+              is_active: true,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", existingPhone.id)
+        } else {
+          await supabase
+            .from("phone_numbers")
+            .insert({
+              waba_id: runtimeWabaId,
+              org_id: orgId,
+              phone_number_id: platformId,
+              display_number: platformDetail || platformId,
+              verified_name: platformName || null,
+              quality_rating: metadata?.quality_rating || "GREEN",
+              status: "CONNECTED",
+              is_active: true,
+            })
+        }
+      } else {
+        await supabase
+          .from("phone_numbers")
+          .update({ is_active: true })
+          .eq("org_id", orgId)
+          .eq("phone_number_id", platformId)
+      }
     } else {
       // Just deactivate this specific phone number
       await supabase

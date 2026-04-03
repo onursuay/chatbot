@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { getAuthUser } from "@/lib/jwt"
 import { getServiceSupabase } from "@/lib/supabase"
 
+const META_APP_ID = process.env.NEXT_PUBLIC_META_APP_ID || process.env.META_APP_ID || ""
+const META_APP_SECRET = process.env.META_APP_SECRET || ""
 const GRAPH_API_VERSION = "v21.0"
 const GRAPH_BASE = `https://graph.facebook.com/${GRAPH_API_VERSION}`
 
@@ -193,6 +195,55 @@ export async function GET(request: Request) {
 
 // WhatsApp: /me/businesses -> WABAs -> phone_numbers
 async function fetchWhatsAppAccounts(accessToken: string) {
+  if (META_APP_ID && META_APP_SECRET) {
+    try {
+      const debugRes = await fetch(
+        `${GRAPH_BASE}/debug_token?input_token=${accessToken}&access_token=${META_APP_ID}|${META_APP_SECRET}`
+      )
+      const debugData = await debugRes.json()
+      const scopes = debugData.data?.granular_scopes || []
+      const whatsappScope = scopes.find((scope: any) => scope.scope === "whatsapp_business_management")
+      const targetIds: string[] = whatsappScope?.target_ids || []
+
+      if (targetIds.length > 0) {
+        const results: any[] = []
+
+        for (const wabaId of targetIds) {
+          const [wabaRes, phoneRes] = await Promise.all([
+            fetch(
+              `${GRAPH_BASE}/${wabaId}?fields=id,name,currency,timezone_id`,
+              { headers: { Authorization: `Bearer ${accessToken}` } }
+            ),
+            fetch(
+              `${GRAPH_BASE}/${wabaId}/phone_numbers?fields=id,display_phone_number,verified_name,quality_rating`,
+              { headers: { Authorization: `Bearer ${accessToken}` } }
+            ),
+          ])
+
+          const wabaData = await wabaRes.json()
+          const phoneData = await phoneRes.json()
+
+          results.push({
+            business_id: "",
+            business_name: "",
+            waba_id: wabaData.id || wabaId,
+            waba_name: wabaData.name || wabaId,
+            phone_numbers: (phoneData.data || []).map((p: any) => ({
+              id: p.id,
+              display_phone_number: p.display_phone_number,
+              verified_name: p.verified_name,
+              quality_rating: p.quality_rating,
+            })),
+          })
+        }
+
+        return results
+      }
+    } catch (e) {
+      console.error("[AVAILABLE] debug_token whatsapp scope lookup failed:", e)
+    }
+  }
+
   const bizRes = await fetch(
     `${GRAPH_BASE}/me/businesses?fields=id,name`,
     { headers: { Authorization: `Bearer ${accessToken}` } }
