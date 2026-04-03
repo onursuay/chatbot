@@ -88,7 +88,10 @@ async def route_webhook(payload: dict, db: AsyncSession) -> None:
                 },
             )
 
-            access_token = decrypt_token(waba.access_token)
+            try:
+                access_token = decrypt_token(waba.access_token)
+            except Exception:
+                access_token = waba.access_token
 
             # Gelen mesajlari isle
             contacts_data = value.get("contacts", [])

@@ -1,5 +1,6 @@
 """Conversations API — takim inbox backend'i."""
 
+import logging
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -20,6 +21,7 @@ from app.models.waba import PhoneNumber, WABAAccount
 from app.utils.security import decrypt_token
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.get("", response_model=list[ConversationResponse])
@@ -141,7 +143,11 @@ async def send_message_endpoint(
 
     waba_result = await db.execute(select(WABAAccount).where(WABAAccount.id == phone.waba_id))
     waba = waba_result.scalar_one()
-    access_token = decrypt_token(waba.access_token)
+    try:
+        access_token = decrypt_token(waba.access_token)
+    except Exception:
+        logger.warning("WABA access_token decrypt failed; using raw token for send_message")
+        access_token = waba.access_token
 
     # WhatsApp'a gonder
     result = await whatsapp_service.send_message(
@@ -215,7 +221,11 @@ async def start_conversation(
     # WABA token
     waba_result = await db.execute(select(WABAAccount).where(WABAAccount.id == phone.waba_id))
     waba = waba_result.scalar_one()
-    access_token = decrypt_token(waba.access_token)
+    try:
+        access_token = decrypt_token(waba.access_token)
+    except Exception:
+        logger.warning("WABA access_token decrypt failed; using raw token for start_conversation")
+        access_token = waba.access_token
 
     # Contact bul veya olustur
     contact_result = await db.execute(
