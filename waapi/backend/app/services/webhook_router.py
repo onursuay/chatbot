@@ -6,7 +6,7 @@ import logging
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.waba import WABAAccount, PhoneNumber
@@ -23,38 +23,72 @@ async def route_webhook(payload: dict, db: AsyncSession) -> None:
     """Webhook payload'ini parse et ve dogru tenant'a yonlendir."""
 
     for entry in payload.get("entry", []):
-        waba_id_str = entry.get("id")
-        if not waba_id_str:
-            continue
-
-        # WABA ID ile tenant bul
-        result = await db.execute(
-            select(WABAAccount).where(WABAAccount.waba_id == waba_id_str)
-        )
-        waba = result.scalar_one_or_none()
-        if not waba:
-            logger.warning(f"Bilinmeyen WABA: {waba_id_str}")
-            continue
-
-        access_token = decrypt_token(waba.access_token)
-
         for change in entry.get("changes", []):
             value = change.get("value", {})
-            phone_number_id_str = value.get("metadata", {}).get("phone_number_id")
+            metadata = value.get("metadata", {}) or {}
+            phone_number_id_str = metadata.get("phone_number_id")
+            display_phone_number = metadata.get("display_phone_number")
+
+            logger.info(
+                "[WHATSAPP][NORMALIZED] %s",
+                {
+                    "entry_id": entry.get("id"),
+                    "field": change.get("field"),
+                    "phone_number_id": phone_number_id_str,
+                    "display_phone_number": display_phone_number,
+                    "messages_count": len(value.get("messages", []) or []),
+                    "statuses_count": len(value.get("statuses", []) or []),
+                },
+            )
 
             if not phone_number_id_str:
                 continue
 
-            # Phone number dogrula
+            # Phone number -> WABA -> org mapping'i bul
             result = await db.execute(
                 select(PhoneNumber).where(
-                    PhoneNumber.phone_number_id == phone_number_id_str,
-                    PhoneNumber.org_id == waba.org_id,
+                    or_(
+                        PhoneNumber.phone_number_id == phone_number_id_str,
+                        PhoneNumber.display_number == (display_phone_number or ""),
+                    )
                 )
             )
             phone = result.scalar_one_or_none()
             if not phone:
+                logger.error(
+                    "[WHATSAPP][ERROR] mapping_not_found %s",
+                    {
+                        "phone_number_id": phone_number_id_str,
+                        "display_phone_number": display_phone_number,
+                    },
+                )
                 continue
+
+            result = await db.execute(
+                select(WABAAccount).where(WABAAccount.id == phone.waba_id)
+            )
+            waba = result.scalar_one_or_none()
+            if not waba:
+                logger.error(
+                    "[WHATSAPP][ERROR] mapping_not_found %s",
+                    {
+                        "phone_number_id": phone_number_id_str,
+                        "display_phone_number": display_phone_number,
+                    },
+                )
+                continue
+
+            logger.info(
+                "[WHATSAPP][MAPPING] %s",
+                {
+                    "phone_number_id": phone.phone_number_id,
+                    "display_phone_number": phone.display_number,
+                    "org_id": str(waba.org_id),
+                    "waba_id": waba.waba_id,
+                },
+            )
+
+            access_token = decrypt_token(waba.access_token)
 
             # Gelen mesajlari isle
             contacts_data = value.get("contacts", [])
@@ -104,6 +138,15 @@ async def _process_inbound_message(
 
     # Conversation bul veya olustur
     conversation = await _get_or_create_conversation(db, waba.org_id, contact.id, phone.id)
+    logger.info(
+        "[WHATSAPP][CONVERSATION] %s",
+        {
+            "conversation_id": str(conversation.id),
+            "contact_id": str(contact.id),
+            "phone_number_id": phone.phone_number_id,
+            "org_id": str(waba.org_id),
+        },
+    )
 
     # Mesaji DB'ye kaydet
     inbound_msg = Message(
@@ -118,6 +161,16 @@ async def _process_inbound_message(
         sender_type="contact",
     )
     db.add(inbound_msg)
+    logger.info(
+        "[WHATSAPP][MESSAGE] %s",
+        {
+            "wa_message_id": msg_id,
+            "conversation_id": str(conversation.id),
+            "contact_id": str(contact.id),
+            "type": msg_type,
+            "direction": "inbound",
+        },
+    )
 
     # Conversation guncelle
     conversation.last_message_at = datetime.now(timezone.utc)
