@@ -54,9 +54,12 @@ export async function POST(request: Request) {
         const { data } = await supabase
           .from("waba_accounts")
           .update({
+            org_id: auth.org_id,
+            name: wabaDetails.name || "WhatsApp Business",
             access_token: accessToken,
             is_active: true,
             business_id: businessId,
+            updated_at: new Date().toISOString(),
           })
           .eq("id", existingWaba.id)
           .select()
@@ -104,9 +107,14 @@ export async function POST(request: Request) {
           await supabase
             .from("phone_numbers")
             .update({
+              waba_id: wabaRecord.id,
+              org_id: auth.org_id,
               display_number: phone.display_phone_number,
               verified_name: phone.verified_name || null,
+              quality_rating: phone.quality_rating || "GREEN",
+              status: "CONNECTED",
               is_active: true,
+              updated_at: new Date().toISOString(),
             })
             .eq("id", existingPhone.id)
         } else {

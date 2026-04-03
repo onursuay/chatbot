@@ -229,12 +229,17 @@ async function syncRuntimeTables(
     if (enabled) {
       let runtimeWabaId: string | null = null
       const selectedWabaId = metadata?.waba_id || null
+      const { data: connection } = await supabase
+        .from("meta_connections")
+        .select("access_token")
+        .eq("org_id", orgId)
+        .eq("status", "active")
+        .maybeSingle()
 
       if (selectedWabaId) {
         const { data: existingWaba } = await supabase
           .from("waba_accounts")
           .select("id")
-          .eq("org_id", orgId)
           .eq("waba_id", selectedWabaId)
           .maybeSingle()
 
@@ -243,19 +248,14 @@ async function syncRuntimeTables(
           await supabase
             .from("waba_accounts")
             .update({
+              org_id: orgId,
               name: metadata?.waba_name || platformName || "WhatsApp Business",
+              access_token: connection?.access_token || undefined,
               is_active: true,
               updated_at: new Date().toISOString(),
             })
             .eq("id", existingWaba.id)
         } else {
-          const { data: connection } = await supabase
-            .from("meta_connections")
-            .select("access_token")
-            .eq("org_id", orgId)
-            .eq("status", "active")
-            .maybeSingle()
-
           if (connection?.access_token) {
             const { data: newWaba } = await supabase
               .from("waba_accounts")
@@ -278,7 +278,6 @@ async function syncRuntimeTables(
         const { data: existingPhone } = await supabase
           .from("phone_numbers")
           .select("id")
-          .eq("org_id", orgId)
           .eq("phone_number_id", platformId)
           .maybeSingle()
 
