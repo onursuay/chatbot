@@ -257,6 +257,24 @@ body {
     border-right: 1px solid rgba(73, 149, 209, 0.2);
     border-bottom: 1px solid rgba(73, 149, 209, 0.2);
   }
+  .ds-typing-row {
+    @apply inline-flex items-center gap-2;
+    color: #5d748a;
+    font-size: 0.6875rem;
+    font-weight: 600;
+  }
+  .ds-typing-dots {
+    @apply inline-flex items-center gap-1;
+  }
+  .ds-typing-dot {
+    width: 0.38rem;
+    height: 0.38rem;
+    border-radius: 9999px;
+    background: rgba(73, 149, 209, 0.85);
+    animation: ds-typing-dot 1.15s infinite ease-in-out;
+  }
+  .ds-typing-dot:nth-child(2) { animation-delay: 0.16s; }
+  .ds-typing-dot:nth-child(3) { animation-delay: 0.32s; }
 
   /* --- Divider --- */
   .ds-divider { @apply h-px bg-surface-300; }
@@ -307,6 +325,17 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+@keyframes ds-typing-dot {
+  0%, 60%, 100% {
+    opacity: 0.3;
+    transform: translateY(0) scale(0.92);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1);
+  }
 }
 
 /* --- Reveal Animation --- */

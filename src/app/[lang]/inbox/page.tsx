@@ -349,6 +349,12 @@ export default function InboxPage() {
   })
 
   const messageGroups = groupMessagesByDate(messages)
+  const lastMessage = messages[messages.length - 1]
+  const showAiTypingIndicator = Boolean(
+    selectedConv?.is_bot_active &&
+    lastMessage &&
+    lastMessage.direction === "inbound"
+  )
 
   return (
     <div className="h-full flex overflow-hidden">
@@ -592,14 +598,18 @@ export default function InboxPage() {
                 </div>
               ))}
 
-              {/* AI Context Tip - only when bot is active and has bot messages */}
-              {selectedConv.is_bot_active && messages.some((m) => m.sender_type === "bot") && (
-                <div className="flex justify-center py-2">
-                  <div className="ds-ai-surface ds-ai-glow px-4 py-2 rounded-btn flex items-center gap-2">
-                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-primary">
-                      <path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z" />
-                    </svg>
-                    <span className="text-micro font-bold text-ink">{t("ai_suggestions_ready")}</span>
+              {showAiTypingIndicator && (
+                <div className="flex items-end flex-row-reverse gap-2.5 max-w-[82%] lg:max-w-[74%] ml-auto animate-slide-up">
+                  <div className="ds-chat-bubble ds-chat-bubble-bot">
+                    <span className="text-[10px] font-bold text-[#4995d1] block mb-1">{t("ai_bot")}</span>
+                    <div className="ds-typing-row">
+                      <span>{t("ai_typing")}</span>
+                      <span className="ds-typing-dots" aria-hidden="true">
+                        <span className="ds-typing-dot" />
+                        <span className="ds-typing-dot" />
+                        <span className="ds-typing-dot" />
+                      </span>
+                    </div>
                   </div>
                 </div>
               )}

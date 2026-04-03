@@ -411,6 +411,7 @@ const translations: Record<string, Record<Lang, string>> = {
   "online": { tr: "Çevrimiçi", en: "Online" },
   "offline": { tr: "Çevrimdışı", en: "Offline" },
   "ai_suggestions_ready": { tr: "Yapay zeka yanıt önerileri hazırladı.", en: "AI has prepared reply suggestions." },
+  "ai_typing": { tr: "Yanıt hazırlanıyor", en: "Preparing reply" },
   "ai_summary_title": { tr: "AI Özet & Öngörü", en: "AI Summary & Insights" },
   "customer_details": { tr: "Müşteri Detayları", en: "Customer Details" },
   "email_label": { tr: "E-posta", en: "Email" },
