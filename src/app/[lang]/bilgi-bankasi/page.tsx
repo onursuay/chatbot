@@ -236,8 +236,8 @@ export default function KnowledgeBasePage() {
           setContent(isTR ? "(Gecersiz DOCX dosyasi)" : "(Invalid DOCX file)")
         }
       }
-    } catch {
-      showToast("error", isTR ? "Dosya okunamadi" : "Failed to read file")
+    } catch (err: any) {
+      showToast("error", err?.message || (isTR ? "Dosya okunamadi" : "Failed to read file"))
     }
     setFileReading(false)
   }
