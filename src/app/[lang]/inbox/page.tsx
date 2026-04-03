@@ -538,7 +538,7 @@ export default function InboxPage() {
                     return (
                       <div
                         key={msg.id}
-                        className={`flex ${isOutbound ? "flex-row-reverse" : ""} gap-2.5 max-w-[70%] ${isOutbound ? "ml-auto" : ""}`}
+                        className={`flex items-end ${isOutbound ? "flex-row-reverse" : ""} gap-2.5 max-w-[82%] lg:max-w-[74%] ${isOutbound ? "ml-auto" : ""}`}
                       >
                         {/* Avatar for incoming */}
                         {!isOutbound && isFirstInGroup && (
@@ -551,21 +551,23 @@ export default function InboxPage() {
                         {!isOutbound && !isFirstInGroup && <div className="w-7 shrink-0" />}
 
                         <div
-                          className={`px-4 py-2.5 text-ui leading-relaxed ${
+                          className={`ds-chat-bubble ${
                             isOutbound
                               ? isBot
-                                ? "bg-[#ecf5fc] border border-[#4995d1]/20 text-[#1B5E20] rounded-[6px] rounded-br-sm"
-                                : "bg-[#DCF8C6] text-[#111B21] rounded-[6px] rounded-br-sm"
-                              : "bg-white text-[#111B21] rounded-[6px] rounded-bl-sm shadow-sm border border-surface-300"
+                                ? "ds-chat-bubble-bot"
+                                : "ds-chat-bubble-agent"
+                              : "ds-chat-bubble-incoming"
                           }`}
                         >
                           {isBot && isOutbound && (
-                            <span className="text-[9px] font-bold px-1.5 py-px mb-1.5 inline-flex bg-[#25D366]/15 text-[#25D366] rounded">{t("ai_bot")}</span>
+                            <span className="text-[9px] font-bold px-2 py-0.5 mb-1.5 inline-flex w-fit bg-[#25D366]/12 text-[#1d8f50] rounded-full">
+                              {t("ai_bot")}
+                            </span>
                           )}
                           {msg.sender_type === "agent" && isOutbound && (
                             <span className="text-[10px] text-[#667781] block mb-1">{t("agent")}</span>
                           )}
-                          <p className="whitespace-pre-wrap">{msg.content?.body}</p>
+                          <p className="whitespace-pre-wrap break-words">{msg.content?.body}</p>
                           <div className={`flex items-center gap-1 mt-1.5 ${isOutbound ? "justify-end" : ""}`}>
                             <span className="text-[10px] font-medium text-[#667781]">
                               {formatMessageTime(msg.created_at)}

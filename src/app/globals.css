@@ -209,6 +209,55 @@ body {
   .ds-ai-surface { @apply bg-[#ecf5fc] border border-[#4995d1]/15 rounded-card; }
   .ds-ai-glow { box-shadow: 0 0 0 1px rgba(17, 157, 88, 0.08), 0 1px 8px rgba(17, 157, 88, 0.1); }
 
+  /* --- Chat Bubble --- */
+  .ds-chat-bubble {
+    @apply relative inline-flex flex-col text-ui leading-relaxed;
+    min-width: clamp(9rem, 18vw, 12rem);
+    max-width: min(100%, 34rem);
+    padding: 0.8rem 0.95rem 0.7rem;
+    border-radius: 18px;
+    box-shadow: 0 10px 24px -18px rgba(17, 24, 39, 0.28);
+  }
+  .ds-chat-bubble::after {
+    content: "";
+    position: absolute;
+    bottom: 0.6rem;
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 0.2rem;
+    transform: rotate(45deg);
+    pointer-events: none;
+  }
+  .ds-chat-bubble-incoming {
+    @apply bg-white text-[#111B21] border border-surface-300;
+    border-bottom-left-radius: 8px;
+  }
+  .ds-chat-bubble-incoming::after {
+    left: -0.32rem;
+    @apply bg-white border-l border-b border-surface-300;
+  }
+  .ds-chat-bubble-agent {
+    color: #111b21;
+    background: linear-gradient(135deg, #dcf8c6 0%, #eefbdd 100%);
+    border-bottom-right-radius: 8px;
+  }
+  .ds-chat-bubble-agent::after {
+    right: -0.32rem;
+    background: #e7fad3;
+  }
+  .ds-chat-bubble-bot {
+    color: #1e4d6b;
+    background: linear-gradient(135deg, #ecf5fc 0%, #f7fbff 100%);
+    border: 1px solid rgba(73, 149, 209, 0.2);
+    border-bottom-right-radius: 8px;
+  }
+  .ds-chat-bubble-bot::after {
+    right: -0.32rem;
+    background: #f1f8fe;
+    border-right: 1px solid rgba(73, 149, 209, 0.2);
+    border-bottom: 1px solid rgba(73, 149, 209, 0.2);
+  }
+
   /* --- Divider --- */
   .ds-divider { @apply h-px bg-surface-300; }
 
