@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react"
 import { api } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
 import { useI18n } from "@/lib/i18n"
+import { extractPdfTextClient } from "@/lib/pdf-text-client"
 
 interface KBItem {
   id: string
@@ -178,6 +179,7 @@ export default function KnowledgeBasePage() {
 
     setFileReading(true)
     setFileName(file.name)
+    setContent("")
     if (!title.trim()) setTitle(file.name.replace(/\.[^/.]+$/, ""))
 
     try {
@@ -185,26 +187,8 @@ export default function KnowledgeBasePage() {
         const text = await file.text()
         setContent(text.substring(0, 10000))
       } else if (ext === "pdf") {
-        const token = getToken()
-        if (!token) throw new Error(isTR ? "Oturum bulunamadi" : "Session not found")
-
-        const formData = new FormData()
-        formData.append("file", file)
-
-        const response = await fetch("/api/knowledge-base/extract-file", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        })
-
-        const data = await response.json().catch(() => ({}))
-        if (!response.ok) {
-          throw new Error(data.detail || (isTR ? "PDF icerigi okunamadi" : "Failed to read PDF content"))
-        }
-
-        setContent((data.content || "").substring(0, 10000))
+        const text = await extractPdfTextClient(file, 10000)
+        setContent(text)
       } else if (ext === "docx") {
         // DOCX is a ZIP, extract word/document.xml and strip XML tags
         const arrayBuffer = await file.arrayBuffer()
@@ -509,27 +493,16 @@ export default function KnowledgeBasePage() {
                   className="hidden"
                 />
                 {fileReading ? (
-                  <div className="flex flex-col items-center gap-4 py-3">
-                    <div className="relative w-16 h-16">
-                      <div className="absolute inset-0 rounded-full border-[5px] border-primary/10" />
-                      <div className="absolute inset-0 rounded-full border-[5px] border-transparent border-t-primary border-r-primary/55 animate-spin" />
-                      <div className="absolute inset-[14px] rounded-full bg-primary/10 animate-pulse" />
-                    </div>
-                    <div className="w-full max-w-[320px] space-y-2">
-                      <div className="h-2 rounded-full bg-surface-200 overflow-hidden">
-                        <div className="h-full w-2/3 rounded-full bg-gradient-to-r from-primary/15 via-primary to-primary/15 animate-pulse" />
+                  <div className="flex items-center justify-center min-h-[128px]">
+                    <div className="flex items-center gap-3 rounded-full border border-primary/15 bg-primary/5 px-7 py-4 shadow-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="w-3.5 h-3.5 rounded-full bg-primary animate-bounce" />
+                        <span className="w-3.5 h-3.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: "140ms" }} />
+                        <span className="w-3.5 h-3.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: "280ms" }} />
                       </div>
-                      <div className="grid grid-cols-3 gap-2">
-                        <div className="h-2 rounded-full bg-surface-150 animate-pulse" />
-                        <div className="h-2 rounded-full bg-surface-150 animate-pulse" style={{ animationDelay: "160ms" }} />
-                        <div className="h-2 rounded-full bg-surface-150 animate-pulse" style={{ animationDelay: "320ms" }} />
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-caption text-ink-secondary">
-                      <span className="w-2 h-2 rounded-full bg-primary animate-bounce" />
-                      <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "120ms" }} />
-                      <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "240ms" }} />
-                      <span>{isTR ? "PDF metni hazırlanıyor" : "Preparing PDF text"}</span>
+                      <span className="text-base font-semibold text-ink-secondary">
+                        {isTR ? "PDF metni hazırlanıyor" : "Preparing PDF text"}
+                      </span>
                     </div>
                   </div>
                 ) : fileName ? (
