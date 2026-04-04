@@ -138,7 +138,19 @@ async function extractPdfTextWithPdfParse(buffer: Uint8Array): Promise<PdfParseR
   }
 }
 
+async function ensurePdfJsNodePolyfills() {
+  const globalScope = globalThis as any
+
+  if (typeof globalScope.DOMMatrix !== "undefined") {
+    return
+  }
+
+  const { DOMMatrix } = await import("@napi-rs/canvas")
+  globalScope.DOMMatrix = DOMMatrix
+}
+
 async function extractPdfTextWithPdfJs(buffer: Uint8Array): Promise<PdfParseResult> {
+  await ensurePdfJsNodePolyfills()
   const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs")
   const loadingTask = pdfjsLib.getDocument({
     data: buffer,
