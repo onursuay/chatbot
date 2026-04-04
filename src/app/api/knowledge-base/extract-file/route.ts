@@ -1,8 +1,10 @@
+import { createRequire } from "node:module"
 import { NextResponse } from "next/server"
 import { getAuthUser } from "@/lib/jwt"
 import { getServiceSupabase } from "@/lib/supabase"
 
 export const runtime = "nodejs"
+const require = createRequire(import.meta.url)
 
 const MAX_CONTENT_LENGTH = 10000
 const PDF_MAGIC_HEADER = [0x25, 0x50, 0x44, 0x46, 0x2d]
@@ -145,7 +147,7 @@ async function ensurePdfJsNodePolyfills() {
     return
   }
 
-  const { DOMMatrix } = await import("@napi-rs/canvas")
+  const { DOMMatrix } = require("@napi-rs/canvas/geometry")
   globalScope.DOMMatrix = DOMMatrix
 }
 
