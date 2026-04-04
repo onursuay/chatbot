@@ -64,16 +64,25 @@ function getFirst16BytesHex(buffer: Uint8Array) {
     .join("")
 }
 
+function buildPdfErrorBody(stage: string, reason: PdfErrorReason, error?: unknown) {
+  return {
+    stage,
+    errorName: error ? getErrorName(error) : null,
+    errorMessage: error ? getErrorMessage(error) : reason,
+    reason,
+  }
+}
+
 function logPdfError(
   reason: PdfErrorReason,
   file: { name: string; type: string; size: number },
   buffer: Uint8Array | null,
   error?: unknown,
-  parserName?: string
+  stage?: string
 ) {
   console.error("[PDF][ERROR]", {
+    stage: stage || null,
     reason,
-    parserName: parserName || null,
     filename: file.name,
     mimeType: file.type || null,
     size: file.size,
@@ -227,18 +236,15 @@ export async function POST(request: Request) {
 
     if (downloadError || !storedFile) {
       console.log("[PDF][DOWNLOAD]", {
-        status: "error",
         contentType: null,
         byteLength: 0,
+        status: "error",
       })
-      console.error("[PDF][ERROR]", {
-        reason: "parser_exception",
-        name: downloadError?.name || "StorageDownloadError",
-        message: downloadError?.message || "storage_download_failed",
-        stack: downloadError ? undefined : undefined,
-        cause: undefined,
-      })
-      return NextResponse.json({ detail: "parser_exception" }, { status: 400 })
+      logPdfError("parser_exception", file, null, downloadError || new Error("storage_download_failed"), "download")
+      return NextResponse.json(
+        buildPdfErrorBody("download", "parser_exception", downloadError || new Error("storage_download_failed")),
+        { status: 400 }
+      )
     }
 
     const effectiveMimeType = storedFile.type || mimeType || ""
@@ -265,18 +271,22 @@ export async function POST(request: Request) {
     })
 
     if (ext !== "pdf" || !isPdfMimeType(mimeType)) {
-      logPdfError("invalid_mime", file, buffer)
-      return NextResponse.json({ detail: "invalid_mime" }, { status: 400 })
+      logPdfError("invalid_mime", file, buffer, undefined, "input_validation")
+      return NextResponse.json(buildPdfErrorBody("input_validation", "invalid_mime"), { status: 400 })
     }
 
     if (!buffer.byteLength) {
-      logPdfError("empty_buffer", file, buffer)
-      return NextResponse.json({ detail: "empty_buffer" }, { status: 400 })
+      logPdfError("empty_buffer", file, buffer, undefined, "buffer")
+      return NextResponse.json(buildPdfErrorBody("buffer", "empty_buffer"), { status: 400 })
     }
 
     if ((effectiveMimeType && !isPdfMimeType(effectiveMimeType)) || !hasPdfHeader(buffer)) {
-      logPdfError("download_invalid_content", file, buffer)
-      return NextResponse.json({ detail: "download_invalid_content" }, { status: 400 })
+      const invalidContentError = new Error("downloaded_content_is_not_a_valid_pdf")
+      logPdfError("download_invalid_content", file, buffer, invalidContentError, "download_validation")
+      return NextResponse.json(
+        buildPdfErrorBody("download_validation", "download_invalid_content", invalidContentError),
+        { status: 400 }
+      )
     }
 
     let extractedText = ""
@@ -297,7 +307,7 @@ export async function POST(request: Request) {
       const reason = detectParserErrorReason(error, buffer)
       logPdfError(reason, file, buffer, error, "pdf-parse")
       if (reason === "encrypted_pdf") {
-        return NextResponse.json({ detail: reason }, { status: 400 })
+        return NextResponse.json(buildPdfErrorBody("pdf-parse", reason, error), { status: 400 })
       }
     }
 
@@ -316,7 +326,7 @@ export async function POST(request: Request) {
         const reason = detectParserErrorReason(error, buffer)
         logPdfError(reason, file, buffer, error, "pdfjs-dist")
         if (reason === "encrypted_pdf") {
-          return NextResponse.json({ detail: reason }, { status: 400 })
+          return NextResponse.json(buildPdfErrorBody("pdfjs-dist", reason, error), { status: 400 })
         }
       }
     }
@@ -330,16 +340,15 @@ export async function POST(request: Request) {
             ? "parser_exception"
             : "empty_text"
 
-      logPdfError(reason, file, buffer, parserError)
-      return NextResponse.json({ detail: reason }, { status: 400 })
+      logPdfError(reason, file, buffer, parserError, "finalize")
+      return NextResponse.json(buildPdfErrorBody("finalize", reason, parserError), { status: 400 })
     }
 
     return NextResponse.json({
       content: extractedText.substring(0, MAX_CONTENT_LENGTH),
     })
   } catch (error) {
-    logPdfError("parser_exception", file, null, error)
-
-    return NextResponse.json({ detail: "parser_exception" }, { status: 400 })
+    logPdfError("parser_exception", file, null, error, "request")
+    return NextResponse.json(buildPdfErrorBody("request", "parser_exception", error), { status: 400 })
   }
 }
