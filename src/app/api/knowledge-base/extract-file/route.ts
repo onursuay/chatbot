@@ -4,6 +4,21 @@ import { getAuthUser } from "@/lib/jwt"
 export const runtime = "nodejs"
 
 const MAX_CONTENT_LENGTH = 10000
+const PDF_MAGIC_HEADER = [0x25, 0x50, 0x44, 0x46, 0x2d]
+const SUPPORTED_PDF_MIME_TYPES = new Set(["application/pdf", "application/x-pdf"])
+
+type PdfErrorReason =
+  | "invalid_mime"
+  | "empty_buffer"
+  | "encrypted_pdf"
+  | "image_only_pdf"
+  | "empty_text"
+  | "parser_exception"
+
+type PdfParseResult = {
+  extractedText: string
+  pageCount: number
+}
 
 function normalizeExtractedText(text: string) {
   return text
@@ -18,24 +33,73 @@ function normalizeExtractedText(text: string) {
     .trim()
 }
 
-async function extractPdfText(buffer: Uint8Array) {
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) return error.message
+  if (typeof error === "string") return error
+  return "unknown_error"
+}
+
+function logPdfError(
+  reason: PdfErrorReason,
+  file: { name: string; type: string; size: number },
+  buffer: Uint8Array | null,
+  error?: unknown
+) {
+  console.error("[PDF][ERROR]", {
+    reason,
+    filename: file.name,
+    mimeType: file.type || null,
+    size: file.size,
+    byteLength: buffer?.byteLength ?? 0,
+    message: error ? getErrorMessage(error) : undefined,
+  })
+}
+
+function isPdfMimeType(mimeType: string) {
+  return !mimeType || SUPPORTED_PDF_MIME_TYPES.has(mimeType)
+}
+
+function hasPdfHeader(buffer: Uint8Array) {
+  return PDF_MAGIC_HEADER.every((byte, index) => buffer[index] === byte)
+}
+
+function mayBeEncryptedPdf(buffer: Uint8Array) {
+  const sample = Buffer.from(buffer.subarray(0, Math.min(buffer.byteLength, 4096))).toString("latin1")
+  return sample.includes("/Encrypt")
+}
+
+function detectParserErrorReason(error: unknown, buffer: Uint8Array): PdfErrorReason {
+  const message = getErrorMessage(error).toLowerCase()
+  const errorName = error instanceof Error ? error.name : ""
+
+  if (
+    errorName === "PasswordException" ||
+    message.includes("password") ||
+    message.includes("encrypted") ||
+    mayBeEncryptedPdf(buffer)
+  ) {
+    return "encrypted_pdf"
+  }
+
+  return "parser_exception"
+}
+
+async function extractPdfTextWithPdfParse(buffer: Uint8Array): Promise<PdfParseResult> {
   const { PDFParse } = await import("pdf-parse")
   const parser = new PDFParse({ data: buffer })
 
   try {
-    try {
-      const result = await parser.getText()
-      const parsedText = normalizeExtractedText(result?.text || "")
-      if (parsedText) {
-        return parsedText
-      }
-    } catch (error) {
-      console.warn("[KNOWLEDGE_BASE][PDF_PARSE_FALLBACK]", error)
+    const result = await parser.getText()
+    return {
+      extractedText: normalizeExtractedText(result?.text || ""),
+      pageCount: Number(result?.total || result?.pages?.length || 0),
     }
   } finally {
     await parser.destroy().catch(() => undefined)
   }
+}
 
+async function extractPdfTextWithPdfJs(buffer: Uint8Array): Promise<PdfParseResult> {
   const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs")
   const loadingTask = pdfjsLib.getDocument({
     data: buffer,
@@ -93,7 +157,10 @@ async function extractPdfText(buffer: Uint8Array) {
       }
     }
 
-    return normalizeExtractedText(pages.join("\n\n"))
+    return {
+      extractedText: normalizeExtractedText(pages.join("\n\n")),
+      pageCount: Number(pdf.numPages || 0),
+    }
   } finally {
     await pdf.destroy()
   }
@@ -112,37 +179,93 @@ export async function POST(request: Request) {
 
   const file = fileValue as File
   const ext = file.name.split(".").pop()?.toLowerCase()
+  const mimeType = file.type || ""
 
-  if (ext !== "pdf") {
-    return NextResponse.json({ detail: "Sadece PDF destekleniyor" }, { status: 400 })
-  }
+  console.log("[PDF][UPLOAD]", {
+    filename: file.name,
+    mimeType: mimeType || null,
+    size: file.size,
+  })
 
   try {
-    const content = await extractPdfText(new Uint8Array(await file.arrayBuffer()))
+    const buffer = new Uint8Array(await file.arrayBuffer())
 
-    if (!content) {
-      return NextResponse.json(
-        {
-          detail:
-            "PDF icinde secilebilir metin bulunamadi. " +
-            "Sadece metin katmani olan PDF'ler desteklenir; taranmis veya image tabanli PDF'ler desteklenmez.",
-        },
-        { status: 400 }
-      )
+    console.log("[PDF][BUFFER]", {
+      byteLength: buffer.byteLength,
+    })
+
+    if (ext !== "pdf" || !isPdfMimeType(mimeType)) {
+      logPdfError("invalid_mime", file, buffer)
+      return NextResponse.json({ detail: "invalid_mime" }, { status: 400 })
+    }
+
+    if (!buffer.byteLength) {
+      logPdfError("empty_buffer", file, buffer)
+      return NextResponse.json({ detail: "empty_buffer" }, { status: 400 })
+    }
+
+    if (!hasPdfHeader(buffer)) {
+      logPdfError("invalid_mime", file, buffer)
+      return NextResponse.json({ detail: "invalid_mime" }, { status: 400 })
+    }
+
+    let extractedText = ""
+    let pageCount = 0
+    let parserError: unknown = null
+
+    try {
+      const parsed = await extractPdfTextWithPdfParse(buffer)
+      extractedText = parsed.extractedText
+      pageCount = parsed.pageCount
+    } catch (error) {
+      parserError = error
+      const reason = detectParserErrorReason(error, buffer)
+      if (reason === "encrypted_pdf") {
+        logPdfError(reason, file, buffer, error)
+        return NextResponse.json({ detail: reason }, { status: 400 })
+      }
+    }
+
+    if (!extractedText) {
+      try {
+        const parsed = await extractPdfTextWithPdfJs(buffer)
+        extractedText = parsed.extractedText
+        pageCount = Math.max(pageCount, parsed.pageCount)
+      } catch (error) {
+        parserError = parserError || error
+        const reason = detectParserErrorReason(error, buffer)
+        if (reason === "encrypted_pdf") {
+          logPdfError(reason, file, buffer, error)
+          return NextResponse.json({ detail: reason }, { status: 400 })
+        }
+      }
+    }
+
+    console.log("[PDF][PARSE]", {
+      pageCount,
+      extractedTextLength: extractedText.length,
+      preview: extractedText.slice(0, 300),
+    })
+
+    if (!extractedText) {
+      const reason: PdfErrorReason = mayBeEncryptedPdf(buffer)
+        ? "encrypted_pdf"
+        : pageCount > 0
+          ? "image_only_pdf"
+          : parserError
+            ? "parser_exception"
+            : "empty_text"
+
+      logPdfError(reason, file, buffer, parserError)
+      return NextResponse.json({ detail: reason }, { status: 400 })
     }
 
     return NextResponse.json({
-      content: content.substring(0, MAX_CONTENT_LENGTH),
+      content: extractedText.substring(0, MAX_CONTENT_LENGTH),
     })
-  } catch (err: any) {
-    console.error("[KNOWLEDGE_BASE][PDF_EXTRACT_FAILED]", {
-      file_name: file.name,
-      error: err?.message || "pdf_text_extraction_failed",
-    })
+  } catch (error) {
+    logPdfError("parser_exception", file, null, error)
 
-    return NextResponse.json(
-      { detail: err?.message || "PDF icerigi okunamadi" },
-      { status: 400 }
-    )
+    return NextResponse.json({ detail: "parser_exception" }, { status: 400 })
   }
 }

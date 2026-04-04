@@ -13,7 +13,7 @@ function normalizeExtractedText(text: string) {
     .trim()
 }
 
-export async function extractPdfTextClient(file: File, maxLength = 10000) {
+async function extractPdfTextInBrowser(file: File, maxLength: number) {
   const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs")
   const buffer = new Uint8Array(await file.arrayBuffer())
   const loadingTask = pdfjsLib.getDocument({
@@ -75,13 +75,41 @@ export async function extractPdfTextClient(file: File, maxLength = 10000) {
 
     const extractedText = normalizeExtractedText(pages.join("\n\n"))
     if (!extractedText) {
-      throw new Error(
-        "PDF içinde seçilebilir metin bulunamadı. Taranmış veya görsel tabanlı PDF'ler desteklenmez."
-      )
+      throw new Error("image_only_pdf")
     }
 
     return extractedText.substring(0, maxLength)
   } finally {
     await pdf.destroy()
   }
+}
+
+export async function extractPdfTextClient(file: File, maxLength = 10000) {
+  const formData = new FormData()
+  formData.append("file", file)
+
+  try {
+    const token = localStorage.getItem("access_token")
+    const response = await fetch("/api/knowledge-base/extract-file", {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      body: formData,
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      return typeof data?.content === "string" ? data.content : ""
+    }
+
+    if (response.status !== 413 && response.status < 500) {
+      const error = await response.json().catch(() => ({ detail: "parser_exception" }))
+      throw new Error(error?.detail || "parser_exception")
+    }
+  } catch (error) {
+    if (error instanceof Error && error.message !== "parser_exception") {
+      throw error
+    }
+  }
+
+  return extractPdfTextInBrowser(file, maxLength)
 }

@@ -101,7 +101,9 @@ export default function KnowledgeBasePage() {
         setSaving(false)
         return
       }
-      body = { title, type: "text", category, content }
+      body = activeTab === "file"
+        ? { title, type: "text", category, content, source: "file", file_name: fileName || null }
+        : { title, type: "text", category, content }
     } else if (activeTab === "url") {
       if (!title.trim() || !content.trim()) {
         showToast("error", isTR ? "Baslik ve icerik zorunlu" : "Title and content are required")

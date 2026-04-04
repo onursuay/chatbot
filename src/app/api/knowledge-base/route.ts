@@ -68,6 +68,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ detail: error.message }, { status: 500 })
   }
 
+  if (body.source === "file") {
+    console.log("[PDF][SAVE]", {
+      knowledgeBaseRecordCreated: true,
+      id: data.id,
+      orgId: auth.org_id,
+      fileName: body.file_name || null,
+    })
+  }
+
   return NextResponse.json(data)
 }
 
