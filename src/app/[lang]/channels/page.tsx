@@ -293,7 +293,7 @@ export default function ChannelsPage() {
   const [loading, setLoading] = useState(true)
   const [connecting, setConnecting] = useState(false)
   const [disconnectingMeta, setDisconnectingMeta] = useState(false)
-  const [saving, setSaving] = useState(false)
+  const [savingId, setSavingId] = useState<string | null>(null)
   const [selectingChannel, setSelectingChannel] = useState<string | null>(null) // which channel's modal is open
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null)
 
@@ -394,7 +394,7 @@ export default function ChannelsPage() {
   ) => {
     const token = getToken()
     if (!token) return
-    setSaving(true)
+    setSavingId(platformId)
     try {
       await api("/channels/select", {
         method: "POST",
@@ -413,7 +413,7 @@ export default function ChannelsPage() {
     } catch (err: any) {
       showToast(err.message || (isTR ? "Kayıt hatası" : "Save error"), "error")
     } finally {
-      setSaving(false)
+      setSavingId(null)
       setSelectingChannel(null)
     }
   }
@@ -422,7 +422,7 @@ export default function ChannelsPage() {
   const handleDisconnect = async (selection: ChannelSelection) => {
     const token = getToken()
     if (!token) return
-    setSaving(true)
+    setSavingId(selection.platform_id)
     try {
       await api("/channels/select", {
         method: "POST",
@@ -441,7 +441,7 @@ export default function ChannelsPage() {
     } catch (err: any) {
       showToast(err.message || (isTR ? "Hata oluştu" : "Error occurred"), "error")
     } finally {
-      setSaving(false)
+      setSavingId(null)
     }
   }
 
@@ -604,12 +604,12 @@ export default function ChannelsPage() {
             channelName={card.name}
             options={card.options}
             activeAccounts={activeAccounts}
-            saving={saving}
+            saving={savingId !== null}
             onSelect={(opt) => {
               const payload = card.buildPayload(opt)
               handleSelect(card.channel, opt.id, payload.platformName, payload.platformDetail, payload.metadata)
             }}
-            onClose={() => !saving && setSelectingChannel(null)}
+            onClose={() => savingId === null && setSelectingChannel(null)}
             isTR={isTR}
           />
         )
@@ -750,7 +750,7 @@ export default function ChannelsPage() {
                         </div>
                         <button
                           onClick={() => setSelectingChannel(card.channel)}
-                          disabled={saving}
+                          disabled={savingId !== null}
                           className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-bold text-primary border border-primary/30 rounded-lg hover:bg-primary-50 transition-colors disabled:opacity-50"
                         >
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
@@ -800,10 +800,10 @@ export default function ChannelsPage() {
                                   </div>
                                   <button
                                     onClick={() => handleDisconnect(acct)}
-                                    disabled={saving}
+                                    disabled={savingId === acct.platform_id}
                                     className="text-xs font-bold text-red-500 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 transition-colors disabled:opacity-50 flex-shrink-0"
                                   >
-                                    {saving ? <SpinnerIcon className="w-3.5 h-3.5" /> : (isTR ? "Kaldır" : "Remove")}
+                                    {savingId === acct.platform_id ? <SpinnerIcon className="w-3.5 h-3.5" /> : (isTR ? "Kaldır" : "Remove")}
                                   </button>
                                 </div>
                               </div>
@@ -814,7 +814,7 @@ export default function ChannelsPage() {
                         {/* Add more accounts button */}
                         <button
                           onClick={() => setSelectingChannel(card.channel)}
-                          disabled={saving}
+                          disabled={savingId !== null}
                           className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-bold text-primary border border-primary/30 rounded-lg hover:bg-primary-50 transition-colors disabled:opacity-50"
                         >
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
