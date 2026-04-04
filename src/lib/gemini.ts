@@ -14,6 +14,7 @@ interface KnowledgeBaseItem {
 }
 
 const REQUEST_CONTACT_TAG = "[REQUEST_CONTACT]"
+export const DEFAULT_CHATBOT_MAX_TOKENS = 1024
 export const DEFAULT_CHATBOT_SYSTEM_PROMPT =
   "Sen Ceylin'sin. Bir işletmenin müşteri temsilcisi gibi doğal, sıcak ve profesyonel konuşursun. Kendini asla yapay zeka, AI asistan veya bot olarak tanıtmazsın."
 export const DEFAULT_PROFANITY_WARNING_MESSAGE =
@@ -211,6 +212,8 @@ export async function getAIResponse(
     !normalizedSystemPrompt || LEGACY_CHATBOT_SYSTEM_PROMPTS.includes(normalizedSystemPrompt)
   const shouldBackfillName =
     typeof config.name === "string" && LEGACY_CHATBOT_NAMES.includes(config.name.trim())
+  const normalizedMaxTokens = Math.max(Number(config.max_tokens) || 0, DEFAULT_CHATBOT_MAX_TOKENS)
+  const shouldBackfillMaxTokens = normalizedMaxTokens !== config.max_tokens
   const shouldBackfillSettings =
     !Array.isArray(config.settings?.profanity_words) ||
     !config.settings?.profanity_words?.length ||
@@ -218,11 +221,12 @@ export async function getAIResponse(
     !config.settings?.profanity_close_message ||
     !config.settings?.profanity_close_threshold
 
-  if (shouldBackfillSettings || shouldBackfillSystemPrompt || shouldBackfillName) {
+  if (shouldBackfillSettings || shouldBackfillSystemPrompt || shouldBackfillName || shouldBackfillMaxTokens) {
     const updatePayload: Record<string, any> = {}
     if (shouldBackfillSettings) updatePayload.settings = settings
     if (shouldBackfillSystemPrompt) updatePayload.system_prompt = DEFAULT_CHATBOT_SYSTEM_PROMPT
     if (shouldBackfillName) updatePayload.name = "Ceylin"
+    if (shouldBackfillMaxTokens) updatePayload.max_tokens = normalizedMaxTokens
 
     await supabase
       .from("chatbot_configs")
@@ -277,7 +281,7 @@ export async function getAIResponse(
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
 
     // gemini-2.5-pro thinking token'ları ayrı harcanır, maxOutputTokens daha yüksek olmalı
-    const maxTokens = model.includes("pro") ? Math.max(config.max_tokens || 1024, 2048) : (config.max_tokens || 1024)
+    const maxTokens = model.includes("pro") ? Math.max(normalizedMaxTokens, 2048) : normalizedMaxTokens
     const effectiveTemperature = Math.max(Number(config.temperature) || 0.7, 0.85)
 
     const res = await fetch(url, {

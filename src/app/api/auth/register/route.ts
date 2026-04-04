@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { getServiceSupabase } from "@/lib/supabase"
 import { createAccessToken, createRefreshToken } from "@/lib/jwt"
-import { DEFAULT_CHATBOT_SYSTEM_PROMPT, buildDefaultChatbotSettings } from "@/lib/gemini"
+import { DEFAULT_CHATBOT_MAX_TOKENS, DEFAULT_CHATBOT_SYSTEM_PROMPT, buildDefaultChatbotSettings } from "@/lib/gemini"
 import bcrypt from "bcryptjs"
 
 function slugify(text: string): string {
@@ -80,6 +80,7 @@ export async function POST(request: Request) {
       org_id: org.id,
       name: "Ceylin",
       system_prompt: DEFAULT_CHATBOT_SYSTEM_PROMPT,
+      max_tokens: DEFAULT_CHATBOT_MAX_TOKENS,
       settings: buildDefaultChatbotSettings(),
       is_active: true,
     })

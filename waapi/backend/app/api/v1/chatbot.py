@@ -13,6 +13,7 @@ from app.models.user import User
 from app.models.organization import Organization
 from app.models.chatbot import ChatbotConfig
 from app.services.ai_service import (
+    DEFAULT_CHATBOT_MAX_TOKENS,
     DEFAULT_CHATBOT_SYSTEM_PROMPT,
     LEGACY_CHATBOT_NAMES,
     LEGACY_CHATBOT_SYSTEM_PROMPTS,
@@ -79,6 +80,7 @@ async def get_chatbot_config(
             name="Ceylin",
             is_active=True,
             system_prompt=DEFAULT_CHATBOT_SYSTEM_PROMPT,
+            max_tokens=DEFAULT_CHATBOT_MAX_TOKENS,
             settings=build_default_chatbot_settings(),
         )
         db.add(config)
@@ -92,12 +94,16 @@ async def get_chatbot_config(
         or normalized_system_prompt in LEGACY_CHATBOT_SYSTEM_PROMPTS
     )
     should_backfill_name = (config.name or "").strip() in LEGACY_CHATBOT_NAMES
-    if should_backfill_settings or should_backfill_system_prompt or should_backfill_name:
+    normalized_max_tokens = max(int(config.max_tokens or 0), DEFAULT_CHATBOT_MAX_TOKENS)
+    should_backfill_max_tokens = normalized_max_tokens != config.max_tokens
+    if should_backfill_settings or should_backfill_system_prompt or should_backfill_name or should_backfill_max_tokens:
         config.settings = normalized_settings
         if should_backfill_system_prompt:
             config.system_prompt = DEFAULT_CHATBOT_SYSTEM_PROMPT
         if should_backfill_name:
             config.name = "Ceylin"
+        if should_backfill_max_tokens:
+            config.max_tokens = normalized_max_tokens
         await db.flush()
 
     kb = normalized_settings.get("knowledge_base", "")
@@ -139,6 +145,7 @@ async def update_chatbot_config(
             name="Ceylin",
             is_active=True,
             system_prompt=DEFAULT_CHATBOT_SYSTEM_PROMPT,
+            max_tokens=DEFAULT_CHATBOT_MAX_TOKENS,
             settings=build_default_chatbot_settings(),
         )
         db.add(config)
@@ -159,7 +166,7 @@ async def update_chatbot_config(
     if req.temperature is not None:
         config.temperature = req.temperature
     if req.max_tokens is not None:
-        config.max_tokens = req.max_tokens
+        config.max_tokens = max(req.max_tokens, DEFAULT_CHATBOT_MAX_TOKENS)
     if req.transfer_keywords is not None:
         config.transfer_keywords = req.transfer_keywords
     if req.close_keywords is not None:
@@ -181,12 +188,16 @@ async def update_chatbot_config(
         or normalized_system_prompt in LEGACY_CHATBOT_SYSTEM_PROMPTS
     )
     should_backfill_name = (config.name or "").strip() in LEGACY_CHATBOT_NAMES
-    if should_backfill_settings or should_backfill_system_prompt or should_backfill_name:
+    normalized_max_tokens = max(int(config.max_tokens or 0), DEFAULT_CHATBOT_MAX_TOKENS)
+    should_backfill_max_tokens = normalized_max_tokens != config.max_tokens
+    if should_backfill_settings or should_backfill_system_prompt or should_backfill_name or should_backfill_max_tokens:
         config.settings = normalized_settings
         if should_backfill_system_prompt:
             config.system_prompt = DEFAULT_CHATBOT_SYSTEM_PROMPT
         if should_backfill_name:
             config.name = "Ceylin"
+        if should_backfill_max_tokens:
+            config.max_tokens = normalized_max_tokens
         await db.flush()
 
     kb = normalized_settings.get("knowledge_base", "")

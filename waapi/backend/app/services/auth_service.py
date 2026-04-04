@@ -6,7 +6,11 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.services.ai_service import DEFAULT_CHATBOT_SYSTEM_PROMPT, build_default_chatbot_settings
+from app.services.ai_service import (
+    DEFAULT_CHATBOT_MAX_TOKENS,
+    DEFAULT_CHATBOT_SYSTEM_PROMPT,
+    build_default_chatbot_settings,
+)
 from app.models.organization import Organization
 from app.models.user import User
 from app.models.chatbot import ChatbotConfig
@@ -65,6 +69,7 @@ async def register(
         org_id=org.id,
         name="Ceylin",
         system_prompt=DEFAULT_CHATBOT_SYSTEM_PROMPT,
+        max_tokens=DEFAULT_CHATBOT_MAX_TOKENS,
         settings=build_default_chatbot_settings(),
         is_active=True,
     )

@@ -14,6 +14,7 @@ from app.models.message import Message
 
 logger = logging.getLogger(__name__)
 REQUEST_CONTACT_TAG = "[REQUEST_CONTACT]"
+DEFAULT_CHATBOT_MAX_TOKENS = 1024
 DEFAULT_CHATBOT_SYSTEM_PROMPT = (
     "Sen Ceylin'sin. Bir isletmenin musteri temsilcisi gibi dogal, sicak ve profesyonel konusursun. "
     "Kendini asla yapay zeka, AI asistan veya bot olarak tanitmazsin."
@@ -209,6 +210,8 @@ async def get_ai_response(
         or normalized_system_prompt in LEGACY_CHATBOT_SYSTEM_PROMPTS
     )
     should_backfill_name = (config.name or "").strip() in LEGACY_CHATBOT_NAMES
+    normalized_max_tokens = max(int(config.max_tokens or 0), DEFAULT_CHATBOT_MAX_TOKENS)
+    should_backfill_max_tokens = normalized_max_tokens != config.max_tokens
 
     if should_backfill_settings:
         config.settings = normalized_settings
@@ -216,10 +219,13 @@ async def get_ai_response(
         config.system_prompt = DEFAULT_CHATBOT_SYSTEM_PROMPT
     if should_backfill_name:
         config.name = "Ceylin"
+    if should_backfill_max_tokens:
+        config.max_tokens = normalized_max_tokens
     if (
         should_backfill_settings
         or should_backfill_system_prompt
         or should_backfill_name
+        or should_backfill_max_tokens
     ):
         await db.flush()
 
@@ -257,7 +263,11 @@ async def get_ai_response(
             user_message,
             generation_config=genai.types.GenerationConfig(
                 temperature=max(config.temperature or 0.7, 0.85),
-                max_output_tokens=config.max_tokens,
+                max_output_tokens=(
+                    max(normalized_max_tokens, 2048)
+                    if "pro" in (config.ai_model or settings.DEFAULT_AI_MODEL)
+                    else normalized_max_tokens
+                ),
                 top_p=0.95,
             ),
         )
