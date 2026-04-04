@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { getAuthUser } from "@/lib/jwt"
+import { getServiceSupabase } from "@/lib/supabase"
 
 export const runtime = "nodejs"
 
@@ -39,19 +40,33 @@ function getErrorMessage(error: unknown) {
   return "unknown_error"
 }
 
+function getErrorName(error: unknown) {
+  if (error instanceof Error) return error.name
+  return "UnknownError"
+}
+
+function getErrorStack(error: unknown) {
+  if (error instanceof Error) return error.stack
+  return undefined
+}
+
 function logPdfError(
   reason: PdfErrorReason,
   file: { name: string; type: string; size: number },
   buffer: Uint8Array | null,
-  error?: unknown
+  error?: unknown,
+  parserName?: string
 ) {
   console.error("[PDF][ERROR]", {
     reason,
+    parserName: parserName || null,
     filename: file.name,
     mimeType: file.type || null,
     size: file.size,
     byteLength: buffer?.byteLength ?? 0,
+    name: error ? getErrorName(error) : undefined,
     message: error ? getErrorMessage(error) : undefined,
+    stack: error ? getErrorStack(error) : undefined,
   })
 }
 
@@ -170,31 +185,51 @@ export async function POST(request: Request) {
   const auth = await getAuthUser(request)
   if (!auth) return NextResponse.json({ detail: "Yetkisiz" }, { status: 401 })
 
-  const formData = await request.formData()
-  const fileValue = formData.get("file")
+  const body = await request.json().catch(() => null)
+  const bucket = typeof body?.bucket === "string" ? body.bucket : ""
+  const filePath = typeof body?.filePath === "string" ? body.filePath : ""
+  const fileName = typeof body?.fileName === "string" ? body.fileName : ""
+  const mimeType = typeof body?.mimeType === "string" ? body.mimeType : ""
 
-  if (!fileValue || typeof fileValue === "string" || typeof fileValue.arrayBuffer !== "function") {
-    return NextResponse.json({ detail: "Dosya zorunlu" }, { status: 400 })
+  if (!bucket || !filePath || !fileName) {
+    return NextResponse.json({ detail: "Dosya referansi zorunlu" }, { status: 400 })
   }
 
-  const file = fileValue as File
-  const ext = file.name.split(".").pop()?.toLowerCase()
-  const mimeType = file.type || ""
-
-  console.log("[PDF][UPLOAD]", {
-    filename: file.name,
-    mimeType: mimeType || null,
-    size: file.size,
-  })
+  const ext = fileName.split(".").pop()?.toLowerCase()
+  const file = { name: fileName, type: mimeType, size: 0 }
 
   try {
-    const buffer = new Uint8Array(await file.arrayBuffer())
+    const supabase = getServiceSupabase()
+    const { data: storedFile, error: downloadError } = await supabase.storage
+      .from(bucket)
+      .download(filePath)
+
+    if (downloadError || !storedFile) {
+      console.error("[PDF][ERROR]", {
+        reason: "parser_exception",
+        name: downloadError?.name || "StorageDownloadError",
+        message: downloadError?.message || "storage_download_failed",
+      })
+      return NextResponse.json({ detail: "parser_exception" }, { status: 400 })
+    }
+
+    const effectiveMimeType = storedFile.type || mimeType || ""
+    file.type = effectiveMimeType
+    file.size = storedFile.size || 0
+    console.log("[PDF][UPLOAD]", {
+      filename: fileName,
+      mimeType: effectiveMimeType || null,
+      size: storedFile.size,
+    })
+
+    const buffer = new Uint8Array(await storedFile.arrayBuffer())
+    file.size = storedFile.size || buffer.byteLength
 
     console.log("[PDF][BUFFER]", {
       byteLength: buffer.byteLength,
     })
 
-    if (ext !== "pdf" || !isPdfMimeType(mimeType)) {
+    if (ext !== "pdf" || !isPdfMimeType(file.type)) {
       logPdfError("invalid_mime", file, buffer)
       return NextResponse.json({ detail: "invalid_mime" }, { status: 400 })
     }
@@ -217,11 +252,16 @@ export async function POST(request: Request) {
       const parsed = await extractPdfTextWithPdfParse(buffer)
       extractedText = parsed.extractedText
       pageCount = parsed.pageCount
+      console.log("[PDF][PARSE]", {
+        parserName: "pdf-parse",
+        pageCount,
+        extractedTextLength: extractedText.length,
+      })
     } catch (error) {
       parserError = error
       const reason = detectParserErrorReason(error, buffer)
+      logPdfError(reason, file, buffer, error, "pdf-parse")
       if (reason === "encrypted_pdf") {
-        logPdfError(reason, file, buffer, error)
         return NextResponse.json({ detail: reason }, { status: 400 })
       }
     }
@@ -231,21 +271,20 @@ export async function POST(request: Request) {
         const parsed = await extractPdfTextWithPdfJs(buffer)
         extractedText = parsed.extractedText
         pageCount = Math.max(pageCount, parsed.pageCount)
+        console.log("[PDF][PARSE]", {
+          parserName: "pdfjs-dist",
+          pageCount,
+          extractedTextLength: extractedText.length,
+        })
       } catch (error) {
         parserError = parserError || error
         const reason = detectParserErrorReason(error, buffer)
+        logPdfError(reason, file, buffer, error, "pdfjs-dist")
         if (reason === "encrypted_pdf") {
-          logPdfError(reason, file, buffer, error)
           return NextResponse.json({ detail: reason }, { status: 400 })
         }
       }
     }
-
-    console.log("[PDF][PARSE]", {
-      pageCount,
-      extractedTextLength: extractedText.length,
-      preview: extractedText.slice(0, 300),
-    })
 
     if (!extractedText) {
       const reason: PdfErrorReason = mayBeEncryptedPdf(buffer)
