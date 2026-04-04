@@ -11,6 +11,7 @@ const SUPPORTED_PDF_MIME_TYPES = new Set(["application/pdf", "application/x-pdf"
 type PdfErrorReason =
   | "invalid_mime"
   | "empty_buffer"
+  | "download_invalid_content"
   | "encrypted_pdf"
   | "image_only_pdf"
   | "empty_text"
@@ -50,6 +51,19 @@ function getErrorStack(error: unknown) {
   return undefined
 }
 
+function getErrorCause(error: unknown) {
+  if (error instanceof Error && "cause" in error) {
+    return String((error as Error & { cause?: unknown }).cause)
+  }
+  return undefined
+}
+
+function getFirst16BytesHex(buffer: Uint8Array) {
+  return Array.from(buffer.subarray(0, 16))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("")
+}
+
 function logPdfError(
   reason: PdfErrorReason,
   file: { name: string; type: string; size: number },
@@ -67,6 +81,7 @@ function logPdfError(
     name: error ? getErrorName(error) : undefined,
     message: error ? getErrorMessage(error) : undefined,
     stack: error ? getErrorStack(error) : undefined,
+    cause: error ? getErrorCause(error) : undefined,
   })
 }
 
@@ -199,16 +214,29 @@ export async function POST(request: Request) {
   const file = { name: fileName, type: mimeType, size: 0 }
 
   try {
+    console.log("[PDF][EXTRACT]", {
+      filePath,
+      bucket,
+      fileName,
+    })
+
     const supabase = getServiceSupabase()
     const { data: storedFile, error: downloadError } = await supabase.storage
       .from(bucket)
       .download(filePath)
 
     if (downloadError || !storedFile) {
+      console.log("[PDF][DOWNLOAD]", {
+        status: "error",
+        contentType: null,
+        byteLength: 0,
+      })
       console.error("[PDF][ERROR]", {
         reason: "parser_exception",
         name: downloadError?.name || "StorageDownloadError",
         message: downloadError?.message || "storage_download_failed",
+        stack: downloadError ? undefined : undefined,
+        cause: undefined,
       })
       return NextResponse.json({ detail: "parser_exception" }, { status: 400 })
     }
@@ -225,11 +253,18 @@ export async function POST(request: Request) {
     const buffer = new Uint8Array(await storedFile.arrayBuffer())
     file.size = storedFile.size || buffer.byteLength
 
-    console.log("[PDF][BUFFER]", {
+    console.log("[PDF][DOWNLOAD]", {
+      status: "ok",
+      contentType: effectiveMimeType || null,
       byteLength: buffer.byteLength,
     })
 
-    if (ext !== "pdf" || !isPdfMimeType(file.type)) {
+    console.log("[PDF][BUFFER]", {
+      first16BytesHex: getFirst16BytesHex(buffer),
+      byteLength: buffer.byteLength,
+    })
+
+    if (ext !== "pdf" || !isPdfMimeType(mimeType)) {
       logPdfError("invalid_mime", file, buffer)
       return NextResponse.json({ detail: "invalid_mime" }, { status: 400 })
     }
@@ -239,9 +274,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ detail: "empty_buffer" }, { status: 400 })
     }
 
-    if (!hasPdfHeader(buffer)) {
-      logPdfError("invalid_mime", file, buffer)
-      return NextResponse.json({ detail: "invalid_mime" }, { status: 400 })
+    if ((effectiveMimeType && !isPdfMimeType(effectiveMimeType)) || !hasPdfHeader(buffer)) {
+      logPdfError("download_invalid_content", file, buffer)
+      return NextResponse.json({ detail: "download_invalid_content" }, { status: 400 })
     }
 
     let extractedText = ""
