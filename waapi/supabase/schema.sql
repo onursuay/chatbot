@@ -209,7 +209,7 @@ create table chatbot_configs (
   ai_model text not null default 'gemini-2.5-flash',
   system_prompt text not null default 'Sen yardimci bir WhatsApp asistanisin.',
   temperature real not null default 0.7,
-  max_tokens integer not null default 300,
+  max_tokens integer not null default 1024,
   transfer_keywords text[] default '{}',
   close_keywords text[] default '{}',
   welcome_message text,

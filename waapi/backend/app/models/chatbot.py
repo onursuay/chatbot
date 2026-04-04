@@ -24,7 +24,7 @@ class ChatbotConfig(Base, TimestampMixin):
     ai_model: Mapped[str] = mapped_column(String(50), default="gemini-2.5-flash")
     system_prompt: Mapped[str] = mapped_column(Text, nullable=False)
     temperature: Mapped[float] = mapped_column(Float, default=0.7)
-    max_tokens: Mapped[int] = mapped_column(Integer, default=300)
+    max_tokens: Mapped[int] = mapped_column(Integer, default=1024)
     transfer_keywords: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
     close_keywords: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
     welcome_message: Mapped[str | None] = mapped_column(Text)
