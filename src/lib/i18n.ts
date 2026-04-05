@@ -79,7 +79,7 @@ const translations: Record<string, Record<Lang, string>> = {
   "utility": { tr: "Bildirim", en: "Utility" },
   "authentication": { tr: "Doğrulama", en: "Authentication" },
   "message_text": { tr: "Mesaj Metni", en: "Message Text" },
-  "variables_hint": { tr: "Değişkenler için {{1}}, {{2}} kullanın", en: "Use {{1}}, {{2}} for variables" },
+  "variables_hint": { tr: "Değişken kullanmak için {{değişken_adı}} formatını kullanın", en: "Use {{variable_name}} format for variables" },
   "send_to_meta": { tr: "Meta'ya Gönder", en: "Submit to Meta" },
   "no_templates": { tr: "Henüz şablon yok", en: "No templates yet" },
   "no_templates_desc": { tr: "Toplu mesaj gönderimi için onaylanmış şablon gereklidir", en: "Approved templates are required for broadcast" },
