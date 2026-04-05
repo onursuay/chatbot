@@ -356,7 +356,7 @@ export default function ChannelsPage() {
     if (!token) return
     setConnecting(true)
     try {
-      const data = await api<{ url: string }>("/meta/connect", { token })
+      const data = await api<{ url: string }>(`/meta/connect?lang=${isTR ? "tr" : "en"}`, { token })
       if (data.url) {
         window.location.href = data.url
       }

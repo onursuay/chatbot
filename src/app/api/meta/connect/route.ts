@@ -22,6 +22,8 @@ export async function GET(request: Request) {
   if (!auth) return NextResponse.json({ detail: "Yetkisiz" }, { status: 401 })
 
   try {
+    const { searchParams } = new URL(request.url)
+    const lang = searchParams.get("lang") || "tr"
     const state = crypto.randomBytes(32).toString("hex")
 
     const params = new URLSearchParams({
@@ -47,6 +49,15 @@ export async function GET(request: Request) {
 
     // Store org_id so callback can identify the user
     response.cookies.set("meta_oauth_org_id", auth.org_id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 600,
+      path: "/",
+    })
+
+    // Store lang so callback can redirect to correct language
+    response.cookies.set("meta_oauth_lang", lang, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

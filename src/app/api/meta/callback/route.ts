@@ -34,6 +34,7 @@ export async function GET(request: Request) {
   const cookieStore = await cookies()
   const storedState = cookieStore.get("meta_oauth_state")?.value
   const orgId = cookieStore.get("meta_oauth_org_id")?.value
+  const lang = cookieStore.get("meta_oauth_lang")?.value || "tr"
 
   if (!storedState || storedState !== state) {
     return NextResponse.redirect(
@@ -152,16 +153,17 @@ export async function GET(request: Request) {
 
     // 7. Clear OAuth cookies and redirect
     const response = NextResponse.redirect(
-      new URL("/channels?connected=true", request.url)
+      new URL(`/${lang}/channels?connected=true`, request.url)
     )
     response.cookies.delete("meta_oauth_state")
     response.cookies.delete("meta_oauth_org_id")
+    response.cookies.delete("meta_oauth_lang")
 
     return response
   } catch (e: any) {
     console.error("Meta OAuth callback error:", e)
     return NextResponse.redirect(
-      new URL(`/channels?error=${encodeURIComponent(e.message || "callback_error")}`, request.url)
+      new URL(`/${lang}/channels?error=${encodeURIComponent(e.message || "callback_error")}`, request.url)
     )
   }
 }
