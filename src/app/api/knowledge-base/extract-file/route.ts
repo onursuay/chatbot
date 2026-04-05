@@ -252,7 +252,6 @@ async function ensurePdfJsNodePolyfills() {
 }
 
 async function extractPdfTextWithPdfJs(buffer: Uint8Array): Promise<PdfParseResult> {
-  await ensurePdfJsNodePolyfills()
   const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs")
   const loadingTask = pdfjsLib.getDocument({
     data: buffer,
@@ -402,6 +401,9 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
+
+    // Polyfill'i her iki parser'dan önce kur
+    await ensurePdfJsNodePolyfills()
 
     let extractedText = ""
     let pageCount = 0
