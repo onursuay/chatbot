@@ -443,7 +443,6 @@ const translations: Record<string, Record<Lang, string>> = {
   "msg_body_placeholder": { tr: "Mesajınız buraya...", en: "Your message here..." },
   "delete_template": { tr: "Şablonu Sil", en: "Delete Template" },
   "delete_template_confirm": { tr: "Bu şablonu silmek istediğinize emin misiniz?", en: "Are you sure you want to delete this template?" },
-  "deleting": { tr: "Siliniyor...", en: "Deleting..." },
   "condition_message": { tr: "Mesaj", en: "Message" },
   "condition_contact_name": { tr: "Kişi Adı", en: "Contact Name" },
   "condition_tag": { tr: "Etiket", en: "Tag" },
