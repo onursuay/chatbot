@@ -726,7 +726,17 @@ export function localePath(key: string, lang: Lang): string {
 }
 
 export const useI18n = create<I18nState>((set, get) => ({
-  lang: (typeof window !== "undefined" ? (localStorage.getItem("lang") as Lang) : null) || "tr",
+  lang: (typeof window !== "undefined"
+    ? ((() => {
+        // URL'den lang segment'ini oku — /en/... veya /tr/...
+        const urlLang = window.location.pathname.split("/")[1]
+        if (urlLang === "en" || urlLang === "tr") {
+          localStorage.setItem("lang", urlLang)
+          return urlLang as Lang
+        }
+        return (localStorage.getItem("lang") as Lang) || "tr"
+      })())
+    : null) || "tr",
   setLang: (lang: Lang) => {
     if (typeof window !== "undefined") localStorage.setItem("lang", lang)
     set({ lang })
