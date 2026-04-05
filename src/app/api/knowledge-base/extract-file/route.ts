@@ -253,6 +253,8 @@ async function ensurePdfJsNodePolyfills() {
 
 async function extractPdfTextWithPdfJs(buffer: Uint8Array): Promise<PdfParseResult> {
   const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs")
+  // Server-side'da worker yok — fake worker kullan
+  pdfjsLib.GlobalWorkerOptions.workerSrc = ""
   const loadingTask = pdfjsLib.getDocument({
     data: buffer,
     useSystemFonts: true,
