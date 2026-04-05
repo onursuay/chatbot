@@ -29,6 +29,7 @@ export default function LangLayout({ children, params }: { children: React.React
   const [tipIndex, setTipIndex] = useState(0)
   const [tipVisible, setTipVisible] = useState(true)
   const [tipDismissed, setTipDismissed] = useState(false)
+  const [connectionStatus, setConnectionStatus] = useState<"connected" | "disconnected" | "loading">("loading")
 
   const isNoLayoutPage = NO_LAYOUT_PAGES.some((p) => pathname.endsWith(p))
 
@@ -167,6 +168,14 @@ export default function LangLayout({ children, params }: { children: React.React
         .catch(() => { logout(); router.push(`/${lang}/login`) })
     } else { setLoading(false) }
   }, [user, router, setAuth, logout])
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token")
+    if (!token) return
+    api<{ connected: boolean }>("/meta/status", { token })
+      .then((data) => setConnectionStatus(data.connected ? "connected" : "disconnected"))
+      .catch(() => setConnectionStatus("disconnected"))
+  }, [pathname])
 
   // Tip cards data
   const tipCards = [
@@ -503,9 +512,15 @@ export default function LangLayout({ children, params }: { children: React.React
         {/* Top Header */}
         <header className="h-[52px] border-b border-surface-300 bg-white flex items-center justify-between px-5 shrink-0">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse-soft" />
+            <span className={`w-2 h-2 rounded-full ${connectionStatus === "connected" ? "bg-primary animate-pulse-soft" : connectionStatus === "loading" ? "bg-gray-300 animate-pulse" : "bg-red-400"}`} />
             <span className="text-caption text-ink-tertiary">{t("wa_account")}</span>
-            <span className="ds-badge-success text-[11px]">{t("wa_connected")}</span>
+            {connectionStatus === "loading" ? (
+              <span className="ds-badge-neutral text-[11px]">...</span>
+            ) : connectionStatus === "connected" ? (
+              <span className="ds-badge-success text-[11px]">{t("wa_connected")}</span>
+            ) : (
+              <span className="ds-badge-danger text-[11px]">{t("wa_disconnected")}</span>
+            )}
           </div>
           <div className="flex items-center gap-1">
             <button
