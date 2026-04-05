@@ -61,6 +61,8 @@ const translations: Record<string, Record<Lang, string>> = {
   "send_now": { tr: "Hemen Gönder", en: "Send Now" },
   "no_campaigns": { tr: "Henüz kampanya yok", en: "No campaigns yet" },
   "no_campaigns_desc": { tr: "Yeni kampanya oluşturup toplu mesaj gönderin", en: "Create a campaign to send bulk messages" },
+  "no_approved_templates": { tr: "Onaylanmış şablon yok. Önce şablon oluşturup Meta onayı bekleyin.", en: "No approved templates. Create a template and wait for Meta approval." },
+  "new_campaign_form": { tr: "Yeni Kampanya Oluştur", en: "Create New Campaign" },
   "draft": { tr: "Taslak", en: "Draft" },
   "scheduled": { tr: "Zamanlanmış", en: "Scheduled" },
   "completed": { tr: "Tamamlandı", en: "Completed" },
