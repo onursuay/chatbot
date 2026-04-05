@@ -90,3 +90,40 @@ export async function POST(request: Request) {
 
   return NextResponse.json(data)
 }
+
+// DELETE — Template sil
+export async function DELETE(request: Request) {
+  const auth = await getAuthUser(request)
+  if (!auth) return NextResponse.json({ detail: "Yetkisiz" }, { status: 401 })
+
+  const { templateName } = await request.json()
+  if (!templateName) return NextResponse.json({ detail: "Template adı gerekli" }, { status: 400 })
+
+  const supabase = getServiceSupabase()
+
+  const { data: waba } = await supabase
+    .from("waba_accounts")
+    .select("*")
+    .eq("org_id", auth.org_id)
+    .eq("is_active", true)
+    .single()
+
+  if (!waba) return NextResponse.json({ detail: "WhatsApp hesabi bagli degil" }, { status: 400 })
+
+  const res = await fetch(
+    `${GRAPH_API_BASE}/${waba.waba_id}/message_templates?name=${encodeURIComponent(templateName)}`,
+    {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${waba.access_token}` },
+    }
+  )
+  const data = await res.json()
+
+  if (data.error) {
+    return NextResponse.json({ detail: data.error.message }, { status: 400 })
+  }
+
+  await supabase.from("templates").delete().eq("org_id", auth.org_id).eq("name", templateName)
+
+  return NextResponse.json({ success: true })
+}
