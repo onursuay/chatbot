@@ -132,9 +132,21 @@ function normalizeAIResponse(text: string): string {
 function buildSystemInstruction(
   systemPrompt: string | null,
   knowledgeBaseText: string,
-  knowledgeBaseItems: KnowledgeBaseItem[]
+  knowledgeBaseItems: KnowledgeBaseItem[],
+  contactName?: string
 ): string {
   const parts: string[] = []
+
+  // Kullanıcı adı talimatı
+  if (contactName && contactName.trim()) {
+    parts.push(
+      `Kullanıcının adı "${contactName.trim()}" olarak kayıtlıdır. ` +
+      `İsimden cinsiyeti tahmin etmeye çalış ve Türkçe'ye uygun hitap et (örneğin erkek isimse "Bey", kadın isimse "Hanım"). ` +
+      `Emin olamazsan sadece ismiyle hitap et, "Bey" veya "Hanım" ekleme. ` +
+      `Eğer kullanıcı cinsiyetini yanlış tahmin ettiğini belirtirse ya da düzeltme yaparsa, ` +
+      `"Özür dilerim efendim, yanlış hitap ettim. [Doğru hitap] olarak devam edeceğim." şeklinde kısa ve sıcak bir özür sun, ardından konuşmaya kaldığın yerden devam et.`
+    )
+  }
 
   // Temel davranış talimatları — her zaman ekle
   parts.push(
@@ -192,7 +204,8 @@ function buildSystemInstruction(
 export async function getAIResponse(
   orgId: string,
   conversationId: string,
-  userMessage: string
+  userMessage: string,
+  contactName?: string
 ): Promise<string> {
   const supabase = getServiceSupabase()
 
@@ -254,7 +267,8 @@ export async function getAIResponse(
   const systemInstruction = buildSystemInstruction(
     shouldBackfillSystemPrompt ? DEFAULT_CHATBOT_SYSTEM_PROMPT : normalizedSystemPrompt,
     knowledgeBaseText,
-    (kbItems || []) as KnowledgeBaseItem[]
+    (kbItems || []) as KnowledgeBaseItem[],
+    contactName
   )
 
   // Son 20 mesajı al

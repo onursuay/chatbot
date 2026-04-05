@@ -670,7 +670,7 @@ async function handleInstagramWebhook(payload: any) {
           continue
         }
 
-        const aiResponse = await getAIResponse(orgId, conversation.id, text)
+        const aiResponse = await getAIResponse(orgId, conversation.id, text, contact.name || undefined)
         const { transferToSales, notInterested, cleanResponse } = parseAIResponse(aiResponse)
 
         // Instagram ile yanıt gönder
@@ -887,7 +887,7 @@ async function handleInstagramEntry(supabase: any, entry: any, channelAccount: a
         continue
       }
 
-      const aiResponse = await getAIResponse(orgId, conversation.id, text)
+      const aiResponse = await getAIResponse(orgId, conversation.id, text, contact.name || undefined)
       const { transferToSales, notInterested, cleanResponse } = parseAIResponse(aiResponse)
 
       const replyMsgId = await sendInstagramReply({ access_token: accessToken, account_id: accountId }, senderId, cleanResponse)
@@ -1024,7 +1024,7 @@ async function handleFacebookEntry(supabase: any, entry: any, pageId: string) {
         continue
       }
 
-      const aiResponse = await getAIResponse(orgId, conversation.id, text)
+      const aiResponse = await getAIResponse(orgId, conversation.id, text, contact.name || undefined)
       const { transferToSales, notInterested, cleanResponse } = parseAIResponse(aiResponse)
 
       const replyMsgId = await sendFacebookReply({ access_token: accessToken, page_id: fbPageId }, senderId, cleanResponse)
@@ -1164,7 +1164,7 @@ async function handleFacebookWebhook(payload: any) {
           continue
         }
 
-        const aiResponse = await getAIResponse(orgId, conversation.id, text)
+        const aiResponse = await getAIResponse(orgId, conversation.id, text, contact.name || undefined)
         const { transferToSales, notInterested, cleanResponse } = parseAIResponse(aiResponse)
 
         // Facebook Messenger ile yanıt gönder
