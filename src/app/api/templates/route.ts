@@ -64,7 +64,7 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         name,
-        language: language || "tr",
+        language: language || "en",
         category: category || "MARKETING",
         components: components || [{ type: "BODY", text: body.text }],
       }),
@@ -82,7 +82,7 @@ export async function POST(request: Request) {
     waba_id: waba.id,
     meta_template_id: data.id,
     name,
-    language: language || "tr",
+    language: language || "en",
     category: category || "MARKETING",
     status: "PENDING",
     components: components || [{ type: "BODY", text: body.text }],
