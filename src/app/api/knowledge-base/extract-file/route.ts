@@ -147,7 +147,107 @@ async function ensurePdfJsNodePolyfills() {
     return
   }
 
-  const { DOMMatrix } = require("@napi-rs/canvas/geometry")
+  // Inline minimal DOMMatrix polyfill — no native dependencies needed
+  class DOMMatrix {
+    a: number; b: number; c: number; d: number; e: number; f: number
+    m11: number; m12: number; m13: number; m14: number
+    m21: number; m22: number; m23: number; m24: number
+    m31: number; m32: number; m33: number; m34: number
+    m41: number; m42: number; m43: number; m44: number
+    is2D: boolean; isIdentity: boolean
+
+    constructor(init?: string | number[]) {
+      this.a = 1; this.b = 0; this.c = 0; this.d = 1; this.e = 0; this.f = 0
+      this.m11 = 1; this.m12 = 0; this.m13 = 0; this.m14 = 0
+      this.m21 = 0; this.m22 = 1; this.m23 = 0; this.m24 = 0
+      this.m31 = 0; this.m32 = 0; this.m33 = 1; this.m34 = 0
+      this.m41 = 0; this.m42 = 0; this.m43 = 0; this.m44 = 1
+      this.is2D = true; this.isIdentity = true
+
+      if (Array.isArray(init)) {
+        if (init.length === 6) {
+          [this.a, this.b, this.c, this.d, this.e, this.f] = init
+          this.m11 = init[0]; this.m12 = init[1]
+          this.m21 = init[2]; this.m22 = init[3]
+          this.m41 = init[4]; this.m42 = init[5]
+        } else if (init.length === 16) {
+          [
+            this.m11, this.m12, this.m13, this.m14,
+            this.m21, this.m22, this.m23, this.m24,
+            this.m31, this.m32, this.m33, this.m34,
+            this.m41, this.m42, this.m43, this.m44,
+          ] = init
+          this.a = this.m11; this.b = this.m12
+          this.c = this.m21; this.d = this.m22
+          this.e = this.m41; this.f = this.m42
+          this.is2D = false
+        }
+        this.isIdentity =
+          this.m11 === 1 && this.m12 === 0 && this.m13 === 0 && this.m14 === 0 &&
+          this.m21 === 0 && this.m22 === 1 && this.m23 === 0 && this.m24 === 0 &&
+          this.m31 === 0 && this.m32 === 0 && this.m33 === 1 && this.m34 === 0 &&
+          this.m41 === 0 && this.m42 === 0 && this.m43 === 0 && this.m44 === 1
+      }
+    }
+
+    multiply(other: DOMMatrix): DOMMatrix {
+      const result = new DOMMatrix()
+      result.m11 = this.m11 * other.m11 + this.m12 * other.m21 + this.m13 * other.m31 + this.m14 * other.m41
+      result.m12 = this.m11 * other.m12 + this.m12 * other.m22 + this.m13 * other.m32 + this.m14 * other.m42
+      result.m21 = this.m21 * other.m11 + this.m22 * other.m21 + this.m23 * other.m31 + this.m24 * other.m41
+      result.m22 = this.m21 * other.m12 + this.m22 * other.m22 + this.m23 * other.m32 + this.m24 * other.m42
+      result.m41 = this.m41 * other.m11 + this.m42 * other.m21 + this.m43 * other.m31 + this.m44 * other.m41
+      result.m42 = this.m41 * other.m12 + this.m42 * other.m22 + this.m43 * other.m32 + this.m44 * other.m42
+      result.a = result.m11; result.b = result.m12
+      result.c = result.m21; result.d = result.m22
+      result.e = result.m41; result.f = result.m42
+      return result
+    }
+
+    translate(tx = 0, ty = 0, tz = 0): DOMMatrix {
+      const m = new DOMMatrix()
+      m.m41 = tx; m.m42 = ty; m.m43 = tz
+      m.e = tx; m.f = ty
+      return this.multiply(m)
+    }
+
+    scale(sx = 1, sy = sx, sz = 1, ox = 0, oy = 0, oz = 0): DOMMatrix {
+      const m = new DOMMatrix()
+      m.m11 = sx; m.m22 = sy; m.m33 = sz
+      m.a = sx; m.d = sy
+      return this.translate(ox, oy, oz).multiply(m).translate(-ox, -oy, -oz)
+    }
+
+    transformPoint(point: { x?: number; y?: number; z?: number; w?: number } = {}) {
+      const x = point.x ?? 0, y = point.y ?? 0, z = point.z ?? 0, w = point.w ?? 1
+      return {
+        x: this.m11 * x + this.m21 * y + this.m31 * z + this.m41 * w,
+        y: this.m12 * x + this.m22 * y + this.m32 * z + this.m42 * w,
+        z: this.m13 * x + this.m23 * y + this.m33 * z + this.m43 * w,
+        w: this.m14 * x + this.m24 * y + this.m34 * z + this.m44 * w,
+      }
+    }
+
+    inverse(): DOMMatrix { return new DOMMatrix() }
+    flipX(): DOMMatrix { return new DOMMatrix([-1, 0, 0, 1, 0, 0]) }
+    flipY(): DOMMatrix { return new DOMMatrix([1, 0, 0, -1, 0, 0]) }
+    toString(): string { return `matrix(${this.a},${this.b},${this.c},${this.d},${this.e},${this.f})` }
+
+    static fromMatrix(init: Partial<DOMMatrix> = {}): DOMMatrix {
+      const m = new DOMMatrix()
+      Object.assign(m, init)
+      return m
+    }
+
+    static fromFloat32Array(arr: Float32Array): DOMMatrix {
+      return new DOMMatrix(Array.from(arr))
+    }
+
+    static fromFloat64Array(arr: Float64Array): DOMMatrix {
+      return new DOMMatrix(Array.from(arr))
+    }
+  }
+
   globalScope.DOMMatrix = DOMMatrix
 }
 
