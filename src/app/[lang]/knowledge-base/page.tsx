@@ -258,10 +258,42 @@ export default function KnowledgeBasePage() {
   })
 
   const tabs = [
-    { id: "text" as const, label: t("kb_text"), icon: "\u{1F4DD}" },
-    { id: "url" as const, label: t("kb_url"), icon: "\u{1F310}" },
-    { id: "file" as const, label: t("kb_file"), icon: "\u{1F4C4}" },
-    { id: "faq" as const, label: t("kb_faq"), icon: "\u{2753}" },
+    {
+      id: "text" as const,
+      label: t("kb_text"),
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+          <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+        </svg>
+      ),
+    },
+    {
+      id: "url" as const,
+      label: t("kb_url"),
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+          <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd" />
+        </svg>
+      ),
+    },
+    {
+      id: "file" as const,
+      label: t("kb_file"),
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+          <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+        </svg>
+      ),
+    },
+    {
+      id: "faq" as const,
+      label: t("kb_faq"),
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+        </svg>
+      ),
+    },
   ]
 
   const typeLabel = (type: string) => {
@@ -313,18 +345,19 @@ export default function KnowledgeBasePage() {
           <h3 className="ds-section-title mb-4">{t("kb_add_entry")}</h3>
 
           {/* Sub-tabs */}
-          <div className="flex gap-1 mb-5 border-b border-surface-300">
+          <div className="flex gap-2 mb-6 p-1 bg-surface-100 rounded-xl">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => { setActiveTab(tab.id); resetForm() }}
-                className={`px-3 py-2 text-caption font-bold border-b-2 transition-colors ${
+                className={`flex items-center gap-2 flex-1 justify-center px-3 py-2 rounded-lg text-caption font-medium transition-all ${
                   activeTab === tab.id
-                    ? "border-primary text-primary"
-                    : "border-transparent text-ink-tertiary hover:text-ink-secondary"
+                    ? "bg-white text-primary shadow-sm border border-surface-200"
+                    : "text-ink-tertiary hover:text-ink-secondary hover:bg-white/50"
                 }`}
               >
-                {tab.icon} {tab.label}
+                {tab.icon}
+                <span>{tab.label}</span>
               </button>
             ))}
           </div>
