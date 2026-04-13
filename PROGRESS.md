@@ -2,6 +2,13 @@
 
 ---
 
+## 2026-04-13 (3)
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- Channel Management → Meta Account kartına "Connected Facebook Page" bilgi bloğu eklendi (hardcoded: Ustasını Yolla / Page ID: 485310411915762). Meta App Review sürecinde `pages_manage_metadata` izninin Facebook Page'e bağlı olduğunu açıkça göstermek için. Sadece `isConnected` true iken görünür, mevcut tasarım/akış bozulmadı.
+
+---
+
 ## 2026-04-13 (2)
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler
