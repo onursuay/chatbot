@@ -129,28 +129,78 @@ export async function POST(
       return NextResponse.json({ detail: "Kanal hesabi bulunamadi" }, { status: 400 })
     }
 
+    const tokenSource = channelAccountId ? "channel_accounts" : "org.settings"
+
     if (channel === "instagram") {
       const recipientId = conv.contact.wa_id?.replace("ig_", "")
-      if (accountId && recipientId) {
+      console.log("[OUTGOING][REQUEST]", { platform: "instagram", connectedAccountId: channelAccountId, recipientId, messageText: text })
+      console.log("[OUTGOING][TOKEN]", { accountName: accountId, tokenSource })
+
+      if (!accountId || !recipientId) {
+        return NextResponse.json({ detail: "Instagram accountId veya recipientId eksik" }, { status: 400 })
+      }
+
+      try {
         const res = await fetch(`https://graph.facebook.com/v21.0/${accountId}/messages`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
           body: JSON.stringify({ recipient: { id: recipientId }, message: { text } }),
         })
         const data = await res.json()
+        console.log("[OUTGOING][META_RESPONSE]", { status: res.status, body: data })
+
+        if (!res.ok || data.error) {
+          await supabase.from("messages").insert({
+            org_id: auth.org_id, conversation_id: conv.id, contact_id: conv.contact_id,
+            wa_message_id: null, direction: "outbound", type: "text", content: { body: text },
+            status: "failed", sender_type: "agent", sender_id: auth.sub,
+          })
+          return NextResponse.json(
+            { detail: `Instagram gonderilemedi: ${data.error?.message || res.status}` },
+            { status: 502 }
+          )
+        }
+
         waMessageId = data.message_id || null
+      } catch (err: any) {
+        console.error("[OUTGOING][ERROR]", { name: err.name, message: err.message, stack: err.stack })
+        return NextResponse.json({ detail: "Instagram send network hatasi" }, { status: 502 })
       }
     } else {
       // facebook
       const recipientId = conv.contact.wa_id?.replace("fb_", "")
-      if (pageId && recipientId) {
+      console.log("[OUTGOING][REQUEST]", { platform: "facebook", connectedAccountId: channelAccountId, recipientId, messageText: text })
+      console.log("[OUTGOING][TOKEN]", { accountName: pageId, tokenSource })
+
+      if (!pageId || !recipientId) {
+        return NextResponse.json({ detail: "Facebook pageId veya recipientId eksik" }, { status: 400 })
+      }
+
+      try {
         const res = await fetch(`https://graph.facebook.com/v21.0/${pageId}/messages`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
           body: JSON.stringify({ recipient: { id: recipientId }, message: { text }, messaging_type: "RESPONSE" }),
         })
         const data = await res.json()
+        console.log("[OUTGOING][META_RESPONSE]", { status: res.status, body: data })
+
+        if (!res.ok || data.error) {
+          await supabase.from("messages").insert({
+            org_id: auth.org_id, conversation_id: conv.id, contact_id: conv.contact_id,
+            wa_message_id: null, direction: "outbound", type: "text", content: { body: text },
+            status: "failed", sender_type: "agent", sender_id: auth.sub,
+          })
+          return NextResponse.json(
+            { detail: `Facebook gonderilemedi: ${data.error?.message || res.status}` },
+            { status: 502 }
+          )
+        }
+
         waMessageId = data.message_id || null
+      } catch (err: any) {
+        console.error("[OUTGOING][ERROR]", { name: err.name, message: err.message, stack: err.stack })
+        return NextResponse.json({ detail: "Facebook send network hatasi" }, { status: 502 })
       }
     }
   } else {
