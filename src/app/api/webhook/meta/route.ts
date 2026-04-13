@@ -639,7 +639,7 @@ async function handleInstagramWebhook(payload: any) {
         })
         .eq("id", conversation.id)
 
-      // Bot aktifse yanıt — MANUEL TEST İÇİN GEÇİCİ OLARAK DEVRE DIŞI
+      // Bot aktifse yanıt
       if (BOT_ENABLED && conversation.is_bot_active) {
         const profanityAction = await getProfanityAction(supabase, orgId, conversation, text)
         if (profanityAction) {
@@ -856,7 +856,7 @@ async function handleInstagramEntry(supabase: any, entry: any, channelAccount: a
       })
       .eq("id", conversation.id)
 
-    // Bot aktifse yanıt — MANUEL TEST İÇİN GEÇİCİ OLARAK DEVRE DIŞI
+    // Bot aktifse yanıt
     if (BOT_ENABLED && conversation.is_bot_active) {
       const profanityAction = await getProfanityAction(supabase, orgId, conversation, text)
       if (profanityAction) {
