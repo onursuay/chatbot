@@ -406,6 +406,27 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false)
   const [activePlan, setActivePlan] = useState<"6ay" | "1yil" | "2yil">("1yil")
   const [compareOpen, setCompareOpen] = useState(false)
+  const [lang, setLang] = useState<"tr" | "en">("tr")
+  const [dropOpen, setDropOpen] = useState(false)
+
+  const langMeta = {
+    tr: { flag: "🇹🇷", label: "Türkçe" },
+    en: { flag: "🇬🇧", label: "English" },
+  }
+
+  const legalLinks = lang === "tr"
+    ? [
+        { label: "Gizlilik Politikası", href: "/tr/privacy-policy" },
+        { label: "Kullanım Koşulları", href: "/tr/terms-of-service" },
+        { label: "Çerez Politikası", href: "/tr/cookie-policy" },
+        { label: "Veri Silme", href: "/tr/data-deletion" },
+      ]
+    : [
+        { label: "Privacy Policy", href: "/en/privacy-policy" },
+        { label: "Terms of Service", href: "/en/terms-of-service" },
+        { label: "Cookie Policy", href: "/en/cookie-policy" },
+        { label: "Data Deletion", href: "/en/data-deletion" },
+      ]
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -1123,72 +1144,61 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════ FOOTER ═══════════ */}
-      <footer className="bg-white border-t border-surface-300/50 py-8">
-        <div className="max-w-[1600px] mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
-            <div className="col-span-2 md:col-span-1">
-              <div className="flex items-center gap-2.5 mb-4">
-                <img src="/logo-yo.png" alt="YO Dijital" className="h-10 w-auto" />
-              </div>
-              <p className="text-sm text-ink/50 leading-relaxed mb-5">AI destekli WhatsApp Business Platform. Mesajlaşarak satışlarınızı katlayın.</p>
-              {/* Resmi Partnerler */}
-              <div className="mb-5">
-                <h5 className="text-xs font-bold text-ink/80 mb-2.5">Resmi Partnerler</h5>
-                <div className="inline-flex items-center gap-3 bg-white border border-surface-300 rounded-xl px-4 py-3 shadow-sm">
-                  <svg viewBox="0 0 36 36" className="w-7 h-7 flex-shrink-0">
-                    <circle cx="18" cy="18" r="18" fill="#0668E1" />
-                    <path d="M8 18c0-5.1 3.7-9.3 8.5-10.2v3.7C14 12.5 12.5 15 12.5 18s1.5 5.5 4 6.5v3.7C11.7 27.3 8 23.1 8 18zm10-10.5c1.2-.3 2.5-.3 3.7 0C26.3 8.7 30 12.9 30 18s-3.7 9.3-8.3 10.2v-3.7c2.5-1 4-3.5 4-6.5s-1.5-5.5-4-6.5V7.5z" fill="white" />
-                  </svg>
-                  <div className="flex flex-col">
-                    <span className="text-[11px] font-bold text-[#0668E1] leading-tight">Meta</span>
-                    <span className="text-[10px] text-ink/50 leading-tight">Business Partner</span>
-                  </div>
-                </div>
-              </div>
-              {/* Social Icons */}
-              <div className="flex items-center gap-3">
-                <a href="#" className="w-8 h-8 rounded-full bg-surface-100 flex items-center justify-center text-ink/40 hover:text-[#1877F2] hover:bg-blue-50 transition-all">
-                  <Facebook className="w-4 h-4" />
-                </a>
-                <a href="#" className="w-8 h-8 rounded-full bg-surface-100 flex items-center justify-center text-ink/40 hover:text-[#E4405F] hover:bg-pink-50 transition-all">
-                  <Instagram className="w-4 h-4" />
-                </a>
-                <a href="#" className="w-8 h-8 rounded-full bg-surface-100 flex items-center justify-center text-ink/40 hover:text-[#0A66C2] hover:bg-blue-50 transition-all">
-                  <Linkedin className="w-4 h-4" />
-                </a>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-bold text-sm mb-4">Ürün</h4>
-              <div className="space-y-2.5">
-                {["Gelen Kutusu", "AI Chatbot", "Toplu Mesaj", "Otomasyon", "CRM Pipeline", "Analitik"].map((item) => (
-                  <a key={item} href="#features" className="block text-sm text-ink/50 hover:text-ink transition-colors">{item}</a>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h4 className="font-bold text-sm mb-4">Kanallar</h4>
-              <div className="space-y-2.5">
-                {["WhatsApp Business", "Instagram DM", "Facebook Messenger", "Web Chat Widget", "Telegram"].map((item) => (
-                  <a key={item} href="#" className="block text-sm text-ink/50 hover:text-ink transition-colors">{item}</a>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h4 className="font-bold text-sm mb-4">Destek</h4>
-              <div className="space-y-2.5">
-                {["Yardım Merkezi", "API Dokümantasyon", "İletişim", "Gizlilik Politikası", "Kullanım Şartları"].map((item) => (
-                  <a key={item} href="#" className="block text-sm text-ink/50 hover:text-ink transition-colors">{item}</a>
-                ))}
-              </div>
-            </div>
+      <footer className="w-full border-t border-white/[0.05] py-6 px-6 bg-[#060609]">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
+          {/* Copyright */}
+          <div className="flex items-center gap-3 text-gray-500">
+            <img src="/logo-yo.png" alt="YO Dijital" className="h-5 w-auto object-contain brightness-0 invert opacity-40" />
+            <span>{lang === "tr" ? "2025 YO Dijital. Tüm hakları saklıdır." : "2025 YO Dijital. All rights reserved."}</span>
           </div>
-          <div className="mt-10 pt-6 border-t border-surface-300/50 flex flex-col md:flex-row items-center justify-between gap-4">
-            <span className="text-xs text-ink/30">© 2024-2026 YO Dijital. Tüm hakları saklıdır.</span>
-            <div className="flex items-center gap-4">
-              <a href="#" className="text-ink/30 hover:text-ink/60 transition-colors"><Instagram className="w-4 h-4" /></a>
-              <a href="#" className="text-ink/30 hover:text-ink/60 transition-colors"><Facebook className="w-4 h-4" /></a>
-              <a href="#" className="text-ink/30 hover:text-ink/60 transition-colors"><Mail className="w-4 h-4" /></a>
+
+          {/* Legal links + lang switcher */}
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+            <nav className="flex flex-wrap justify-center sm:justify-end gap-x-5 gap-y-2 text-gray-500">
+              {legalLinks.map((l) => (
+                <a key={l.href} href={l.href} className="hover:text-gray-300 transition-colors">{l.label}</a>
+              ))}
+            </nav>
+
+            {/* Language dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setDropOpen((v) => !v)}
+                className="flex items-center gap-2 text-gray-500 hover:text-gray-300 transition-colors px-3 py-1.5 rounded-lg hover:bg-white/[0.04] border border-white/[0.08]"
+              >
+                <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-60">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M2 12h20"/>
+                  <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                </svg>
+                <span>{langMeta[lang].label}</span>
+                <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`opacity-60 transition-transform duration-200 ${dropOpen ? "rotate-180" : ""}`}>
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+              {dropOpen && (
+                <div className="absolute bottom-full mb-2 right-0 w-36 bg-[#111115] border border-white/[0.08] rounded-xl overflow-hidden shadow-xl z-50">
+                  {(["tr", "en"] as const).map((l) => (
+                    <button
+                      key={l}
+                      onClick={() => { setLang(l); setDropOpen(false) }}
+                      className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${
+                        lang === l
+                          ? "text-white bg-white/[0.06]"
+                          : "text-gray-400 hover:text-white hover:bg-white/[0.04]"
+                      }`}
+                    >
+                      <span className="text-base leading-none">{langMeta[l].flag}</span>
+                      <span>{langMeta[l].label}</span>
+                      {lang === l && (
+                        <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ml-auto text-emerald-400">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation"
 import Image from "next/image"
+import Link from "next/link"
 import { useI18n } from "@/lib/i18n"
 
 export default function TermsOfServicePage() {
@@ -9,10 +10,22 @@ export default function TermsOfServicePage() {
   const { lang } = useI18n()
 
   const isTR = lang === "tr"
+  const prefix = `/${lang}`
 
   return (
-    <div className="min-h-screen bg-dark-950">
-      <div className="max-w-3xl mx-auto px-6 py-12">
+    <div className="min-h-screen bg-[#060609] text-white" style={{ fontSize: "16px" }}>
+      <header className="w-full border-b border-white/[0.05] py-4 px-6">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <Link href={prefix}>
+            <Image src="/logo.png" alt="YO Dijital" width={90} height={32} className="object-contain brightness-0 invert" />
+          </Link>
+          <Link href={prefix} className="text-sm text-gray-400 hover:text-white transition-colors">
+            {isTR ? "← Ana Sayfa" : "← Home"}
+          </Link>
+        </div>
+      </header>
+
+      <div className="max-w-4xl mx-auto px-6 py-12">
         <p className="text-dark-500 text-xs mb-2">{isTR ? "Son guncelleme: 28 Mart 2026" : "Last updated: March 28, 2026"}</p>
         <h1 className="text-3xl font-bold text-white mb-2">{isTR ? "Kullanim Kosullari" : "Terms of Service"}</h1>
         <p className="text-dark-400 text-sm mb-8">YO Dijital Medya · chatbot.yodijital.com</p>
@@ -66,11 +79,16 @@ export default function TermsOfServicePage() {
           <p><a href="mailto:info@yodijital.com" className="text-brand-400 hover:underline">info@yodijital.com</a></p>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-dark-800 flex items-center gap-3">
-          <Image src="/logo.png" alt="YO Dijital" width={20} height={20} />
-          <span className="text-dark-600 text-xs">© 2025 YoChat. All rights reserved.</span>
-        </div>
       </div>
+
+      <footer className="w-full border-t border-white/[0.05] py-6 px-6 mt-12">
+        <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-5 text-sm text-gray-500">
+          <a href={`${prefix}/privacy-policy`} className="hover:text-gray-300 transition-colors">{isTR ? "Gizlilik Politikası" : "Privacy Policy"}</a>
+          <a href={`${prefix}/cookie-policy`} className="hover:text-gray-300 transition-colors">{isTR ? "Çerez Politikası" : "Cookie Policy"}</a>
+          <a href={`${prefix}/terms-of-service`} className="hover:text-gray-300 transition-colors">{isTR ? "Kullanım Koşulları" : "Terms of Service"}</a>
+          <a href={`${prefix}/data-deletion`} className="hover:text-gray-300 transition-colors">{isTR ? "Veri Silme" : "Data Deletion"}</a>
+        </div>
+      </footer>
     </div>
   )
 }

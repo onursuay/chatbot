@@ -2,6 +2,15 @@
 
 ---
 
+## 2026-04-13
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- Landing page footer voice_agent referans projesiyle aynı tasarıma getirildi: siyah minimal footer, dil toggle dropdown (🇹🇷/🇬🇧), yasal linkler
+- Policy sayfaları (privacy-policy, terms-of-service, data-deletion, cookie-policy) logo header ve footer link bölümü eklenerek voice_agent tasarım standardına uygun hale getirildi
+- Meta Developer'a verilen /en/ URL'lerinin (/en/privacy-policy, /en/terms-of-service, /en/data-deletion) doğru İngilizce içerik döndürdüğü doğrulandı
+
+---
+
 ## Proje Genel Bilgisi
 
 ### Teknoloji Yığını
