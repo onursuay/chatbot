@@ -2,6 +2,13 @@
 
 ---
 
+## 2026-04-13 (2)
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- Privacy Policy sayfasına giriş yapılmadan erişildiğinde login'e yönlendirme sorunu düzeltildi: layout.tsx auth useEffect içine `isNoLayoutPage` kontrolü eklendi, artık public sayfalar (privacy-policy, terms-of-service vb.) token olmadan doğrudan açılıyor
+
+---
+
 ## 2026-04-13
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler
