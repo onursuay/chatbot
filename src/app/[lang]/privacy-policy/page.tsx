@@ -28,7 +28,7 @@ export default function PrivacyPolicyPage() {
       <div className="max-w-4xl mx-auto px-6 py-12">
         <p className="text-dark-500 text-xs mb-2">{isTR ? "Son guncelleme: 28 Mart 2026" : "Last updated: March 28, 2026"}</p>
         <h1 className="text-3xl font-bold text-white mb-2">{isTR ? "Gizlilik Politikasi" : "Privacy Policy"}</h1>
-        <p className="text-dark-400 text-sm mb-8">YO Dijital Medya · chatbot.yodijital.com</p>
+        <p className="text-gray-500 text-sm mb-8">YoChat · chatbot.yodijital.com</p>
 
         <div className="text-dark-300 text-sm space-y-6 leading-relaxed">
           <p>{isTR
