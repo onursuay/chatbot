@@ -134,17 +134,17 @@ export async function POST(
     if (channel === "instagram") {
       const recipientId = conv.contact.wa_id?.replace("ig_", "")
       console.log("[OUTGOING][REQUEST]", { platform: "instagram", connectedAccountId: channelAccountId, recipientId, messageText: text })
-      console.log("[OUTGOING][TOKEN]", { accountName: accountId, tokenSource })
+      console.log("[OUTGOING][TOKEN]", { pageId, accountId, tokenSource })
 
-      if (!accountId || !recipientId) {
-        return NextResponse.json({ detail: "Instagram accountId veya recipientId eksik" }, { status: 400 })
+      if (!pageId || !recipientId) {
+        return NextResponse.json({ detail: "Instagram pageId veya recipientId eksik" }, { status: 400 })
       }
 
       try {
-        const res = await fetch(`https://graph.facebook.com/v21.0/${accountId}/messages`, {
+        const res = await fetch(`https://graph.facebook.com/v21.0/${pageId}/messages`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
-          body: JSON.stringify({ recipient: { id: recipientId }, message: { text } }),
+          body: JSON.stringify({ recipient: { id: recipientId }, message: { text }, messaging_type: "RESPONSE" }),
         })
         const data = await res.json()
         console.log("[OUTGOING][META_RESPONSE]", { status: res.status, body: data })
