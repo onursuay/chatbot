@@ -350,12 +350,6 @@ export default function InboxPage() {
 
   const messageGroups = groupMessagesByDate(messages)
   const lastMessage = messages[messages.length - 1]
-  const showAiTypingIndicator = Boolean(
-    selectedConv?.is_bot_active &&
-    lastMessage &&
-    lastMessage.direction === "inbound"
-  )
-
   return (
     <div className="h-full flex overflow-hidden">
       {/* ===== LEFT PANEL - Inbox List ===== */}
@@ -598,21 +592,6 @@ export default function InboxPage() {
                 </div>
               ))}
 
-              {showAiTypingIndicator && (
-                <div className="flex items-end flex-row-reverse gap-2.5 max-w-[82%] lg:max-w-[74%] ml-auto animate-slide-up">
-                  <div className="ds-chat-bubble ds-chat-bubble-bot">
-                    <span className="text-[10px] font-bold text-black block mb-1">{t("ai_bot")}</span>
-                    <div className="ds-typing-row">
-                      <span>{t("ai_typing")}</span>
-                      <span className="ds-typing-dots" aria-hidden="true">
-                        <span className="ds-typing-dot" />
-                        <span className="ds-typing-dot" />
-                        <span className="ds-typing-dot" />
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               <div ref={messagesEndRef} />
             </div>
