@@ -19,6 +19,7 @@ export const runtime = "nodejs"
 export const fetchCache = "force-no-store"
 
 const VERIFY_TOKEN = process.env.META_WEBHOOK_VERIFY_TOKEN || "waapi_webhook_verify_2026"
+const BOT_ENABLED = process.env.BOT_ACTIVE === "true" // Tüm bot yanıtlarını aç/kapat — tek yer
 const GRAPH_API = "https://graph.facebook.com/v21.0"
 const REQUEST_CONTACT_TAG = "[REQUEST_CONTACT]"
 const CONTACT_REQUEST_MESSAGE =
@@ -639,7 +640,7 @@ async function handleInstagramWebhook(payload: any) {
         .eq("id", conversation.id)
 
       // Bot aktifse yanıt — MANUEL TEST İÇİN GEÇİCİ OLARAK DEVRE DIŞI
-      if (!!process.env.INSTAGRAM_BOT_ACTIVE && conversation.is_bot_active) {
+      if (BOT_ENABLED && conversation.is_bot_active) {
         const profanityAction = await getProfanityAction(supabase, orgId, conversation, text)
         if (profanityAction) {
           const replyMsgId = await sendInstagramReply({ access_token: accessToken, account_id: accountId }, senderId, profanityAction.replyText)
@@ -856,7 +857,7 @@ async function handleInstagramEntry(supabase: any, entry: any, channelAccount: a
       .eq("id", conversation.id)
 
     // Bot aktifse yanıt — MANUEL TEST İÇİN GEÇİCİ OLARAK DEVRE DIŞI
-    if (!!process.env.INSTAGRAM_BOT_ACTIVE && conversation.is_bot_active) {
+    if (BOT_ENABLED && conversation.is_bot_active) {
       const profanityAction = await getProfanityAction(supabase, orgId, conversation, text)
       if (profanityAction) {
         const replyMsgId = await sendInstagramReply({ access_token: accessToken, account_id: accountId }, senderId, profanityAction.replyText)
@@ -993,7 +994,7 @@ async function handleFacebookEntry(supabase: any, entry: any, pageId: string) {
       })
       .eq("id", conversation.id)
 
-    if (!!process.env.BOT_ACTIVE && conversation.is_bot_active) {
+    if (BOT_ENABLED && conversation.is_bot_active) {
       const profanityAction = await getProfanityAction(supabase, orgId, conversation, text)
       if (profanityAction) {
         const replyMsgId = await sendFacebookReply({ access_token: accessToken, page_id: fbPageId }, senderId, profanityAction.replyText)
@@ -1133,7 +1134,7 @@ async function handleFacebookWebhook(payload: any) {
         .eq("id", conversation.id)
 
       // Bot aktifse yanıt
-      if (!!process.env.BOT_ACTIVE && conversation.is_bot_active) {
+      if (BOT_ENABLED && conversation.is_bot_active) {
         const profanityAction = await getProfanityAction(supabase, orgId, conversation, text)
         if (profanityAction) {
           const replyMsgId = await sendFacebookReply({ access_token: accessToken, page_id: fbPageId }, senderId, profanityAction.replyText)
@@ -1479,7 +1480,7 @@ async function processWhatsAppMessage(
     }).eq("id", conversation.id)
   }
 
-  if (!!process.env.BOT_ACTIVE && conversation.is_bot_active) {
+  if (BOT_ENABLED && conversation.is_bot_active) {
     const aiResponse = await getAIResponse(waba.org_id, conversation.id, text)
     const { requestContact, transferToSales, notInterested, cleanResponse } = parseAIResponse(aiResponse)
 
