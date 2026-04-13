@@ -638,8 +638,8 @@ async function handleInstagramWebhook(payload: any) {
         })
         .eq("id", conversation.id)
 
-      // Bot aktifse yanıt
-      if (conversation.is_bot_active) {
+      // Bot aktifse yanıt — MANUEL TEST İÇİN GEÇİCİ OLARAK DEVRE DIŞI
+      if (false && conversation.is_bot_active) {
         const profanityAction = await getProfanityAction(supabase, orgId, conversation, text)
         if (profanityAction) {
           const replyMsgId = await sendInstagramReply({ access_token: accessToken, account_id: accountId }, senderId, profanityAction.replyText)
@@ -855,8 +855,8 @@ async function handleInstagramEntry(supabase: any, entry: any, channelAccount: a
       })
       .eq("id", conversation.id)
 
-    // Bot aktifse yanıt
-    if (conversation.is_bot_active) {
+    // Bot aktifse yanıt — MANUEL TEST İÇİN GEÇİCİ OLARAK DEVRE DIŞI
+    if (false && conversation.is_bot_active) {
       const profanityAction = await getProfanityAction(supabase, orgId, conversation, text)
       if (profanityAction) {
         const replyMsgId = await sendInstagramReply({ access_token: accessToken, account_id: accountId }, senderId, profanityAction.replyText)
