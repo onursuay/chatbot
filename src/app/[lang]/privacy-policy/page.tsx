@@ -7,10 +7,10 @@ import { useI18n } from "@/lib/i18n"
 
 export default function PrivacyPolicyPage() {
   const { lang: urlLang } = useParams()
-  const { lang, t } = useI18n()
+  const { t } = useI18n()
 
-  const isTR = lang === "tr"
-  const prefix = `/${lang}`
+  const isTR = urlLang !== "en"
+  const prefix = `/${urlLang}`
 
   return (
     <div className="min-h-screen bg-[#060609] text-white" style={{ fontSize: "16px" }}>
