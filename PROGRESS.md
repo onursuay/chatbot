@@ -2,6 +2,19 @@
 
 ---
 
+## 2026-04-14 (5)
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- Landing page header referans projeyle birebir eşleştirildi: `sticky top-0 z-50 bg-[#060609]/80 backdrop-blur-2xl` tam genişlik tasarım, `rounded-2xl bg-sidebar/90` pill-box yapısı kaldırıldı
+- Nav: bireysel emerald pill butonlar (`border border-emerald-400/30 text-emerald-400 rounded-full`), "Ürün/Product" ve "Entegrasyonlar/Integrations" hover dropdown menüleri (chatbot'a özel içerik: Gelen Kutusu, AI Chatbot, CRM, Toplu Mesaj, Otomasyon, Analiz; WhatsApp, Instagram, Facebook, Web Chat entegrasyonları)
+- Sağ CTA: Giriş (düz metin) + Görüşme Planla (outline pill) + 7 Gün Ücretsiz Dene (filled pill)
+- Alt gradient çizgisi: `h-[1px] bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent`
+- Mobil menü dark stile dönüştürüldü (`bg-[#0d0f12]/95 border-t border-white/[0.06]`)
+- Hero section top padding düzeltildi (header artık `sticky` olduğu için `pt-20 md:pt-28` → `pt-12 md:pt-20`)
+- TypeScript derleme temiz
+
+---
+
 ## 2026-04-14 (4)
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler
