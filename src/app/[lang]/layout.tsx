@@ -63,10 +63,6 @@ export default function LangLayout({ children, params }: { children: React.React
       { group: t("nav_analytics"), items: [
         { href: localePath("analytics", lang) }, { href: localePath("activity-log", lang) },
       ]},
-      { group: t("nav_account"), items: [
-        { href: localePath("team", lang) }, { href: localePath("billing", lang) },
-        { href: localePath("settings", lang) },
-      ]},
     ]
     for (const nav of allNavItems) {
       if (nav.items.some((item) => pathname.startsWith(item.href))) {
@@ -164,11 +160,6 @@ export default function LangLayout({ children, params }: { children: React.React
     { group: t("nav_analytics"), items: [
       { href: localePath("analytics", lang), label: t("nav_reports"), icon: <IconAnalytics /> },
       { href: localePath("activity-log", lang), label: t("nav_activity_log"), icon: <IconActivity /> },
-    ]},
-    { group: t("nav_account"), items: [
-      { href: localePath("team", lang), label: t("nav_team"), icon: <IconTeam /> },
-      { href: localePath("billing", lang), label: t("nav_billing"), icon: <IconBilling /> },
-      { href: localePath("settings", lang), label: t("nav_settings"), icon: <IconSettings /> },
     ]},
   ]
 
