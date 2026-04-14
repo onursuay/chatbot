@@ -2,6 +2,13 @@
 
 ---
 
+## 2026-04-14 (6)
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- Ayarlar sayfası içerik açısından zenginleştirildi: 3x2 Hızlı Erişim grid'i (Ekip, Abonelik, Kanallar, Entegrasyonlar, Chatbot, Raporlar — tıklanabilir, ikonlu), çalışan TR/EN dil değiştirici kart (seçili dili vurgular, router.push ile yönlendirir), Organizasyon kartına org_slug eklendi, TypeScript temiz
+
+---
+
 ## 2026-04-14 (5)
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler
