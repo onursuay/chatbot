@@ -58,8 +58,9 @@ export async function GET(request: Request) {
   const channelConvIds: Record<string, string[]> = {
     whatsapp: convs.filter((c) => !c.channel || c.channel === "whatsapp").map((c) => c.id),
     instagram: convs.filter((c) => c.channel === "instagram").map((c) => c.id),
-    facebook: convs.filter((c) => c.channel === "facebook").map((c) => c.id),
-    messenger: convs.filter((c) => c.channel === "messenger").map((c) => c.id),
+    // facebook & messenger: webhook "facebook" yazar, channel_accounts "messenger" — ikisi de Messenger sayılır
+    facebook: convs.filter((c) => c.channel === "facebook" || c.channel === "messenger").map((c) => c.id),
+    messenger: convs.filter((c) => c.channel === "facebook" || c.channel === "messenger").map((c) => c.id),
     telegram: convs.filter((c) => c.channel === "telegram").map((c) => c.id),
     whatsapp_personal: convs.filter((c) => c.channel === "whatsapp_personal").map((c) => c.id),
   }

@@ -150,76 +150,44 @@ export default function DashboardPage() {
     },
   ]
 
-  const channels = [
-    {
-      name: "WhatsApp",
-      color: "#25D366",
-      bgColor: "bg-[#25D366]/10",
-      stats: channelStats.whatsapp,
-      icon: (
-        <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-          <path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492l4.625-1.477A11.929 11.929 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75c-2.16 0-4.16-.69-5.795-1.862l-.415-.298-2.735.874.876-2.685-.326-.443A9.724 9.724 0 012.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75z"/>
-        </svg>
-      ),
-    },
-    {
-      name: "Instagram",
-      color: "#E1306C",
-      bgColor: "bg-[#E1306C]/10",
-      stats: channelStats.instagram,
-      icon: (
-        <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-        </svg>
-      ),
-    },
-    {
-      name: "Facebook",
-      color: "#4267B2",
-      bgColor: "bg-[#4267B2]/10",
-      stats: channelStats.facebook,
-      icon: (
-        <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-        </svg>
-      ),
-    },
-    {
-      name: "Messenger",
-      color: "#0084FF",
-      bgColor: "bg-[#0084FF]/10",
-      stats: channelStats.messenger,
-      icon: (
-        <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-          <path d="M12 0C5.373 0 0 4.975 0 11.111c0 3.497 1.745 6.616 4.472 8.652V24l4.086-2.242c1.09.301 2.246.464 3.442.464 6.627 0 12-4.974 12-11.111C24 4.975 18.627 0 12 0zm1.193 14.963l-3.056-3.259-5.963 3.259L10.733 8.3l3.13 3.259L19.752 8.3l-6.559 6.663z"/>
-        </svg>
-      ),
-    },
-    {
-      name: "Telegram",
-      color: "#229ED9",
-      bgColor: "bg-[#229ED9]/10",
-      stats: channelStats.telegram,
-      icon: (
-        <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-          <path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-        </svg>
-      ),
-    },
-    {
-      name: isTR ? "WA Kişisel" : "WA Personal",
-      color: "#128C7E",
-      bgColor: "bg-[#128C7E]/10",
-      stats: channelStats.whatsapp_personal,
-      icon: (
-        <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-          <path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492l4.625-1.477A11.929 11.929 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75c-2.16 0-4.16-.69-5.795-1.862l-.415-.298-2.735.874.876-2.685-.326-.443A9.724 9.724 0 012.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75z"/>
-        </svg>
-      ),
-    },
+  // Üst satır: meta kanallar | Alt satır: diğer kanallar
+  const channelRows = [
+    [
+      {
+        name: "WhatsApp", label: isTR ? "İş Hattı" : "Business", color: "#25D366", shade: "rgba(37,211,102,0.12)",
+        stats: channelStats.whatsapp,
+        icon: <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492l4.625-1.477A11.929 11.929 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75c-2.16 0-4.16-.69-5.795-1.862l-.415-.298-2.735.874.876-2.685-.326-.443A9.724 9.724 0 012.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75z"/></svg>,
+      },
+      {
+        name: "Instagram", label: "Direct Message", color: "#E1306C", shade: "rgba(225,48,108,0.12)",
+        stats: channelStats.instagram,
+        icon: <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>,
+      },
+      {
+        name: "Messenger", label: "Facebook Messenger", color: "#0084FF", shade: "rgba(0,132,255,0.12)",
+        stats: channelStats.messenger,
+        icon: <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M12 0C5.373 0 0 4.975 0 11.111c0 3.497 1.745 6.616 4.472 8.652V24l4.086-2.242c1.09.301 2.246.464 3.442.464 6.627 0 12-4.974 12-11.111C24 4.975 18.627 0 12 0zm1.193 14.963l-3.056-3.259-5.963 3.259L10.733 8.3l3.13 3.259L19.752 8.3l-6.559 6.663z"/></svg>,
+      },
+    ],
+    [
+      {
+        name: "Facebook", label: isTR ? "Sayfa Mesajları" : "Page Messages", color: "#4267B2", shade: "rgba(66,103,178,0.12)",
+        stats: channelStats.facebook,
+        icon: <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>,
+      },
+      {
+        name: "Telegram", label: "Bot API", color: "#229ED9", shade: "rgba(34,158,217,0.12)",
+        stats: channelStats.telegram,
+        icon: <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>,
+      },
+      {
+        name: isTR ? "WA Kişisel" : "WA Personal", label: isTR ? "Kişisel Hesap" : "Personal Account", color: "#128C7E", shade: "rgba(18,140,126,0.12)",
+        stats: channelStats.whatsapp_personal,
+        icon: <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492l4.625-1.477A11.929 11.929 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75c-2.16 0-4.16-.69-5.795-1.862l-.415-.298-2.735.874.876-2.685-.326-.443A9.724 9.724 0 012.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75z"/></svg>,
+      },
+    ],
   ]
+  const channels = channelRows.flat()
 
   // AI-powered suggestions — dynamic based on real data
   const suggestions: {
@@ -305,47 +273,85 @@ export default function DashboardPage() {
 
         {/* Channel Performance Overview */}
         <div className="ds-card">
+          {/* Header */}
           <div className="px-5 py-4 border-b border-surface-300 flex items-center justify-between">
             <div>
-              <h3 className="ds-section-title">{isTR ? "Kanal Performansi" : "Channel Performance"}</h3>
-              <p className="text-caption text-ink-tertiary mt-0.5">{isTR ? "Son 30 gun" : "Last 30 days"}</p>
+              <h3 className="ds-section-title">{isTR ? "Kanal Performansı" : "Channel Performance"}</h3>
+              <p className="text-caption text-ink-tertiary mt-0.5">{isTR ? "Tüm mesajlaşma kanalları" : "All messaging channels"}</p>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
+            <div className="flex items-center gap-5">
+              <div className="text-right hidden sm:block">
                 <p className="text-micro text-ink-tertiary uppercase tracking-wider">{isTR ? "Toplam Mesaj" : "Total Messages"}</p>
                 <p className="text-body-medium text-ink font-bold">{totalMessages.toLocaleString("tr-TR")}</p>
               </div>
-              <div className="text-right">
-                <p className="text-micro text-ink-tertiary uppercase tracking-wider">{isTR ? "Bagli Kanal" : "Connected"}</p>
-                <p className="text-body-medium text-primary font-bold">{connectedChannels}/6</p>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary-50 border border-primary/20">
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                <p className="text-[11px] text-primary font-bold">{connectedChannels}/6 {isTR ? "Bağlı" : "Connected"}</p>
               </div>
             </div>
           </div>
-          <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-            {channels.map((ch) => (
-              <div key={ch.name} className="rounded-xl border border-surface-300 p-4 hover:border-surface-400 transition-all hover:shadow-sm">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className={`w-10 h-10 rounded-lg ${ch.bgColor} flex items-center justify-center`} style={{ color: ch.color }}>
-                    {ch.icon}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-body-medium text-ink font-semibold">{ch.name}</p>
-                    <div className="flex items-center gap-1.5">
-                      <span className={`w-1.5 h-1.5 rounded-full ${ch.stats.connected ? "bg-green-500" : "bg-gray-300"}`} />
-                      <span className="text-micro text-ink-tertiary">{ch.stats.connected ? (isTR ? "Bagli" : "Connected") : (isTR ? "Bagli Degil" : "Not Connected")}</span>
+
+          {/* 2 × 3 Grid */}
+          <div className="p-5 space-y-3">
+            {channelRows.map((row, ri) => (
+              <div key={ri} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {row.map((ch, ci) => {
+                  const total = ch.stats.received + ch.stats.sent
+                  const pct = totalMessages > 0 ? Math.round((total / totalMessages) * 100) : 0
+                  const delay = (ri * 3 + ci) * 60
+                  return (
+                    <div
+                      key={ch.name}
+                      className="group relative rounded-xl border border-surface-200 overflow-hidden hover:border-surface-350 hover:shadow-md transition-all duration-200 animate-slide-up"
+                      style={{ animationDelay: `${delay}ms` }}
+                    >
+                      {/* Color accent top bar */}
+                      <div className="h-1 w-full" style={{ background: ch.stats.connected ? ch.color : "#e2e8f0" }} />
+
+                      <div className="p-4">
+                        {/* Icon + name + badge */}
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110 duration-200" style={{ background: ch.shade, color: ch.color }}>
+                              {ch.icon}
+                            </div>
+                            <div>
+                              <p className="text-[13px] font-bold text-ink leading-tight">{ch.name}</p>
+                              <p className="text-[10px] text-ink-tertiary leading-tight mt-0.5">{ch.label}</p>
+                            </div>
+                          </div>
+                          <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${ch.stats.connected ? "bg-emerald-50 text-emerald-700" : "bg-surface-100 text-ink-tertiary"}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${ch.stats.connected ? "bg-emerald-500" : "bg-surface-350"}`} />
+                            {ch.stats.connected ? (isTR ? "Aktif" : "Active") : (isTR ? "Pasif" : "Inactive")}
+                          </span>
+                        </div>
+
+                        {/* Stats row */}
+                        <div className="grid grid-cols-2 gap-2 mb-3">
+                          <div className="rounded-lg p-2.5" style={{ background: ch.shade }}>
+                            <p className="text-[10px] text-ink-tertiary mb-0.5">{isTR ? "Gelen" : "Received"}</p>
+                            <p className="text-[15px] font-bold" style={{ color: ch.color }}>{ch.stats.received.toLocaleString("tr-TR")}</p>
+                          </div>
+                          <div className="rounded-lg p-2.5 bg-surface-100">
+                            <p className="text-[10px] text-ink-tertiary mb-0.5">{isTR ? "Giden" : "Sent"}</p>
+                            <p className="text-[15px] font-bold text-ink">{ch.stats.sent.toLocaleString("tr-TR")}</p>
+                          </div>
+                        </div>
+
+                        {/* Progress bar */}
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-1.5 bg-surface-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-700"
+                              style={{ width: `${pct}%`, background: ch.color, opacity: ch.stats.connected ? 1 : 0.3 }}
+                            />
+                          </div>
+                          <span className="text-[10px] text-ink-tertiary w-8 text-right">{pct}%</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-surface-150 rounded-lg p-2.5">
-                    <p className="text-micro text-ink-tertiary">{isTR ? "Gelen" : "Received"}</p>
-                    <p className="text-body-medium text-ink font-bold">{ch.stats.received.toLocaleString("tr-TR")}</p>
-                  </div>
-                  <div className="bg-surface-150 rounded-lg p-2.5">
-                    <p className="text-micro text-ink-tertiary">{isTR ? "Giden" : "Sent"}</p>
-                    <p className="text-body-medium text-ink font-bold">{ch.stats.sent.toLocaleString("tr-TR")}</p>
-                  </div>
-                </div>
+                  )
+                })}
               </div>
             ))}
           </div>

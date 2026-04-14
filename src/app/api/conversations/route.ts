@@ -18,7 +18,7 @@ export async function GET(request: Request) {
 
   let query = supabase
     .from("conversations")
-    .select("*, contact:contacts(*), phone:phone_numbers(display_number, verified_name), channel_account:channel_accounts(page_name, account_id, page_id)")
+    .select("*, contact:contacts(*), phone:phone_numbers(display_number, verified_name), channel_account:channel_accounts(page_name, account_id, page_id, channel)")
     .eq("org_id", auth.org_id)
     .order("last_message_at", { ascending: false, nullsFirst: false })
     .range((page - 1) * perPage, page * perPage - 1)
@@ -28,10 +28,10 @@ export async function GET(request: Request) {
   }
 
   if (channel && channel !== "all") {
-    // migration_channel_column.sql çalıştırıldıktan sonra conversations.channel kolonu mevcut.
-    // Messenger UI'da "messenger" gönderir ama DB'de "facebook" yazılır.
+    // "messenger" → "facebook" eşlemesi: Messenger webhook'u konuşmaları channel="facebook" olarak kaydeder
     const dbChannel = channel === "messenger" ? "facebook" : channel
-    query = query.eq("channel", dbChannel)
+    // channel kolonu null olan eski kayıtları da yakalamak için OR filtresi
+    query = query.or(`channel.eq.${dbChannel},and(channel.is.null,metadata->>channel.eq.${dbChannel})`)
   }
 
   if (phoneNumberId) {
@@ -46,7 +46,9 @@ export async function GET(request: Request) {
 
   return NextResponse.json(
     (convs || []).map((conv: any) => {
-      const channelValue = conv.channel || conv.metadata?.channel || "whatsapp"
+      // channel kolonu > metadata.channel > channel_account.channel > "whatsapp" öncelik sırası
+      const caChannel = conv.channel_account?.channel
+      const channelValue = conv.channel || conv.metadata?.channel || caChannel || "whatsapp"
       const accountLabel =
         channelValue === "whatsapp"
           ? conv.phone?.display_number || conv.phone?.verified_name || null
