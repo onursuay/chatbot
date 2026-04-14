@@ -1,18 +1,17 @@
 /**
  * Baileys Service — WhatsApp Kişisel Hesap Bağlantısı
  *
- * Kurulum:
- *   cd baileys-service && npm install
+ * Railway'e deploy için:
+ *   1. Railway > New Service > GitHub Repo
+ *   2. Root Directory: baileys-service
+ *   3. Env vars ekle (aşağıya bak)
+ *   4. Deploy et → /qr adresini aç → QR'ı tara
  *
- * Çalıştırma:
- *   NEXTJS_WEBHOOK_URL=https://your-app.vercel.app/api/webhook/baileys \
- *   BAILEYS_WEBHOOK_SECRET=gizli_anahtar_buraya \
- *   ORG_ID=your-org-uuid \
- *   node index.js
- *
- * İlk çalıştırmada QR kodu terminalde görünür.
- * Telefonda WhatsApp > Bağlı Cihazlar > QR okut.
- * Oturum auth_info/ klasörüne kaydedilir, bir daha QR gerekmez.
+ * Env vars:
+ *   NEXTJS_WEBHOOK_URL  = https://your-app.vercel.app/api/webhook/baileys
+ *   BAILEYS_WEBHOOK_SECRET = gizli_anahtar (istediğin bir string)
+ *   ORG_ID              = Supabase'deki org uuid'in
+ *   PORT                = 3001 (Railway otomatik atar)
  */
 
 import makeWASocket, {
@@ -21,10 +20,10 @@ import makeWASocket, {
   fetchLatestBaileysVersion,
 } from "@whiskeysockets/baileys"
 import qrcode from "qrcode-terminal"
+import QRCode from "qrcode"
 import express from "express"
 import { createRequire } from "module"
 
-// pino logger — Baileys'in verbose loglarını kapat
 const require = createRequire(import.meta.url)
 const pino = require("pino")
 const logger = pino({ level: "silent" })
@@ -44,9 +43,12 @@ if (!NEXTJS_WEBHOOK_URL || !BAILEYS_WEBHOOK_SECRET || !ORG_ID) {
 }
 
 // ============================================
-// Global WhatsApp socket referansı
+// Global state
 // ============================================
 let sock = null
+let currentQR = null   // tarayıcıda göstermek için
+let isConnected = false
+let connectedNumber = null
 
 // ============================================
 // WhatsApp bağlantısını başlat
@@ -55,28 +57,34 @@ async function startWhatsApp() {
   const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR)
   const { version } = await fetchLatestBaileysVersion()
 
-  console.log(`[Baileys] Baileys v${version.join(".")} başlatılıyor...`)
+  console.log(`[Baileys] v${version.join(".")} başlatılıyor...`)
 
   sock = makeWASocket.default({
     version,
     auth: state,
     logger,
-    printQRInTerminal: false, // Kendimiz handle ediyoruz
+    printQRInTerminal: false,
     browser: ["Ceylin Chatbot", "Chrome", "1.0.0"],
   })
 
-  // ---- Bağlantı olayları ----
   sock.ev.on("connection.update", async (update) => {
     const { connection, lastDisconnect, qr } = update
 
     if (qr) {
+      currentQR = qr
+      isConnected = false
+      // Terminal için de göster (Railway logs)
       console.log("\n[Baileys] QR Kod — Telefonda WhatsApp > Bağlı Cihazlar > Cihaz Ekle:")
       qrcode.generate(qr, { small: true })
+      console.log(`\n[Baileys] Tarayıcıda görüntülemek için: http://localhost:${PORT}/qr\n`)
     }
 
     if (connection === "close") {
       const statusCode = lastDisconnect?.error?.output?.statusCode
       const shouldReconnect = statusCode !== DisconnectReason.loggedOut
+      isConnected = false
+      connectedNumber = null
+      currentQR = null
 
       console.log(`[Baileys] Bağlantı kapandı. Kod: ${statusCode} | Yeniden bağlan: ${shouldReconnect}`)
 
@@ -90,23 +98,21 @@ async function startWhatsApp() {
     }
 
     if (connection === "open") {
-      console.log("[Baileys] ✓ WhatsApp bağlantısı kuruldu!")
-      console.log("[Baileys] Numarası:", sock.user?.id?.split(":")[0])
+      isConnected = true
+      currentQR = null
+      connectedNumber = sock.user?.id?.split(":")[0] || null
+      console.log(`[Baileys] ✓ WhatsApp bağlantısı kuruldu! Numara: ${connectedNumber}`)
     }
   })
 
-  // ---- Oturum bilgilerini kaydet ----
   sock.ev.on("creds.update", saveCreds)
 
-  // ---- Gelen mesajları işle ----
   sock.ev.on("messages.upsert", async ({ messages, type }) => {
     if (type !== "notify") return
 
     for (const msg of messages) {
-      // Kendi gönderdiğimiz mesajları atlıyoruz
       if (msg.key.fromMe) continue
 
-      // Sadece bireysel sohbetler (grup mesajları atla)
       const remoteJid = msg.key.remoteJid
       if (!remoteJid || remoteJid.endsWith("@g.us")) continue
 
@@ -115,7 +121,7 @@ async function startWhatsApp() {
         msg.message?.extendedTextMessage?.text ||
         null
 
-      if (!text) continue // Fotoğraf, sticker vs. atla
+      if (!text) continue
 
       const messageId = msg.key.id
       const senderName = msg.pushName || remoteJid.split("@")[0]
@@ -123,9 +129,8 @@ async function startWhatsApp() {
         ? Number(msg.messageTimestamp)
         : Math.floor(Date.now() / 1000)
 
-      console.log(`[Baileys] Gelen: ${remoteJid} | "${text.slice(0, 60)}"`)
+      console.log(`[Baileys] Gelen: ${remoteJid.split("@")[0]} | "${text.slice(0, 60)}"`)
 
-      // Next.js webhook'una ilet
       await forwardToNextjs({
         org_id: ORG_ID,
         from: remoteJid,
@@ -153,9 +158,9 @@ async function forwardToNextjs(payload) {
     })
 
     if (!res.ok) {
-      console.error("[Baileys] Webhook iletim hatası:", res.status, await res.text())
+      console.error("[Baileys] Webhook hatası:", res.status, await res.text())
     } else {
-      console.log("[Baileys] ✓ Webhook iletildi:", payload.from?.split("@")[0])
+      console.log(`[Baileys] ✓ Webhook → ${payload.from?.split("@")[0]}`)
     }
   } catch (err) {
     console.error("[Baileys] Webhook bağlantı hatası:", err.message)
@@ -164,13 +169,10 @@ async function forwardToNextjs(payload) {
 
 // ============================================
 // Express HTTP Sunucusu
-// Next.js bu sunucuyu mesaj göndermek için çağırır
-// POST /send — { to: "905301234567@s.whatsapp.net", text: "..." }
 // ============================================
 const app = express()
 app.use(express.json())
 
-// Güvenlik: shared secret doğrulama
 function verifySecret(req, res, next) {
   const incomingSecret = req.headers["x-baileys-secret"]
   if (incomingSecret !== BAILEYS_WEBHOOK_SECRET) {
@@ -180,17 +182,66 @@ function verifySecret(req, res, next) {
   next()
 }
 
-// Health check
+// Health check — Ceylin paneli bu endpoint'i kontrol eder
 app.get("/", (req, res) => {
-  const connected = sock?.user != null
   res.json({
     status: "ok",
-    connected,
-    number: connected ? sock.user?.id?.split(":")[0] : null,
+    connected: isConnected,
+    number: connectedNumber,
   })
 })
 
-// Mesaj gönder
+// QR kod sayfası — tarayıcıda aç, telefonla tara
+app.get("/qr", async (req, res) => {
+  if (isConnected) {
+    return res.send(`<!DOCTYPE html><html><head><meta charset="utf-8">
+      <title>WhatsApp Bağlı</title>
+      <style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f0fdf4;}
+      .box{text-align:center;padding:40px;background:white;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.08);}
+      h2{color:#16a34a;margin-bottom:8px;}p{color:#6b7280;}</style>
+    </head><body><div class="box">
+      <h2>✓ WhatsApp Bağlı</h2>
+      <p>Numara: +${connectedNumber}</p>
+      <p style="margin-top:16px;font-size:13px;color:#9ca3af;">Bu servis WhatsApp mesajlarını Ceylin'e iletiyor.</p>
+    </div></body></html>`)
+  }
+
+  if (!currentQR) {
+    return res.send(`<!DOCTYPE html><html><head><meta charset="utf-8">
+      <title>QR Bekleniyor</title>
+      <meta http-equiv="refresh" content="3">
+      <style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#fafafa;}
+      .box{text-align:center;padding:40px;background:white;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.08);}
+      h2{color:#374151;}p{color:#6b7280;}</style>
+    </head><body><div class="box">
+      <h2>QR Oluşturuluyor...</h2>
+      <p>Sayfa 3 saniyede otomatik yenileniyor.</p>
+    </div></body></html>`)
+  }
+
+  try {
+    const qrDataUrl = await QRCode.toDataURL(currentQR, { width: 300, margin: 2 })
+    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8">
+      <title>WhatsApp QR</title>
+      <meta http-equiv="refresh" content="30">
+      <style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#fafafa;}
+      .box{text-align:center;padding:40px;background:white;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.08);}
+      h2{color:#374151;margin-bottom:4px;}p{color:#6b7280;font-size:14px;}
+      img{border:1px solid #e5e7eb;border-radius:8px;margin:20px 0;display:block;}
+      .hint{font-size:12px;color:#9ca3af;margin-top:8px;}</style>
+    </head><body><div class="box">
+      <h2>WhatsApp QR Kodu</h2>
+      <p>Telefonda: <strong>WhatsApp → Bağlı Cihazlar → Cihaz Ekle</strong></p>
+      <img src="${qrDataUrl}" width="300" height="300" />
+      <p>Bağlandıktan sonra bu sayfa otomatik güncellenir.</p>
+      <p class="hint">QR 30 saniyede bir yenilenir.</p>
+    </div></body></html>`)
+  } catch (err) {
+    res.status(500).send("QR oluşturma hatası: " + err.message)
+  }
+})
+
+// Mesaj gönder — Next.js bu endpoint'i çağırır
 app.post("/send", verifySecret, async (req, res) => {
   const { to, text } = req.body
 
@@ -203,10 +254,9 @@ app.post("/send", verifySecret, async (req, res) => {
   }
 
   try {
-    // to formatı: 905301234567@s.whatsapp.net
     const jid = to.includes("@") ? to : `${to}@s.whatsapp.net`
     await sock.sendMessage(jid, { text })
-    console.log(`[Baileys] /send ✓ → ${jid} | "${text.slice(0, 40)}"`)
+    console.log(`[Baileys] /send ✓ → ${jid.split("@")[0]}`)
     res.json({ success: true })
   } catch (err) {
     console.error("[Baileys] /send hatası:", err)
@@ -219,8 +269,8 @@ app.post("/send", verifySecret, async (req, res) => {
 // ============================================
 app.listen(PORT, () => {
   console.log(`[Baileys] HTTP sunucusu port ${PORT}'de çalışıyor`)
+  console.log(`[Baileys] QR sayfası: http://localhost:${PORT}/qr`)
   console.log(`[Baileys] Next.js webhook: ${NEXTJS_WEBHOOK_URL}`)
-  console.log(`[Baileys] Org ID: ${ORG_ID}`)
 })
 
 startWhatsApp().catch((err) => {
