@@ -2,6 +2,16 @@
 
 ---
 
+## 2026-04-14 (Dashboard UX Düzeltmeleri)
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- **Pipeline Özeti limiti:** Panelde onlarca pipeline gösterilmesi sorunu giderildi; artık max 5 öğe gösterilir, fazlası için "+N pipeline daha →" linki eklendi
+- **Messenger mesajları düzeltildi:** Messenger webhook konuşmalar `channel="facebook"` yazıyor; stats ve API filtreleri artık her ikisini (`facebook` + `messenger`) kontrol ediyor
+- **Kanal Performansı kart düzeni:** 6 kart sıkışık görünüyordu; 2×3 grid'e (üst: WhatsApp/Instagram/Messenger, alt: Facebook/Telegram/WA Kişisel) çevrildi; hover animasyonu, progress bar, renk aksanları eklendi
+- **"Mesajlaşma Performansı" kaldırıldı:** Sayfanın altındaki bölüm, zaten üstte olan "Kanal Performansı" ile tamamen aynıydı; kaldırıldı
+
+---
+
 ## 2026-04-14 (Telegram + WhatsApp Kişisel)
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler
