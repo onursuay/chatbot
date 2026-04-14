@@ -2,6 +2,20 @@
 
 ---
 
+## 2026-04-14 (Telegram + WhatsApp Kişisel)
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- **Telegram Bot entegrasyonu eklendi:** `src/app/api/webhook/telegram/route.ts` — resmi Telegram Bot API webhook handler; gelen mesajları mevcut conversations/messages tablosuna kaydeder, AI bot desteği var
+- **WhatsApp Kişisel (Baileys) entegrasyonu eklendi:** `src/app/api/webhook/baileys/route.ts` — Baileys bridge webhook; `baileys-service/` altında ayrı Node.js servisi (QR kod ile kişisel hesap bağlantısı)
+- **`src/lib/telegram.ts` oluşturuldu:** sendTelegramMessage, setTelegramWebhook, getTelegramBotInfo yardımcı fonksiyonları
+- **`baileys-service/index.js` oluşturuldu:** Express + Baileys standalone servisi; QR kod login, mesaj yönlendirme, `/send` endpoint
+- **Dashboard KPI güncellemesi:** Telegram ve WhatsApp Kişisel kanalları ChannelStats'a eklendi; bağlı kanal sayacı 4→6 güncellendi
+- **`channels/stats/route.ts` güncellendi:** telegram ve whatsapp_personal istatistikleri artık ayrı gösteriliyor
+- **i18n güncellendi:** Telegram ve WhatsApp Kişisel için TR/EN çeviriler eklendi
+- **Mevcut entegrasyonlar korundu:** Meta webhook (WA Business, Instagram DM, Facebook Messenger) hiçbir değişikliğe uğramadı
+
+---
+
 ## 2026-04-14
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler

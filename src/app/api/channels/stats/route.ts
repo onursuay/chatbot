@@ -42,6 +42,10 @@ export async function GET(request: Request) {
     channelAccounts.some((c: any) => c.channel === "messenger" && c.is_active) ||
     fbConnected
 
+  // Telegram ve WhatsApp Personal bağlantı durumu
+  const tgConnected = channelAccounts.some((c: any) => c.channel === "telegram" && c.is_active)
+  const waPersonalConnected = channelAccounts.some((c: any) => c.channel === "whatsapp_personal" && c.is_active)
+
   // ── Conversation ID'lerini channel bazında al ─────────────────────────────
   // messages.channel kolonu yok; conversations.channel üzerinden join yapıyoruz
   const { data: convsData } = await supabase
@@ -56,6 +60,8 @@ export async function GET(request: Request) {
     instagram: convs.filter((c) => c.channel === "instagram").map((c) => c.id),
     facebook: convs.filter((c) => c.channel === "facebook").map((c) => c.id),
     messenger: convs.filter((c) => c.channel === "messenger").map((c) => c.id),
+    telegram: convs.filter((c) => c.channel === "telegram").map((c) => c.id),
+    whatsapp_personal: convs.filter((c) => c.channel === "whatsapp_personal").map((c) => c.id),
   }
 
   const countMsgs = async (ids: string[], direction: string): Promise<number> => {
@@ -69,22 +75,34 @@ export async function GET(request: Request) {
   }
 
   // ── Mesaj sayıları ────────────────────────────────────────────────────────
-  const [waSent, waReceived, igSent, igReceived, fbSent, fbReceived, msgSent, msgReceived] =
-    await Promise.all([
-      countMsgs(channelConvIds.whatsapp, "outbound"),
-      countMsgs(channelConvIds.whatsapp, "inbound"),
-      countMsgs(channelConvIds.instagram, "outbound"),
-      countMsgs(channelConvIds.instagram, "inbound"),
-      countMsgs(channelConvIds.facebook, "outbound"),
-      countMsgs(channelConvIds.facebook, "inbound"),
-      countMsgs(channelConvIds.messenger, "outbound"),
-      countMsgs(channelConvIds.messenger, "inbound"),
-    ])
+  const [
+    waSent, waReceived,
+    igSent, igReceived,
+    fbSent, fbReceived,
+    msgSent, msgReceived,
+    tgSent, tgReceived,
+    wapSent, wapReceived,
+  ] = await Promise.all([
+    countMsgs(channelConvIds.whatsapp, "outbound"),
+    countMsgs(channelConvIds.whatsapp, "inbound"),
+    countMsgs(channelConvIds.instagram, "outbound"),
+    countMsgs(channelConvIds.instagram, "inbound"),
+    countMsgs(channelConvIds.facebook, "outbound"),
+    countMsgs(channelConvIds.facebook, "inbound"),
+    countMsgs(channelConvIds.messenger, "outbound"),
+    countMsgs(channelConvIds.messenger, "inbound"),
+    countMsgs(channelConvIds.telegram, "outbound"),
+    countMsgs(channelConvIds.telegram, "inbound"),
+    countMsgs(channelConvIds.whatsapp_personal, "outbound"),
+    countMsgs(channelConvIds.whatsapp_personal, "inbound"),
+  ])
 
   return NextResponse.json({
     whatsapp: { sent: waSent, received: waReceived, connected: waConnected },
     instagram: { sent: igSent, received: igReceived, connected: igConnected },
     facebook: { sent: fbSent, received: fbReceived, connected: fbConnected },
     messenger: { sent: msgSent, received: msgReceived, connected: messengerConnected },
+    telegram: { sent: tgSent, received: tgReceived, connected: tgConnected },
+    whatsapp_personal: { sent: wapSent, received: wapReceived, connected: waPersonalConnected },
   })
 }
