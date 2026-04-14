@@ -2,6 +2,15 @@
 
 ---
 
+## 2026-04-14
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- Landing page tam i18n desteği: dil seçici İngilizce'ye geçildiğinde artık tüm sayfa alanları İngilizce'ye çevriliyor (nav, hero, sidebar, chat mock, stats, features, how it works, AI showcase, channels, pricing, comparison table, testimonials, final CTA, footer)
+- `T` (translations) sabit objesi eklendi; `const t = T[lang]` ile tüm metin referansları dil bağımsız hale getirildi
+- TypeScript hatası yok, derleme temiz
+
+---
+
 ## 2026-04-13 (3)
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler

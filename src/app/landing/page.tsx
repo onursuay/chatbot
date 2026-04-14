@@ -398,6 +398,342 @@ function FloatingCanvas() {
 }
 
 /* ════════════════════════════════════════════
+   TRANSLATIONS
+   ════════════════════════════════════════════ */
+const T = {
+  tr: {
+    nav: ["Ürün", "Entegrasyonlar", "Fiyatlandırma"],
+    navHrefs: ["#features", "#how-it-works", "#pricing"],
+    login: "Giriş Yap",
+    bookDemo: "Görüşme Planla",
+    tryFree7: "7 Gün Ücretsiz Dene",
+    heroBadge: "AI Destekli WhatsApp Business Platform",
+    heroH1a: "Müşteri yönetiminde fark yaratan",
+    heroH1b: "tüm stratejik araçlar ve akıllı çözümler",
+    heroH1c: "artık tek merkezde buluşuyor.",
+    heroCta1: "14 Gün Ücretsiz Deneyin",
+    heroCta2: "Nasıl Çalışır?",
+    trust1: "Meta İş Ortağı",
+    trust2: "Kredi kartı gerekmez",
+    trust3: "2 dakikada kurulum",
+    sidebarMsgSection: "MESAJLAŞMA",
+    sidebarInbox: "Gelen Kutusu",
+    sidebarContacts: "Kişiler",
+    sidebarTemplates: "Şablonlar",
+    sidebarBulk: "Toplu Mesaj",
+    sidebarAiSection: "YAPAY ZEKA",
+    sidebarBot: "AI Sohbet Botu",
+    sidebarAuto: "Otomasyonlar",
+    sidebarFlow: "Akış Oluşturucu",
+    sidebarIntSection: "ENTEGRASYON",
+    sidebarChannels: "Kanallar",
+    sidebarIntegrations: "Entegrasyonlar",
+    sidebarAnalSection: "ANALİZ",
+    sidebarReports: "Raporlar",
+    searchPlaceholder: "Konuşmalarda ara...",
+    msgOnline: "Çevrimiçi",
+    msgTypePlaceholder: "Mesaj yazın...",
+    chatContactName: "Ahmet Yılmaz",
+    chatList: [
+      { name: "Ahmet Yılmaz", msg: "Ürün hakkında bilgi alabilir miyim?", time: "2dk", unread: true, channel: "whatsapp" },
+      { name: "Elif Kaya", msg: "Siparişim ne zaman gelir?", time: "15dk", unread: true, channel: "instagram" },
+      { name: "Mehmet Demir", msg: "Teşekkürler, harika hizmet!", time: "1sa", unread: false, channel: "whatsapp" },
+      { name: "Ayşe Çelik", msg: "Fiyat listesi gönderebilir misiniz?", time: "2sa", unread: false, channel: "whatsapp" },
+      { name: "Can Öztürk", msg: "Ödeme yaptım, kontrol eder misiniz?", time: "3sa", unread: false, channel: "facebook" },
+    ],
+    chatMsg1: "Merhaba, premium paketiniz hakkında bilgi alabilir miyim? Fiyatları öğrenmek istiyorum.",
+    chatMsg2: "Merhaba Ahmet! Premium paketimiz aylık 299₺ ile başlıyor. Sınırsız mesaj, AI chatbot ve 7/24 destek dahil. Detaylı bilgi göndereyim mi?",
+    chatMsg3: "Evet lütfen! Ayrıca entegrasyonlar hakkında da bilgi verir misiniz?",
+    chatAiLabel: "AI Asistan",
+    statsItems: [
+      { value: 5000, suffix: "+", label: "Aktif İşletme" },
+      { value: 12, suffix: "M+", label: "Gönderilen Mesaj" },
+      { value: 99, suffix: "%", label: "Uptime Garantisi" },
+      { value: 45, suffix: "%", label: "Daha Fazla Satış" },
+    ],
+    featuresBadge: "Özellikler",
+    featuresTitle: "İşletmenizi büyütecek her şey tek platformda",
+    featuresSubtitle: "WhatsApp, Instagram, Facebook Messenger ve daha fazlasını tek panelden yönetin. AI destekli otomasyonlarla müşteri deneyimini dönüştürün.",
+    features: [
+      { title: "Akıllı Gelen Kutusu", desc: "WhatsApp, Instagram ve Facebook mesajlarınız tek ekranda. Müşterilerinize hangi kanaldan yazarsa yazsın, buradan anında yanıt verin. Okundu bilgisi, dosya paylaşımı ve AI destekli hızlı yanıtlar.", color: "from-green-500 to-emerald-600" },
+      { title: "AI Sohbet Botu", desc: "Bilgi Bankası'na ürün, hizmet ve fiyat bilgilerinizi ekleyin. AI chatbot 7/24 müşterilerinize doğru ve tutarlı yanıtlar versin. Mesai dışında bile müşteri kaybetmeyin.", color: "from-violet-500 to-purple-600" },
+      { title: "CRM & Pipeline", desc: "Müşteri adaylarınızı Kanban tahtasında sürükle-bırak ile yönetin. Her lead'in hangi aşamada olduğunu görün, teklif değerlerini takip edin. Kişi ve şirket bağlayarak satış sürecinizi kontrol edin.", color: "from-blue-500 to-indigo-600" },
+      { title: "Toplu Mesaj Gönderimi", desc: "Onaylanmış WhatsApp şablonlarıyla binlerce müşterinize tek tıkla kişiselleştirilmiş mesajlar gönderin. Etiket bazlı filtreleme ile doğru kitleye ulaşın. Gönderim ve okunma oranlarını anlık takip edin.", color: "from-amber-500 to-orange-600" },
+      { title: "Otomasyon & Akış Oluşturucu", desc: "Sürükle-bırak ile görsel otomasyon akışları oluşturun. Karşılama mesajı, takip hatırlatması, etiketleme — kodsuz sınırsız senaryo. Müşteri yolculuğunu otomatikleştirin.", color: "from-pink-500 to-rose-600" },
+      { title: "Analiz & Raporlar", desc: "Mesajlaşma performansınızı detaylı grafiklerle görün. Gelen-giden mesaj sayıları, bot çözüm oranı, kampanya başarısı ve kanal bazlı karşılaştırmalar ile veriye dayalı kararlar alın.", color: "from-cyan-500 to-blue-600" },
+    ],
+    howBadge: "Nasıl Çalışır",
+    howTitle: "3 adımda başlayın",
+    howSubtitle: "Dakikalar içinde tüm mesajlaşma kanallarınızı bağlayın ve müşterilerinizle iletişimi dönüştürün.",
+    steps: [
+      { step: "01", title: "WhatsApp'ı Bağlayın", desc: "Meta Business hesabınızla giriş yapın, WhatsApp Business API'nizi saniyeler içinde bağlayın. Embedded Signup ile tek tıkla." },
+      { step: "02", title: "AI Chatbot Kurun", desc: "Bilgi tabanınızı yükleyin, yanıt tonunu ayarlayın. AI chatbot müşterilerinize 7/24 otomatik yanıt vermeye başlasın." },
+      { step: "03", title: "Satışları Katlayın", desc: "Toplu mesajlar gönderin, kampanyalar oluşturun, pipeline'da lead'leri takip edin. Büyümeyi izleyin." },
+    ],
+    aiBadge: "AI Destekli",
+    aiTitleLine1: "Yapay zeka ile",
+    aiTitleGradient: "7/24 satış",
+    aiTitleLine2: "yapın",
+    aiDesc: "Gemini AI destekli chatbot'unuz müşterilerinizin sorularını anında yanıtlar, ürün önerir, sipariş bilgisi verir ve satışa yönlendirir. Siz uyurken bile işletmeniz çalışmaya devam eder.",
+    aiBullets: [
+      "SSS'leri otomatik yanıtlar, ekibinizin yükünü %70 azaltır",
+      "Doğal dilde konuşur, müşteri memnuniyetini artırır",
+      "Bilgi tabanınızdan öğrenir, her gün daha akıllı olur",
+      "Gerektiğinde canlı temsilciye sorunsuz aktarır",
+    ],
+    aiChat1: "Merhaba, XL beden siyah tişört stokta var mı?",
+    aiChat2: "Merhaba! Evet, XL beden siyah tişörtümüz stokta mevcut. Fiyatı 249₺. Sepetinize eklememi ister misiniz?",
+    aiChat3: "Evet lütfen! Kargo ne kadar sürüyor?",
+    aiChat4: "Sepetinize ekledim! Kargo 1-3 iş günü içinde teslim edilir. Ödeme linkini göndermemi ister misiniz?",
+    aiSaleComplete: "Satış tamamlandı — 12 saniyede",
+    aiCustomer: "Müşteri",
+    aiAssistant: "AI Asistan",
+    channelsBadge: "Kanallar",
+    channelsTitle: "Tüm mesajlaşma kanalları tek çatı altında",
+    channelsSubtitle: "Müşterileriniz nerede olursa olsun, onlara ulaşın. Tek gelen kutusu, tüm kanallar.",
+    channels: [
+      { name: "WhatsApp Business", color: "bg-green-500", desc: "API entegrasyonu" },
+      { name: "Instagram DM", color: "bg-gradient-to-br from-purple-500 to-pink-500", desc: "Direkt mesajlar" },
+      { name: "Facebook Messenger", color: "bg-blue-600", desc: "Sayfa mesajları" },
+      { name: "Web Chat", color: "bg-primary", desc: "Site widget'ı" },
+    ],
+    pricingBadge: "Fiyatlandırma",
+    pricingTitle: "İşletmenize uygun planı seçin",
+    pricingSubtitle: "Tüm planlarda 14 gün ücretsiz deneme. Kredi kartı gerekmez.",
+    periods: [
+      { label: "6 Ay", key: "6ay" as const },
+      { label: "1 Yıl", key: "1yil" as const },
+      { label: "2 Yıl", key: "2yil" as const },
+    ],
+    mostPopular: "En Popüler",
+    tryForFree: "Ücretsiz Deneyin",
+    contactSales: "Satış Ekibiyle Görüşün",
+    contactUs: "Bize Ulaşın",
+    perMonth: "/ay",
+    plans: [
+      { name: "Temel", desc: "Küçük işletmeler için temel iletişim araçları", features: ["1 WhatsApp numarası", "Sohbet gelen kutusu", "Temel AI özeti", "1 kullanıcı", "Email destek"] },
+      { name: "Gelişmiş", desc: "Otomasyon ve toplu mesaj ile büyüme", features: ["2 WhatsApp numarası", "Toplu mesaj gönderimi", "Bot oluşturucu", "AI temsilcisi", "3 kullanıcı", "Otomasyon kuralları"] },
+      { name: "Profesyonel", desc: "Tam CRM, gelişmiş AI ve analitik", features: ["5 WhatsApp numarası", "CRM & Pipeline", "Akış oluşturucu", "AI önerilen yanıtlar", "10 kullanıcı", "Detaylı analitik", "Öncelikli destek"] },
+      { name: "Kurumsal", desc: "Özel ihtiyaçlar ve yüksek hacim", features: ["Sınırsız numara", "Özel AI eğitimi", "Sınırsız kullanıcı", "SSO & kurumsal güvenlik", "API erişimi", "SLA garantisi", "Dedicated hesap yöneticisi"] },
+    ],
+    compareDesc: "AI otomasyonunun seviyesine ve ekibinizin ihtiyaç duyduğu desteğe göre bir plan seçin ve işiniz büyüdükçe ölçeklendirin.",
+    compareToggle: "Ayrıntılı Plan Karşılaştırmasını Görüntüleyin",
+    compareFeature: "Özellik",
+    compareTable: [
+      { label: "WhatsApp numarası", vals: ["1", "2", "5", "Sınırsız"] },
+      { label: "Kullanıcı sayısı", vals: ["1", "3", "10", "Sınırsız"] },
+      { label: "Aylık mesaj", vals: ["1.000", "5.000", "25.000", "Sınırsız"] },
+      { section: "Mesajlaşma" },
+      { label: "Gelen kutusu", vals: [true, true, true, true] },
+      { label: "Toplu mesaj", vals: [false, true, true, true] },
+      { label: "Mesaj şablonları", vals: [true, true, true, true] },
+      { label: "Dosya & medya paylaşımı", vals: [true, true, true, true] },
+      { section: "CRM" },
+      { label: "Pipeline yönetimi", vals: [false, false, true, true] },
+      { label: "Lead yönetimi", vals: [false, false, true, true] },
+      { label: "Şirket yönetimi", vals: [false, false, true, true] },
+      { label: "Özel alanlar", vals: [false, false, true, true] },
+      { section: "Yapay Zeka" },
+      { label: "AI chatbot", vals: ["Temel", "Gelişmiş", "Pro", "Özel"] },
+      { label: "AI önerilen yanıtlar", vals: [false, false, true, true] },
+      { label: "Bilgi bankası", vals: [false, true, true, true] },
+      { label: "Özel AI eğitimi", vals: [false, false, false, true] },
+      { section: "Otomasyon" },
+      { label: "Otomasyon kuralları", vals: [false, true, true, true] },
+      { label: "Akış oluşturucu", vals: [false, false, true, true] },
+      { label: "Webhook entegrasyonu", vals: [false, false, true, true] },
+      { section: "Analitik & Destek" },
+      { label: "Temel raporlar", vals: [true, true, true, true] },
+      { label: "Detaylı analitik", vals: [false, false, true, true] },
+      { label: "API erişimi", vals: [false, false, true, true] },
+      { label: "Destek seviyesi", vals: ["Email", "Email", "Öncelikli", "Dedicated"] },
+      { label: "SSO & kurumsal güvenlik", vals: [false, false, false, true] },
+    ] as Array<{ section: string } | { label: string; vals: (boolean | string)[] }>,
+    pricingCtaText: "14 günlük denemenizde tüm özelliklere tam erişim. Kredi kartı gerekmez.",
+    pricingCtaBtn: "Ücretsiz Deneyin",
+    testimonialsBadge: "Referanslar",
+    testimonialsTitle: "Müşterilerimiz ne diyor?",
+    testimonialsSubtitle: "Binlerce işletme YO Dijital ile mesajlaşarak satışlarını artırıyor.",
+    testimonials: [
+      { quote: "WhatsApp üzerinden gelen müşteri sorularına AI chatbot sayesinde anında yanıt vermeye başladık. Müşteri memnuniyeti %40 arttı.", name: "Ahmet Yılmaz", role: "E-ticaret Müdürü", company: "TechStore" },
+      { quote: "Toplu mesaj kampanyaları ile satışlarımız 3 ayda %60 arttı. Tek panelden tüm kanalları yönetmek inanılmaz kolaylık.", name: "Elif Kaya", role: "Pazarlama Direktörü", company: "ModeVita" },
+      { quote: "Otomasyon akışları sayesinde 7/24 müşteri hizmeti sunabiliyoruz. Ekip verimliliği 3 kat arttı. Tavsiye ederim.", name: "Mehmet Demir", role: "Kurucu", company: "ServisPlus" },
+    ],
+    ctaTitle1: "Müşterilerinizle konuşmaya",
+    ctaTitle2: "bugün başlayın",
+    ctaDesc: "14 gün boyunca tüm özellikleri ücretsiz deneyin. Kurulum 2 dakika, kredi kartı gerekmez.",
+    ctaBtn1: "Ücretsiz Hesap Oluşturun",
+    ctaBtn2: "Zaten hesabınız var mı? Giriş yapın",
+    copyright: "2025 YO Dijital. Tüm hakları saklıdır.",
+  },
+  en: {
+    nav: ["Product", "Integrations", "Pricing"],
+    navHrefs: ["#features", "#how-it-works", "#pricing"],
+    login: "Sign In",
+    bookDemo: "Book a Demo",
+    tryFree7: "Try 7 Days Free",
+    heroBadge: "AI-Powered WhatsApp Business Platform",
+    heroH1a: "All the strategic tools and smart solutions",
+    heroH1b: "that make a real difference in customer management",
+    heroH1c: "now in one central hub.",
+    heroCta1: "Start 14-Day Free Trial",
+    heroCta2: "How It Works?",
+    trust1: "Meta Business Partner",
+    trust2: "No credit card required",
+    trust3: "2-minute setup",
+    sidebarMsgSection: "MESSAGING",
+    sidebarInbox: "Inbox",
+    sidebarContacts: "Contacts",
+    sidebarTemplates: "Templates",
+    sidebarBulk: "Bulk Message",
+    sidebarAiSection: "AI",
+    sidebarBot: "AI Chatbot",
+    sidebarAuto: "Automations",
+    sidebarFlow: "Flow Builder",
+    sidebarIntSection: "INTEGRATIONS",
+    sidebarChannels: "Channels",
+    sidebarIntegrations: "Integrations",
+    sidebarAnalSection: "ANALYTICS",
+    sidebarReports: "Reports",
+    searchPlaceholder: "Search conversations...",
+    msgOnline: "Online",
+    msgTypePlaceholder: "Type a message...",
+    chatContactName: "Ahmet Yılmaz",
+    chatList: [
+      { name: "Ahmet Yılmaz", msg: "Can I get info about the product?", time: "2m", unread: true, channel: "whatsapp" },
+      { name: "Elif Kaya", msg: "When will my order arrive?", time: "15m", unread: true, channel: "instagram" },
+      { name: "Mehmet Demir", msg: "Thank you, great service!", time: "1h", unread: false, channel: "whatsapp" },
+      { name: "Ayşe Çelik", msg: "Can you send the price list?", time: "2h", unread: false, channel: "whatsapp" },
+      { name: "Can Öztürk", msg: "I paid, can you check?", time: "3h", unread: false, channel: "facebook" },
+    ],
+    chatMsg1: "Hi, can I get information about your premium package? I'd like to know the pricing.",
+    chatMsg2: "Hello Ahmet! Our premium package starts at $299/month. Unlimited messages, AI chatbot, and 24/7 support included. Shall I send you the details?",
+    chatMsg3: "Yes please! Can you also tell me about the integrations?",
+    chatAiLabel: "AI Assistant",
+    statsItems: [
+      { value: 5000, suffix: "+", label: "Active Businesses" },
+      { value: 12, suffix: "M+", label: "Messages Sent" },
+      { value: 99, suffix: "%", label: "Uptime Guarantee" },
+      { value: 45, suffix: "%", label: "More Sales" },
+    ],
+    featuresBadge: "Features",
+    featuresTitle: "Everything to grow your business in one platform",
+    featuresSubtitle: "Manage WhatsApp, Instagram, Facebook Messenger and more from one dashboard. Transform the customer experience with AI-powered automations.",
+    features: [
+      { title: "Smart Inbox", desc: "Your WhatsApp, Instagram and Facebook messages in one screen. Reply instantly no matter which channel your customers write from. Read receipts, file sharing, and AI-powered quick replies.", color: "from-green-500 to-emerald-600" },
+      { title: "AI Chatbot", desc: "Add your products, services, and pricing to the Knowledge Base. Let the AI chatbot give accurate and consistent answers 24/7. Never lose a customer outside working hours.", color: "from-violet-500 to-purple-600" },
+      { title: "CRM & Pipeline", desc: "Manage your leads with drag-and-drop on a Kanban board. See which stage each lead is at, track deal values. Link contacts and companies to control your sales process.", color: "from-blue-500 to-indigo-600" },
+      { title: "Bulk Messaging", desc: "Send personalized messages to thousands of customers with one click using approved WhatsApp templates. Reach the right audience with tag-based filtering. Track send and open rates in real time.", color: "from-amber-500 to-orange-600" },
+      { title: "Automation & Flow Builder", desc: "Create visual automation flows with drag-and-drop. Welcome messages, follow-up reminders, tagging — unlimited scenarios without code. Automate the customer journey.", color: "from-pink-500 to-rose-600" },
+      { title: "Analytics & Reports", desc: "View your messaging performance with detailed charts. Make data-driven decisions with inbound/outbound counts, bot resolution rate, campaign success, and channel comparisons.", color: "from-cyan-500 to-blue-600" },
+    ],
+    howBadge: "How It Works",
+    howTitle: "Get started in 3 steps",
+    howSubtitle: "Connect all your messaging channels in minutes and transform your customer communication.",
+    steps: [
+      { step: "01", title: "Connect WhatsApp", desc: "Sign in with your Meta Business account, connect your WhatsApp Business API in seconds. One click with Embedded Signup." },
+      { step: "02", title: "Set Up AI Chatbot", desc: "Upload your knowledge base, adjust the response tone. Let the AI chatbot start giving automated replies 24/7." },
+      { step: "03", title: "Multiply Your Sales", desc: "Send bulk messages, create campaigns, track leads in the pipeline. Watch your growth." },
+    ],
+    aiBadge: "AI-Powered",
+    aiTitleLine1: "Sell",
+    aiTitleGradient: "24/7 with AI",
+    aiTitleLine2: "",
+    aiDesc: "Your Gemini AI-powered chatbot instantly answers customer questions, recommends products, provides order info, and drives sales. Your business keeps working even while you sleep.",
+    aiBullets: [
+      "Automatically answers FAQs, reducing your team's workload by 70%",
+      "Speaks naturally, improving customer satisfaction",
+      "Learns from your knowledge base, gets smarter every day",
+      "Seamlessly transfers to a live agent when needed",
+    ],
+    aiChat1: "Hi, do you have the black t-shirt in XL in stock?",
+    aiChat2: "Hello! Yes, our black XL t-shirt is in stock. It's $24.99. Would you like me to add it to your cart?",
+    aiChat3: "Yes please! How long does shipping take?",
+    aiChat4: "Added to your cart! Shipping is 1-3 business days. Would you like me to send you the payment link?",
+    aiSaleComplete: "Sale completed — in 12 seconds",
+    aiCustomer: "Customer",
+    aiAssistant: "AI Assistant",
+    channelsBadge: "Channels",
+    channelsTitle: "All messaging channels under one roof",
+    channelsSubtitle: "Reach your customers wherever they are. One inbox, all channels.",
+    channels: [
+      { name: "WhatsApp Business", color: "bg-green-500", desc: "API integration" },
+      { name: "Instagram DM", color: "bg-gradient-to-br from-purple-500 to-pink-500", desc: "Direct messages" },
+      { name: "Facebook Messenger", color: "bg-blue-600", desc: "Page messages" },
+      { name: "Web Chat", color: "bg-primary", desc: "Website widget" },
+    ],
+    pricingBadge: "Pricing",
+    pricingTitle: "Choose the right plan for your business",
+    pricingSubtitle: "14-day free trial on all plans. No credit card required.",
+    periods: [
+      { label: "6 Months", key: "6ay" as const },
+      { label: "1 Year", key: "1yil" as const },
+      { label: "2 Years", key: "2yil" as const },
+    ],
+    mostPopular: "Most Popular",
+    tryForFree: "Try for Free",
+    contactSales: "Contact Sales",
+    contactUs: "Contact Us",
+    perMonth: "/mo",
+    plans: [
+      { name: "Basic", desc: "Essential communication tools for small businesses", features: ["1 WhatsApp number", "Conversation inbox", "Basic AI summary", "1 user", "Email support"] },
+      { name: "Advanced", desc: "Grow with automation and bulk messaging", features: ["2 WhatsApp numbers", "Bulk messaging", "Bot builder", "AI agent", "3 users", "Automation rules"] },
+      { name: "Professional", desc: "Full CRM, advanced AI and analytics", features: ["5 WhatsApp numbers", "CRM & Pipeline", "Flow builder", "AI suggested replies", "10 users", "Detailed analytics", "Priority support"] },
+      { name: "Enterprise", desc: "Custom needs and high volume", features: ["Unlimited numbers", "Custom AI training", "Unlimited users", "SSO & enterprise security", "API access", "SLA guarantee", "Dedicated account manager"] },
+    ],
+    compareDesc: "Choose a plan based on the level of AI automation and the support your team needs, and scale as your business grows.",
+    compareToggle: "View Detailed Plan Comparison",
+    compareFeature: "Feature",
+    compareTable: [
+      { label: "WhatsApp numbers", vals: ["1", "2", "5", "Unlimited"] },
+      { label: "Users", vals: ["1", "3", "10", "Unlimited"] },
+      { label: "Monthly messages", vals: ["1,000", "5,000", "25,000", "Unlimited"] },
+      { section: "Messaging" },
+      { label: "Inbox", vals: [true, true, true, true] },
+      { label: "Bulk messaging", vals: [false, true, true, true] },
+      { label: "Message templates", vals: [true, true, true, true] },
+      { label: "File & media sharing", vals: [true, true, true, true] },
+      { section: "CRM" },
+      { label: "Pipeline management", vals: [false, false, true, true] },
+      { label: "Lead management", vals: [false, false, true, true] },
+      { label: "Company management", vals: [false, false, true, true] },
+      { label: "Custom fields", vals: [false, false, true, true] },
+      { section: "Artificial Intelligence" },
+      { label: "AI chatbot", vals: ["Basic", "Advanced", "Pro", "Custom"] },
+      { label: "AI suggested replies", vals: [false, false, true, true] },
+      { label: "Knowledge base", vals: [false, true, true, true] },
+      { label: "Custom AI training", vals: [false, false, false, true] },
+      { section: "Automation" },
+      { label: "Automation rules", vals: [false, true, true, true] },
+      { label: "Flow builder", vals: [false, false, true, true] },
+      { label: "Webhook integration", vals: [false, false, true, true] },
+      { section: "Analytics & Support" },
+      { label: "Basic reports", vals: [true, true, true, true] },
+      { label: "Detailed analytics", vals: [false, false, true, true] },
+      { label: "API access", vals: [false, false, true, true] },
+      { label: "Support level", vals: ["Email", "Email", "Priority", "Dedicated"] },
+      { label: "SSO & enterprise security", vals: [false, false, false, true] },
+    ] as Array<{ section: string } | { label: string; vals: (boolean | string)[] }>,
+    pricingCtaText: "Full access to all features during your 14-day trial. No credit card required.",
+    pricingCtaBtn: "Try for Free",
+    testimonialsBadge: "Testimonials",
+    testimonialsTitle: "What do our customers say?",
+    testimonialsSubtitle: "Thousands of businesses are increasing their sales by messaging with YO Dijital.",
+    testimonials: [
+      { quote: "We started responding instantly to customer questions coming through WhatsApp thanks to the AI chatbot. Customer satisfaction increased by 40%.", name: "Ahmet Yılmaz", role: "E-commerce Manager", company: "TechStore" },
+      { quote: "Our sales increased by 60% in 3 months with bulk message campaigns. Managing all channels from one panel is incredibly easy.", name: "Elif Kaya", role: "Marketing Director", company: "ModeVita" },
+      { quote: "Thanks to automation flows, we can provide 24/7 customer service. Team efficiency tripled. Highly recommend.", name: "Mehmet Demir", role: "Founder", company: "ServisPlus" },
+    ],
+    ctaTitle1: "Start talking to your",
+    ctaTitle2: "customers today",
+    ctaDesc: "Try all features free for 14 days. 2-minute setup, no credit card required.",
+    ctaBtn1: "Create Free Account",
+    ctaBtn2: "Already have an account? Sign in",
+    copyright: "2025 YO Dijital. All rights reserved.",
+  },
+}
+
+/* ════════════════════════════════════════════
    MAIN LANDING PAGE
    ════════════════════════════════════════════ */
 export default function LandingPage() {
@@ -408,6 +744,8 @@ export default function LandingPage() {
   const [compareOpen, setCompareOpen] = useState(false)
   const [lang, setLang] = useState<"tr" | "en">("tr")
   const [dropOpen, setDropOpen] = useState(false)
+
+  const t = T[lang]
 
   const langMeta = {
     tr: { flag: "🇹🇷", label: "Türkçe" },
@@ -451,11 +789,7 @@ export default function LandingPage() {
             {/* Desktop Nav — inside pill container */}
             <nav className="hidden md:flex items-center">
               <div className="flex items-center bg-white/[0.07] rounded-full p-1 gap-0.5">
-                {[
-                  { label: "Ürün", href: "#features" },
-                  { label: "Entegrasyonlar", href: "#how-it-works" },
-                  { label: "Fiyatlandırma", href: "#pricing" },
-                ].map((item) => (
+                {t.nav.map((label, i) => ({ label, href: t.navHrefs[i] })).map((item) => (
                   <a
                     key={item.href}
                     href={item.href}
@@ -470,19 +804,19 @@ export default function LandingPage() {
             {/* Right CTA */}
             <div className="hidden md:flex items-center gap-3">
               <button onClick={goLogin} className="text-sm font-bold text-white/60 hover:text-white transition-colors px-4 py-2">
-                Giriş Yap
+                {t.login}
               </button>
               <button
                 onClick={goRegister}
                 className="text-sm font-bold text-sidebar bg-white/90 hover:bg-white px-5 py-2 rounded-full transition-all flex items-center gap-1.5 border border-white/20"
               >
-                Görüşme Planla
+                {t.bookDemo}
               </button>
               <button
                 onClick={goRegister}
                 className="text-sm font-bold text-white bg-primary hover:bg-primary-hover px-5 py-2 rounded-full transition-all flex items-center gap-1.5 border border-primary-light/30 shadow-lg shadow-primary/25"
               >
-                7 Gün Ücretsiz Dene
+                {t.tryFree7}
               </button>
             </div>
 
@@ -495,22 +829,18 @@ export default function LandingPage() {
           {/* Mobile Menu */}
           {mobileMenu && (
             <div className="md:hidden bg-sidebar/95 backdrop-blur-xl mt-2 rounded-2xl px-5 py-5 space-y-3 animate-slide-up border border-white/5">
-              {[
-                { label: "Ürün", href: "#features" },
-                { label: "Entegrasyonlar", href: "#how-it-works" },
-                { label: "Fiyatlandırma", href: "#pricing" },
-              ].map((item) => (
-                <a key={item.label} href={item.href} className="block text-sm font-medium text-white/70 hover:text-white py-1" onClick={() => setMobileMenu(false)}>
-                  {item.label}
+              {t.nav.map((label, i) => (
+                <a key={label} href={t.navHrefs[i]} className="block text-sm font-medium text-white/70 hover:text-white py-1" onClick={() => setMobileMenu(false)}>
+                  {label}
                 </a>
               ))}
               <div className="pt-3 border-t border-white/10 flex flex-col gap-2">
-                <button onClick={goLogin} className="text-sm font-medium text-white/60 py-2">Giriş Yap</button>
+                <button onClick={goLogin} className="text-sm font-medium text-white/60 py-2">{t.login}</button>
                 <button onClick={goRegister} className="text-sm font-bold text-sidebar bg-white/90 px-5 py-2.5 rounded-full w-full">
-                  Görüşme Planla
+                  {t.bookDemo}
                 </button>
                 <button onClick={goRegister} className="text-sm font-bold text-white bg-primary px-5 py-2.5 rounded-full w-full shadow-lg shadow-primary/25">
-                  7 Gün Ücretsiz Dene
+                  {t.tryFree7}
                 </button>
               </div>
             </div>
@@ -530,28 +860,28 @@ export default function LandingPage() {
           <div className="max-w-5xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 border border-primary/15 mb-4 landing-reveal">
               <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-semibold text-primary-700">AI Destekli WhatsApp Business Platform</span>
+              <span className="text-sm font-semibold text-primary-700">{t.heroBadge}</span>
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] mb-6 landing-reveal landing-reveal-delay-1">
-              Müşteri yönetiminde fark yaratan{" "}
-              <span className="landing-gradient-text">tüm stratejik araçlar ve akıllı çözümler</span>
-              <br />artık tek merkezde buluşuyor.
+              {t.heroH1a}{" "}
+              <span className="landing-gradient-text">{t.heroH1b}</span>
+              <br />{t.heroH1c}
             </h1>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 landing-reveal landing-reveal-delay-3">
               <button onClick={goRegister} className="landing-btn-primary text-base px-8 py-4">
-                14 Gün Ücretsiz Deneyin <ArrowRight className="w-5 h-5" />
+                {t.heroCta1} <ArrowRight className="w-5 h-5" />
               </button>
               <a href="#how-it-works" className="landing-btn-secondary text-base px-8 py-4">
-                <Play className="w-5 h-5" /> Nasıl Çalışır?
+                <Play className="w-5 h-5" /> {t.heroCta2}
               </a>
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-ink/40 landing-reveal landing-reveal-delay-3">
-              <div className="flex items-center gap-2"><Shield className="w-4 h-4" /><span>Meta İş Ortağı</span></div>
-              <div className="flex items-center gap-2"><Check className="w-4 h-4" /><span>Kredi kartı gerekmez</span></div>
-              <div className="flex items-center gap-2"><Zap className="w-4 h-4" /><span>2 dakikada kurulum</span></div>
+              <div className="flex items-center gap-2"><Shield className="w-4 h-4" /><span>{t.trust1}</span></div>
+              <div className="flex items-center gap-2"><Check className="w-4 h-4" /><span>{t.trust2}</span></div>
+              <div className="flex items-center gap-2"><Zap className="w-4 h-4" /><span>{t.trust3}</span></div>
             </div>
           </div>
 
@@ -587,42 +917,36 @@ export default function LandingPage() {
                     {/* DASHBOARD */}
                     <div className="px-2 pt-1 pb-1"><span className="text-[9px] font-bold text-sidebar-text/50 tracking-wider">DASHBOARD</span></div>
                     <SidebarItem icon={BarChart3} label="Dashboard" />
-                    {/* MESAJLAŞMA */}
-                    <div className="px-2 pt-2.5 pb-1"><span className="text-[9px] font-bold text-sidebar-text/50 tracking-wider">MESAJLAŞMA</span></div>
-                    <SidebarItem icon={MessageCircle} label="Gelen Kutusu" active badge="12" />
-                    <SidebarItem icon={Users} label="Kişiler" />
-                    <SidebarItem icon={Mail} label="Şablonlar" />
-                    <SidebarItem icon={Send} label="Toplu Mesaj" />
+                    {/* MESSAGING */}
+                    <div className="px-2 pt-2.5 pb-1"><span className="text-[9px] font-bold text-sidebar-text/50 tracking-wider">{t.sidebarMsgSection}</span></div>
+                    <SidebarItem icon={MessageCircle} label={t.sidebarInbox} active badge="12" />
+                    <SidebarItem icon={Users} label={t.sidebarContacts} />
+                    <SidebarItem icon={Mail} label={t.sidebarTemplates} />
+                    <SidebarItem icon={Send} label={t.sidebarBulk} />
                     {/* CRM */}
                     <div className="px-2 pt-2.5 pb-1"><span className="text-[9px] font-bold text-sidebar-text/50 tracking-wider">CRM</span></div>
                     <SidebarItem icon={Workflow} label="Pipeline" />
-                    <SidebarItem icon={Users} label="Leadler" />
-                    {/* YAPAY ZEKA */}
-                    <div className="px-2 pt-2.5 pb-1"><span className="text-[9px] font-bold text-sidebar-text/50 tracking-wider">YAPAY ZEKA</span></div>
-                    <SidebarItem icon={Bot} label="AI Sohbet Botu" badgeText="AI" />
-                    <SidebarItem icon={Zap} label="Otomasyonlar" />
-                    <SidebarItem icon={Workflow} label="Akış Oluşturucu" />
-                    {/* ENTEGRASYON */}
-                    <div className="px-2 pt-2.5 pb-1"><span className="text-[9px] font-bold text-sidebar-text/50 tracking-wider">ENTEGRASYON</span></div>
-                    <SidebarItem icon={Phone} label="Kanallar" />
-                    <SidebarItem icon={Globe} label="Entegrasyonlar" />
-                    {/* ANALİZ */}
-                    <div className="px-2 pt-2.5 pb-1"><span className="text-[9px] font-bold text-sidebar-text/50 tracking-wider">ANALİZ</span></div>
-                    <SidebarItem icon={BarChart3} label="Raporlar" />
+                    <SidebarItem icon={Users} label="Leads" />
+                    {/* AI */}
+                    <div className="px-2 pt-2.5 pb-1"><span className="text-[9px] font-bold text-sidebar-text/50 tracking-wider">{t.sidebarAiSection}</span></div>
+                    <SidebarItem icon={Bot} label={t.sidebarBot} badgeText="AI" />
+                    <SidebarItem icon={Zap} label={t.sidebarAuto} />
+                    <SidebarItem icon={Workflow} label={t.sidebarFlow} />
+                    {/* INTEGRATIONS */}
+                    <div className="px-2 pt-2.5 pb-1"><span className="text-[9px] font-bold text-sidebar-text/50 tracking-wider">{t.sidebarIntSection}</span></div>
+                    <SidebarItem icon={Phone} label={t.sidebarChannels} />
+                    <SidebarItem icon={Globe} label={t.sidebarIntegrations} />
+                    {/* ANALYTICS */}
+                    <div className="px-2 pt-2.5 pb-1"><span className="text-[9px] font-bold text-sidebar-text/50 tracking-wider">{t.sidebarAnalSection}</span></div>
+                    <SidebarItem icon={BarChart3} label={t.sidebarReports} />
                   </div>
 
                   {/* Chat List */}
                   <div className="hidden lg:flex flex-col w-80 border-r border-surface-300/50 bg-surface-50">
                     <div className="p-3 border-b border-surface-300/50">
-                      <div className="bg-white rounded-lg px-3 py-2 text-xs text-ink/30 border border-surface-300/50">Konuşmalarda ara...</div>
+                      <div className="bg-white rounded-lg px-3 py-2 text-xs text-ink/30 border border-surface-300/50">{t.searchPlaceholder}</div>
                     </div>
-                    {[
-                      { name: "Ahmet Yılmaz", msg: "Ürün hakkında bilgi alabilir miyim?", time: "2dk", unread: true, channel: "whatsapp" },
-                      { name: "Elif Kaya", msg: "Siparişim ne zaman gelir?", time: "15dk", unread: true, channel: "instagram" },
-                      { name: "Mehmet Demir", msg: "Teşekkürler, harika hizmet!", time: "1sa", unread: false, channel: "whatsapp" },
-                      { name: "Ayşe Çelik", msg: "Fiyat listesi gönderebilir misiniz?", time: "2sa", unread: false, channel: "whatsapp" },
-                      { name: "Can Öztürk", msg: "Ödeme yaptım, kontrol eder misiniz?", time: "3sa", unread: false, channel: "facebook" },
-                    ].map((chat, i) => (
+                    {t.chatList.map((chat, i) => (
                       <div key={i} className={`flex items-start gap-3 px-4 py-3 border-b border-surface-300/30 ${i === 0 ? "bg-primary-50/40" : "hover:bg-white"}`}>
                         <div className="relative">
                           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-200 to-primary-400 flex items-center justify-center text-white text-xs font-bold">{chat.name.charAt(0)}</div>
@@ -650,9 +974,9 @@ export default function LandingPage() {
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-200 to-primary-400 flex items-center justify-center text-white text-xs font-bold">A</div>
                         <div>
-                          <div className="text-sm font-semibold">Ahmet Yılmaz</div>
+                          <div className="text-sm font-semibold">{t.chatContactName}</div>
                           <div className="text-[10px] text-green-500 flex items-center gap-1">
-                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" /> Çevrimiçi
+                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" /> {t.msgOnline}
                           </div>
                         </div>
                       </div>
@@ -664,7 +988,7 @@ export default function LandingPage() {
                     <div className="flex-1 p-5 space-y-3 overflow-hidden">
                       <div className="flex gap-2 max-w-[80%]">
                         <div className="bg-surface-100 rounded-2xl rounded-tl-md px-4 py-2.5">
-                          <p className="text-xs text-ink/80">Merhaba, premium paketiniz hakkında bilgi alabilir miyim? Fiyatları öğrenmek istiyorum.</p>
+                          <p className="text-xs text-ink/80">{t.chatMsg1}</p>
                           <span className="text-[9px] text-ink/30 mt-1 block">14:32</span>
                         </div>
                       </div>
@@ -672,15 +996,15 @@ export default function LandingPage() {
                         <div className="bg-primary rounded-2xl rounded-tr-md px-4 py-2.5">
                           <div className="flex items-center gap-1 mb-1">
                             <Bot className="w-3 h-3 text-white/70" />
-                            <span className="text-[9px] text-white/60 font-medium">AI Asistan</span>
+                            <span className="text-[9px] text-white/60 font-medium">{t.chatAiLabel}</span>
                           </div>
-                          <p className="text-xs text-white">Merhaba Ahmet! Premium paketimiz aylık 299₺ ile başlıyor. Sınırsız mesaj, AI chatbot ve 7/24 destek dahil. Detaylı bilgi göndereyim mi?</p>
+                          <p className="text-xs text-white">{t.chatMsg2}</p>
                           <span className="text-[9px] text-white/40 mt-1 block text-right">14:32 ✓✓</span>
                         </div>
                       </div>
                       <div className="flex gap-2 max-w-[80%]">
                         <div className="bg-surface-100 rounded-2xl rounded-tl-md px-4 py-2.5">
-                          <p className="text-xs text-ink/80">Evet lütfen! Ayrıca entegrasyonlar hakkında da bilgi verir misiniz?</p>
+                          <p className="text-xs text-ink/80">{t.chatMsg3}</p>
                           <span className="text-[9px] text-ink/30 mt-1 block">14:33</span>
                         </div>
                       </div>
@@ -695,7 +1019,7 @@ export default function LandingPage() {
 
                     <div className="px-4 py-3 border-t border-surface-300/50">
                       <div className="flex items-center gap-2 bg-surface-50 rounded-xl px-4 py-2.5">
-                        <span className="text-xs text-ink/30 flex-1">Mesaj yazın...</span>
+                        <span className="text-xs text-ink/30 flex-1">{t.msgTypePlaceholder}</span>
                         <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                           <Send className="w-4 h-4 text-white" />
                         </div>
@@ -713,12 +1037,7 @@ export default function LandingPage() {
       <section className="py-6 bg-surface-50 border-y border-surface-300/50">
         <div className="max-w-[1600px] mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { value: 5000, suffix: "+", label: "Aktif İşletme" },
-              { value: 12, suffix: "M+", label: "Gönderilen Mesaj" },
-              { value: 99, suffix: "%", label: "Uptime Garantisi" },
-              { value: 45, suffix: "%", label: "Daha Fazla Satış" },
-            ].map((stat) => (
+            {t.statsItems.map((stat) => (
               <div key={stat.label}>
                 <div className="text-3xl md:text-4xl font-extrabold text-ink tracking-tight">
                   <Counter end={stat.value} suffix={stat.suffix} />
@@ -733,16 +1052,16 @@ export default function LandingPage() {
       {/* ═══════════ FEATURES ═══════════ */}
       <section id="features" className="py-8 md:py-10">
         <div className="max-w-[1600px] mx-auto px-6">
-          <SectionHeader badge="Özellikler" title="İşletmenizi büyütecek her şey tek platformda" subtitle="WhatsApp, Instagram, Facebook Messenger ve daha fazlasını tek panelden yönetin. AI destekli otomasyonlarla müşteri deneyimini dönüştürün." />
+          <SectionHeader badge={t.featuresBadge} title={t.featuresTitle} subtitle={t.featuresSubtitle} />
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
             {[
-              { icon: MessageCircle, title: "Akıllı Gelen Kutusu", desc: "WhatsApp, Instagram ve Facebook mesajlarınız tek ekranda. Müşterilerinize hangi kanaldan yazarsa yazsın, buradan anında yanıt verin. Okundu bilgisi, dosya paylaşımı ve AI destekli hızlı yanıtlar.", color: "from-green-500 to-emerald-600" },
-              { icon: Bot, title: "AI Sohbet Botu", desc: "Bilgi Bankası'na ürün, hizmet ve fiyat bilgilerinizi ekleyin. AI chatbot 7/24 müşterilerinize doğru ve tutarlı yanıtlar versin. Mesai dışında bile müşteri kaybetmeyin.", color: "from-violet-500 to-purple-600" },
-              { icon: Users, title: "CRM & Pipeline", desc: "Müşteri adaylarınızı Kanban tahtasında sürükle-bırak ile yönetin. Her lead'in hangi aşamada olduğunu görün, teklif değerlerini takip edin. Kişi ve şirket bağlayarak satış sürecinizi kontrol edin.", color: "from-blue-500 to-indigo-600" },
-              { icon: Send, title: "Toplu Mesaj Gönderimi", desc: "Onaylanmış WhatsApp şablonlarıyla binlerce müşterinize tek tıkla kişiselleştirilmiş mesajlar gönderin. Etiket bazlı filtreleme ile doğru kitleye ulaşın. Gönderim ve okunma oranlarını anlık takip edin.", color: "from-amber-500 to-orange-600" },
-              { icon: Workflow, title: "Otomasyon & Akış Oluşturucu", desc: "Sürükle-bırak ile görsel otomasyon akışları oluşturun. Karşılama mesajı, takip hatırlatması, etiketleme — kodsuz sınırsız senaryo. Müşteri yolculuğunu otomatikleştirin.", color: "from-pink-500 to-rose-600" },
-              { icon: BarChart3, title: "Analiz & Raporlar", desc: "Mesajlaşma performansınızı detaylı grafiklerle görün. Gelen-giden mesaj sayıları, bot çözüm oranı, kampanya başarısı ve kanal bazlı karşılaştırmalar ile veriye dayalı kararlar alın.", color: "from-cyan-500 to-blue-600" },
+              { icon: MessageCircle, ...t.features[0] },
+              { icon: Bot, ...t.features[1] },
+              { icon: Users, ...t.features[2] },
+              { icon: Send, ...t.features[3] },
+              { icon: Workflow, ...t.features[4] },
+              { icon: BarChart3, ...t.features[5] },
             ].map((feature) => (
               <FeatureCard key={feature.title} {...feature} />
             ))}
@@ -753,13 +1072,13 @@ export default function LandingPage() {
       {/* ═══════════ HOW IT WORKS ═══════════ */}
       <section id="how-it-works" className="py-8 md:py-10 bg-gradient-to-b from-surface-50 to-white">
         <div className="max-w-[1600px] mx-auto px-6">
-          <SectionHeader badge="Nasıl Çalışır" title="3 adımda başlayın" subtitle="Dakikalar içinde tüm mesajlaşma kanallarınızı bağlayın ve müşterilerinizle iletişimi dönüştürün." />
+          <SectionHeader badge={t.howBadge} title={t.howTitle} subtitle={t.howSubtitle} />
 
           <div className="grid md:grid-cols-3 gap-5 mt-6">
             {[
-              { step: "01", title: "WhatsApp'ı Bağlayın", desc: "Meta Business hesabınızla giriş yapın, WhatsApp Business API'nizi saniyeler içinde bağlayın. Embedded Signup ile tek tıkla.", icon: Phone },
-              { step: "02", title: "AI Chatbot Kurun", desc: "Bilgi tabanınızı yükleyin, yanıt tonunu ayarlayın. AI chatbot müşterilerinize 7/24 otomatik yanıt vermeye başlasın.", icon: Bot },
-              { step: "03", title: "Satışları Katlayın", desc: "Toplu mesajlar gönderin, kampanyalar oluşturun, pipeline'da lead'leri takip edin. Büyümeyi izleyin.", icon: BarChart3 },
+              { ...t.steps[0], icon: Phone },
+              { ...t.steps[1], icon: Bot },
+              { ...t.steps[2], icon: BarChart3 },
             ].map((item, i) => (
               <StepCard key={item.step} {...item} index={i} />
             ))}
@@ -774,21 +1093,16 @@ export default function LandingPage() {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-50 border border-violet-200 mb-5">
                 <Sparkles className="w-3.5 h-3.5 text-violet-600" />
-                <span className="text-xs font-semibold text-violet-700">AI Destekli</span>
+                <span className="text-xs font-semibold text-violet-700">{t.aiBadge}</span>
               </div>
               <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight mb-5">
-                Yapay zeka ile <span className="landing-gradient-text">7/24 satış</span> yapın
+                {t.aiTitleLine1} <span className="landing-gradient-text">{t.aiTitleGradient}</span> {t.aiTitleLine2}
               </h2>
               <p className="text-ink/60 leading-relaxed mb-6">
-                Gemini AI destekli chatbot'unuz müşterilerinizin sorularını anında yanıtlar, ürün önerir, sipariş bilgisi verir ve satışa yönlendirir. Siz uyurken bile işletmeniz çalışmaya devam eder.
+                {t.aiDesc}
               </p>
               <div className="space-y-3">
-                {[
-                  "SSS'leri otomatik yanıtlar, ekibinizin yükünü %70 azaltır",
-                  "Doğal dilde konuşur, müşteri memnuniyetini artırır",
-                  "Bilgi tabanınızdan öğrenir, her gün daha akıllı olur",
-                  "Gerektiğinde canlı temsilciye sorunsuz aktarır",
-                ].map((item) => (
+                {t.aiBullets.map((item) => (
                   <div key={item} className="flex items-start gap-3">
                     <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Check className="w-3 h-3 text-primary" />
@@ -803,21 +1117,21 @@ export default function LandingPage() {
               <div className="absolute inset-0 bg-gradient-to-r from-violet-500/10 to-primary/10 rounded-3xl blur-3xl" />
               <div className="relative bg-white rounded-2xl shadow-elevated border border-surface-300/50 p-6">
                 <div className="space-y-3">
-                  <ChatBubble side="left" name="Müşteri" time="14:22">
-                    Merhaba, XL beden siyah tişört stokta var mı?
+                  <ChatBubble side="left" name={t.aiCustomer} time="14:22">
+                    {t.aiChat1}
                   </ChatBubble>
-                  <ChatBubble side="right" name="AI Asistan" time="14:22" isBot>
-                    Merhaba! Evet, XL beden siyah tişörtümüz stokta mevcut. Fiyatı 249₺. Sepetinize eklememi ister misiniz?
+                  <ChatBubble side="right" name={t.aiAssistant} time="14:22" isBot>
+                    {t.aiChat2}
                   </ChatBubble>
-                  <ChatBubble side="left" name="Müşteri" time="14:23">
-                    Evet lütfen! Kargo ne kadar sürüyor?
+                  <ChatBubble side="left" name={t.aiCustomer} time="14:23">
+                    {t.aiChat3}
                   </ChatBubble>
-                  <ChatBubble side="right" name="AI Asistan" time="14:23" isBot>
-                    Sepetinize ekledim! Kargo 1-3 iş günü içinde teslim edilir. Ödeme linkini göndermemi ister misiniz?
+                  <ChatBubble side="right" name={t.aiAssistant} time="14:23" isBot>
+                    {t.aiChat4}
                   </ChatBubble>
                   <div className="flex items-center gap-2 pt-2">
                     <div className="flex-1 h-px bg-surface-300/50" />
-                    <span className="text-[10px] text-ink/30 font-medium">Satış tamamlandı — 12 saniyede</span>
+                    <span className="text-[10px] text-ink/30 font-medium">{t.aiSaleComplete}</span>
                     <div className="flex-1 h-px bg-surface-300/50" />
                   </div>
                 </div>
@@ -830,14 +1144,14 @@ export default function LandingPage() {
       {/* ═══════════ CHANNELS ═══════════ */}
       <section className="py-5 md:py-6 bg-gradient-to-b from-white via-surface-50 to-white">
         <div className="max-w-[1600px] mx-auto px-6">
-          <SectionHeader badge="Kanallar" title="Tüm mesajlaşma kanalları tek çatı altında" subtitle="Müşterileriniz nerede olursa olsun, onlara ulaşın. Tek gelen kutusu, tüm kanallar." />
+          <SectionHeader badge={t.channelsBadge} title={t.channelsTitle} subtitle={t.channelsSubtitle} />
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mt-6">
             {[
-              { name: "WhatsApp Business", color: "bg-green-500", icon: Phone, desc: "API entegrasyonu" },
-              { name: "Instagram DM", color: "bg-gradient-to-br from-purple-500 to-pink-500", icon: Instagram, desc: "Direkt mesajlar" },
-              { name: "Facebook Messenger", color: "bg-blue-600", icon: Facebook, desc: "Sayfa mesajları" },
-              { name: "Web Chat", color: "bg-primary", icon: Globe, desc: "Site widget'ı" },
+              { ...t.channels[0], icon: Phone },
+              { ...t.channels[1], icon: Instagram },
+              { ...t.channels[2], icon: Facebook },
+              { ...t.channels[3], icon: Globe },
             ].map((channel) => (
               <div key={channel.name} className="group relative bg-white rounded-2xl border border-surface-300/50 p-6 text-center hover:shadow-elevated hover:border-primary/20 transition-all duration-300 hover:-translate-y-1">
                 <div className={`w-14 h-14 rounded-2xl ${channel.color} flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
@@ -854,16 +1168,12 @@ export default function LandingPage() {
       {/* ═══════════ PRICING ═══════════ */}
       <section id="pricing" className="py-8 md:py-10">
         <div className="max-w-[1600px] mx-auto px-6">
-          <SectionHeader badge="Fiyatlandırma" title="İşletmenize uygun planı seçin" subtitle="Tüm planlarda 14 gün ücretsiz deneme. Kredi kartı gerekmez." />
+          <SectionHeader badge={t.pricingBadge} title={t.pricingTitle} subtitle={t.pricingSubtitle} />
 
-          {/* Dönem seçici — Kommo style pill tabs */}
+          {/* Period selector */}
           <div className="flex items-center justify-center mt-5 mb-6">
             <div className="inline-flex items-center bg-surface-150 rounded-full p-1 gap-0.5">
-              {([
-                { label: "6 Ay", key: "6ay" as const },
-                { label: "1 Yıl", key: "1yil" as const },
-                { label: "2 Yıl", key: "2yil" as const },
-              ]).map((item) => (
+              {t.periods.map((item) => (
                 <button
                   key={item.key}
                   onClick={() => setActivePlan(item.key)}
@@ -879,69 +1189,32 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* 4 Plan kartları */}
+          {/* 4 Plan cards */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 max-w-[1400px] mx-auto">
             {[
               {
-                name: "Temel",
+                ...t.plans[0],
                 price: activePlan === "2yil" ? 449 : activePlan === "1yil" ? 499 : 599,
-                period: "/ay",
-                desc: "Küçük işletmeler için temel iletişim araçları",
+                period: t.perMonth,
                 highlight: false,
-                features: [
-                  "1 WhatsApp numarası",
-                  "Sohbet gelen kutusu",
-                  "Temel AI özeti",
-                  "1 kullanıcı",
-                  "Email destek",
-                ],
               },
               {
-                name: "Gelişmiş",
+                ...t.plans[1],
                 price: activePlan === "2yil" ? 899 : activePlan === "1yil" ? 999 : 1199,
-                period: "/ay",
-                desc: "Otomasyon ve toplu mesaj ile büyüme",
+                period: t.perMonth,
                 highlight: false,
-                features: [
-                  "2 WhatsApp numarası",
-                  "Toplu mesaj gönderimi",
-                  "Bot oluşturucu",
-                  "AI temsilcisi",
-                  "3 kullanıcı",
-                  "Otomasyon kuralları",
-                ],
               },
               {
-                name: "Profesyonel",
+                ...t.plans[2],
                 price: activePlan === "2yil" ? 1749 : activePlan === "1yil" ? 1999 : 2499,
-                period: "/ay",
-                desc: "Tam CRM, gelişmiş AI ve analitik",
+                period: t.perMonth,
                 highlight: true,
-                features: [
-                  "5 WhatsApp numarası",
-                  "CRM & Pipeline",
-                  "Akış oluşturucu",
-                  "AI önerilen yanıtlar",
-                  "10 kullanıcı",
-                  "Detaylı analitik",
-                  "Öncelikli destek",
-                ],
               },
               {
-                name: "Kurumsal",
+                ...t.plans[3],
                 price: null,
                 period: "",
-                desc: "Özel ihtiyaçlar ve yüksek hacim",
                 highlight: false,
-                features: [
-                  "Sınırsız numara",
-                  "Özel AI eğitimi",
-                  "Sınırsız kullanıcı",
-                  "SSO & kurumsal güvenlik",
-                  "API erişimi",
-                  "SLA garantisi",
-                  "Dedicated hesap yöneticisi",
-                ],
               },
             ].map((plan) => (
               <div
@@ -954,7 +1227,7 @@ export default function LandingPage() {
               >
                 {plan.highlight && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[11px] font-bold px-4 py-1 rounded-full shadow-lg shadow-primary/30">
-                    En Popüler
+                    {t.mostPopular}
                   </div>
                 )}
 
@@ -969,7 +1242,7 @@ export default function LandingPage() {
                       <span className="text-sm text-ink/40">{plan.period}</span>
                     </div>
                   ) : (
-                    <div className="text-2xl font-extrabold tracking-tight">Bize Ulaşın</div>
+                    <div className="text-2xl font-extrabold tracking-tight">{t.contactUs}</div>
                   )}
                 </div>
 
@@ -982,7 +1255,7 @@ export default function LandingPage() {
                       : "bg-primary/5 text-primary hover:bg-primary/10 border border-primary/20"
                   }`}
                 >
-                  {plan.price ? "Ücretsiz Deneyin" : "Satış Ekibiyle Görüşün"}
+                  {plan.price ? t.tryForFree : t.contactSales}
                   <ArrowRight className="w-4 h-4" />
                 </button>
 
@@ -1006,13 +1279,13 @@ export default function LandingPage() {
             {/* Açıklama + Toggle */}
             <div className="text-center mb-6">
               <p className="text-base text-ink/50 mb-4">
-                AI otomasyonunun seviyesine ve ekibinizin ihtiyaç duyduğu desteğe göre bir plan seçin ve işiniz büyüdükçe ölçeklendirin.
+                {t.compareDesc}
               </p>
               <button
                 onClick={() => setCompareOpen(!compareOpen)}
                 className="inline-flex items-center gap-2 text-primary font-bold text-sm hover:text-primary-hover transition-colors group"
               >
-                Ayrıntılı Plan Karşılaştırmasını Görüntüleyin
+                {t.compareToggle}
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 group-hover:scale-110 transition-transform">
                   <path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -1024,44 +1297,15 @@ export default function LandingPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b-2 border-surface-300">
-                    <th className="text-left py-3 px-4 font-semibold text-ink/50 w-[260px]">Özellik</th>
-                    <th className="text-center py-3 px-3 font-bold">Temel</th>
-                    <th className="text-center py-3 px-3 font-bold">Gelişmiş</th>
-                    <th className="text-center py-3 px-3 font-bold text-primary">Profesyonel</th>
-                    <th className="text-center py-3 px-3 font-bold">Kurumsal</th>
+                    <th className="text-left py-3 px-4 font-semibold text-ink/50 w-[260px]">{t.compareFeature}</th>
+                    <th className="text-center py-3 px-3 font-bold">{t.plans[0].name}</th>
+                    <th className="text-center py-3 px-3 font-bold">{t.plans[1].name}</th>
+                    <th className="text-center py-3 px-3 font-bold text-primary">{t.plans[2].name}</th>
+                    <th className="text-center py-3 px-3 font-bold">{t.plans[3].name}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { label: "WhatsApp numarası", vals: ["1", "2", "5", "Sınırsız"] },
-                    { label: "Kullanıcı sayısı", vals: ["1", "3", "10", "Sınırsız"] },
-                    { label: "Aylık mesaj", vals: ["1.000", "5.000", "25.000", "Sınırsız"] },
-                    { section: "Mesajlaşma" },
-                    { label: "Gelen kutusu", vals: [true, true, true, true] },
-                    { label: "Toplu mesaj", vals: [false, true, true, true] },
-                    { label: "Mesaj şablonları", vals: [true, true, true, true] },
-                    { label: "Dosya & medya paylaşımı", vals: [true, true, true, true] },
-                    { section: "CRM" },
-                    { label: "Pipeline yönetimi", vals: [false, false, true, true] },
-                    { label: "Lead yönetimi", vals: [false, false, true, true] },
-                    { label: "Şirket yönetimi", vals: [false, false, true, true] },
-                    { label: "Özel alanlar", vals: [false, false, true, true] },
-                    { section: "Yapay Zeka" },
-                    { label: "AI chatbot", vals: ["Temel", "Gelişmiş", "Pro", "Özel"] },
-                    { label: "AI önerilen yanıtlar", vals: [false, false, true, true] },
-                    { label: "Bilgi bankası", vals: [false, true, true, true] },
-                    { label: "Özel AI eğitimi", vals: [false, false, false, true] },
-                    { section: "Otomasyon" },
-                    { label: "Otomasyon kuralları", vals: [false, true, true, true] },
-                    { label: "Akış oluşturucu", vals: [false, false, true, true] },
-                    { label: "Webhook entegrasyonu", vals: [false, false, true, true] },
-                    { section: "Analitik & Destek" },
-                    { label: "Temel raporlar", vals: [true, true, true, true] },
-                    { label: "Detaylı analitik", vals: [false, false, true, true] },
-                    { label: "API erişimi", vals: [false, false, true, true] },
-                    { label: "Destek seviyesi", vals: ["Email", "Email", "Öncelikli", "Dedicated"] },
-                    { label: "SSO & kurumsal güvenlik", vals: [false, false, false, true] },
-                  ].map((row, i) => {
+                  {t.compareTable.map((row, i) => {
                     if ("section" in row) {
                       return (
                         <tr key={`s-${i}`} className="bg-surface-50">
@@ -1091,11 +1335,11 @@ export default function LandingPage() {
             </div>}
           </div>
 
-          {/* Alt CTA */}
+          {/* Bottom CTA */}
           <div className="text-center mt-8">
-            <p className="text-sm text-ink/40 mb-3">14 günlük denemenizde tüm özelliklere tam erişim. Kredi kartı gerekmez.</p>
+            <p className="text-sm text-ink/40 mb-3">{t.pricingCtaText}</p>
             <button onClick={goRegister} className="landing-btn-primary text-base px-8 py-3.5">
-              Ücretsiz Deneyin <ArrowRight className="w-5 h-5" />
+              {t.pricingCtaBtn} <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -1104,15 +1348,11 @@ export default function LandingPage() {
       {/* ═══════════ TESTIMONIALS ═══════════ */}
       <section id="testimonials" className="py-8 md:py-10 bg-gradient-to-b from-surface-50 to-white">
         <div className="max-w-[1600px] mx-auto px-6">
-          <SectionHeader badge="Referanslar" title="Müşterilerimiz ne diyor?" subtitle="Binlerce işletme YO Dijital ile mesajlaşarak satışlarını artırıyor." />
+          <SectionHeader badge={t.testimonialsBadge} title={t.testimonialsTitle} subtitle={t.testimonialsSubtitle} />
 
           <div className="grid md:grid-cols-3 gap-5 mt-6">
-            {[
-              { quote: "WhatsApp üzerinden gelen müşteri sorularına AI chatbot sayesinde anında yanıt vermeye başladık. Müşteri memnuniyeti %40 arttı.", name: "Ahmet Yılmaz", role: "E-ticaret Müdürü", company: "TechStore" },
-              { quote: "Toplu mesaj kampanyaları ile satışlarımız 3 ayda %60 arttı. Tek panelden tüm kanalları yönetmek inanılmaz kolaylık.", name: "Elif Kaya", role: "Pazarlama Direktörü", company: "ModeVita" },
-              { quote: "Otomasyon akışları sayesinde 7/24 müşteri hizmeti sunabiliyoruz. Ekip verimliliği 3 kat arttı. Tavsiye ederim.", name: "Mehmet Demir", role: "Kurucu", company: "ServisPlus" },
-            ].map((t) => (
-              <TestimonialCard key={t.name} {...t} />
+            {t.testimonials.map((item) => (
+              <TestimonialCard key={item.name} {...item} />
             ))}
           </div>
         </div>
@@ -1126,18 +1366,18 @@ export default function LandingPage() {
 
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-5">
-            Müşterilerinizle konuşmaya<br />
-            <span className="bg-gradient-to-r from-primary-300 to-primary-light bg-clip-text text-transparent">bugün başlayın</span>
+            {t.ctaTitle1}<br />
+            <span className="bg-gradient-to-r from-primary-300 to-primary-light bg-clip-text text-transparent">{t.ctaTitle2}</span>
           </h2>
           <p className="text-lg text-white/50 max-w-2xl mx-auto mb-8">
-            14 gün boyunca tüm özellikleri ücretsiz deneyin. Kurulum 2 dakika, kredi kartı gerekmez.
+            {t.ctaDesc}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button onClick={goRegister} className="bg-white text-ink font-bold px-8 py-4 rounded-xl text-base flex items-center gap-2 hover:bg-white/90 transition-colors shadow-lg">
-              Ücretsiz Hesap Oluşturun <ArrowRight className="w-5 h-5" />
+              {t.ctaBtn1} <ArrowRight className="w-5 h-5" />
             </button>
             <button onClick={goLogin} className="text-white/60 hover:text-white font-medium px-8 py-4 text-base transition-colors">
-              Zaten hesabınız var mı? Giriş yapın
+              {t.ctaBtn2}
             </button>
           </div>
         </div>
@@ -1149,7 +1389,7 @@ export default function LandingPage() {
           {/* Copyright */}
           <div className="flex items-center gap-3 text-gray-500">
             <img src="/logo-yo.png" alt="YO Dijital" className="h-5 w-auto object-contain brightness-0 invert opacity-40" />
-            <span>{lang === "tr" ? "2025 YO Dijital. Tüm hakları saklıdır." : "2025 YO Dijital. All rights reserved."}</span>
+            <span>{t.copyright}</span>
           </div>
 
           {/* Legal links + lang switcher */}
