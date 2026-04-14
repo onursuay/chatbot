@@ -433,7 +433,7 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {pipelines.map((p) => {
+                  {pipelines.slice(0, 5).map((p) => {
                     const totalLeadsInPipelines = pipelines.reduce((s, pl) => s + (pl.leads_count ?? 0), 0)
                     const percentage = totalLeadsInPipelines > 0 ? Math.round((p.leads_count / totalLeadsInPipelines) * 100) : 0
                     return (
@@ -452,34 +452,13 @@ export default function DashboardPage() {
                       </div>
                     )
                   })}
+                  {pipelines.length > 5 && (
+                    <a href={`/${lang}/crm/pipeline`} className="block text-center text-caption-medium text-primary hover:text-primary-hover py-2 transition-colors">
+                      +{pipelines.length - 5} {isTR ? "pipeline daha" : "more pipelines"} →
+                    </a>
+                  )}
                 </div>
               )}
-            </div>
-          </div>
-        </div>
-
-        {/* Messaging Performance Summary */}
-        <div className="ds-card">
-          <div className="px-5 py-4 border-b border-surface-300">
-            <h3 className="ds-section-title">{isTR ? "Mesajlasma Performansi" : "Messaging Performance"}</h3>
-            <p className="text-micro text-ink-tertiary mt-0.5">{isTR ? "Genel mesajlasma metrikleri" : "Overall messaging metrics"}</p>
-          </div>
-          <div className="p-5">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {[
-                { label: isTR ? "Toplam Mesaj" : "Total Messages", value: totalMessages, icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>, color: "text-primary", bg: "bg-primary-50" },
-                { label: isTR ? "Gelen Mesaj" : "Received", value: totalReceived, icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>, color: "text-blue-600", bg: "bg-blue-50" },
-                { label: isTR ? "Giden Mesaj" : "Sent", value: totalSent, icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>, color: "text-emerald-600", bg: "bg-emerald-50" },
-                { label: isTR ? "Bagli Kanallar" : "Connected Channels", value: `${connectedChannels}/4`, icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>, color: "text-violet-600", bg: "bg-violet-50" },
-              ].map((m, i) => (
-                <div key={i} className="bg-surface-150 rounded-xl p-4 border border-surface-300">
-                  <div className={`w-9 h-9 rounded-lg ${m.bg} ${m.color} flex items-center justify-center mb-3`}>
-                    {m.icon}
-                  </div>
-                  <p className="text-micro text-ink-tertiary uppercase tracking-wider mb-1">{m.label}</p>
-                  <p className="text-xl font-bold text-ink">{typeof m.value === "number" ? m.value.toLocaleString("tr-TR") : m.value}</p>
-                </div>
-              ))}
             </div>
           </div>
         </div>
