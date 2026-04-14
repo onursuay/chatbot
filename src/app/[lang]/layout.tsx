@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 import { api } from "@/lib/api"
 import { useI18n, localePath, SLUG_MAP, type Lang } from "@/lib/i18n"
@@ -322,37 +323,49 @@ export default function LangLayout({ children, params }: { children: React.React
     )
   }
 
-  const sidebarWidth = collapsed ? "w-[54px]" : "w-[220px]"
-
   return (
     <div className="h-screen bg-surface flex overflow-hidden">
       {/* ===== SIDEBAR (Kommo-compact) ===== */}
       <aside
-        className={`${sidebarWidth} ${animate ? "transition-[width] duration-200 ease-out" : ""} bg-sidebar shadow-sidebar flex flex-col shrink-0 overflow-hidden`}
+        className={`${animate ? "transition-[width] duration-300 ease-in-out" : ""} bg-sidebar shadow-sidebar flex flex-col shrink-0 overflow-hidden`}
+        style={{ width: collapsed ? "54px" : "220px" }}
       >
         {/* Logo */}
-        <div className="px-3 py-3.5 flex items-center gap-2 border-b border-sidebar-border">
+        <div className="px-3 py-3.5 flex items-center gap-2 border-b border-sidebar-border min-h-[54px]">
           {collapsed ? (
-            <button onClick={toggleCollapsed} className="w-[34px] h-[34px] mx-auto flex items-center justify-center relative group">
-              <a href="https://chatbot.yodijital.com/" className={`w-[30px] h-[30px] rounded-btn overflow-hidden transition-opacity duration-300 ${hintPhase === "logo" ? "opacity-100" : "opacity-0"} group-hover:opacity-0`} onClick={(e) => e.stopPropagation()}>
-                <img src="/logo.png" alt="YO Dijital" className="w-full h-full object-contain invert" />
-              </a>
-              <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${hintPhase === "button" ? "opacity-100" : "opacity-0"} group-hover:opacity-100`}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4 text-sidebar-text">
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
+            <div className="group relative flex items-center justify-center w-full h-9 rounded-lg overflow-hidden">
+              {/* Ping particles on hint */}
+              <div className={`absolute inset-0 transition-opacity duration-500 pointer-events-none ${hintPhase === "button" ? "opacity-100" : "opacity-0"}`} aria-hidden="true">
+                <span className="absolute top-1 left-1 w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" style={{ animationDuration: "1.5s" }} />
+                <span className="absolute top-0 right-2 w-1 h-1 rounded-full bg-emerald-300 animate-ping" style={{ animationDuration: "2s", animationDelay: "0.3s" }} />
+                <span className="absolute bottom-1 left-3 w-1 h-1 rounded-full bg-emerald-500 animate-ping" style={{ animationDuration: "1.8s", animationDelay: "0.5s" }} />
+                <span className="absolute bottom-0 right-1 w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" style={{ animationDuration: "1.6s", animationDelay: "0.2s" }} />
+                <div className="absolute inset-0 rounded-lg ring-1 ring-emerald-400/40 shadow-[0_0_8px_rgba(16,185,129,0.3)]" />
               </div>
-            </button>
+              {/* Logo */}
+              <a href="https://chatbot.yodijital.com/"
+                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 group-hover:opacity-0 ${hintPhase === "button" ? "opacity-0" : "opacity-100"}`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <img src="/logo.png" alt="YO Dijital" className="w-[28px] h-[28px] object-contain invert" />
+              </a>
+              {/* Expand button */}
+              <button
+                onClick={toggleCollapsed}
+                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 group-hover:opacity-100 rounded-lg ${hintPhase === "button" ? "opacity-100" : "opacity-0"}`}
+                aria-label="Expand sidebar"
+              >
+                <PanelLeftOpen className="w-5 h-5 text-emerald-400" />
+              </button>
+            </div>
           ) : (
             <>
-              <a href="https://chatbot.yodijital.com/" className="w-[30px] h-[30px] rounded-btn overflow-hidden shrink-0 hover:opacity-80 transition-opacity">
+              <a href="https://chatbot.yodijital.com/" className="w-[28px] h-[28px] rounded-btn overflow-hidden shrink-0 hover:opacity-80 transition-opacity">
                 <img src="/logo.png" alt="YO Dijital" className="w-full h-full object-contain invert" />
               </a>
               <div className="flex-1 min-w-0" />
-              <button onClick={toggleCollapsed} className="w-6 h-6 flex items-center justify-center text-sidebar-text hover:text-white rounded-btn transition-colors">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
-                  <path d="M15 18l-6-6 6-6" />
-                </svg>
+              <button onClick={toggleCollapsed} className="p-1.5 text-sidebar-text hover:text-white hover:bg-sidebar-hover rounded-lg transition-colors" aria-label="Collapse sidebar">
+                <PanelLeftClose className="w-4 h-4" />
               </button>
             </>
           )}
