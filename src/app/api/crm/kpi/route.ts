@@ -8,44 +8,39 @@ export async function GET(request: Request) {
 
   const supabase = getServiceSupabase()
 
-  // Total leads
-  const { count: totalLeads } = await supabase
-    .from("leads")
-    .select("*", { count: "exact", head: true })
-    .eq("org_id", auth.org_id)
+  const [activeConvsResult, totalContactsResult, sentMsgsResult, unreadConvsResult] = await Promise.all([
+    // Aktif konuşmalar (open + assigned)
+    supabase
+      .from("conversations")
+      .select("*", { count: "exact", head: true })
+      .eq("org_id", auth.org_id)
+      .in("status", ["open", "assigned"]),
 
-  // Active deals value
-  const { data: activeDeals } = await supabase
-    .from("leads")
-    .select("value")
-    .eq("org_id", auth.org_id)
-    .not("stage_id", "is", null)
+    // Toplam kişi
+    supabase
+      .from("contacts")
+      .select("*", { count: "exact", head: true })
+      .eq("org_id", auth.org_id),
 
-  const activeDealsValue = (activeDeals || []).reduce((sum: number, d: any) => sum + (d.value || 0), 0)
+    // Gönderilen mesajlar (outbound)
+    supabase
+      .from("messages")
+      .select("*", { count: "exact", head: true })
+      .eq("org_id", auth.org_id)
+      .eq("direction", "outbound"),
 
-  // Tasks due today
-  const today = new Date().toISOString().split("T")[0]
-  const { count: tasksDueToday } = await supabase
-    .from("tasks")
-    .select("*", { count: "exact", head: true })
-    .eq("org_id", auth.org_id)
-    .eq("due_date", today)
-
-  // Conversion rate
-  const { count: wonLeads } = await supabase
-    .from("leads")
-    .select("*", { count: "exact", head: true })
-    .eq("org_id", auth.org_id)
-    .eq("status", "won")
-
-  const conversionRate = (totalLeads && totalLeads > 0)
-    ? Math.round(((wonLeads || 0) / totalLeads) * 100)
-    : 0
+    // Okunmamış konuşmalar
+    supabase
+      .from("conversations")
+      .select("*", { count: "exact", head: true })
+      .eq("org_id", auth.org_id)
+      .gt("unread_count", 0),
+  ])
 
   return NextResponse.json({
-    total_leads: totalLeads || 0,
-    active_deals_value: activeDealsValue,
-    tasks_due_today: tasksDueToday || 0,
-    conversion_rate: conversionRate,
+    active_conversations: activeConvsResult.count ?? 0,
+    total_contacts: totalContactsResult.count ?? 0,
+    sent_messages: sentMsgsResult.count ?? 0,
+    unread_conversations: unreadConvsResult.count ?? 0,
   })
 }

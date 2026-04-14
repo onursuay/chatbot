@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { api } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
-import { useI18n } from "@/lib/i18n"
+import { useI18n, localePath } from "@/lib/i18n"
 
 interface Widget {
   id: string
@@ -14,10 +14,10 @@ interface Widget {
 }
 
 interface KPI {
-  total_leads: number
-  active_deals_value: number
-  tasks_due_today: number
-  conversion_rate: number
+  active_conversations: number
+  total_contacts: number
+  sent_messages: number
+  unread_conversations: number
 }
 
 interface PipelineSummary {
@@ -48,7 +48,7 @@ export default function DashboardPage() {
   const { t, lang } = useI18n()
   const isTR = lang === "tr"
   const [widgets, setWidgets] = useState<Widget[]>([])
-  const [kpi, setKpi] = useState<KPI>({ total_leads: 0, active_deals_value: 0, tasks_due_today: 0, conversion_rate: 0 })
+  const [kpi, setKpi] = useState<KPI>({ active_conversations: 0, total_contacts: 0, sent_messages: 0, unread_conversations: 0 })
   const [pipelines, setPipelines] = useState<PipelineSummary[]>([])
   const [activities, setActivities] = useState<ActivityItem[]>([])
   const [channelStats, setChannelStats] = useState<ChannelStats>({
@@ -67,7 +67,7 @@ export default function DashboardPage() {
       try {
         const [widgetsData, kpiData, pipelinesData, activitiesData, channelData] = await Promise.all([
           api<Widget[]>("/crm/widgets", { token }).catch(() => []),
-          api<KPI>("/crm/kpi", { token }).then(d => ({ total_leads: d?.total_leads ?? 0, active_deals_value: d?.active_deals_value ?? 0, tasks_due_today: d?.tasks_due_today ?? 0, conversion_rate: d?.conversion_rate ?? 0 })).catch(() => ({ total_leads: 0, active_deals_value: 0, tasks_due_today: 0, conversion_rate: 0 })),
+          api<KPI>("/crm/kpi", { token }).then(d => ({ active_conversations: d?.active_conversations ?? 0, total_contacts: d?.total_contacts ?? 0, sent_messages: d?.sent_messages ?? 0, unread_conversations: d?.unread_conversations ?? 0 })).catch(() => ({ active_conversations: 0, total_contacts: 0, sent_messages: 0, unread_conversations: 0 })),
           api<PipelineSummary[]>("/pipelines", { token }).catch(() => []),
           api<ActivityItem[]>("/crm/activity-logs?limit=10", { token }).catch(() => []),
           api<ChannelStats>("/channels/stats", { token }).catch(() => ({
@@ -99,52 +99,48 @@ export default function DashboardPage() {
 
   const kpiCards = [
     {
-      label: t("total_leads"),
-      value: kpi.total_leads,
+      label: isTR ? "Aktif Konuşmalar" : "Active Conversations",
+      value: kpi.active_conversations.toLocaleString("tr-TR"),
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5">
-          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" />
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       ),
       accent: "text-primary",
       iconBg: "bg-primary-50",
-      change: null,
     },
     {
-      label: t("active_deals_value"),
-      value: `₺${(kpi.active_deals_value ?? 0).toLocaleString("tr-TR")}`,
+      label: isTR ? "Toplam Kişi" : "Total Contacts",
+      value: kpi.total_contacts.toLocaleString("tr-TR"),
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5">
-          <path d="M20 12V8H6a2 2 0 01-2-2c0-1.1.9-2 2-2h12v4" /><path d="M4 6v12c0 1.1.9 2 2 2h14v-4" /><path d="M18 12a2 2 0 000 4h4v-4h-4z" />
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" strokeLinecap="round" strokeLinejoin="round" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" strokeLinecap="round" /><path d="M16 3.13a4 4 0 010 7.75" strokeLinecap="round" />
         </svg>
       ),
       accent: "text-emerald-700",
       iconBg: "bg-emerald-50",
-      change: null,
     },
     {
-      label: t("tasks_due_today"),
-      value: kpi.tasks_due_today,
+      label: isTR ? "Gönderilen Mesaj" : "Sent Messages",
+      value: kpi.sent_messages.toLocaleString("tr-TR"),
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5">
-          <path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+          <line x1="22" y1="2" x2="11" y2="13" strokeLinecap="round" strokeLinejoin="round" /><polygon points="22 2 15 22 11 13 2 9 22 2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       ),
-      accent: "text-amber-700",
-      iconBg: "bg-amber-50",
-      change: null,
+      accent: "text-blue-700",
+      iconBg: "bg-blue-50",
     },
     {
-      label: t("conversion_rate"),
-      value: `${kpi.conversion_rate}%`,
+      label: isTR ? "Okunmamış" : "Unread",
+      value: kpi.unread_conversations.toLocaleString("tr-TR"),
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5">
-          <path d="M18 20V10M12 20V4M6 20v-6" />
+          <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" strokeLinecap="round" strokeLinejoin="round" /><path d="M13.73 21a2 2 0 01-3.46 0" strokeLinecap="round" />
         </svg>
       ),
-      accent: "text-violet-700",
-      iconBg: "bg-violet-50",
-      change: null,
+      accent: kpi.unread_conversations > 0 ? "text-amber-700" : "text-ink-tertiary",
+      iconBg: kpi.unread_conversations > 0 ? "bg-amber-50" : "bg-surface-200",
     },
   ]
 
@@ -208,49 +204,45 @@ export default function DashboardPage() {
     href: string
   }[] = []
 
-  // "Unanswered Messages" — only show when received significantly exceeds sent (gap > 20%)
-  const unansweredGap = totalReceived - totalSent
-  const hasUnansweredMessages = totalReceived > 0 && unansweredGap > 0 && (unansweredGap / totalReceived) > 0.2
-  if (hasUnansweredMessages) {
+  // Okunmamış konuşma uyarısı
+  if (kpi.unread_conversations > 0) {
     suggestions.push({
       type: "warning",
-      titleTR: "Yanitsiz Mesajlar",
-      titleEN: "Unanswered Messages",
-      descTR: `${unansweredGap.toLocaleString("tr-TR")} mesaj henuz yanitlanmamis gorunuyor. Musteri memnuniyeti icin hizli donusum onemli.`,
-      descEN: `${unansweredGap.toLocaleString("en-US")} messages appear unanswered. Quick response is important for customer satisfaction.`,
+      titleTR: "Okunmamış Konuşmalar",
+      titleEN: "Unread Conversations",
+      descTR: `${kpi.unread_conversations.toLocaleString("tr-TR")} konuşmada okunmamış mesaj var. Müşteri memnuniyeti için hızlı dönüş önemli.`,
+      descEN: `${kpi.unread_conversations.toLocaleString("en-US")} conversations have unread messages. Quick response is key to customer satisfaction.`,
       actionTR: "Gelen Kutusuna Git",
       actionEN: "Go to Inbox",
       href: `/${lang}/${isTR ? "gelen-kutusu" : "inbox"}`,
     })
   }
 
-  // "AI Chatbot Suggestion" — only show when WhatsApp is connected (channel active but could benefit from automation)
+  // AI Chatbot önerisi — WhatsApp bağlıysa ve gelen mesaj varsa
   if (channelStats.whatsapp.connected && channelStats.whatsapp.received > 0) {
     suggestions.push({
       type: "tip",
-      titleTR: "AI Chatbot Onerisi",
+      titleTR: "AI Chatbot Önerisi",
       titleEN: "AI Chatbot Suggestion",
-      descTR: `WhatsApp kanalinizda ${channelStats.whatsapp.received.toLocaleString("tr-TR")} gelen mesaj var. Sikca sorulan sorulara otomatik yanit vermek icin AI chatbot kurulumu yapin.`,
-      descEN: `Your WhatsApp channel has ${channelStats.whatsapp.received.toLocaleString("en-US")} incoming messages. Set up AI chatbot to automatically handle frequently asked questions.`,
-      actionTR: "Chatbot Ayarlari",
+      descTR: `WhatsApp kanalınızda ${channelStats.whatsapp.received.toLocaleString("tr-TR")} gelen mesaj var. Sık sorulan sorulara otomatik yanıt vermek için AI chatbot kurun.`,
+      descEN: `Your WhatsApp channel has ${channelStats.whatsapp.received.toLocaleString("en-US")} incoming messages. Set up the AI chatbot to automatically handle FAQs.`,
+      actionTR: "Chatbot Ayarları",
       actionEN: "Chatbot Settings",
-      href: `/${lang}/${isTR ? "yapay-zeka/chatbot" : "ai/chatbot"}`,
+      href: localePath("chatbot", lang),
     })
   }
 
-  // "CRM Pipeline" — only show when user has pipelines
-  if (pipelines.length > 0) {
-    const totalPipelineValue = pipelines.reduce((sum, p) => sum + (p.total_value ?? 0), 0)
-    const totalPipelineLeads = pipelines.reduce((sum, p) => sum + (p.leads_count ?? 0), 0)
+  // Büyüme önerisi — toplam kişi sayısı 10'dan fazlaysa toplu mesaj öner
+  if (kpi.total_contacts >= 10) {
     suggestions.push({
       type: "growth",
-      titleTR: "CRM Pipeline",
-      titleEN: "CRM Pipeline",
-      descTR: `${pipelines.length} pipeline'da toplam ${totalPipelineLeads.toLocaleString("tr-TR")} lead ve ₺${totalPipelineValue.toLocaleString("tr-TR")} deger var. Segmentasyon ile donusum oranlarini artirabilirsiniz.`,
-      descEN: `You have ${totalPipelineLeads.toLocaleString("en-US")} leads worth ₺${totalPipelineValue.toLocaleString("en-US")} across ${pipelines.length} pipeline(s). Improve conversion rates with better segmentation.`,
-      actionTR: "Pipeline'i Goruntule",
-      actionEN: "View Pipeline",
-      href: `/${lang}/crm/pipeline`,
+      titleTR: "Toplu Mesaj Kampanyası",
+      titleEN: "Bulk Message Campaign",
+      descTR: `${kpi.total_contacts.toLocaleString("tr-TR")} kişiniz var. Onaylı WhatsApp şablonlarıyla toplu kampanya göndererek satışlarınızı artırın.`,
+      descEN: `You have ${kpi.total_contacts.toLocaleString("en-US")} contacts. Send a bulk campaign using approved WhatsApp templates to boost sales.`,
+      actionTR: "Kampanya Oluştur",
+      actionEN: "Create Campaign",
+      href: localePath("broadcast", lang),
     })
   }
 
@@ -407,7 +399,8 @@ export default function DashboardPage() {
               ) : (
                 <div className="space-y-3">
                   {pipelines.map((p) => {
-                    const percentage = kpi.total_leads > 0 ? Math.round((p.leads_count / kpi.total_leads) * 100) : 0
+                    const totalLeadsInPipelines = pipelines.reduce((s, pl) => s + (pl.leads_count ?? 0), 0)
+                    const percentage = totalLeadsInPipelines > 0 ? Math.round((p.leads_count / totalLeadsInPipelines) * 100) : 0
                     return (
                       <div key={p.id} className="bg-surface-150 rounded-xl p-4 border border-surface-300 hover:border-surface-400 transition-colors">
                         <div className="flex items-center justify-between mb-2">

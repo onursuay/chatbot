@@ -2,6 +2,16 @@
 
 ---
 
+## 2026-04-14 (8)
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- Dashboard KPI kartları projeye uygun verilerle yenilendi: CRM odaklı (Toplam Lead, Aktif Fiyatlandırma, Bugünün Görevleri, Dönüşüm Oranı) → mesajlaşma platformuna uygun (Aktif Konuşmalar, Toplam Kişi, Gönderilen Mesaj, Okunmamış)
+- `/api/crm/kpi` endpoint yeniden yazıldı: `conversations` (open/assigned count), `contacts` (total count), `messages` (outbound count), `conversations` (unread_count > 0 count) sorguları
+- AI öneri kartları güncellendi: okunmamış konuşma uyarısı, AI chatbot önerisi, toplu mesaj kampanyası önerisi
+- TypeScript temiz
+
+---
+
 ## 2026-04-14 (7)
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler
