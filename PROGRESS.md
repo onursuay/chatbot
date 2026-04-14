@@ -2,6 +2,13 @@
 
 ---
 
+## 2026-04-14 (4)
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- Ayarlar sayfası (Settings) tamamen yeniden tasarlandı: section header'larına ikon + açıklama eklendi, label-value satırları `InfoRow` bileşeniyle tutarlı hale getirildi, profil kartına avatar (initials) ve badge eklendi, bağlantı durumu için yeşil banner, hata için uyarı ikonu ile styled mesaj kutusu
+
+---
+
 ## 2026-04-14 (3)
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler

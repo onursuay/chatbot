@@ -746,6 +746,25 @@ export default function LandingPage() {
   const [dropOpen, setDropOpen] = useState(false)
 
   const t = T[lang]
+  const [openMenu, setOpenMenu] = useState<string | null>(null)
+  const menuTimeoutRef = useRef<ReturnType<typeof setTimeout>>()
+  const headerRef = useRef<HTMLDivElement>(null)
+
+  const handleMenuEnter = (menu: string) => {
+    if (menuTimeoutRef.current) clearTimeout(menuTimeoutRef.current)
+    setOpenMenu(menu)
+  }
+  const handleMenuLeave = () => {
+    menuTimeoutRef.current = setTimeout(() => setOpenMenu(null), 200)
+  }
+
+  useEffect(() => {
+    const fn = (e: MouseEvent) => {
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) setOpenMenu(null)
+    }
+    document.addEventListener("click", fn)
+    return () => document.removeEventListener("click", fn)
+  }, [])
 
   const langMeta = {
     tr: { flag: "🇹🇷", label: "Türkçe" },
@@ -777,79 +796,154 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#060609] text-white font-sans antialiased overflow-x-hidden">
-      {/* ═══════════ HEADER — Dark pill nav ═══════════ */}
-      <header className="absolute top-0 left-0 right-0 z-50 py-3">
-        <div className="max-w-[1600px] mx-auto px-6">
-          <div className="flex items-center justify-between rounded-2xl px-5 py-2.5 bg-sidebar/90 backdrop-blur-lg shadow-[0_2px_12px_rgba(0,0,0,0.15)]">
-            {/* Logo */}
-            <a href="/" className="flex items-center gap-2 shrink-0">
-              <img src="/logo-yo.png" alt="YO Dijital" className="h-9 w-auto invert" />
-            </a>
+      {/* ═══════════ HEADER ═══════════ */}
+      <header className="w-full sticky top-0 z-50 bg-[#060609]/80 backdrop-blur-2xl" ref={headerRef}>
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-3">
 
-            {/* Desktop Nav — inside pill container */}
-            <nav className="hidden md:flex items-center">
-              <div className="flex items-center bg-white/[0.07] rounded-full p-1 gap-0.5">
-                {t.nav.map((label, i) => ({ label, href: t.navHrefs[i] })).map((item) => (
-                  <a
-                    key={item.href}
-                    href={item.href}
-                    className="text-sm font-bold text-white/80 hover:text-white hover:bg-white/10 px-5 py-2 rounded-full transition-all"
-                  >
-                    {item.label}
-                  </a>
-                ))}
-              </div>
-            </nav>
+          {/* Logo */}
+          <a href="/" className="shrink-0">
+            <img src="/logo-yo.png" alt="YO Dijital" className="h-7 w-auto brightness-0 invert" />
+          </a>
 
-            {/* Right CTA */}
-            <div className="hidden md:flex items-center gap-3">
-              <button onClick={goLogin} className="text-sm font-bold text-white/60 hover:text-white transition-colors px-4 py-2">
-                {t.login}
+          {/* Desktop Nav */}
+          <nav className="hidden lg:flex items-center gap-2">
+
+            {/* Ürün / Product */}
+            <div className="relative" onMouseEnter={() => handleMenuEnter("product")} onMouseLeave={handleMenuLeave}>
+              <button className="text-[14px] font-medium border border-emerald-400/30 text-emerald-400 px-5 py-2 rounded-full transition-colors hover:bg-emerald-400/10 flex items-center gap-1.5 cursor-pointer">
+                {lang === "tr" ? "Ürün" : "Product"}
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 9l6 6 6-6"/></svg>
               </button>
-              <button
-                onClick={goRegister}
-                className="text-sm font-bold text-sidebar bg-white/90 hover:bg-white px-5 py-2 rounded-full transition-all flex items-center gap-1.5 border border-white/20"
-              >
+              {openMenu === "product" && (
+                <div className="absolute top-full left-0 mt-2 w-[560px] bg-[#1a1d21] border border-white/[0.06] rounded-2xl p-4 shadow-2xl shadow-black/50" onMouseEnter={() => handleMenuEnter("product")} onMouseLeave={handleMenuLeave}>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { icon: "inbox", label: { tr: "Gelen Kutusu", en: "Smart Inbox" }, desc: { tr: "WhatsApp, Instagram ve Facebook mesajlarını tek ekrandan yönet", en: "Manage WhatsApp, Instagram, Facebook from one screen" }, href: "#features" },
+                      { icon: "bot", label: { tr: "AI Chatbot", en: "AI Chatbot" }, desc: { tr: "7/24 otomatik yanıt veren yapay zeka asistanı", en: "AI assistant answering 24/7 automatically" }, href: "#features" },
+                      { icon: "crm", label: { tr: "CRM & Pipeline", en: "CRM & Pipeline" }, desc: { tr: "Lead yönetimi ve Kanban panosu ile satışları takip et", en: "Track sales with lead management and Kanban board" }, href: "#features" },
+                      { icon: "broadcast", label: { tr: "Toplu Mesaj", en: "Bulk Messaging" }, desc: { tr: "Binlerce müşteriye tek tıkla kişiselleştirilmiş mesaj gönder", en: "Send personalized messages to thousands in one click" }, href: "#features" },
+                      { icon: "flow", label: { tr: "Otomasyon", en: "Automation" }, desc: { tr: "Sürükle-bırak ile görsel otomasyon akışları oluştur", en: "Build visual automation flows with drag-and-drop" }, href: "#features" },
+                      { icon: "analytics", label: { tr: "Analiz", en: "Analytics" }, desc: { tr: "Mesajlaşma performansını detaylı raporlarla izle", en: "Track messaging performance with detailed reports" }, href: "#features" },
+                    ].map((item, i) => {
+                      const svgPaths: Record<string, string> = {
+                        inbox: '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/>',
+                        bot: '<rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/>',
+                        crm: '<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>',
+                        broadcast: '<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.82 19.79 19.79 0 01.11 2.2 2 2 0 012.1 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/>',
+                        flow: '<polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>',
+                        analytics: '<path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/>',
+                      }
+                      return (
+                        <a key={i} href={item.href} className="flex flex-col gap-1 p-3 rounded-xl hover:bg-white/[0.04] transition-colors group">
+                          <div className="flex items-center gap-2 text-gray-200 group-hover:text-emerald-400 transition-colors">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: svgPaths[item.icon] }} />
+                            <span className="text-[13px] font-semibold">{lang === "tr" ? item.label.tr : item.label.en}</span>
+                          </div>
+                          <p className="text-[12.5px] text-[#8a8f98] leading-relaxed">{lang === "tr" ? item.desc.tr : item.desc.en}</p>
+                        </a>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Entegrasyonlar / Integrations */}
+            <div className="relative" onMouseEnter={() => handleMenuEnter("integrations")} onMouseLeave={handleMenuLeave}>
+              <button className="text-[14px] font-medium border border-emerald-400/30 text-emerald-400 px-5 py-2 rounded-full transition-colors hover:bg-emerald-400/10 flex items-center gap-1.5 cursor-pointer">
+                {lang === "tr" ? "Entegrasyonlar" : "Integrations"}
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              {openMenu === "integrations" && (
+                <div className="absolute top-full left-0 mt-2 w-[480px] bg-[#1a1d21] border border-white/[0.06] rounded-2xl p-4 shadow-2xl shadow-black/50" onMouseEnter={() => handleMenuEnter("integrations")} onMouseLeave={handleMenuLeave}>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { icon: "whatsapp", label: { tr: "WhatsApp Business", en: "WhatsApp Business" }, desc: { tr: "Meta WABA entegrasyonu ile mesajlaşmayı otomatikleştir", en: "Automate messaging with Meta WABA integration" }, href: "#channels" },
+                      { icon: "instagram", label: { tr: "Instagram DM", en: "Instagram DM" }, desc: { tr: "Instagram direkt mesajlarını tek yerden yönet", en: "Manage Instagram direct messages in one place" }, href: "#channels" },
+                      { icon: "facebook", label: { tr: "Facebook Messenger", en: "Facebook Messenger" }, desc: { tr: "Facebook sayfa mesajlarını merkezi panelden takip et", en: "Track Facebook page messages from central dashboard" }, href: "#channels" },
+                      { icon: "webchat", label: { tr: "Web Chat", en: "Web Chat" }, desc: { tr: "Web sitenize sohbet widget'ı ekle", en: "Add a chat widget to your website" }, href: "#channels" },
+                    ].map((item, i) => {
+                      const svgPaths: Record<string, string> = {
+                        whatsapp: '<path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/>',
+                        instagram: '<rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>',
+                        facebook: '<path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>',
+                        webchat: '<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>',
+                      }
+                      return (
+                        <a key={i} href={item.href} className="flex flex-col gap-1 p-3 rounded-xl hover:bg-white/[0.04] transition-colors group">
+                          <div className="flex items-center gap-2 text-gray-200 group-hover:text-emerald-400 transition-colors">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: svgPaths[item.icon] }} />
+                            <span className="text-[13px] font-semibold">{lang === "tr" ? item.label.tr : item.label.en}</span>
+                          </div>
+                          <p className="text-[12.5px] text-[#8a8f98] leading-relaxed">{lang === "tr" ? item.desc.tr : item.desc.en}</p>
+                        </a>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Fiyatlandırma / Pricing */}
+            <a href="#pricing" className="text-[14px] font-medium border border-emerald-400/30 text-emerald-400 px-5 py-2 rounded-full transition-colors hover:bg-emerald-400/10">
+              {lang === "tr" ? "Fiyatlandırma" : "Pricing"}
+            </a>
+          </nav>
+
+          {/* Right CTAs */}
+          <div className="flex items-center gap-2.5">
+            <button onClick={goLogin} className="hidden lg:inline-flex text-[14px] font-medium text-gray-400 hover:text-white px-3 py-2 transition-colors">
+              {t.login}
+            </button>
+            <button
+              onClick={goRegister}
+              className="hidden lg:inline-flex text-[14px] font-medium border border-emerald-400/30 text-emerald-400 px-5 py-2 rounded-full transition-colors hover:bg-emerald-400/10 cursor-pointer"
+            >
+              {t.bookDemo}
+            </button>
+            <button
+              onClick={goRegister}
+              className="text-[14px] font-medium border border-emerald-400/30 text-emerald-400 px-5 py-2 rounded-full transition-colors bg-emerald-400/10 hover:bg-emerald-400/15 cursor-pointer"
+            >
+              {t.tryFree7}
+            </button>
+            {/* Mobile Toggle */}
+            <button className="lg:hidden p-2 text-white" onClick={() => setMobileMenu(!mobileMenu)}>
+              {mobileMenu ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Bottom gradient line */}
+        <div className="h-[1px] bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
+
+        {/* Mobile Menu */}
+        {mobileMenu && (
+          <div className="lg:hidden bg-[#0d0f12]/95 backdrop-blur-xl px-5 py-5 space-y-3 border-t border-white/[0.06]">
+            <a href="#features" className="block text-sm font-medium text-white/70 hover:text-white py-1.5" onClick={() => setMobileMenu(false)}>
+              {lang === "tr" ? "Ürün" : "Product"}
+            </a>
+            <a href="#channels" className="block text-sm font-medium text-white/70 hover:text-white py-1.5" onClick={() => setMobileMenu(false)}>
+              {lang === "tr" ? "Entegrasyonlar" : "Integrations"}
+            </a>
+            <a href="#pricing" className="block text-sm font-medium text-white/70 hover:text-white py-1.5" onClick={() => setMobileMenu(false)}>
+              {lang === "tr" ? "Fiyatlandırma" : "Pricing"}
+            </a>
+            <div className="pt-3 border-t border-white/10 flex flex-col gap-2">
+              <button onClick={goLogin} className="text-sm font-medium text-white/60 py-2 text-left">{t.login}</button>
+              <button onClick={goRegister} className="text-sm font-medium border border-emerald-400/30 text-emerald-400 px-5 py-2.5 rounded-full w-full">
                 {t.bookDemo}
               </button>
-              <button
-                onClick={goRegister}
-                className="text-sm font-bold text-white bg-primary hover:bg-primary-hover px-5 py-2 rounded-full transition-all flex items-center gap-1.5 border border-primary-light/30 shadow-lg shadow-primary/25"
-              >
+              <button onClick={goRegister} className="text-sm font-medium border border-emerald-400/30 text-emerald-400 px-5 py-2.5 rounded-full w-full bg-emerald-400/10">
                 {t.tryFree7}
               </button>
             </div>
-
-            {/* Mobile Toggle */}
-            <button className="md:hidden p-2 text-white" onClick={() => setMobileMenu(!mobileMenu)}>
-              {mobileMenu ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
           </div>
-
-          {/* Mobile Menu */}
-          {mobileMenu && (
-            <div className="md:hidden bg-sidebar/95 backdrop-blur-xl mt-2 rounded-2xl px-5 py-5 space-y-3 animate-slide-up border border-white/5">
-              {t.nav.map((label, i) => (
-                <a key={label} href={t.navHrefs[i]} className="block text-sm font-medium text-white/70 hover:text-white py-1" onClick={() => setMobileMenu(false)}>
-                  {label}
-                </a>
-              ))}
-              <div className="pt-3 border-t border-white/10 flex flex-col gap-2">
-                <button onClick={goLogin} className="text-sm font-medium text-white/60 py-2">{t.login}</button>
-                <button onClick={goRegister} className="text-sm font-bold text-sidebar bg-white/90 px-5 py-2.5 rounded-full w-full">
-                  {t.bookDemo}
-                </button>
-                <button onClick={goRegister} className="text-sm font-bold text-white bg-primary px-5 py-2.5 rounded-full w-full shadow-lg shadow-primary/25">
-                  {t.tryFree7}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+        )}
       </header>
 
       {/* ═══════════ HERO SECTION ═══════════ */}
-      <section className="relative pt-20 pb-6 md:pt-28 md:pb-8 overflow-hidden">
+      <section className="relative pt-12 pb-6 md:pt-20 md:pb-8 overflow-hidden">
         {/* Canvas Animation Background */}
         <FloatingCanvas />
 
