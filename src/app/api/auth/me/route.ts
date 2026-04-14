@@ -31,6 +31,7 @@ export async function GET(request: Request) {
     email: user.email,
     full_name: user.full_name,
     role: user.role,
+    avatar_url: user.avatar_url || null,
     org_id: org.id,
     org_name: org.name,
     org_slug: org.slug,

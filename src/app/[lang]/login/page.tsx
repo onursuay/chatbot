@@ -89,7 +89,7 @@ export default function LoginPage() {
       })
       const user = await api("/auth/me", { token: tokens.access_token })
       setAuth(user, tokens.access_token, tokens.refresh_token)
-      router.push(localePath("inbox", lang))
+      router.push(localePath("dashboard", lang))
     } catch (err: any) {
       setError(err.message || (lang === "tr" ? "Giriş başarısız" : "Login failed"))
     } finally {

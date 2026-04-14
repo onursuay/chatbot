@@ -679,7 +679,7 @@ const translations: Record<string, Record<Lang, string>> = {
 // URL slug mapping — TR sluglar ↔ EN sluglar
 export const SLUG_MAP: Record<string, Record<Lang, string>> = {
   // Dashboard
-  dashboard:      { tr: "panel",            en: "dashboard" },
+  dashboard:      { tr: "panel",            en: "panel" },
   // Messaging
   inbox:          { tr: "gelen-kutusu",     en: "inbox" },
   contacts:       { tr: "kisiler",          en: "contacts" },

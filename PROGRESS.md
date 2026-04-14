@@ -2,6 +2,20 @@
 
 ---
 
+## 2026-04-14
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- **Ayarlar sayfası komple yeniden tasarlandı:** Profil, Şifre Değiştir, Ekip Yönetimi 3 ayrı bölüme ayrıldı; profil alanı sadece profil bilgileri içeriyor
+- **Profil kartı:** Avatar (fotoğraf değiştirme — önizleme + base64 kaydı), isim düzenleme, email (readonly), kaydet butonu eklendi
+- **Şifre Değiştir kartı:** Mevcut şifre doğrulama, yeni şifre + tekrar (yan yana), güç göstergesi, şifre göster/gizle özelliği eklendi
+- **Ekip Yönetimi Ayarlar sayfasına taşındı:** İki sütunlu yan yana tasarım — sol: üye listesi, sağ: e-posta + rol ile davet formu + bekleyen davetler
+- **Kullanıcı menüsünden "Ekip" linki kaldırıldı** — artık Ayarlar > Ekip Yönetimi bölümünden erişiliyor
+- **Yeni API endpoint'leri:** `PATCH /api/auth/update-profile` (isim/avatar güncelle), `POST /api/auth/change-password` (bcrypt doğrulamalı şifre değiştir)
+- **Bug fix:** Team members `/crm/team/members` yerine doğru `/crm/team` endpoint'i kullanılıyor
+- **i18n:** `change_password`, `current_password`, `new_password`, `confirm_password`, `update_profile`, `change_photo`, `password_changed`, `profile_updated`, `passwords_no_match`, `min_6_chars`, `team_management`, `invite_by_email`, `edit_profile` anahtarları eklendi
+
+---
+
 ## 2026-04-14 (8)
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler

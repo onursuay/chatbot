@@ -9,6 +9,7 @@ interface User {
   org_name: string
   org_slug: string
   org_plan: string
+  avatar_url?: string | null
 }
 
 interface AuthState {

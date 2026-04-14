@@ -43,7 +43,7 @@ export default function LangLayout({ children, params }: { children: React.React
   useEffect(() => {
     if (collapsed) return
     const allNavItems = [
-      { group: "DASHBOARD", items: [{ href: `/${lang}/` }] },
+      { group: t("nav_dashboard"), items: [{ href: localePath("dashboard", lang) }] },
       { group: t("nav_messaging"), items: [
         { href: localePath("inbox", lang) }, { href: localePath("contacts", lang) },
         { href: localePath("templates", lang) }, { href: localePath("broadcast", lang) },
@@ -130,9 +130,6 @@ export default function LangLayout({ children, params }: { children: React.React
 
   // ===== NAV ITEMS =====
   const NAV_ITEMS = [
-    { group: t("nav_dashboard"), items: [
-      { href: localePath("dashboard", lang), label: t("dashboard"), icon: <IconDashboard /> },
-    ]},
     { group: t("nav_messaging"), items: [
       { href: localePath("inbox", lang), label: t("inbox"), icon: <IconInbox /> },
       { href: localePath("contacts", lang), label: t("nav_contacts"), icon: <IconContacts /> },
@@ -334,7 +331,7 @@ export default function LangLayout({ children, params }: { children: React.React
                 <div className="absolute inset-0 rounded-lg ring-1 ring-emerald-400/40 shadow-[0_0_8px_rgba(16,185,129,0.3)]" />
               </div>
               {/* Logo */}
-              <a href="https://chatbot.yodijital.com/"
+              <a href={`/${lang}/panel`}
                 className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 group-hover:opacity-0 ${hintPhase === "button" ? "opacity-0" : "opacity-100"}`}
                 onClick={(e) => e.stopPropagation()}
               >
@@ -351,7 +348,7 @@ export default function LangLayout({ children, params }: { children: React.React
             </div>
           ) : (
             <>
-              <a href="https://chatbot.yodijital.com/" className="w-[28px] h-[28px] rounded-btn overflow-hidden shrink-0 hover:opacity-80 transition-opacity">
+              <a href={`/${lang}/panel`} className="w-[28px] h-[28px] rounded-btn overflow-hidden shrink-0 hover:opacity-80 transition-opacity">
                 <img src="/logo.png" alt="YO Dijital" className="w-full h-full object-contain invert" />
               </a>
               <div className="flex-1 min-w-0" />
@@ -548,9 +545,6 @@ export default function LangLayout({ children, params }: { children: React.React
                   )},
                   { label: t("nav_billing"), href: localePath("billing", lang), icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
-                  )},
-                  { label: t("nav_team"), href: localePath("team", lang), icon: (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
                   )},
                 ].map((item) => (
                   <Link
