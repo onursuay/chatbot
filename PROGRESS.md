@@ -2,6 +2,15 @@
 
 ---
 
+## 2026-04-14 (3)
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- Sidebar kullanıcı menüsü referans projedeki gibi dropdown'a dönüştürüldü: avatar + isim + plan trigger, açılınca Ayarlar / Abonelik / Ekip linkleri, dil alt menüsü (TR/EN checkmark ile), kırmızı çıkış butonu
+- Header'daki dil toggle ve çıkış butonları kaldırıldı (artık kullanıcı menüsünde mevcut)
+- TypeScript derleme temiz
+
+---
+
 ## 2026-04-14 (2)
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler

@@ -25,6 +25,11 @@ export default function LangLayout({ children, params }: { children: React.React
   const [hintPhase, setHintPhase] = useState<"logo" | "button">("logo")
   const hintTimer = useRef<NodeJS.Timeout | null>(null)
 
+  // ===== USER MENU STATE =====
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [langSubmenuOpen, setLangSubmenuOpen] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
+
   // ===== SIDEBAR TIP CARDS =====
   const [tipIndex, setTipIndex] = useState(0)
   const [tipVisible, setTipVisible] = useState(true)
@@ -102,6 +107,18 @@ export default function LangLayout({ children, params }: { children: React.React
     runHint()
     return () => { if (hintTimer.current) clearTimeout(hintTimer.current) }
   }, [collapsed])
+
+  // Close user menu on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false)
+        setLangSubmenuOpen(false)
+      }
+    }
+    if (userMenuOpen) document.addEventListener("mousedown", handleClick)
+    return () => document.removeEventListener("mousedown", handleClick)
+  }, [userMenuOpen])
 
   const toggleCollapsed = useCallback(() => { setCollapsed((p) => !p) }, [])
   const toggleGroup = useCallback((group: string) => {
@@ -485,22 +502,121 @@ export default function LangLayout({ children, params }: { children: React.React
           </div>
         )}
 
-        {/* User */}
-        <div className="px-2 py-2.5 border-t border-sidebar-border">
-          {collapsed ? (
-            <div className="flex justify-center">
-              <div className="w-[32px] h-[32px] rounded-avatar bg-primary text-primary-deep flex items-center justify-center text-micro font-semibold" title={user?.full_name || undefined}>
+        {/* User Menu */}
+        <div ref={userMenuRef} className="px-2 py-2.5 border-t border-sidebar-border relative">
+          {/* Trigger */}
+          <button
+            onClick={() => { setUserMenuOpen((v) => !v); setLangSubmenuOpen(false) }}
+            className={`w-full flex items-center ${collapsed ? "justify-center" : "justify-between"} gap-2.5 px-1.5 py-1.5 rounded-lg hover:bg-sidebar-hover transition-colors`}
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-[32px] h-[32px] rounded-avatar bg-primary text-primary-deep flex items-center justify-center text-micro font-semibold shrink-0" title={user?.full_name || undefined}>
                 {user?.full_name?.charAt(0) || "U"}
               </div>
+              {!collapsed && (
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-ui font-semibold text-white truncate">{user?.full_name}</p>
+                  <p className="text-micro text-primary font-semibold capitalize">{user?.org_plan === "trial" ? t("trial_plan") : user?.org_plan}</p>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="flex items-center gap-2.5 px-1.5 py-1">
-              <div className="w-[32px] h-[32px] rounded-avatar bg-primary text-primary-deep flex items-center justify-center text-micro font-semibold shrink-0">
-                {user?.full_name?.charAt(0) || "U"}
+            {!collapsed && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={`w-3.5 h-3.5 text-sidebar-text/50 shrink-0 transition-transform ${userMenuOpen ? "rotate-180" : ""}`}>
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            )}
+          </button>
+
+          {/* Dropdown */}
+          {userMenuOpen && (
+            <div className={`absolute z-50 bg-gradient-to-b from-gray-900 to-gray-800 border border-white/[0.08] rounded-xl shadow-2xl py-1 w-56 ${collapsed ? "left-full ml-2 bottom-0" : "bottom-full mb-2 left-0"}`}>
+              {/* Header info */}
+              <div className="px-4 py-3 border-b border-white/[0.08]">
+                <p className="text-sm font-semibold text-white truncate">{user?.full_name}</p>
+                <p className="text-xs text-primary font-medium capitalize mt-0.5">{user?.org_plan === "trial" ? t("trial_plan") : user?.org_plan}</p>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-ui font-semibold text-white truncate">{user?.full_name}</p>
-                <p className="text-micro text-primary font-semibold capitalize">{user?.org_plan === "trial" ? t("trial_plan") : user?.org_plan}</p>
+
+              {/* Nav links */}
+              <div className="py-1">
+                {[
+                  { label: t("nav_settings"), href: localePath("settings", lang), icon: (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4"><path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                  )},
+                  { label: t("nav_billing"), href: localePath("billing", lang), icon: (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
+                  )},
+                  { label: t("nav_team"), href: localePath("team", lang), icon: (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                  )},
+                ].map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-200 hover:bg-white/10 transition-colors"
+                  >
+                    <span className="text-gray-400">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Language submenu */}
+              <div className="border-t border-white/[0.08] py-1">
+                <button
+                  onClick={() => setLangSubmenuOpen((v) => !v)}
+                  className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-gray-200 hover:bg-white/10 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-gray-400"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                    <span>{lang === "tr" ? "Dil" : "Language"}</span>
+                  </div>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={`w-3.5 h-3.5 text-gray-400 transition-transform ${langSubmenuOpen ? "rotate-90" : ""}`}>
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+                {langSubmenuOpen && (
+                  <div className="ml-7 py-0.5">
+                    {(["tr", "en"] as const).map((l) => (
+                      <button
+                        key={l}
+                        onClick={() => {
+                          setLang(l)
+                          setUserMenuOpen(false)
+                          setLangSubmenuOpen(false)
+                          const parts = pathname.split("/").filter(Boolean)
+                          if (parts.length >= 2) {
+                            const currentSlug = parts[1]
+                            const key = Object.entries(SLUG_MAP).find(([, m]) => m.tr === currentSlug || m.en === currentSlug)?.[0]
+                            if (key) { router.push(localePath(key, l as Lang)); return }
+                          }
+                          router.push(`/${l}`)
+                        }}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
+                      >
+                        {lang === l && (
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 text-primary">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        )}
+                        <span className={lang === l ? "text-primary font-medium" : ""}>{l === "tr" ? "🇹🇷 Türkçe" : "🇬🇧 English"}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Logout */}
+              <div className="border-t border-white/[0.08] py-1">
+                <button
+                  onClick={() => { logout(); router.push(`/${lang}/login`) }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/20 transition-colors"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                  </svg>
+                  <span>{t("logout")}</span>
+                </button>
               </div>
             </div>
           )}
@@ -510,7 +626,7 @@ export default function LangLayout({ children, params }: { children: React.React
       {/* ===== MAIN CONTENT ===== */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header */}
-        <header className="h-[52px] border-b border-surface-300 bg-white flex items-center justify-between px-5 shrink-0">
+        <header className="h-[52px] border-b border-surface-300 bg-white flex items-center px-5 shrink-0">
           <div className="flex items-center gap-2">
             <span className={`w-2 h-2 rounded-full ${connectionStatus === "connected" ? "bg-primary animate-pulse-soft" : connectionStatus === "loading" ? "bg-gray-300 animate-pulse" : "bg-red-400"}`} />
             <span className="text-caption text-ink-tertiary">{t("wa_account")}</span>
@@ -521,31 +637,6 @@ export default function LangLayout({ children, params }: { children: React.React
             ) : (
               <span className="ds-badge-danger text-[11px]">{t("wa_disconnected")}</span>
             )}
-          </div>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => {
-                const newLang = lang === "tr" ? "en" : "tr"
-                setLang(newLang)
-                const parts = pathname.split("/").filter(Boolean)
-                if (parts.length >= 2) {
-                  const currentSlug = parts[1]
-                  const key = Object.entries(SLUG_MAP).find(([, m]) => m.tr === currentSlug || m.en === currentSlug)?.[0]
-                  if (key) { router.push(localePath(key, newLang as Lang)); return }
-                }
-                router.push(`/${newLang}`)
-              }}
-              className="ds-btn-ghost ds-btn-sm gap-1"
-            >
-              <span className="text-sm">{lang === "tr" ? "\uD83C\uDDF9\uD83C\uDDF7" : "\uD83C\uDDEC\uD83C\uDDE7"}</span>
-              <span>{lang === "tr" ? "TR" : "EN"}</span>
-            </button>
-            <button
-              onClick={() => { logout(); router.push(`/${lang}/login`) }}
-              className="ds-btn-ghost ds-btn-sm text-ink-muted hover:text-accent-red"
-            >
-              {t("logout")}
-            </button>
           </div>
         </header>
 
