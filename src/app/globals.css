@@ -309,19 +309,19 @@ body {
 /* --- Secondary Button --- */
 .landing-btn-secondary {
   @apply inline-flex items-center gap-2 font-bold rounded-xl px-6 py-3;
-  @apply bg-white text-ink border border-surface-300;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  @apply bg-white/[0.06] text-white border border-white/[0.12];
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .landing-btn-secondary:hover {
-  @apply border-surface-400 bg-surface-50;
+  @apply border-white/[0.2] bg-white/[0.1];
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* --- Gradient Text --- */
 .landing-gradient-text {
-  background: linear-gradient(135deg, #119d58 0%, #15b866 40%, #2CC974 100%);
+  background: linear-gradient(90deg, #34d399 0%, #5eead4 45%, #67e8f9 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

@@ -12,6 +12,7 @@ export default function RegisterPage() {
   const [form, setForm] = useState({ email: "", password: "", full_name: "", org_name: "" })
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const router = useRouter()
   const params = useParams()
   const { setAuth } = useAuth()
@@ -193,21 +194,51 @@ export default function RegisterPage() {
               />
             </div>
 
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <div className="relative mt-0.5 flex-shrink-0">
+                <input
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={(e) => setTermsAccepted(e.target.checked)}
+                  className="sr-only"
+                />
+                <div className={`w-4 h-4 rounded border transition-colors ${termsAccepted ? "bg-emerald-500 border-emerald-500" : "bg-white/[0.04] border-white/20 group-hover:border-emerald-500/50"}`}>
+                  {termsAccepted && (
+                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 16 16">
+                      <path stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M3 8l3.5 3.5 6-7" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+              <span className="text-[13px] text-gray-400 leading-relaxed">
+                {isTR ? (
+                  <>
+                    <a href={`/${lang}/terms-of-service`} className="text-emerald-400 hover:text-emerald-300 transition-colors">Kullanım Koşulları</a>
+                    {" "}ve{" "}
+                    <a href={`/${lang}/privacy-policy`} className="text-emerald-400 hover:text-emerald-300 transition-colors">Gizlilik Politikası</a>
+                    {"'nı okudum ve kabul ediyorum."}
+                  </>
+                ) : (
+                  <>
+                    {"I have read and agree to the "}
+                    <a href={`/${lang}/terms-of-service`} className="text-emerald-400 hover:text-emerald-300 transition-colors">Terms of Service</a>
+                    {" and "}
+                    <a href={`/${lang}/privacy-policy`} className="text-emerald-400 hover:text-emerald-300 transition-colors">Privacy Policy</a>
+                    {"."}
+                  </>
+                )}
+              </span>
+            </label>
+
             <button
               type="submit"
-              disabled={loading}
-              className="w-full rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:from-emerald-600 hover:to-teal-600 disabled:opacity-60 disabled:cursor-not-allowed"
+              disabled={loading || !termsAccepted}
+              className="w-full rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:from-emerald-600 hover:to-teal-600 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {loading
                 ? (isTR ? "Kayıt yapılıyor..." : "Creating account...")
                 : (isTR ? "Ücretsiz Hesap Oluştur" : "Create Free Account")}
             </button>
-
-            <p className="text-[11px] text-gray-500 text-center leading-relaxed">
-              {isTR
-                ? "Kayıt olarak Kullanım Şartları ve Gizlilik Politikası'nı kabul etmiş olursunuz."
-                : "By signing up you agree to our Terms of Service and Privacy Policy."}
-            </p>
           </form>
 
           <div className="mt-6 text-center">

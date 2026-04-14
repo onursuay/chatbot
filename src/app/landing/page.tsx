@@ -776,7 +776,7 @@ export default function LandingPage() {
   const goRegister = () => router.push("/auth/register")
 
   return (
-    <div className="min-h-screen bg-white text-ink font-sans antialiased">
+    <div className="min-h-screen bg-[#060609] text-white font-sans antialiased overflow-x-hidden">
       {/* ═══════════ HEADER — Dark pill nav ═══════════ */}
       <header className="absolute top-0 left-0 right-0 z-50 py-3">
         <div className="max-w-[1600px] mx-auto px-6">
@@ -853,14 +853,14 @@ export default function LandingPage() {
         {/* Canvas Animation Background */}
         <FloatingCanvas />
 
-        <div className="absolute top-20 -left-32 w-96 h-96 bg-primary/8 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 -right-32 w-96 h-96 bg-accent-blue/6 rounded-full blur-3xl" />
+        <div className="absolute top-20 -left-32 w-96 h-96 bg-emerald-500/[0.06] rounded-full blur-3xl" />
+        <div className="absolute bottom-0 -right-32 w-96 h-96 bg-blue-500/[0.04] rounded-full blur-3xl" />
 
         <div className="relative max-w-[1600px] mx-auto px-6">
           <div className="max-w-5xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 border border-primary/15 mb-4 landing-reveal">
-              <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-semibold text-primary-700">{t.heroBadge}</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-400/[0.06] border border-emerald-400/20 mb-4 landing-reveal">
+              <Sparkles className="w-4 h-4 text-emerald-400" />
+              <span className="text-sm font-semibold text-emerald-400">{t.heroBadge}</span>
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] mb-6 landing-reveal landing-reveal-delay-1">
@@ -878,7 +878,7 @@ export default function LandingPage() {
               </a>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-ink/40 landing-reveal landing-reveal-delay-3">
+            <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-gray-500 landing-reveal landing-reveal-delay-3">
               <div className="flex items-center gap-2"><Shield className="w-4 h-4" /><span>{t.trust1}</span></div>
               <div className="flex items-center gap-2"><Check className="w-4 h-4" /><span>{t.trust2}</span></div>
               <div className="flex items-center gap-2"><Zap className="w-4 h-4" /><span>{t.trust3}</span></div>
@@ -888,18 +888,18 @@ export default function LandingPage() {
           {/* Hero Dashboard Mockup — wider */}
           <div className="mt-10 md:mt-12 landing-reveal landing-reveal-delay-3">
             <div className="relative max-w-[1400px] mx-auto">
-              <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-primary/5 to-transparent rounded-3xl blur-2xl scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/[0.06] via-emerald-500/[0.03] to-transparent rounded-3xl blur-2xl scale-105" />
 
-              <div className="relative bg-white rounded-2xl md:rounded-3xl shadow-[0_25px_80px_-12px_rgba(0,0,0,0.15)] border border-surface-300/50 overflow-hidden">
+              <div className="relative bg-white/[0.025] border border-white/[0.08] rounded-2xl md:rounded-3xl overflow-hidden">
                 {/* Window bar */}
-                <div className="flex items-center gap-2 px-5 py-3 bg-surface-50 border-b border-surface-300/50">
+                <div className="flex items-center gap-2 px-5 py-3 bg-white/[0.03] border-b border-white/[0.06]">
                   <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-red-400" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                    <div className="w-3 h-3 rounded-full bg-green-400" />
+                    <div className="w-3 h-3 rounded-full bg-red-400/70" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-400/70" />
+                    <div className="w-3 h-3 rounded-full bg-green-400/70" />
                   </div>
                   <div className="flex-1 mx-4">
-                    <div className="bg-surface-150 rounded-lg py-1.5 px-4 text-xs text-ink/30 text-center max-w-xs mx-auto">
+                    <div className="bg-white/[0.05] rounded-lg py-1.5 px-4 text-xs text-gray-600 text-center max-w-xs mx-auto">
                       app.yodijital.com
                     </div>
                   </div>
@@ -942,15 +942,15 @@ export default function LandingPage() {
                   </div>
 
                   {/* Chat List */}
-                  <div className="hidden lg:flex flex-col w-80 border-r border-surface-300/50 bg-surface-50">
-                    <div className="p-3 border-b border-surface-300/50">
-                      <div className="bg-white rounded-lg px-3 py-2 text-xs text-ink/30 border border-surface-300/50">{t.searchPlaceholder}</div>
+                  <div className="hidden lg:flex flex-col w-80 border-r border-white/[0.06] bg-white/[0.02]">
+                    <div className="p-3 border-b border-white/[0.06]">
+                      <div className="bg-white/[0.04] rounded-lg px-3 py-2 text-xs text-gray-600 border border-white/[0.06]">{t.searchPlaceholder}</div>
                     </div>
                     {t.chatList.map((chat, i) => (
-                      <div key={i} className={`flex items-start gap-3 px-4 py-3 border-b border-surface-300/30 ${i === 0 ? "bg-primary-50/40" : "hover:bg-white"}`}>
+                      <div key={i} className={`flex items-start gap-3 px-4 py-3 border-b border-white/[0.04] ${i === 0 ? "bg-emerald-400/[0.06]" : "hover:bg-white/[0.03]"}`}>
                         <div className="relative">
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-200 to-primary-400 flex items-center justify-center text-white text-xs font-bold">{chat.name.charAt(0)}</div>
-                          <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white flex items-center justify-center ${chat.channel === "whatsapp" ? "bg-green-500" : chat.channel === "instagram" ? "bg-pink-500" : "bg-blue-500"}`}>
+                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-600 to-emerald-400 flex items-center justify-center text-white text-xs font-bold">{chat.name.charAt(0)}</div>
+                          <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#060609] flex items-center justify-center ${chat.channel === "whatsapp" ? "bg-green-500" : chat.channel === "instagram" ? "bg-pink-500" : "bg-blue-500"}`}>
                             {chat.channel === "whatsapp" && <Phone className="w-2 h-2 text-white" />}
                             {chat.channel === "instagram" && <Instagram className="w-2 h-2 text-white" />}
                             {chat.channel === "facebook" && <Facebook className="w-2 h-2 text-white" />}
@@ -958,42 +958,42 @@ export default function LandingPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <span className={`text-xs ${chat.unread ? "font-bold text-ink" : "font-medium text-ink/70"}`}>{chat.name}</span>
-                            <span className="text-[10px] text-ink/40">{chat.time}</span>
+                            <span className={`text-xs ${chat.unread ? "font-bold text-white" : "font-medium text-gray-400"}`}>{chat.name}</span>
+                            <span className="text-[10px] text-gray-600">{chat.time}</span>
                           </div>
-                          <p className={`text-[11px] truncate mt-0.5 ${chat.unread ? "text-ink/70 font-medium" : "text-ink/40"}`}>{chat.msg}</p>
+                          <p className={`text-[11px] truncate mt-0.5 ${chat.unread ? "text-gray-300 font-medium" : "text-gray-600"}`}>{chat.msg}</p>
                         </div>
-                        {chat.unread && <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />}
+                        {chat.unread && <div className="w-2 h-2 rounded-full bg-emerald-400 mt-2 flex-shrink-0" />}
                       </div>
                     ))}
                   </div>
 
                   {/* Chat Area */}
-                  <div className="flex-1 flex flex-col bg-white">
-                    <div className="flex items-center justify-between px-5 py-3 border-b border-surface-300/50">
+                  <div className="flex-1 flex flex-col">
+                    <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.06]">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-200 to-primary-400 flex items-center justify-center text-white text-xs font-bold">A</div>
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-600 to-emerald-400 flex items-center justify-center text-white text-xs font-bold">A</div>
                         <div>
-                          <div className="text-sm font-semibold">{t.chatContactName}</div>
-                          <div className="text-[10px] text-green-500 flex items-center gap-1">
-                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" /> {t.msgOnline}
+                          <div className="text-sm font-semibold text-white">{t.chatContactName}</div>
+                          <div className="text-[10px] text-green-400 flex items-center gap-1">
+                            <div className="w-1.5 h-1.5 rounded-full bg-green-400" /> {t.msgOnline}
                           </div>
                         </div>
                       </div>
-                      <div className="px-2 py-1 rounded-md bg-green-50 text-[10px] text-green-700 font-medium flex items-center gap-1">
+                      <div className="px-2 py-1 rounded-md bg-green-500/10 text-[10px] text-green-400 font-medium flex items-center gap-1">
                         <Phone className="w-3 h-3" /> WhatsApp
                       </div>
                     </div>
 
                     <div className="flex-1 p-5 space-y-3 overflow-hidden">
                       <div className="flex gap-2 max-w-[80%]">
-                        <div className="bg-surface-100 rounded-2xl rounded-tl-md px-4 py-2.5">
-                          <p className="text-xs text-ink/80">{t.chatMsg1}</p>
-                          <span className="text-[9px] text-ink/30 mt-1 block">14:32</span>
+                        <div className="bg-white/[0.07] rounded-2xl rounded-tl-md px-4 py-2.5">
+                          <p className="text-xs text-gray-200">{t.chatMsg1}</p>
+                          <span className="text-[9px] text-gray-500 mt-1 block">14:32</span>
                         </div>
                       </div>
                       <div className="flex gap-2 max-w-[80%] ml-auto flex-row-reverse">
-                        <div className="bg-primary rounded-2xl rounded-tr-md px-4 py-2.5">
+                        <div className="bg-emerald-500 rounded-2xl rounded-tr-md px-4 py-2.5">
                           <div className="flex items-center gap-1 mb-1">
                             <Bot className="w-3 h-3 text-white/70" />
                             <span className="text-[9px] text-white/60 font-medium">{t.chatAiLabel}</span>
@@ -1003,13 +1003,13 @@ export default function LandingPage() {
                         </div>
                       </div>
                       <div className="flex gap-2 max-w-[80%]">
-                        <div className="bg-surface-100 rounded-2xl rounded-tl-md px-4 py-2.5">
-                          <p className="text-xs text-ink/80">{t.chatMsg3}</p>
-                          <span className="text-[9px] text-ink/30 mt-1 block">14:33</span>
+                        <div className="bg-white/[0.07] rounded-2xl rounded-tl-md px-4 py-2.5">
+                          <p className="text-xs text-gray-200">{t.chatMsg3}</p>
+                          <span className="text-[9px] text-gray-500 mt-1 block">14:33</span>
                         </div>
                       </div>
                       <div className="flex gap-2 max-w-[80%] ml-auto flex-row-reverse">
-                        <div className="bg-primary/10 rounded-2xl px-4 py-3 flex items-center gap-1">
+                        <div className="bg-emerald-500/10 rounded-2xl px-4 py-3 flex items-center gap-1">
                           <div className="landing-typing-dot" style={{ animationDelay: "0ms" }} />
                           <div className="landing-typing-dot" style={{ animationDelay: "150ms" }} />
                           <div className="landing-typing-dot" style={{ animationDelay: "300ms" }} />
@@ -1017,10 +1017,10 @@ export default function LandingPage() {
                       </div>
                     </div>
 
-                    <div className="px-4 py-3 border-t border-surface-300/50">
-                      <div className="flex items-center gap-2 bg-surface-50 rounded-xl px-4 py-2.5">
-                        <span className="text-xs text-ink/30 flex-1">{t.msgTypePlaceholder}</span>
-                        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                    <div className="px-4 py-3 border-t border-white/[0.06]">
+                      <div className="flex items-center gap-2 bg-white/[0.04] rounded-xl px-4 py-2.5">
+                        <span className="text-xs text-gray-600 flex-1">{t.msgTypePlaceholder}</span>
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
                           <Send className="w-4 h-4 text-white" />
                         </div>
                       </div>
@@ -1034,15 +1034,15 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════ STATS BAR ═══════════ */}
-      <section className="py-6 bg-surface-50 border-y border-surface-300/50">
+      <section className="py-6 border-y border-white/[0.04] bg-white/[0.01]">
         <div className="max-w-[1600px] mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {t.statsItems.map((stat) => (
               <div key={stat.label}>
-                <div className="text-3xl md:text-4xl font-extrabold text-ink tracking-tight">
+                <div className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
                   <Counter end={stat.value} suffix={stat.suffix} />
                 </div>
-                <div className="text-sm text-ink/50 mt-1">{stat.label}</div>
+                <div className="text-sm text-gray-500 mt-1">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -1070,7 +1070,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════ HOW IT WORKS ═══════════ */}
-      <section id="how-it-works" className="py-8 md:py-10 bg-gradient-to-b from-surface-50 to-white">
+      <section id="how-it-works" className="py-8 md:py-10">
         <div className="max-w-[1600px] mx-auto px-6">
           <SectionHeader badge={t.howBadge} title={t.howTitle} subtitle={t.howSubtitle} />
 
@@ -1091,31 +1091,31 @@ export default function LandingPage() {
         <div className="max-w-[1600px] mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-10 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-50 border border-violet-200 mb-5">
-                <Sparkles className="w-3.5 h-3.5 text-violet-600" />
-                <span className="text-xs font-semibold text-violet-700">{t.aiBadge}</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/[0.08] border border-violet-500/20 mb-5">
+                <Sparkles className="w-3.5 h-3.5 text-violet-300" />
+                <span className="text-xs font-semibold text-violet-300">{t.aiBadge}</span>
               </div>
               <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight mb-5">
                 {t.aiTitleLine1} <span className="landing-gradient-text">{t.aiTitleGradient}</span> {t.aiTitleLine2}
               </h2>
-              <p className="text-ink/60 leading-relaxed mb-6">
+              <p className="text-gray-400 leading-relaxed mb-6">
                 {t.aiDesc}
               </p>
               <div className="space-y-3">
                 {t.aiBullets.map((item) => (
                   <div key={item} className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-3 h-3 text-primary" />
+                    <div className="w-5 h-5 rounded-full bg-emerald-400/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-emerald-400" />
                     </div>
-                    <span className="text-sm text-ink/70">{item}</span>
+                    <span className="text-sm text-gray-300">{item}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-violet-500/10 to-primary/10 rounded-3xl blur-3xl" />
-              <div className="relative bg-white rounded-2xl shadow-elevated border border-surface-300/50 p-6">
+              <div className="absolute inset-0 bg-gradient-to-r from-violet-500/[0.06] to-emerald-500/[0.06] rounded-3xl blur-3xl" />
+              <div className="relative bg-white/[0.025] border border-white/[0.08] rounded-2xl p-6">
                 <div className="space-y-3">
                   <ChatBubble side="left" name={t.aiCustomer} time="14:22">
                     {t.aiChat1}
@@ -1130,9 +1130,9 @@ export default function LandingPage() {
                     {t.aiChat4}
                   </ChatBubble>
                   <div className="flex items-center gap-2 pt-2">
-                    <div className="flex-1 h-px bg-surface-300/50" />
-                    <span className="text-[10px] text-ink/30 font-medium">{t.aiSaleComplete}</span>
-                    <div className="flex-1 h-px bg-surface-300/50" />
+                    <div className="flex-1 h-px bg-white/[0.08]" />
+                    <span className="text-[10px] text-gray-500 font-medium">{t.aiSaleComplete}</span>
+                    <div className="flex-1 h-px bg-white/[0.08]" />
                   </div>
                 </div>
               </div>
@@ -1142,7 +1142,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════ CHANNELS ═══════════ */}
-      <section className="py-5 md:py-6 bg-gradient-to-b from-white via-surface-50 to-white">
+      <section className="py-5 md:py-6 bg-white/[0.01]">
         <div className="max-w-[1600px] mx-auto px-6">
           <SectionHeader badge={t.channelsBadge} title={t.channelsTitle} subtitle={t.channelsSubtitle} />
 
@@ -1153,12 +1153,12 @@ export default function LandingPage() {
               { ...t.channels[2], icon: Facebook },
               { ...t.channels[3], icon: Globe },
             ].map((channel) => (
-              <div key={channel.name} className="group relative bg-white rounded-2xl border border-surface-300/50 p-6 text-center hover:shadow-elevated hover:border-primary/20 transition-all duration-300 hover:-translate-y-1">
+              <div key={channel.name} className="group relative bg-white/[0.025] border border-white/[0.06] rounded-2xl p-6 text-center hover:border-emerald-400/20 hover:bg-white/[0.04] transition-all duration-300 hover:-translate-y-1">
                 <div className={`w-14 h-14 rounded-2xl ${channel.color} flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                   <channel.icon className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="font-bold text-sm mb-1">{channel.name}</h3>
-                <p className="text-xs text-ink/50">{channel.desc}</p>
+                <h3 className="font-bold text-sm mb-1 text-white">{channel.name}</h3>
+                <p className="text-xs text-gray-500">{channel.desc}</p>
               </div>
             ))}
           </div>
@@ -1172,15 +1172,15 @@ export default function LandingPage() {
 
           {/* Period selector */}
           <div className="flex items-center justify-center mt-5 mb-6">
-            <div className="inline-flex items-center bg-surface-150 rounded-full p-1 gap-0.5">
+            <div className="inline-flex items-center bg-white/[0.06] rounded-full p-1 gap-0.5">
               {t.periods.map((item) => (
                 <button
                   key={item.key}
                   onClick={() => setActivePlan(item.key)}
                   className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
                     activePlan === item.key
-                      ? "bg-white text-ink shadow-sm"
-                      : "text-ink/40 hover:text-ink/60"
+                      ? "bg-white/[0.1] text-white shadow-sm"
+                      : "text-gray-500 hover:text-gray-300"
                   }`}
                 >
                   {item.label}
@@ -1221,28 +1221,28 @@ export default function LandingPage() {
                 key={plan.name}
                 className={`relative rounded-2xl border p-6 flex flex-col transition-all ${
                   plan.highlight
-                    ? "bg-primary-50/40 border-primary shadow-[0_8px_40px_-12px_rgba(17,157,88,0.25)] lg:scale-[1.03] landing-card-glow"
-                    : "bg-white border-primary/30 hover:shadow-elevated hover:border-primary/50"
+                    ? "bg-emerald-500/[0.06] border-emerald-400/40 shadow-[0_8px_40px_-12px_rgba(16,185,129,0.25)] lg:scale-[1.03] landing-card-glow"
+                    : "bg-white/[0.025] border-white/[0.08] hover:border-emerald-400/20 hover:bg-white/[0.04]"
                 }`}
               >
                 {plan.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[11px] font-bold px-4 py-1 rounded-full shadow-lg shadow-primary/30">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[11px] font-bold px-4 py-1 rounded-full shadow-lg shadow-emerald-500/30">
                     {t.mostPopular}
                   </div>
                 )}
 
-                <h3 className="font-bold text-lg mb-1">{plan.name}</h3>
-                <p className="text-xs text-ink/50 mb-4">{plan.desc}</p>
+                <h3 className="font-bold text-lg mb-1 text-white">{plan.name}</h3>
+                <p className="text-xs text-gray-500 mb-4">{plan.desc}</p>
 
                 {/* Fiyat */}
                 <div className="mb-5">
                   {plan.price ? (
                     <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-extrabold tracking-tight">{plan.price.toLocaleString("tr-TR")}₺</span>
-                      <span className="text-sm text-ink/40">{plan.period}</span>
+                      <span className="text-3xl font-extrabold tracking-tight text-white">{plan.price.toLocaleString("tr-TR")}₺</span>
+                      <span className="text-sm text-gray-500">{plan.period}</span>
                     </div>
                   ) : (
-                    <div className="text-2xl font-extrabold tracking-tight">{t.contactUs}</div>
+                    <div className="text-2xl font-extrabold tracking-tight text-white">{t.contactUs}</div>
                   )}
                 </div>
 
@@ -1251,8 +1251,8 @@ export default function LandingPage() {
                   onClick={plan.price ? goRegister : undefined}
                   className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all mb-6 ${
                     plan.highlight
-                      ? "bg-primary text-white hover:bg-primary-hover shadow-lg shadow-primary/20"
-                      : "bg-primary/5 text-primary hover:bg-primary/10 border border-primary/20"
+                      ? "bg-emerald-500 text-white hover:bg-emerald-400 shadow-lg shadow-emerald-500/20"
+                      : "bg-emerald-400/[0.08] text-emerald-400 hover:bg-emerald-400/[0.14] border border-emerald-400/20"
                   }`}
                 >
                   {plan.price ? t.tryForFree : t.contactSales}
@@ -1263,10 +1263,10 @@ export default function LandingPage() {
                 <div className="space-y-2.5 flex-1">
                   {plan.features.map((f) => (
                     <div key={f} className="flex items-center gap-2.5">
-                      <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 bg-primary/10">
-                        <Check className="w-2.5 h-2.5 text-primary" />
+                      <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-400/10">
+                        <Check className="w-2.5 h-2.5 text-emerald-400" />
                       </div>
-                      <span className="text-sm text-ink/60">{f}</span>
+                      <span className="text-sm text-gray-400">{f}</span>
                     </div>
                   ))}
                 </div>
@@ -1278,12 +1278,12 @@ export default function LandingPage() {
           <div className="mt-8 max-w-[1400px] mx-auto">
             {/* Açıklama + Toggle */}
             <div className="text-center mb-6">
-              <p className="text-base text-ink/50 mb-4">
+              <p className="text-base text-gray-500 mb-4">
                 {t.compareDesc}
               </p>
               <button
                 onClick={() => setCompareOpen(!compareOpen)}
-                className="inline-flex items-center gap-2 text-primary font-bold text-sm hover:text-primary-hover transition-colors group"
+                className="inline-flex items-center gap-2 text-emerald-400 font-bold text-sm hover:text-emerald-300 transition-colors group"
               >
                 {t.compareToggle}
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 group-hover:scale-110 transition-transform">
@@ -1296,34 +1296,34 @@ export default function LandingPage() {
             {compareOpen && <div className="overflow-x-auto animate-slide-up">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b-2 border-surface-300">
-                    <th className="text-left py-3 px-4 font-semibold text-ink/50 w-[260px]">{t.compareFeature}</th>
-                    <th className="text-center py-3 px-3 font-bold">{t.plans[0].name}</th>
-                    <th className="text-center py-3 px-3 font-bold">{t.plans[1].name}</th>
-                    <th className="text-center py-3 px-3 font-bold text-primary">{t.plans[2].name}</th>
-                    <th className="text-center py-3 px-3 font-bold">{t.plans[3].name}</th>
+                  <tr className="border-b-2 border-white/[0.06]">
+                    <th className="text-left py-3 px-4 font-semibold text-gray-500 w-[260px]">{t.compareFeature}</th>
+                    <th className="text-center py-3 px-3 font-bold text-white">{t.plans[0].name}</th>
+                    <th className="text-center py-3 px-3 font-bold text-white">{t.plans[1].name}</th>
+                    <th className="text-center py-3 px-3 font-bold text-emerald-400">{t.plans[2].name}</th>
+                    <th className="text-center py-3 px-3 font-bold text-white">{t.plans[3].name}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {t.compareTable.map((row, i) => {
                     if ("section" in row) {
                       return (
-                        <tr key={`s-${i}`} className="bg-surface-50">
-                          <td colSpan={5} className="py-2.5 px-4 font-bold text-xs text-ink/60 uppercase tracking-wider">{row.section}</td>
+                        <tr key={`s-${i}`} className="bg-white/[0.02]">
+                          <td colSpan={5} className="py-2.5 px-4 font-bold text-xs text-gray-500 uppercase tracking-wider">{row.section}</td>
                         </tr>
                       )
                     }
                     return (
-                      <tr key={`r-${i}`} className="border-b border-surface-300/50 hover:bg-surface-50/50">
-                        <td className="py-2.5 px-4 text-ink/70">{row.label}</td>
+                      <tr key={`r-${i}`} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
+                        <td className="py-2.5 px-4 text-gray-400">{row.label}</td>
                         {row.vals.map((val, j) => (
-                          <td key={j} className={`py-2.5 px-3 text-center ${j === 2 ? "bg-primary-50/30" : ""}`}>
+                          <td key={j} className={`py-2.5 px-3 text-center ${j === 2 ? "bg-emerald-400/[0.04]" : ""}`}>
                             {val === true ? (
-                              <Check className="w-4 h-4 text-primary mx-auto" />
+                              <Check className="w-4 h-4 text-emerald-400 mx-auto" />
                             ) : val === false ? (
-                              <span className="text-ink/20">—</span>
+                              <span className="text-gray-700">—</span>
                             ) : (
-                              <span className={`text-xs font-semibold ${j === 2 ? "text-primary" : "text-ink/60"}`}>{val}</span>
+                              <span className={`text-xs font-semibold ${j === 2 ? "text-emerald-400" : "text-gray-400"}`}>{val}</span>
                             )}
                           </td>
                         ))}
@@ -1337,7 +1337,7 @@ export default function LandingPage() {
 
           {/* Bottom CTA */}
           <div className="text-center mt-8">
-            <p className="text-sm text-ink/40 mb-3">{t.pricingCtaText}</p>
+            <p className="text-sm text-gray-500 mb-3">{t.pricingCtaText}</p>
             <button onClick={goRegister} className="landing-btn-primary text-base px-8 py-3.5">
               {t.pricingCtaBtn} <ArrowRight className="w-5 h-5" />
             </button>
@@ -1346,7 +1346,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════ TESTIMONIALS ═══════════ */}
-      <section id="testimonials" className="py-8 md:py-10 bg-gradient-to-b from-surface-50 to-white">
+      <section id="testimonials" className="py-8 md:py-10">
         <div className="max-w-[1600px] mx-auto px-6">
           <SectionHeader badge={t.testimonialsBadge} title={t.testimonialsTitle} subtitle={t.testimonialsSubtitle} />
 
@@ -1359,24 +1359,25 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════ FINAL CTA ═══════════ */}
-      <section className="py-8 md:py-10 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-sidebar via-sidebar to-primary-950" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(17,157,88,0.15),transparent_70%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(59,130,246,0.1),transparent_70%)]" />
+      <section className="py-12 md:py-16 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[#060609]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.1),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(20,184,166,0.05),transparent_60%)]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full blur-3xl" style={{ background: 'radial-gradient(ellipse, rgba(16,185,129,0.08) 0%, transparent 70%)' }} />
 
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-5">
             {t.ctaTitle1}<br />
-            <span className="bg-gradient-to-r from-primary-300 to-primary-light bg-clip-text text-transparent">{t.ctaTitle2}</span>
+            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">{t.ctaTitle2}</span>
           </h2>
-          <p className="text-lg text-white/50 max-w-2xl mx-auto mb-8">
+          <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-8">
             {t.ctaDesc}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button onClick={goRegister} className="bg-white text-ink font-bold px-8 py-4 rounded-xl text-base flex items-center gap-2 hover:bg-white/90 transition-colors shadow-lg">
+            <button onClick={goRegister} className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold px-8 py-4 rounded-xl text-base flex items-center gap-2 hover:from-emerald-400 hover:to-teal-400 transition-all shadow-[0_0_30px_rgba(16,185,129,0.2)]">
               {t.ctaBtn1} <ArrowRight className="w-5 h-5" />
             </button>
-            <button onClick={goLogin} className="text-white/60 hover:text-white font-medium px-8 py-4 text-base transition-colors">
+            <button onClick={goLogin} className="text-gray-500 hover:text-white font-medium px-8 py-4 text-base transition-colors">
               {t.ctaBtn2}
             </button>
           </div>
@@ -1466,11 +1467,11 @@ function SectionHeader({ badge, title, subtitle }: { badge: string; title: strin
   const { ref, inView } = useInView()
   return (
     <div ref={ref} className={`text-center max-w-3xl mx-auto transition-all duration-700 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 border border-primary/15 mb-3">
-        <span className="text-sm font-semibold text-primary-700">{badge}</span>
+      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-400/[0.06] border border-emerald-400/20 mb-3">
+        <span className="text-sm font-semibold text-emerald-400">{badge}</span>
       </div>
-      <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight mb-3">{title}</h2>
-      <p className="text-base text-ink/50 leading-relaxed">{subtitle}</p>
+      <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight mb-3 text-white">{title}</h2>
+      <p className="text-base text-gray-400 leading-relaxed">{subtitle}</p>
     </div>
   )
 }
@@ -1478,12 +1479,12 @@ function SectionHeader({ badge, title, subtitle }: { badge: string; title: strin
 function FeatureCard({ icon: Icon, title, desc, color }: { icon: any; title: string; desc: string; color: string }) {
   const { ref, inView } = useInView()
   return (
-    <div ref={ref} className={`group relative bg-white rounded-2xl border border-surface-300/50 p-6 hover:shadow-elevated hover:border-primary/15 transition-all duration-500 hover:-translate-y-1 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+    <div ref={ref} className={`group relative bg-white/[0.025] border border-white/[0.06] rounded-2xl p-6 hover:border-emerald-400/20 hover:bg-white/[0.04] hover:shadow-[0_0_30px_rgba(16,185,129,0.06)] transition-all duration-500 hover:-translate-y-1 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
       <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
         <Icon className="w-6 h-6 text-white" />
       </div>
-      <h3 className="font-bold text-lg mb-2">{title}</h3>
-      <p className="text-sm text-ink/50 leading-relaxed">{desc}</p>
+      <h3 className="font-bold text-lg mb-2 text-white">{title}</h3>
+      <p className="text-sm text-gray-400 leading-relaxed">{desc}</p>
     </div>
   )
 }
@@ -1492,17 +1493,17 @@ function StepCard({ step, title, desc, icon: Icon, index }: { step: string; titl
   const { ref, inView } = useInView()
   return (
     <div ref={ref} className={`relative text-center transition-all duration-700 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`} style={{ transitionDelay: `${index * 150}ms` }}>
-      {index < 2 && <div className="hidden md:block absolute top-12 left-[60%] w-[80%] h-px bg-gradient-to-r from-primary/20 to-primary/5" />}
+      {index < 2 && <div className="hidden md:block absolute top-12 left-[60%] w-[80%] h-px bg-gradient-to-r from-emerald-400/20 to-emerald-400/5" />}
       <div className="relative inline-flex mb-5">
-        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center border border-primary/10">
-          <Icon className="w-10 h-10 text-primary" />
+        <div className="w-24 h-24 rounded-3xl bg-emerald-400/[0.06] border border-emerald-400/15 flex items-center justify-center">
+          <Icon className="w-10 h-10 text-emerald-400" />
         </div>
-        <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-primary text-white text-sm font-bold flex items-center justify-center shadow-lg shadow-primary/30">
+        <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-emerald-500 text-white text-sm font-bold flex items-center justify-center shadow-lg shadow-emerald-500/30">
           {step.replace("0", "")}
         </div>
       </div>
-      <h3 className="font-bold text-lg mb-2">{title}</h3>
-      <p className="text-sm text-ink/50 leading-relaxed max-w-xs mx-auto">{desc}</p>
+      <h3 className="font-bold text-lg mb-2 text-white">{title}</h3>
+      <p className="text-sm text-gray-400 leading-relaxed max-w-xs mx-auto">{desc}</p>
     </div>
   )
 }
@@ -1510,7 +1511,7 @@ function StepCard({ step, title, desc, icon: Icon, index }: { step: string; titl
 function ChatBubble({ side, name, time, children, isBot }: { side: "left" | "right"; name: string; time: string; children: React.ReactNode; isBot?: boolean }) {
   return (
     <div className={`flex gap-2 ${side === "right" ? "ml-auto flex-row-reverse max-w-[85%]" : "max-w-[85%]"}`}>
-      <div className={`rounded-2xl px-4 py-3 ${side === "right" ? "bg-primary text-white rounded-tr-md" : "bg-surface-100 text-ink/80 rounded-tl-md"}`}>
+      <div className={`rounded-2xl px-4 py-3 ${side === "right" ? "bg-emerald-500 text-white rounded-tr-md" : "bg-white/[0.07] text-gray-200 rounded-tl-md"}`}>
         {isBot && (
           <div className="flex items-center gap-1 mb-1">
             <Bot className="w-3 h-3 text-white/60" />
@@ -1518,7 +1519,7 @@ function ChatBubble({ side, name, time, children, isBot }: { side: "left" | "rig
           </div>
         )}
         <p className="text-sm leading-relaxed">{children}</p>
-        <span className={`text-[10px] mt-1 block ${side === "right" ? "text-white/40 text-right" : "text-ink/30"}`}>{time}</span>
+        <span className={`text-[10px] mt-1 block ${side === "right" ? "text-white/40 text-right" : "text-gray-500"}`}>{time}</span>
       </div>
     </div>
   )
@@ -1561,16 +1562,16 @@ function PricingCard({ name, price, desc, features, cta, popular, onAction }: { 
 function TestimonialCard({ quote, name, role, company }: { quote: string; name: string; role: string; company: string }) {
   const { ref, inView } = useInView()
   return (
-    <div ref={ref} className={`bg-white rounded-2xl border border-surface-300/50 p-7 hover:shadow-elevated transition-all duration-700 hover:-translate-y-1 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+    <div ref={ref} className={`bg-white/[0.025] border border-white/[0.06] rounded-2xl p-7 hover:border-emerald-400/15 hover:bg-white/[0.04] transition-all duration-700 hover:-translate-y-1 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
       <div className="flex gap-0.5 mb-3">
         {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />)}
       </div>
-      <p className="text-sm text-ink/70 leading-relaxed mb-5 italic">&ldquo;{quote}&rdquo;</p>
+      <p className="text-sm text-gray-300 leading-relaxed mb-5 italic">&ldquo;{quote}&rdquo;</p>
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-200 to-primary-400 flex items-center justify-center text-white font-bold text-sm">{name.charAt(0)}</div>
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-600 to-emerald-400 flex items-center justify-center text-white font-bold text-sm">{name.charAt(0)}</div>
         <div>
-          <div className="font-bold text-sm">{name}</div>
-          <div className="text-xs text-ink/40">{role}, {company}</div>
+          <div className="font-bold text-sm text-white">{name}</div>
+          <div className="text-xs text-gray-500">{role}, {company}</div>
         </div>
       </div>
     </div>

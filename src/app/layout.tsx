@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "YO Dijital — WhatsApp Business Platform",
+  title: "Chatbot Yodijital",
   description: "Yapay Zeka Destekli WhatsApp Business SaaS Platformu",
   icons: {
     icon: [
