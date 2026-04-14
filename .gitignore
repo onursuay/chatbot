@@ -33,3 +33,4 @@ Icon?
 
 # Duplicate frontend (Vercel uses root src/)
 waapi/frontend/
+.vercel
