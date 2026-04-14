@@ -2,6 +2,17 @@
 
 ---
 
+## 2026-04-14 (2)
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- Landing page dark theme: `bg-white text-ink` → `bg-[#060609] text-white`; tüm section/card/sub-component stilleri referans projeyle eşleştirildi (emerald glow, dark glass cards, gradient text güncellendi)
+- Cookie Policy, Terms of Service, Data Deletion sayfaları Privacy Policy ile aynı tasarım standardına getirildi: emerald glow container, logo header, copyright footer, `text-[14px] text-[#8a8f98]` body text
+- Register sayfasına interaktif terms & privacy checkbox eklendi (link'ler yasal sayfalara yönlendiriyor, checkbox işaretlenmeden form submit edilemiyor)
+- globals.css: `.landing-gradient-text` emerald/teal/cyan gradyana güncellendi; `.landing-btn-secondary` dark glass stiline alındı
+- TypeScript derleme temiz
+
+---
+
 ## 2026-04-14
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler
