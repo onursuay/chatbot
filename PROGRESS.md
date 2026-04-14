@@ -2,6 +2,15 @@
 
 ---
 
+## 2026-04-14 (7)
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- Dashboard kanal istatistikleri düzeltildi: `/api/channels/stats` `messages.channel` kolonunu sorguluyordu ancak bu kolon mevcut değil; mesaj sayıları tüm kanallar için 0 dönüyordu
+- Düzeltme: `conversations` tablosundaki `channel` kolonu üzerinden join yaparak mesajlar sayılıyor: conversations → messages (conversation_id ile) filtreleme `conversations.channel` üzerinden yapılıyor
+- Artık WhatsApp / Instagram / Facebook / Messenger gelen-giden mesaj sayıları gerçek veritabanı değerlerini yansıtıyor
+
+---
+
 ## 2026-04-14 (6)
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler
