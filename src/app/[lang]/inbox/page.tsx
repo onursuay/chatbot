@@ -129,7 +129,7 @@ function getAvatarColor(name?: string | null) {
 
 export default function InboxPage() {
   const { getToken } = useAuth()
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -784,10 +784,10 @@ export default function InboxPage() {
                             </button>
                           </div>
                           <div className="max-h-56 overflow-y-auto">
-                            {templates.length === 0 ? (
+                            {templates.filter((tpl) => tpl.language === lang).length === 0 ? (
                               <p className="px-4 py-4 text-caption text-ink-tertiary text-center">{t("no_approved_templates_short")}</p>
                             ) : (
-                              templates.map((tpl) => (
+                              templates.filter((tpl) => tpl.language === lang).map((tpl) => (
                                 <button
                                   key={tpl.name}
                                   onClick={() => {
