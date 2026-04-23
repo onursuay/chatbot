@@ -678,6 +678,35 @@ export default function InboxPage() {
               </div>
             </div>
 
+            {/* Selection toolbar */}
+            {selectedMessages.size > 0 && (
+              <div className="px-6 py-2.5 bg-primary/5 border-b border-primary/20 flex items-center justify-between">
+                <span className="text-caption font-medium text-primary">
+                  {selectedMessages.size} {t("messages_selected")}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setSelectedMessages(new Set())}
+                    className="text-caption text-ink-secondary hover:text-ink transition-colors"
+                  >
+                    {t("deselect_all")}
+                  </button>
+                  <button
+                    onClick={handleDeleteSelected}
+                    disabled={deletingMessage}
+                    className="px-3 py-1 text-caption font-medium text-white bg-red-500 hover:bg-red-600 rounded-btn transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    {deletingMessage ? (
+                      <svg className="animate-spin w-3 h-3" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3 h-3"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
+                    )}
+                    {t("delete_selected")}
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Messages */}
             <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 no-scrollbar bg-white">
               {messageGroups.map((group, gi) => (
@@ -693,12 +722,26 @@ export default function InboxPage() {
                     const isOutbound = msg.direction === "outbound"
                     const isBot = msg.sender_type === "bot"
                     const isFirstInGroup = mi === 0 || group.messages[mi - 1].direction !== msg.direction
+                    const isSelected = selectedMessages.has(msg.id)
+                    const isHovered = hoveredMessageId === msg.id
 
                     return (
                       <div
                         key={msg.id}
-                        className={`flex items-end ${isOutbound ? "flex-row-reverse" : ""} gap-2.5 max-w-[82%] lg:max-w-[74%] ${isOutbound ? "ml-auto" : ""}`}
+                        className={`flex items-end ${isOutbound ? "flex-row-reverse" : ""} gap-2 max-w-[85%] lg:max-w-[76%] ${isOutbound ? "ml-auto" : ""} px-1 py-0.5 rounded-lg transition-colors ${isSelected ? "bg-primary/5" : ""}`}
+                        onMouseEnter={() => setHoveredMessageId(msg.id)}
+                        onMouseLeave={() => setHoveredMessageId(null)}
                       >
+                        {/* Checkbox */}
+                        <div className={`shrink-0 flex items-center self-center transition-opacity duration-150 ${isSelected || isHovered || selectedMessages.size > 0 ? "opacity-100" : "opacity-0"}`}>
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleMessageSelection(msg.id)}
+                            className="w-4 h-4 cursor-pointer accent-primary"
+                          />
+                        </div>
+
                         {/* Avatar for incoming */}
                         {!isOutbound && isFirstInGroup && (
                           <div className="shrink-0 mt-auto mb-1">
@@ -709,40 +752,71 @@ export default function InboxPage() {
                         )}
                         {!isOutbound && !isFirstInGroup && <div className="w-7 shrink-0" />}
 
-                        <div
-                          className={`ds-chat-bubble ${
-                            isOutbound
-                              ? isBot
-                                ? "ds-chat-bubble-bot"
-                                : "ds-chat-bubble-agent"
-                              : "ds-chat-bubble-incoming"
-                          }`}
-                        >
-                          {isBot && isOutbound && (
-                            <span className="text-[9px] font-bold px-2 py-0.5 mb-1.5 inline-flex w-fit bg-[#25D366]/12 text-black rounded-full">
-                              {t("ai_bot")}
-                            </span>
-                          )}
-                          {msg.sender_type === "agent" && isOutbound && (
-                            <span className="text-[10px] text-[#667781] block mb-1">{t("agent")}</span>
-                          )}
-                          <p className="whitespace-pre-wrap break-words">{msg.content?.body}</p>
-                          <div className={`flex items-center gap-1 mt-1.5 ${isOutbound ? "justify-end" : ""}`}>
-                            <span className="text-[10px] font-medium text-[#667781]">
-                              {formatMessageTime(msg.created_at)}
-                            </span>
-                            {isOutbound && (
-                              <>
-                                {msg.status === "read" && (
-                                  <span className="text-[10px] text-[#53BDEB]"> &bull; {t("read")}</span>
-                                )}
-                                {msg.status === "delivered" && (
-                                  <span className="text-[10px] text-[#667781]">
-                                    <svg viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3 inline"><path d="M2 8l3 3 7-7" stroke="currentColor" strokeWidth={2} fill="none" /><path d="M6 8l3 3 7-7" stroke="currentColor" strokeWidth={2} fill="none" /></svg>
-                                  </span>
-                                )}
-                              </>
+                        {/* Bubble + hover actions */}
+                        <div className={`flex items-center gap-1 ${isOutbound ? "flex-row-reverse" : ""}`}>
+                          <div
+                            className={`ds-chat-bubble ${
+                              isOutbound
+                                ? isBot
+                                  ? "ds-chat-bubble-bot"
+                                  : "ds-chat-bubble-agent"
+                                : "ds-chat-bubble-incoming"
+                            } ${isSelected ? "ring-2 ring-primary/30" : ""}`}
+                          >
+                            {isBot && isOutbound && (
+                              <span className="text-[9px] font-bold px-2 py-0.5 mb-1.5 inline-flex w-fit bg-[#25D366]/12 text-black rounded-full">
+                                {t("ai_bot")}
+                              </span>
                             )}
+                            {msg.sender_type === "agent" && isOutbound && (
+                              <span className="text-[10px] text-[#667781] block mb-1">{t("agent")}</span>
+                            )}
+                            <p className="whitespace-pre-wrap break-words">{msg.content?.body}</p>
+                            <div className={`flex items-center gap-1 mt-1.5 ${isOutbound ? "justify-end" : ""}`}>
+                              {msg.content?.is_edited && (
+                                <span className="text-[9px] text-[#667781] italic">({t("message_edited")})</span>
+                              )}
+                              <span className="text-[10px] font-medium text-[#667781]">
+                                {formatMessageTime(msg.created_at)}
+                              </span>
+                              {isOutbound && (
+                                <>
+                                  {msg.status === "read" && (
+                                    <span className="text-[10px] text-[#53BDEB]"> &bull; {t("read")}</span>
+                                  )}
+                                  {msg.status === "delivered" && (
+                                    <span className="text-[10px] text-[#667781]">
+                                      <svg viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3 inline"><path d="M2 8l3 3 7-7" stroke="currentColor" strokeWidth={2} fill="none" /><path d="M6 8l3 3 7-7" stroke="currentColor" strokeWidth={2} fill="none" /></svg>
+                                    </span>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Action buttons on hover */}
+                          <div className={`shrink-0 flex items-center gap-0.5 transition-opacity duration-150 ${isHovered && selectedMessages.size === 0 ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+                            {isOutbound && (
+                              <button
+                                onClick={() => { setEditingMessage(msg); setEditText(msg.content?.body || "") }}
+                                title={t("edit")}
+                                className="w-6 h-6 flex items-center justify-center rounded bg-white border border-surface-300 text-ink-tertiary hover:text-primary hover:border-primary/40 shadow-sm transition-colors"
+                              >
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3 h-3">
+                                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                </svg>
+                              </button>
+                            )}
+                            <button
+                              onClick={() => setDeleteMessageTarget(msg)}
+                              title={t("delete_message")}
+                              className="w-6 h-6 flex items-center justify-center rounded bg-white border border-surface-300 text-ink-tertiary hover:text-red-500 hover:border-red-300 shadow-sm transition-colors"
+                            >
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3 h-3">
+                                <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                              </svg>
+                            </button>
                           </div>
                         </div>
                       </div>
