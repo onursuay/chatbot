@@ -2,6 +2,14 @@
 
 ---
 
+## 2026-04-23
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- **Meta App Review: Privacy policy logged-out redirect fix** — `[lang]/layout.tsx` içindeki auth check useEffect, `isNoLayoutPage` (privacy-policy, cookie-policy, vb.) kontrolü yapmıyordu; logged-out kullanıcılar `/en/privacy-policy`'ye girdiğinde React useEffect `/en/login`'e yönlendiriyordu. `if (isNoLayoutPage) return` guard'ı eklendi, Meta reviewerlar artık giriş yapmadan sayfayı görebilir.
+- **Meta App Review: Privacy policy ownership metni eklendi** — Sayfanın üstüne "This Privacy Policy applies to YoChat, operated by Yo Dijital Medya Anonim Şirketi. Website: chatbot.yodijital.com" bilgi kutusu eklendi (TR/EN). Meta'nın data controller bilgisiyle sayfa içeriği artık eşleşiyor.
+
+---
+
 ## 2026-04-14 (Dashboard UX Düzeltmeleri)
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler

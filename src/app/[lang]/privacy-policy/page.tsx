@@ -31,7 +31,13 @@ export default function PrivacyPolicyPage() {
         <div className="relative rounded-2xl border border-emerald-400/10 bg-white/[0.02] px-8 py-10 shadow-[0_0_60px_rgba(16,185,129,0.07),inset_0_0_40px_rgba(16,185,129,0.03)]">
           <p className="text-xs text-gray-600 mb-1">{isTR ? "Son güncelleme: 28 Mart 2026" : "Last updated: March 28, 2026"}</p>
           <h1 className="text-3xl font-bold text-white mb-1">{isTR ? "Gizlilik Politikası" : "Privacy Policy"}</h1>
-          <p className="text-sm text-gray-600 mb-10">YoChat · chatbot.yodijital.com</p>
+          <p className="text-sm text-gray-600 mb-3">YoChat · chatbot.yodijital.com</p>
+          <div className="mb-10 px-4 py-3 rounded-lg bg-white/[0.03] border border-white/[0.07] text-[13px] text-gray-500 leading-relaxed">
+            {isTR
+              ? <>Bu Gizlilik Politikası, <strong className="text-gray-300">Yo Dijital Medya Anonim Şirketi</strong> tarafından işletilen <strong className="text-gray-300">YoChat</strong> uygulaması için geçerlidir. Web sitesi: <strong className="text-gray-300">chatbot.yodijital.com</strong> · İletişim: <a href="mailto:info@yodijital.com" className="text-emerald-400 hover:text-emerald-300">info@yodijital.com</a></>
+              : <>This Privacy Policy applies to <strong className="text-gray-300">YoChat</strong>, operated by <strong className="text-gray-300">Yo Dijital Medya Anonim Şirketi</strong>. Website: <strong className="text-gray-300">chatbot.yodijital.com</strong> · Contact: <a href="mailto:info@yodijital.com" className="text-emerald-400 hover:text-emerald-300">info@yodijital.com</a></>
+            }
+          </div>
 
           <div className="space-y-8">
             <section>

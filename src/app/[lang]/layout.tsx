@@ -162,6 +162,7 @@ export default function LangLayout({ children, params }: { children: React.React
 
   // ===== AUTH CHECK =====
   useEffect(() => {
+    if (isNoLayoutPage) return
     const token = localStorage.getItem("access_token")
     if (!token) { router.push(`/${lang}/login`); return }
     if (!user) {
@@ -173,7 +174,7 @@ export default function LangLayout({ children, params }: { children: React.React
         })
         .catch(() => { logout(); router.push(`/${lang}/login`) })
     } else { setLoading(false) }
-  }, [user, router, setAuth, logout])
+  }, [user, router, setAuth, logout, isNoLayoutPage])
 
   useEffect(() => {
     const token = localStorage.getItem("access_token")
