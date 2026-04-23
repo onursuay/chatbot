@@ -61,7 +61,7 @@ export async function POST(
   if (!auth) return NextResponse.json({ detail: "Yetkisiz" }, { status: 401 })
 
   const { conversationId } = await params
-  const { text, template_name, language } = await request.json()
+  const { text, template_name, language, template_body } = await request.json()
 
   if (!text && !template_name) {
     return NextResponse.json({ detail: "Mesaj metni veya şablon adı zorunlu" }, { status: 400 })
@@ -270,7 +270,7 @@ export async function POST(
 
   // DB'ye kaydet
   const msgType = template_name ? "template" : "text"
-  const msgBody = template_name ? `[Şablon: ${template_name}]` : text
+  const msgBody = template_name ? (template_body || `[Şablon: ${template_name}]`) : text
   const { data: msg } = await supabase
     .from("messages")
     .insert({

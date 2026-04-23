@@ -156,7 +156,7 @@ export default function InboxPage() {
   const [deleting, setDeleting] = useState(false)
 
   // Template sender
-  const [templates, setTemplates] = useState<{ name: string; language: string; status: string }[]>([])
+  const [templates, setTemplates] = useState<{ name: string; language: string; status: string; components?: { type: string; text?: string }[] }[]>([])
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false)
   const [templateSending, setTemplateSending] = useState(false)
   const [templatesLoaded, setTemplatesLoaded] = useState(false)
@@ -276,7 +276,7 @@ export default function InboxPage() {
   }
 
   // Send template message
-  const handleSendTemplate = async (templateName: string, language: string) => {
+  const handleSendTemplate = async (templateName: string, language: string, templateBody?: string) => {
     if (!selectedConv || templateSending) return
     const token = getToken()
     if (!token) return
@@ -288,7 +288,7 @@ export default function InboxPage() {
       const msg = await api<Message>(`/conversations/${selectedConv.id}/messages`, {
         method: "POST",
         token,
-        body: JSON.stringify({ template_name: templateName, language }),
+        body: JSON.stringify({ template_name: templateName, language, template_body: templateBody }),
       })
       setMessages((prev) => {
         if (prev.some((m) => m.id === msg.id)) return prev
@@ -790,7 +790,10 @@ export default function InboxPage() {
                               templates.map((tpl) => (
                                 <button
                                   key={tpl.name}
-                                  onClick={() => handleSendTemplate(tpl.name, tpl.language)}
+                                  onClick={() => {
+                                    const body = tpl.components?.find((c: any) => c.type === "BODY")?.text
+                                    handleSendTemplate(tpl.name, tpl.language, body)
+                                  }}
                                   className="w-full text-left px-4 py-3 hover:bg-[#ecf5fc] border-b border-surface-100 last:border-0 transition-colors"
                                 >
                                   <p className="text-ui font-medium text-ink">{tpl.name}</p>
