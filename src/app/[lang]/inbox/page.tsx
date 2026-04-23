@@ -155,6 +155,12 @@ export default function InboxPage() {
   const [deleteTarget, setDeleteTarget] = useState<Conversation | null>(null)
   const [deleting, setDeleting] = useState(false)
 
+  // Template sender
+  const [templates, setTemplates] = useState<{ name: string; language: string; status: string }[]>([])
+  const [showTemplateDropdown, setShowTemplateDropdown] = useState(false)
+  const [templateSending, setTemplateSending] = useState(false)
+  const [templatesLoaded, setTemplatesLoaded] = useState(false)
+
   // Load conversations
   const loadConversations = () => {
     const token = getToken()
@@ -171,6 +177,11 @@ export default function InboxPage() {
     setSelectedConv(null)
     setMessages([])
   }, [activeChannel])
+
+  // Close template dropdown when conversation changes
+  useEffect(() => {
+    setShowTemplateDropdown(false)
+  }, [selectedConv?.id])
 
   // Start new conversation
   const handleStartConversation = async () => {
@@ -251,6 +262,43 @@ export default function InboxPage() {
       .subscribe()
     return () => { supabase.removeChannel(channel) }
   }, [getToken])
+
+  // Load approved templates for template picker
+  const loadTemplates = async () => {
+    if (templatesLoaded) return
+    const token = getToken()
+    if (!token) return
+    try {
+      const data = await api<any[]>("/templates", { token })
+      setTemplates((data || []).filter((t: any) => t.status === "APPROVED"))
+      setTemplatesLoaded(true)
+    } catch {}
+  }
+
+  // Send template message
+  const handleSendTemplate = async (templateName: string, language: string) => {
+    if (!selectedConv || templateSending) return
+    const token = getToken()
+    if (!token) return
+
+    setTemplateSending(true)
+    setShowTemplateDropdown(false)
+
+    try {
+      const msg = await api<Message>(`/conversations/${selectedConv.id}/messages`, {
+        method: "POST",
+        token,
+        body: JSON.stringify({ template_name: templateName, language }),
+      })
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === msg.id)) return prev
+        return [...prev, msg]
+      })
+    } catch (err: any) {
+      alert("Şablon gönderilemedi: " + (err.message || "Bilinmeyen hata"))
+    }
+    setTemplateSending(false)
+  }
 
   // Send message
   const handleSend = async () => {
@@ -695,6 +743,67 @@ export default function InboxPage() {
                   rows={1}
                 />
                 <div className="flex items-center gap-1 mb-0.5 pr-0.5">
+                  {/* Template button — only for WhatsApp conversations */}
+                  {(!selectedConv.channel || selectedConv.channel === "whatsapp") && (
+                    <div className="relative">
+                      <button
+                        onClick={() => {
+                          if (!showTemplateDropdown) loadTemplates()
+                          setShowTemplateDropdown((v) => !v)
+                        }}
+                        disabled={templateSending}
+                        title="Şablon Gönder"
+                        className="w-9 h-9 bg-surface-200 text-ink-secondary hover:bg-[#ecf5fc] hover:text-primary rounded-[6px] transition-all disabled:opacity-50 flex items-center justify-center"
+                      >
+                        {templateSending ? (
+                          <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                        ) : (
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <line x1="8" y1="8" x2="16" y2="8" />
+                            <line x1="8" y1="12" x2="16" y2="12" />
+                            <line x1="8" y1="16" x2="12" y2="16" />
+                          </svg>
+                        )}
+                      </button>
+
+                      {showTemplateDropdown && (
+                        <div className="absolute bottom-full right-0 mb-2 w-72 bg-white border border-surface-300 rounded-card shadow-lg z-50 overflow-hidden">
+                          <div className="flex items-center justify-between px-3 py-2 border-b border-surface-200 bg-surface-50">
+                            <span className="text-micro font-bold text-ink-secondary uppercase tracking-wider">Onaylı Şablonlar</span>
+                            <button
+                              onClick={() => setShowTemplateDropdown(false)}
+                              className="text-ink-tertiary hover:text-ink transition-colors"
+                            >
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
+                                <path d="M18 6L6 18M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                          <div className="max-h-56 overflow-y-auto">
+                            {templates.length === 0 ? (
+                              <p className="px-4 py-4 text-caption text-ink-tertiary text-center">Onaylı şablon bulunamadı</p>
+                            ) : (
+                              templates.map((tpl) => (
+                                <button
+                                  key={tpl.name}
+                                  onClick={() => handleSendTemplate(tpl.name, tpl.language)}
+                                  className="w-full text-left px-4 py-3 hover:bg-[#ecf5fc] border-b border-surface-100 last:border-0 transition-colors"
+                                >
+                                  <p className="text-ui font-medium text-ink">{tpl.name}</p>
+                                  <p className="text-micro text-ink-tertiary mt-0.5">{tpl.language}</p>
+                                </button>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <button
                     onClick={handleSend}
                     disabled={sending || !newMessage.trim()}

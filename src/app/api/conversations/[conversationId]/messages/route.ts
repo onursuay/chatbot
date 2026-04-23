@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { getServiceSupabase } from "@/lib/supabase"
 import { getAuthUser } from "@/lib/jwt"
-import { sendTextMessage } from "@/lib/whatsapp"
+import { sendTextMessage, sendTemplateMessage } from "@/lib/whatsapp"
 import { decryptToken } from "@/lib/crypto"
 
 // GET — Konuşmanın mesajlarını getir
@@ -61,10 +61,10 @@ export async function POST(
   if (!auth) return NextResponse.json({ detail: "Yetkisiz" }, { status: 401 })
 
   const { conversationId } = await params
-  const { text } = await request.json()
+  const { text, template_name, language } = await request.json()
 
-  if (!text) {
-    return NextResponse.json({ detail: "Mesaj metni zorunlu" }, { status: 400 })
+  if (!text && !template_name) {
+    return NextResponse.json({ detail: "Mesaj metni veya şablon adı zorunlu" }, { status: 400 })
   }
 
   const supabase = getServiceSupabase()
@@ -219,39 +219,58 @@ export async function POST(
       )
     }
 
-    // Access token'ı decrypt et (DB'de Fernet ile şifreli saklanıyor)
     let accessToken: string
     try {
       accessToken = decryptToken(phone.waba.access_token)
     } catch {
-      // Eğer decrypt başarısızsa, token zaten düz metin olabilir
       accessToken = phone.waba.access_token
     }
 
-    const result = await sendTextMessage(
-      phone.phone_number_id,
-      accessToken,
-      conv.contact.wa_id,
-      text
-    )
-
-    if (!result.success) {
-      console.error("[WhatsApp Send] Mesaj gonderilemedi:", {
-        error: result.error,
-        phoneNumberId: phone.phone_number_id,
-        to: conv.contact.wa_id,
-        convId: conv.id,
-      })
-      return NextResponse.json(
-        { detail: `WhatsApp gonderilemedi: ${result.error}` },
-        { status: 502 }
+    if (template_name) {
+      const result = await sendTemplateMessage(
+        phone.phone_number_id,
+        accessToken,
+        conv.contact.wa_id,
+        template_name,
+        language || "tr"
       )
-    }
 
-    waMessageId = result.messages?.[0]?.id || null
+      if (!result) {
+        return NextResponse.json(
+          { detail: "Template gönderilemedi: Meta API hatası" },
+          { status: 502 }
+        )
+      }
+
+      waMessageId = result.messages?.[0]?.id || null
+    } else {
+      const result = await sendTextMessage(
+        phone.phone_number_id,
+        accessToken,
+        conv.contact.wa_id,
+        text
+      )
+
+      if (!result.success) {
+        console.error("[WhatsApp Send] Mesaj gonderilemedi:", {
+          error: result.error,
+          phoneNumberId: phone.phone_number_id,
+          to: conv.contact.wa_id,
+          convId: conv.id,
+        })
+        return NextResponse.json(
+          { detail: `WhatsApp gonderilemedi: ${result.error}` },
+          { status: 502 }
+        )
+      }
+
+      waMessageId = result.messages?.[0]?.id || null
+    }
   }
 
   // DB'ye kaydet
+  const msgType = template_name ? "template" : "text"
+  const msgBody = template_name ? `[Şablon: ${template_name}]` : text
   const { data: msg } = await supabase
     .from("messages")
     .insert({
@@ -260,8 +279,8 @@ export async function POST(
       contact_id: conv.contact_id,
       wa_message_id: waMessageId,
       direction: "outbound",
-      type: "text",
-      content: { body: text },
+      type: msgType,
+      content: { body: msgBody },
       status: "sent",
       sender_type: "agent",
       sender_id: auth.sub,
@@ -274,7 +293,7 @@ export async function POST(
     .from("conversations")
     .update({
       last_message_at: new Date().toISOString(),
-      last_message_preview: text.slice(0, 200),
+      last_message_preview: msgBody.slice(0, 200),
       is_bot_active: false,
     })
     .eq("id", conv.id)
