@@ -501,7 +501,7 @@ export default function InboxPage() {
                       </div>
                     </div>
                     {/* Content */}
-                    <div className="flex-1 min-w-0 pr-6">
+                    <div className="flex-1 min-w-0 pr-6 group-hover:pr-9 transition-all duration-150">
                       <div className="flex justify-between items-start mb-0.5">
                         <h3 className={`text-ui truncate ${isSelected ? "text-ink font-bold" : "font-bold text-ink"}`}>
                           {conv.contact_name || conv.contact_phone || t("unknown")}
@@ -737,7 +737,7 @@ export default function InboxPage() {
                       handleSend()
                     }
                   }}
-                  className="flex-1 bg-transparent border-none focus:ring-0 text-ui py-2 min-h-[36px] max-h-32 no-scrollbar resize-none placeholder-surface-300 focus:outline-none"
+                  className="flex-1 bg-transparent border-none focus:ring-0 text-ui py-2 min-h-[36px] max-h-32 no-scrollbar resize-none placeholder-ink-tertiary focus:outline-none"
                   placeholder={t("write_message")}
                   disabled={sending}
                   rows={1}
