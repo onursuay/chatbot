@@ -802,7 +802,7 @@ export default function LandingPage() {
 
           {/* Logo */}
           <a href="/" className="shrink-0">
-            <img src="/yoai-logo.webp" alt="YO Dijital" className="object-contain" style={{ height: "40px", width: "auto", mixBlendMode: "screen" }} />
+            <img src="/yoai-logo.webp" alt="YO Dijital" className="object-contain" style={{ height: "40px", width: "auto" }} />
           </a>
 
           {/* Desktop Nav */}
