@@ -730,7 +730,7 @@ export default function InboxPage() {
                     return (
                       <div
                         key={msg.id}
-                        className={`flex items-end ${isOutbound ? "flex-row-reverse" : ""} gap-2 max-w-[85%] lg:max-w-[76%] ${isOutbound ? "ml-auto" : ""} px-1 py-0.5 rounded-lg transition-colors ${isSelected ? "bg-primary/5" : ""}`}
+                        className={`flex items-end ${isOutbound ? "flex-row-reverse" : ""} gap-2 max-w-[85%] lg:max-w-[76%] ${isOutbound ? "ml-auto" : ""}`}
                         onMouseEnter={() => setHoveredMessageId(msg.id)}
                         onMouseLeave={() => setHoveredMessageId(null)}
                       >
