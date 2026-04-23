@@ -173,6 +173,16 @@ const translations: Record<string, Record<Lang, string>> = {
   "delete_conversation": { tr: "Yazışmayı Sil", en: "Delete Conversation" },
   "confirm_delete_conversation": { tr: "Bu yazışmayı ve tüm mesajları kalıcı olarak silmek istediğinize emin misiniz?", en: "Are you sure you want to permanently delete this conversation and all messages?" },
   "deleting": { tr: "Siliniyor...", en: "Deleting..." },
+  "edit": { tr: "Düzenle", en: "Edit" },
+  "edit_message": { tr: "Mesajı Düzenle", en: "Edit Message" },
+  "delete_message": { tr: "Mesajı Sil", en: "Delete Message" },
+  "confirm_delete_message": { tr: "Bu mesajı kalıcı olarak silmek istediğinize emin misiniz?", en: "Are you sure you want to permanently delete this message?" },
+  "message_edited": { tr: "düzenlendi", en: "edited" },
+  "messages_selected": { tr: "mesaj seçildi", en: "messages selected" },
+  "delete_selected": { tr: "Seçilenleri Sil", en: "Delete Selected" },
+  "deselect_all": { tr: "Seçimi Kaldır", en: "Deselect All" },
+  "msg_delete_error": { tr: "Mesaj silinemedi", en: "Failed to delete message" },
+  "msg_edit_error": { tr: "Mesaj düzenlenemedi", en: "Failed to edit message" },
 
   // Flow Builder
   "flow_builder": { tr: "Akış Oluşturucu", en: "Flow Builder" },

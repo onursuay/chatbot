@@ -27,7 +27,7 @@ interface Message {
   id: string
   direction: string
   type: string
-  content: { body?: string }
+  content: { body?: string; is_edited?: boolean }
   status: string
   sender_type: string | null
   created_at: string
@@ -161,6 +161,15 @@ export default function InboxPage() {
   const [templateSending, setTemplateSending] = useState(false)
   const [templatesLoaded, setTemplatesLoaded] = useState(false)
 
+  // Message actions
+  const [selectedMessages, setSelectedMessages] = useState<Set<string>>(new Set())
+  const [hoveredMessageId, setHoveredMessageId] = useState<string | null>(null)
+  const [editingMessage, setEditingMessage] = useState<Message | null>(null)
+  const [editText, setEditText] = useState("")
+  const [savingEdit, setSavingEdit] = useState(false)
+  const [deleteMessageTarget, setDeleteMessageTarget] = useState<Message | null>(null)
+  const [deletingMessage, setDeletingMessage] = useState(false)
+
   // Load conversations
   const loadConversations = () => {
     const token = getToken()
@@ -229,7 +238,7 @@ export default function InboxPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  // Supabase Realtime - new messages
+  // Supabase Realtime - message changes
   useEffect(() => {
     if (!selectedConv) return
     const channel = supabase
@@ -245,6 +254,24 @@ export default function InboxPage() {
           if (prev.some((m) => m.id === newMsg.id)) return prev
           return [...prev, newMsg]
         })
+      })
+      .on("postgres_changes", {
+        event: "UPDATE",
+        schema: "public",
+        table: "messages",
+        filter: `conversation_id=eq.${selectedConv.id}`,
+      }, (payload) => {
+        const updated = payload.new as Message
+        setMessages((prev) => prev.map((m) => m.id === updated.id ? updated : m))
+      })
+      .on("postgres_changes", {
+        event: "DELETE",
+        schema: "public",
+        table: "messages",
+        filter: `conversation_id=eq.${selectedConv.id}`,
+      }, (payload) => {
+        const deletedId = (payload.old as any).id
+        setMessages((prev) => prev.filter((m) => m.id !== deletedId))
       })
       .subscribe()
     return () => { supabase.removeChannel(channel) }
@@ -358,6 +385,67 @@ export default function InboxPage() {
     } catch {}
     setDeleting(false)
     setDeleteTarget(null)
+  }
+
+  const toggleMessageSelection = (id: string) => {
+    setSelectedMessages((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const handleDeleteMessage = async (msg: Message) => {
+    if (!selectedConv || deletingMessage) return
+    const token = getToken()
+    if (!token) return
+    setDeletingMessage(true)
+    try {
+      await api(`/conversations/${selectedConv.id}/messages/${msg.id}`, { method: "DELETE", token })
+      setMessages((prev) => prev.filter((m) => m.id !== msg.id))
+      setDeleteMessageTarget(null)
+    } catch (err: any) {
+      alert(t("msg_delete_error") + ": " + (err.message || t("unknown")))
+    }
+    setDeletingMessage(false)
+  }
+
+  const handleDeleteSelected = async () => {
+    if (!selectedConv || selectedMessages.size === 0 || deletingMessage) return
+    const token = getToken()
+    if (!token) return
+    setDeletingMessage(true)
+    try {
+      const ids = Array.from(selectedMessages)
+      await Promise.all(
+        ids.map((id) => api(`/conversations/${selectedConv.id}/messages/${id}`, { method: "DELETE", token }))
+      )
+      setMessages((prev) => prev.filter((m) => !selectedMessages.has(m.id)))
+      setSelectedMessages(new Set())
+    } catch (err: any) {
+      alert(t("msg_delete_error") + ": " + (err.message || t("unknown")))
+    }
+    setDeletingMessage(false)
+  }
+
+  const handleSaveEdit = async () => {
+    if (!selectedConv || !editingMessage || !editText.trim() || savingEdit) return
+    const token = getToken()
+    if (!token) return
+    setSavingEdit(true)
+    try {
+      const updated = await api<Message>(
+        `/conversations/${selectedConv.id}/messages/${editingMessage.id}`,
+        { method: "PATCH", token, body: JSON.stringify({ text: editText.trim() }) }
+      )
+      setMessages((prev) => prev.map((m) => m.id === updated.id ? updated : m))
+      setEditingMessage(null)
+      setEditText("")
+    } catch (err: any) {
+      alert(t("msg_edit_error") + ": " + (err.message || t("unknown")))
+    }
+    setSavingEdit(false)
   }
 
   const formatTime = (dateStr: string) => {
