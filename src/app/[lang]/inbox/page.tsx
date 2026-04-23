@@ -763,7 +763,7 @@ export default function InboxPage() {
                                   ? "ds-chat-bubble-bot"
                                   : "ds-chat-bubble-agent"
                                 : "ds-chat-bubble-incoming"
-                            } ${isSelected ? "ring-2 ring-primary/30" : ""}`}
+                            }`}
                           >
                             {isBot && isOutbound && (
                               <span className="text-[9px] font-bold px-2 py-0.5 mb-1.5 inline-flex w-fit bg-[#25D366]/12 text-black rounded-full">
