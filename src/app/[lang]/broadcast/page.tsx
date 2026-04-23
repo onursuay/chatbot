@@ -53,6 +53,7 @@ export default function BroadcastPage() {
   const [loading, setLoading] = useState(true)
   const [showCreate, setShowCreate] = useState(false)
   const [sending, setSending] = useState(false)
+  const [selectedContactIds, setSelectedContactIds] = useState<Set<string>>(new Set())
 
   const [form, setForm] = useState({
     name: "",
@@ -94,6 +95,7 @@ export default function BroadcastPage() {
       }
       setAllTags(Array.from(tagSet).sort())
       setPreviewContacts(contacts || [])
+      setSelectedContactIds(new Set((contacts || []).map((c) => c.id)))
     }).catch(() => {}).finally(() => setLoading(false))
   }, [getToken])
 
@@ -107,6 +109,7 @@ export default function BroadcastPage() {
         : "/contacts?per_page=200"
       const contacts = await api<Contact[]>(url, { token })
       setPreviewContacts(contacts || [])
+      setSelectedContactIds(new Set((contacts || []).map((c) => c.id)))
     } catch {}
     setPreviewLoading(false)
   }, [getToken])
@@ -116,15 +119,37 @@ export default function BroadcastPage() {
     fetchPreview(tag)
   }
 
+  const toggleContact = (id: string) => {
+    setSelectedContactIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const toggleAll = () => {
+    if (selectedContactIds.size === previewContacts.length && previewContacts.length > 0) {
+      setSelectedContactIds(new Set())
+    } else {
+      setSelectedContactIds(new Set(previewContacts.map((c) => c.id)))
+    }
+  }
+
   const handleSend = async () => {
     if (!form.template_name) return alert(t("select_template"))
+    if (selectedContactIds.size === 0) return alert(lang === "tr" ? "Lütfen en az bir kişi seçin" : "Please select at least one contact")
     const token = getToken()
     if (!token) return
     setSending(true)
     try {
       const result = await api<Broadcast>("/broadcasts", {
         method: "POST", token,
-        body: JSON.stringify({ ...form, phone_number_id: formPhoneNumberId || undefined }),
+        body: JSON.stringify({
+          ...form,
+          phone_number_id: formPhoneNumberId || undefined,
+          contact_ids: Array.from(selectedContactIds),
+        }),
       })
       setBroadcasts((prev) => [result, ...prev])
       setShowCreate(false)
@@ -248,14 +273,25 @@ export default function BroadcastPage() {
           {/* Kişi Önizlemesi */}
           <div className="border border-surface-border rounded-lg p-4 mb-4 bg-surface-50">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-caption-medium text-ink-secondary">
-                {lang === "tr" ? "Gönderilecek kişiler" : "Recipients preview"}
-              </span>
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={selectedContactIds.size === previewContacts.length && previewContacts.length > 0}
+                  ref={(el) => {
+                    if (el) el.indeterminate = selectedContactIds.size > 0 && selectedContactIds.size < previewContacts.length
+                  }}
+                  onChange={toggleAll}
+                  className="rounded border-surface-300 text-primary focus:ring-primary"
+                />
+                <span className="text-caption-medium text-ink-secondary">
+                  {lang === "tr" ? "Gönderilecek kişiler" : "Recipients"}
+                </span>
+              </label>
               {previewLoading ? (
                 <span className="text-caption text-ink-tertiary">{t("loading")}</span>
               ) : (
                 <span className="ds-badge-success text-[11px]">
-                  {previewContacts.length} {lang === "tr" ? "kişi" : "contacts"}
+                  {selectedContactIds.size} / {previewContacts.length} {lang === "tr" ? "seçili" : "selected"}
                 </span>
               )}
             </div>
@@ -271,18 +307,27 @@ export default function BroadcastPage() {
                 {lang === "tr" ? "Bu filtreye uygun kişi bulunamadı" : "No contacts match this filter"}
               </p>
             ) : (
-              <div className="space-y-1 max-h-40 overflow-y-auto">
-                {previewContacts.slice(0, 50).map((c) => (
-                  <div key={c.id} className="flex items-center justify-between py-1 px-2 rounded hover:bg-surface-100">
-                    <span className="text-caption text-ink">
+              <div className="space-y-0.5 max-h-48 overflow-y-auto">
+                {previewContacts.slice(0, 100).map((c) => (
+                  <label
+                    key={c.id}
+                    className="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-surface-100 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedContactIds.has(c.id)}
+                      onChange={() => toggleContact(c.id)}
+                      className="rounded border-surface-300 text-primary focus:ring-primary shrink-0"
+                    />
+                    <span className="text-caption text-ink flex-1 truncate">
                       {c.name || c.profile_name || (lang === "tr" ? "İsimsiz" : "Unnamed")}
                     </span>
-                    <span className="text-micro text-ink-tertiary">{c.phone || c.wa_id}</span>
-                  </div>
+                    <span className="text-micro text-ink-tertiary shrink-0">{c.phone || c.wa_id}</span>
+                  </label>
                 ))}
-                {previewContacts.length > 50 && (
+                {previewContacts.length > 100 && (
                   <p className="text-micro text-ink-tertiary text-center pt-1">
-                    +{previewContacts.length - 50} {lang === "tr" ? "kişi daha" : "more"}
+                    +{previewContacts.length - 100} {lang === "tr" ? "kişi daha" : "more"}
                   </p>
                 )}
               </div>
@@ -292,7 +337,7 @@ export default function BroadcastPage() {
           <div className="flex gap-2">
             <button
               onClick={handleSend}
-              disabled={sending || previewContacts.length === 0 || !form.template_name}
+              disabled={sending || selectedContactIds.size === 0 || !form.template_name}
               className="ds-btn-primary disabled:opacity-50 flex items-center gap-2"
             >
               {sending && (
@@ -301,7 +346,7 @@ export default function BroadcastPage() {
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                 </svg>
               )}
-              {sending ? t("sending") : `${t("send_now")} (${previewContacts.length})`}
+              {sending ? t("sending") : `${t("send_now")} (${selectedContactIds.size})`}
             </button>
             <button onClick={() => setShowCreate(false)} className="ds-btn-secondary">{t("cancel")}</button>
           </div>

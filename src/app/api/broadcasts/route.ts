@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   if (!auth) return NextResponse.json({ detail: "Yetkisiz" }, { status: 401 })
 
   const body = await request.json()
-  const { name, template_name, language, tag_filter, scheduled_at, phone_number_id } = body
+  const { name, template_name, language, tag_filter, scheduled_at, phone_number_id, contact_ids } = body
 
   const supabase = getServiceSupabase()
 
@@ -70,7 +70,9 @@ export async function POST(request: Request) {
     .eq("org_id", auth.org_id)
     .eq("is_blocked", false)
 
-  if (tag_filter) {
+  if (contact_ids && contact_ids.length > 0) {
+    contactQuery = contactQuery.in("id", contact_ids)
+  } else if (tag_filter) {
     contactQuery = contactQuery.contains("tags", [tag_filter])
   }
 
