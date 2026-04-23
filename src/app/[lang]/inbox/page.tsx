@@ -295,7 +295,7 @@ export default function InboxPage() {
         return [...prev, msg]
       })
     } catch (err: any) {
-      alert("Şablon gönderilemedi: " + (err.message || "Bilinmeyen hata"))
+      alert(t("template_send_error") + ": " + (err.message || t("unknown")))
     }
     setTemplateSending(false)
   }
@@ -752,7 +752,7 @@ export default function InboxPage() {
                           setShowTemplateDropdown((v) => !v)
                         }}
                         disabled={templateSending}
-                        title="Şablon Gönder"
+                        title={t("send_template_btn")}
                         className="w-9 h-9 bg-surface-200 text-ink-secondary hover:bg-[#ecf5fc] hover:text-primary rounded-[6px] transition-all disabled:opacity-50 flex items-center justify-center"
                       >
                         {templateSending ? (
@@ -773,7 +773,7 @@ export default function InboxPage() {
                       {showTemplateDropdown && (
                         <div className="absolute bottom-full right-0 mb-2 w-72 bg-white border border-surface-300 rounded-card shadow-lg z-50 overflow-hidden">
                           <div className="flex items-center justify-between px-3 py-2 border-b border-surface-200 bg-surface-50">
-                            <span className="text-micro font-bold text-ink-secondary uppercase tracking-wider">Onaylı Şablonlar</span>
+                            <span className="text-micro font-bold text-ink-secondary uppercase tracking-wider">{t("approved_templates")}</span>
                             <button
                               onClick={() => setShowTemplateDropdown(false)}
                               className="text-ink-tertiary hover:text-ink transition-colors"
@@ -785,7 +785,7 @@ export default function InboxPage() {
                           </div>
                           <div className="max-h-56 overflow-y-auto">
                             {templates.length === 0 ? (
-                              <p className="px-4 py-4 text-caption text-ink-tertiary text-center">Onaylı şablon bulunamadı</p>
+                              <p className="px-4 py-4 text-caption text-ink-tertiary text-center">{t("no_approved_templates_short")}</p>
                             ) : (
                               templates.map((tpl) => (
                                 <button

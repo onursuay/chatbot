@@ -138,7 +138,7 @@ export default function BroadcastPage() {
 
   const handleSend = async () => {
     if (!form.template_name) return alert(t("select_template"))
-    if (selectedContactIds.size === 0) return alert(lang === "tr" ? "Lütfen en az bir kişi seçin" : "Please select at least one contact")
+    if (selectedContactIds.size === 0) return alert(t("select_at_least_one"))
     const token = getToken()
     if (!token) return
     setSending(true)
@@ -231,7 +231,7 @@ export default function BroadcastPage() {
               </select>
               {selectedTemplate && (
                 <p className="text-micro text-ink-tertiary mt-1">
-                  {lang === "tr" ? "Şablon dili:" : "Template language:"} {selectedTemplate.language}
+                  {t("template_language")} {selectedTemplate.language}
                 </p>
               )}
             </div>
@@ -284,14 +284,14 @@ export default function BroadcastPage() {
                   className="rounded border-surface-300 text-primary focus:ring-primary"
                 />
                 <span className="text-caption-medium text-ink-secondary">
-                  {lang === "tr" ? "Gönderilecek kişiler" : "Recipients"}
+                  {t("recipients_preview")}
                 </span>
               </label>
               {previewLoading ? (
                 <span className="text-caption text-ink-tertiary">{t("loading")}</span>
               ) : (
                 <span className="ds-badge-success text-[11px]">
-                  {selectedContactIds.size} / {previewContacts.length} {lang === "tr" ? "seçili" : "selected"}
+                  {selectedContactIds.size} / {previewContacts.length} {t("selected")}
                 </span>
               )}
             </div>
@@ -304,7 +304,7 @@ export default function BroadcastPage() {
               </div>
             ) : previewContacts.length === 0 ? (
               <p className="text-caption text-ink-tertiary">
-                {lang === "tr" ? "Bu filtreye uygun kişi bulunamadı" : "No contacts match this filter"}
+                {t("no_contacts_filter")}
               </p>
             ) : (
               <div className="space-y-0.5 max-h-48 overflow-y-auto">
@@ -320,14 +320,14 @@ export default function BroadcastPage() {
                       className="rounded border-surface-300 text-primary focus:ring-primary shrink-0"
                     />
                     <span className="text-caption text-ink flex-1 truncate">
-                      {c.name || c.profile_name || (lang === "tr" ? "İsimsiz" : "Unnamed")}
+                      {c.name || c.profile_name || t("unnamed")}
                     </span>
                     <span className="text-micro text-ink-tertiary shrink-0">{c.phone || c.wa_id}</span>
                   </label>
                 ))}
                 {previewContacts.length > 100 && (
                   <p className="text-micro text-ink-tertiary text-center pt-1">
-                    +{previewContacts.length - 100} {lang === "tr" ? "kişi daha" : "more"}
+                    +{previewContacts.length - 100} {t("more_contacts")}
                   </p>
                 )}
               </div>

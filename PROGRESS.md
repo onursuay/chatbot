@@ -2,6 +2,16 @@
 
 ---
 
+## 2026-04-23 (Template Gönderimi + i18n Düzeltmesi)
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- **Gelen Kutusu'ndan tek kişiye template gönderme eklendi** — WhatsApp konuşmalarında mesaj giriş alanına "Şablon Gönder" butonu eklendi; approved template seçilince direkt Meta Graph API'ye gönderilir, chat akışında gerçek template metni görünür
+- **Toplu Mesaj'da kişi seçimi eklendi** — Alıcı listesine checkbox eklendi; varsayılan olarak hepsi seçili, kullanıcı tek tek kaldırabilir; "Şimdi Gönder" sadece seçili kişilere gider
+- **Template chat görünümü düzeltildi** — `[Şablon: isim]` yerine artık gerçek template body metni görünüyor; frontend components alanından BODY metnini çekip backend'e gönderiyor
+- **i18n eksikliği giderildi** — Bu konuşmada eklenen tüm hardcoded TR/EN stringler `i18n.ts`'e taşındı: `approved_templates`, `no_approved_templates_short`, `template_send_error`, `send_template_btn`, `selected`, `unnamed`, `more_contacts`, `select_at_least_one`, `recipients_preview`, `template_language`, `no_contacts_filter`
+
+---
+
 ## 2026-04-23
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler
