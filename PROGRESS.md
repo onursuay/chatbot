@@ -2,6 +2,16 @@
 
 ---
 
+## 2026-04-23 (Kişiler: Çoklu Seçim & Silme + Inbox UI Düzeltmeleri)
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- **Kişiler sayfasına checkbox seçimi eklendi** — Tek tek veya "Tümünü Seç" ile kişiler seçilebilir; seçili olduğunda kırmızı "Seçilenleri Sil" butonu header'da belirir
+- **Toplu kişi silme** — Seçilen kişiler onay modalı gösterildikten sonra API'ye DELETE isteğiyle tek seferde silinir; backend'de bulk DELETE endpoint eklendi
+- **Inbox: çöp ikonu & saat çakışması giderildi** — Hover sırasında content div `pr-9` alarak saat ile ikonun üst üste gelmesi engellendi
+- **Inbox: "Mesaj Yaz" placeholder okunur hale getirildi** — `placeholder-surface-300` → `placeholder-ink-tertiary` değiştirildi
+
+---
+
 ## 2026-04-23 (Template Gönderimi + i18n Düzeltmesi)
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler

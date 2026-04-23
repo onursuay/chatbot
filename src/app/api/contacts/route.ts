@@ -50,6 +50,31 @@ export async function GET(request: Request) {
   )
 }
 
+// DELETE — Toplu kişi sil
+export async function DELETE(request: Request) {
+  const auth = await getAuthUser(request)
+  if (!auth) return NextResponse.json({ detail: "Yetkisiz" }, { status: 401 })
+
+  const { ids } = await request.json()
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return NextResponse.json({ detail: "id listesi zorunlu" }, { status: 400 })
+  }
+
+  const supabase = getServiceSupabase()
+
+  const { error } = await supabase
+    .from("contacts")
+    .delete()
+    .eq("org_id", auth.org_id)
+    .in("id", ids)
+
+  if (error) {
+    return NextResponse.json({ detail: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ deleted: ids.length })
+}
+
 // POST — Yeni kişi oluştur
 export async function POST(request: Request) {
   const auth = await getAuthUser(request)
