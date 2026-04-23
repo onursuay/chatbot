@@ -2,6 +2,20 @@
 
 ---
 
+## 2026-04-23 (Mesajlarda Seçme, Silme ve Düzenleme)
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- **Mesaj hover aksiyonları eklendi** — Her mesajın üzerine gelindiğinde ✏️ (sadece gönderilen) ve 🗑️ butonları belirir; tüm kanallarda (WhatsApp, Instagram, Messenger, Telegram) çalışır
+- **Mesaj seçme (multi-select)** — Checkbox ile mesajlar seçilebilir; seçili mesaj sayısı header altı toolbar'da gösterilir
+- **Toplu silme** — Seçili mesajlar "Seçilenleri Sil" butonuyla tek seferde silinir
+- **Tekil mesaj silme** — Silme ikonu → onay modalı → DB'den hard delete; Supabase Realtime ile anlık UI güncellemesi
+- **Mesaj düzenleme** — Agent tarafından gönderilen mesajlar düzenlenebilir; kayıt sonrası "(düzenlendi)" etiketi eklenir; content.is_edited alanı DB'de saklanır
+- **API endpoint'leri eklendi** — `PATCH /messages/[messageId]` (düzenleme) ve `DELETE /messages/[messageId]` (silme)
+- **Realtime UPDATE & DELETE** — Supabase subscription artık INSERT yanı sıra UPDATE ve DELETE eventlerini de dinler; başka sekmede yapılan değişiklikler de anlık yansır
+- **i18n güncellemeleri** — edit, edit_message, delete_message, confirm_delete_message, message_edited, messages_selected, delete_selected, deselect_all anahtarları eklendi (TR/EN)
+
+---
+
 ## 2026-04-23 (Kişiler: Çoklu Seçim & Silme + Inbox UI Düzeltmeleri)
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler

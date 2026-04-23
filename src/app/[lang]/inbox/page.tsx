@@ -190,6 +190,8 @@ export default function InboxPage() {
   // Close template dropdown when conversation changes
   useEffect(() => {
     setShowTemplateDropdown(false)
+    setSelectedMessages(new Set())
+    setHoveredMessageId(null)
   }, [selectedConv?.id])
 
   // Start new conversation
@@ -1179,6 +1181,92 @@ export default function InboxPage() {
                 className="px-4 py-2 text-ui font-medium text-white bg-red-500 hover:bg-red-600 rounded-btn transition-colors disabled:opacity-50"
               >
                 {deleting ? t("deleting") : t("delete")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== DELETE MESSAGE MODAL ===== */}
+      {deleteMessageTarget && (
+        <div className="ds-modal-overlay" onClick={() => !deletingMessage && setDeleteMessageTarget(null)}>
+          <div className="ds-modal w-[400px] max-w-[95vw]" onClick={(e) => e.stopPropagation()}>
+            <div className="px-5 py-4 border-b border-surface-300 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 text-red-500">
+                  <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                </svg>
+              </div>
+              <h3 className="ds-modal-title">{t("delete_message")}</h3>
+            </div>
+            <div className="p-5">
+              <p className="text-ui text-ink-secondary leading-relaxed">{t("confirm_delete_message")}</p>
+              {deleteMessageTarget.content?.body && (
+                <p className="text-caption text-ink-tertiary mt-2 italic line-clamp-3">
+                  &ldquo;{deleteMessageTarget.content.body}&rdquo;
+                </p>
+              )}
+            </div>
+            <div className="px-5 py-4 border-t border-surface-300 flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteMessageTarget(null)}
+                disabled={deletingMessage}
+                className="px-4 py-2 text-ui font-medium text-ink-secondary hover:text-ink bg-surface-150 hover:bg-surface-200 rounded-btn transition-colors"
+              >
+                {t("cancel")}
+              </button>
+              <button
+                onClick={() => handleDeleteMessage(deleteMessageTarget)}
+                disabled={deletingMessage}
+                className="px-4 py-2 text-ui font-medium text-white bg-red-500 hover:bg-red-600 rounded-btn transition-colors disabled:opacity-50"
+              >
+                {deletingMessage ? t("deleting") : t("delete")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== EDIT MESSAGE MODAL ===== */}
+      {editingMessage && (
+        <div className="ds-modal-overlay" onClick={() => !savingEdit && (setEditingMessage(null), setEditText(""))}>
+          <div className="ds-modal w-[480px] max-w-[95vw]" onClick={(e) => e.stopPropagation()}>
+            <div className="px-5 py-4 border-b border-surface-300 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 text-primary">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+              </div>
+              <h3 className="ds-modal-title">{t("edit_message")}</h3>
+            </div>
+            <div className="p-5">
+              <textarea
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSaveEdit() }
+                  if (e.key === "Escape") { setEditingMessage(null); setEditText("") }
+                }}
+                className="ds-input w-full min-h-[100px] resize-none text-ui"
+                autoFocus
+                disabled={savingEdit}
+              />
+            </div>
+            <div className="px-5 py-4 border-t border-surface-300 flex justify-end gap-3">
+              <button
+                onClick={() => { setEditingMessage(null); setEditText("") }}
+                disabled={savingEdit}
+                className="px-4 py-2 text-ui font-medium text-ink-secondary hover:text-ink bg-surface-150 hover:bg-surface-200 rounded-btn transition-colors"
+              >
+                {t("cancel")}
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={savingEdit || !editText.trim()}
+                className="px-4 py-2 text-ui font-medium text-white bg-primary hover:bg-primary-600 rounded-btn transition-colors disabled:opacity-50"
+              >
+                {savingEdit ? t("saving") : t("save")}
               </button>
             </div>
           </div>
