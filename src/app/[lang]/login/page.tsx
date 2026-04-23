@@ -26,7 +26,6 @@ export default function LoginPage() {
     }
   }, [params.lang])
 
-  // Neural network animation
   useEffect(() => {
     const c = canvasRef.current
     if (!c) return
@@ -100,24 +99,21 @@ export default function LoginPage() {
   const isTR = lang === "tr"
 
   return (
-    <div className="min-h-screen bg-[#060609] flex flex-col items-center justify-center px-4 py-6 relative overflow-hidden" style={{ fontSize: "16px" }}>
-      {/* Neural network canvas */}
+    <div className="min-h-screen bg-[#060609] flex items-center justify-center px-4 py-6 relative overflow-hidden">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true" />
 
-      <div className="w-full max-w-md relative z-10 flex-1 flex flex-col items-center justify-center">
-        {/* Logo */}
+      <div className="w-full max-w-[380px] relative z-10">
         <div className="flex justify-center mb-5">
           <Link href="/">
             <Image src="/logo-yo.png" alt="YO Dijital" width={80} height={28} className="brightness-0 invert" priority />
           </Link>
         </div>
 
-        {/* Card */}
-        <div className="w-full bg-white/[0.04] border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
+        <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
           <h1 className="text-2xl font-bold text-white text-center mb-2">
             {isTR ? "Giriş Yap" : "Log In"}
           </h1>
-          <p className="text-base text-gray-400 text-center mb-8">
+          <p className="text-sm text-gray-400 text-center mb-6">
             {isTR ? "Hesabınıza giriş yaparak devam edin" : "Sign in to your account"}
           </p>
 
@@ -137,7 +133,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={isTR ? "örnek@sirket.com" : "example@company.com"}
-                className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-base text-white placeholder-gray-500 outline-none transition focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30"
+                className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none transition focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30"
                 autoComplete="email"
                 required
               />
@@ -152,7 +148,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="********"
-                className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-base text-white placeholder-gray-500 outline-none transition focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30"
+                className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none transition focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30"
                 autoComplete="current-password"
                 required
               />
@@ -161,7 +157,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:from-emerald-600 hover:to-teal-600 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:from-emerald-600 hover:to-teal-600 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading
                 ? (isTR ? "Giriş yapılıyor..." : "Signing in...")
@@ -186,17 +182,12 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="w-full px-6 py-4 border-t border-white/5 relative z-10">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span className="text-xs text-gray-600">© 2024-2026 YO Dijital. {isTR ? "Tüm hakları saklıdır." : "All rights reserved."}</span>
-          <div className="flex items-center gap-4">
-            <a href={`/${lang}/privacy-policy`} className="text-xs text-gray-600 hover:text-gray-400 transition-colors">{t("footer_privacy")}</a>
-            <a href={`/${lang}/cookie-policy`} className="text-xs text-gray-600 hover:text-gray-400 transition-colors">{t("footer_cookie")}</a>
-            <a href={`/${lang}/terms-of-service`} className="text-xs text-gray-600 hover:text-gray-400 transition-colors">{t("footer_terms")}</a>
-          </div>
-        </div>
-      </footer>
+      <div className="absolute bottom-4 left-0 right-0 flex flex-wrap justify-center gap-4 px-4">
+        <a href={`/${lang}/privacy-policy`} className="text-xs text-gray-600 hover:text-gray-400 transition">{t("footer_privacy")}</a>
+        <a href={`/${lang}/cookie-policy`} className="text-xs text-gray-600 hover:text-gray-400 transition">{t("footer_cookie")}</a>
+        <a href={`/${lang}/terms-of-service`} className="text-xs text-gray-600 hover:text-gray-400 transition">{t("footer_terms")}</a>
+        <a href={`/${lang}/data-deletion`} className="text-xs text-gray-600 hover:text-gray-400 transition">{t("footer_data_deletion")}</a>
+      </div>
     </div>
   )
 }
