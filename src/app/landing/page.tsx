@@ -951,7 +951,7 @@ export default function LandingPage() {
         <div className="absolute top-20 -left-32 w-96 h-96 bg-emerald-500/[0.06] rounded-full blur-3xl" />
         <div className="absolute bottom-0 -right-32 w-96 h-96 bg-blue-500/[0.04] rounded-full blur-3xl" />
 
-        <div className="relative max-w-[1600px] mx-auto px-6">
+        <div className="relative max-w-7xl mx-auto px-6">
           <div className="max-w-5xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-400/[0.06] border border-emerald-400/20 mb-4 landing-reveal">
               <Sparkles className="w-4 h-4 text-emerald-400" />
@@ -982,7 +982,7 @@ export default function LandingPage() {
 
           {/* Hero Dashboard Mockup — wider */}
           <div className="mt-10 md:mt-12 landing-reveal landing-reveal-delay-3">
-            <div className="relative max-w-[1400px] mx-auto">
+            <div className="relative max-w-7xl mx-auto">
               <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/[0.06] via-emerald-500/[0.03] to-transparent rounded-3xl blur-2xl scale-105" />
 
               <div className="relative bg-white/[0.025] border border-white/[0.08] rounded-2xl md:rounded-3xl overflow-hidden">
@@ -1130,7 +1130,7 @@ export default function LandingPage() {
 
       {/* ═══════════ STATS BAR ═══════════ */}
       <section className="py-6 border-y border-white/[0.04] bg-white/[0.01]">
-        <div className="max-w-[1600px] mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {t.statsItems.map((stat) => (
               <div key={stat.label}>
@@ -1146,7 +1146,7 @@ export default function LandingPage() {
 
       {/* ═══════════ FEATURES ═══════════ */}
       <section id="features" className="py-8 md:py-10">
-        <div className="max-w-[1600px] mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-6">
           <SectionHeader badge={t.featuresBadge} title={t.featuresTitle} subtitle={t.featuresSubtitle} />
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
@@ -1166,7 +1166,7 @@ export default function LandingPage() {
 
       {/* ═══════════ HOW IT WORKS ═══════════ */}
       <section id="how-it-works" className="py-8 md:py-10">
-        <div className="max-w-[1600px] mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-6">
           <SectionHeader badge={t.howBadge} title={t.howTitle} subtitle={t.howSubtitle} />
 
           <div className="grid md:grid-cols-3 gap-5 mt-6">
@@ -1183,7 +1183,7 @@ export default function LandingPage() {
 
       {/* ═══════════ AI SHOWCASE ═══════════ */}
       <section className="py-8 md:py-10 overflow-hidden">
-        <div className="max-w-[1600px] mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-10 items-center">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/[0.08] border border-violet-500/20 mb-5">
@@ -1238,7 +1238,7 @@ export default function LandingPage() {
 
       {/* ═══════════ CHANNELS ═══════════ */}
       <section className="py-5 md:py-6 bg-white/[0.01]">
-        <div className="max-w-[1600px] mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-6">
           <SectionHeader badge={t.channelsBadge} title={t.channelsTitle} subtitle={t.channelsSubtitle} />
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mt-6">
@@ -1262,7 +1262,7 @@ export default function LandingPage() {
 
       {/* ═══════════ PRICING ═══════════ */}
       <section id="pricing" className="py-8 md:py-10">
-        <div className="max-w-[1600px] mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-6">
           <SectionHeader badge={t.pricingBadge} title={t.pricingTitle} subtitle={t.pricingSubtitle} />
 
           {/* Period selector */}
@@ -1285,7 +1285,7 @@ export default function LandingPage() {
           </div>
 
           {/* 4 Plan cards */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 max-w-[1400px] mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 max-w-7xl mx-auto">
             {[
               {
                 ...t.plans[0],
@@ -1370,7 +1370,7 @@ export default function LandingPage() {
           </div>
 
           {/* Karşılaştırma Tablosu */}
-          <div className="mt-8 max-w-[1400px] mx-auto">
+          <div className="mt-8 max-w-7xl mx-auto">
             {/* Açıklama + Toggle */}
             <div className="text-center mb-6">
               <p className="text-base text-gray-500 mb-4">
@@ -1442,7 +1442,7 @@ export default function LandingPage() {
 
       {/* ═══════════ TESTIMONIALS ═══════════ */}
       <section id="testimonials" className="py-8 md:py-10">
-        <div className="max-w-[1600px] mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-6">
           <SectionHeader badge={t.testimonialsBadge} title={t.testimonialsTitle} subtitle={t.testimonialsSubtitle} />
 
           <div className="grid md:grid-cols-3 gap-5 mt-6">
@@ -1460,7 +1460,7 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(20,184,166,0.05),transparent_60%)]" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full blur-3xl" style={{ background: 'radial-gradient(ellipse, rgba(16,185,129,0.08) 0%, transparent 70%)' }} />
 
-        <div className="relative max-w-4xl mx-auto px-6 text-center">
+        <div className="relative max-w-2xl mx-auto px-6 text-center">
           <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-5">
             {t.ctaTitle1}<br />
             <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">{t.ctaTitle2}</span>
