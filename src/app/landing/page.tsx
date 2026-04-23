@@ -802,7 +802,7 @@ export default function LandingPage() {
 
           {/* Logo */}
           <a href="/" className="shrink-0">
-            <img src="/logo-yo.png" alt="YO Dijital" className="h-7 w-auto brightness-0 invert" />
+            <img src="/logo-yo.png" alt="YO Dijital" className="h-[22px] w-auto brightness-0 invert" />
           </a>
 
           {/* Desktop Nav */}
