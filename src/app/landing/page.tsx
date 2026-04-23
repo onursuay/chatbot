@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import {
   MessageSquare,
   Bot,
@@ -802,7 +803,7 @@ export default function LandingPage() {
 
           {/* Logo */}
           <a href="/" className="shrink-0">
-            <img src="/yoai-logo.png" alt="YO Dijital" className="object-contain brightness-0 invert" style={{ height: "51px", width: "auto" }} />
+            <Image src="/yoai-logo.png" alt="YO Dijital" width={56} height={22} className="object-contain brightness-0 invert" />
           </a>
 
           {/* Desktop Nav */}
@@ -810,7 +811,7 @@ export default function LandingPage() {
 
             {/* Ürün / Product */}
             <div className="relative" onMouseEnter={() => handleMenuEnter("product")} onMouseLeave={handleMenuLeave}>
-              <button className="text-[14px] font-medium border border-emerald-400/30 text-emerald-400 px-5 py-2 rounded-full transition-colors hover:bg-emerald-400/10 flex items-center gap-1.5 cursor-pointer">
+              <button className="btn-shimmer text-[14px] font-medium border border-emerald-400/30 text-emerald-400 px-5 py-2 rounded-full transition-colors hover:bg-emerald-400/10 flex items-center gap-1.5 cursor-pointer">
                 {lang === "tr" ? "Ürün" : "Product"}
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 9l6 6 6-6"/></svg>
               </button>
@@ -850,7 +851,7 @@ export default function LandingPage() {
 
             {/* Entegrasyonlar / Integrations */}
             <div className="relative" onMouseEnter={() => handleMenuEnter("integrations")} onMouseLeave={handleMenuLeave}>
-              <button className="text-[14px] font-medium border border-emerald-400/30 text-emerald-400 px-5 py-2 rounded-full transition-colors hover:bg-emerald-400/10 flex items-center gap-1.5 cursor-pointer">
+              <button className="btn-shimmer text-[14px] font-medium border border-emerald-400/30 text-emerald-400 px-5 py-2 rounded-full transition-colors hover:bg-emerald-400/10 flex items-center gap-1.5 cursor-pointer">
                 {lang === "tr" ? "Entegrasyonlar" : "Integrations"}
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 9l6 6 6-6"/></svg>
               </button>
@@ -885,7 +886,7 @@ export default function LandingPage() {
             </div>
 
             {/* Fiyatlandırma / Pricing */}
-            <a href="#pricing" className="text-[14px] font-medium border border-emerald-400/30 text-emerald-400 px-5 py-2 rounded-full transition-colors hover:bg-emerald-400/10">
+            <a href="#pricing" className="btn-shimmer text-[14px] font-medium border border-emerald-400/30 text-emerald-400 px-5 py-2 rounded-full transition-colors hover:bg-emerald-400/10">
               {lang === "tr" ? "Fiyatlandırma" : "Pricing"}
             </a>
           </nav>
@@ -897,13 +898,13 @@ export default function LandingPage() {
             </button>
             <button
               onClick={goRegister}
-              className="hidden lg:inline-flex text-[14px] font-medium border border-emerald-400/30 text-emerald-400 px-5 py-2 rounded-full transition-colors hover:bg-emerald-400/10 cursor-pointer"
+              className="btn-shimmer hidden lg:inline-flex text-[14px] font-medium border border-emerald-400/30 text-emerald-400 px-5 py-2 rounded-full transition-colors hover:bg-emerald-400/10 cursor-pointer"
             >
               {t.bookDemo}
             </button>
             <button
               onClick={goRegister}
-              className="text-[14px] font-medium border border-emerald-400/30 text-emerald-400 px-5 py-2 rounded-full transition-colors bg-emerald-400/10 hover:bg-emerald-400/15 cursor-pointer"
+              className="btn-shimmer text-[14px] font-medium border border-emerald-400/30 text-emerald-400 px-5 py-2 rounded-full transition-colors bg-emerald-400/10 hover:bg-emerald-400/15 cursor-pointer"
             >
               {t.tryFree7}
             </button>
