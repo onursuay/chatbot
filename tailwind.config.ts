@@ -47,13 +47,13 @@ const config: Config = {
           700: "#4B5563",
           800: "#374151",
         },
-        // Sidebar — Dark navy
+        // Sidebar — Dark green-black
         sidebar: {
-          DEFAULT: "#1A1D2E",
-          hover: "#252840",
-          active: "#2F3352",
-          border: "#2A2D42",
-          text: "#A8ABBE",
+          DEFAULT: "#0D1611",
+          hover: "#152218",
+          active: "#1D3326",
+          border: "#1E2E22",
+          text: "#7EA88D",
           "text-active": "#FFFFFF",
         },
         // Accents
