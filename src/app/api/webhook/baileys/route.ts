@@ -326,7 +326,7 @@ async function getOrCreateBaileysConversation(
   }
 
   // Yeni konuşma → otomatik pipeline lead oluştur
-  if (newConv) autoCreateLead(orgId, contactId)
+  if (newConv) autoCreateLead(orgId, contactId, "whatsapp_personal")
 
   return newConv
 }

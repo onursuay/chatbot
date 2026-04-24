@@ -5,7 +5,7 @@ import { getServiceSupabase } from "@/lib/supabase"
  * ilk aşamasına (Yeni) bir lead ekler.
  * Aynı kişi için zaten lead varsa tekrar oluşturmaz.
  */
-export async function autoCreateLead(orgId: string, contactId: string): Promise<void> {
+export async function autoCreateLead(orgId: string, contactId: string, channel?: string): Promise<void> {
   try {
     const supabase = getServiceSupabase()
 
@@ -58,7 +58,7 @@ export async function autoCreateLead(orgId: string, contactId: string): Promise<
       status: "active",
       value: 0,
       currency: "TRY",
-      attributes: {},
+      attributes: channel ? { channel } : {},
       tags: [],
       score: 0,
     })

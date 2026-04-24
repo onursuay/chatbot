@@ -281,7 +281,7 @@ async function getOrCreateTelegramConversation(
   }
 
   // Yeni konuşma → otomatik pipeline lead oluştur
-  if (newConv) autoCreateLead(orgId, contactId)
+  if (newConv) autoCreateLead(orgId, contactId, "telegram")
 
   return newConv
 }

@@ -1682,7 +1682,7 @@ async function getOrCreateConversation(
   console.log("[META][CONVERSATION] created | id:", newConv?.id, "| key:", uniqueKey)
 
   // Yeni konuşma → otomatik pipeline lead oluştur
-  if (newConv) autoCreateLead(orgId, contactId)
+  if (newConv) autoCreateLead(orgId, contactId, channel)
 
   return newConv
 }
