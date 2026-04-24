@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { getServiceSupabase } from "@/lib/supabase"
 import { getAIResponse } from "@/lib/gemini"
+import { autoCreateLead } from "@/lib/auto-lead"
 
 // ============================================
 // FORCE DYNAMIC — Vercel'de statik cache'e alınmasını önle
@@ -323,6 +324,9 @@ async function getOrCreateBaileysConversation(
       .maybeSingle()
     return retry
   }
+
+  // Yeni konuşma → otomatik pipeline lead oluştur
+  if (newConv) autoCreateLead(orgId, contactId)
 
   return newConv
 }

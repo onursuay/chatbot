@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { getServiceSupabase } from "@/lib/supabase"
 import { sendTextMessage, markAsRead } from "@/lib/whatsapp"
+import { autoCreateLead } from "@/lib/auto-lead"
 import {
   buildDefaultChatbotSettings,
   DEFAULT_PROFANITY_CLOSE_MESSAGE,
@@ -1679,5 +1680,9 @@ async function getOrCreateConversation(
   }
 
   console.log("[META][CONVERSATION] created | id:", newConv?.id, "| key:", uniqueKey)
+
+  // Yeni konuşma → otomatik pipeline lead oluştur
+  if (newConv) autoCreateLead(orgId, contactId)
+
   return newConv
 }

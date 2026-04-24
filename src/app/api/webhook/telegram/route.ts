@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getServiceSupabase } from "@/lib/supabase"
 import { sendTelegramMessage } from "@/lib/telegram"
 import { getAIResponse } from "@/lib/gemini"
+import { autoCreateLead } from "@/lib/auto-lead"
 
 // ============================================
 // FORCE DYNAMIC — Vercel'de statik cache'e alınmasını önle
@@ -268,7 +269,6 @@ async function getOrCreateTelegramConversation(
 
   if (error) {
     console.error("[TELEGRAM] Conversation oluşturma hatası:", error.message)
-    // Race condition — tekrar ara
     const { data: retry } = await supabase
       .from("conversations")
       .select("*")
@@ -279,6 +279,9 @@ async function getOrCreateTelegramConversation(
       .maybeSingle()
     return retry
   }
+
+  // Yeni konuşma → otomatik pipeline lead oluştur
+  if (newConv) autoCreateLead(orgId, contactId)
 
   return newConv
 }
