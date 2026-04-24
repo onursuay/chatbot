@@ -222,9 +222,11 @@ export default function PipelinePage() {
               </button>
             </div>
           )}
-          <button onClick={createDefaultPipeline} disabled={creating} className="ds-btn-primary ds-btn-sm">
-            {creating ? (isTR ? "Oluşturuluyor..." : "Creating...") : (isTR ? "+ Pipeline Oluştur" : "+ New Pipeline")}
-          </button>
+          {pipelines.length > 0 && (
+            <button onClick={createDefaultPipeline} disabled={creating} className="ds-btn-primary ds-btn-sm">
+              {creating ? (isTR ? "Oluşturuluyor..." : "Creating...") : (isTR ? "+ Pipeline Oluştur" : "+ New Pipeline")}
+            </button>
+          )}
         </div>
       </div>
 
