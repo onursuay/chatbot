@@ -531,7 +531,7 @@ export default function LangLayout({ children, params }: { children: React.React
 
           {/* Dropdown */}
           {userMenuOpen && (
-            <div className={`absolute z-50 border border-white/[0.08] rounded-xl shadow-2xl py-1 w-56 ${collapsed ? "left-full ml-2 bottom-0" : "bottom-full mb-2 left-0"}`} style={{ background: "linear-gradient(160deg, #132018, #0d1611)" }}>
+            <div className={`absolute z-50 border border-white/[0.08] rounded-xl shadow-2xl py-1 w-56 ${collapsed ? "left-full ml-2 bottom-0" : "bottom-full mb-2 left-0"}`} style={{ background: "linear-gradient(160deg, #131a12, #0c1210)" }}>
               {/* Header info */}
               <div className="px-4 py-3 border-b border-white/[0.08]">
                 <p className="text-sm font-semibold text-white truncate">{user?.full_name}</p>
