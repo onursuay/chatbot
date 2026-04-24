@@ -2,6 +2,15 @@
 
 ---
 
+## 2026-04-24 (Lead API JOIN Düzeltmesi)
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- `/api/leads` GET endpoint'i artık `stage_name`, `pipeline_name`, `contact_name` alanlarını batch JOIN ile dolduruyor — daha önce hep "—" gösteriyordu
+- Tek lead getirme (`?id=`) de aynı enrichment'ı yapıyor, lead detay sayfası artık stage ve contact adlarını doğru gösteriyor
+- Hem Lead'ler listesi hem Pipeline kanban'ı artık gerçek aşama ve kişi adlarını gösteriyor
+
+---
+
 ## 2026-04-24 (Pipeline CRM Düzeltmesi)
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler
