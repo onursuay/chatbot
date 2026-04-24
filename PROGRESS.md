@@ -2,6 +2,17 @@
 
 ---
 
+## 2026-04-24 (Pipeline CRM Düzeltmesi)
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- **Duplicate pipeline bug düzeltildi** — `useEffect([getToken])` dependency sorunu: `getToken` her render'da değiştiğinden `loadPipelines` defalarca çağrılıyordu. `[]` (mount once) olarak düzeltildi
+- **Leads yükleme de düzeltildi** — Leads effect'i sadece `selectedPipelineId` değişince çalışıyor
+- **Kanban'dan lead ekleme eklendi** — Her kolon başlığında "+" butonu ve boş kolonlarda dashed alan; inline form ile başlık + değer girişi, Enter ile kaydet
+- **Pipeline silme eklendi** — Dropdown yanında çöp ikonu + onay modalı ile pipeline silinebiliyor
+- **Drag-drop iyileştirildi** — Üzerine gelindiğinde kolon highlight oluyor, kart hafif döner
+
+---
+
 ## 2026-04-23 (Mesajlarda Seçme, Silme ve Düzenleme)
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler
