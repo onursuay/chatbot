@@ -2,6 +2,16 @@
 
 ---
 
+## 2026-04-25 (New Message Modal — Kanal Seçimi)
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- **"New Message" modalı yeniden tasarlandı** — Artık telefon numarası sormak yerine bağlı kanalları (WhatsApp, Instagram, Messenger, Telegram) liste halinde gösteriyor. Kullanıcı önce hesap seçiyor (1. adım), sonra o kanala özel form açılıyor (2. adım)
+- **WhatsApp için `/api/conversations/start` backend oluşturuldu** — Contact bul/oluştur → Conversation bul/oluştur → Mesaj gönder (isteğe bağlı). Daha önce bu endpoint hiç yoktu
+- **i18n uyumlu**: Yeni metinler `t()` ile, yeni key'ler `i18n.ts`'e eklendi (`select_channel`, `select_channel_desc`, `no_channels_connected`, `channel_reply_only`, `whatsapp_new_conv_desc`)
+- **Instagram/Messenger/Telegram** için "Bu kanalda sadece yanıt verebilirsiniz" bilgi mesajı gösteriliyor
+
+---
+
 ## 2026-04-25
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler

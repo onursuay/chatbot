@@ -8,6 +8,15 @@ import { supabase } from "@/lib/supabase"
 
 type Channel = "all" | "whatsapp" | "instagram" | "facebook" | "telegram" | "whatsapp_personal"
 
+interface ConnectedAccount {
+  id: string
+  type: "whatsapp" | "instagram" | "facebook" | "telegram"
+  label: string
+  subLabel?: string
+  phone_number_id?: string
+  channel_account_id?: string
+}
+
 interface Conversation {
   id: string
   contact_name: string | null
@@ -94,6 +103,31 @@ const CHANNEL_FILTERS: { id: Channel; labelKey: string; icon: JSX.Element }[] = 
   },
 ]
 
+function AccountIcon({ type }: { type: string }) {
+  if (type === "whatsapp") return (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+    </svg>
+  )
+  if (type === "instagram") return (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <rect x="2" y="2" width="20" height="20" rx="5" />
+      <circle cx="12" cy="12" r="5" />
+      <circle cx="18" cy="6" r="1.5" fill="currentColor" stroke="none" />
+    </svg>
+  )
+  if (type === "facebook") return (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2C6.36 2 2 6.13 2 11.7c0 2.91 1.2 5.42 3.17 7.18V22l2.93-1.63c.83.23 1.71.36 2.63.36h.27c5.64 0 10-4.13 10-9.7C21 6.13 17.64 2 12 2zm.97 13.04l-2.55-2.73L5.4 15.3l5.04-5.36 2.62 2.73 4.94-2.98-5.03 5.35z" />
+    </svg>
+  )
+  return (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+    </svg>
+  )
+}
+
 function getChannelColor(channel?: string) {
   if (channel === "instagram") return "#E1306C"
   if (channel === "facebook") return "#0084FF"
@@ -145,6 +179,10 @@ export default function InboxPage() {
 
   // New conversation modal
   const [showNewConv, setShowNewConv] = useState(false)
+  const [newConvStep, setNewConvStep] = useState<1 | 2>(1)
+  const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>([])
+  const [loadingAccounts, setLoadingAccounts] = useState(false)
+  const [selectedAccount, setSelectedAccount] = useState<ConnectedAccount | null>(null)
   const [newConvPhone, setNewConvPhone] = useState("")
   const [newConvName, setNewConvName] = useState("")
   const [newConvText, setNewConvText] = useState("")
@@ -194,9 +232,62 @@ export default function InboxPage() {
     setHoveredMessageId(null)
   }, [selectedConv?.id])
 
+  // Load connected accounts when modal opens
+  useEffect(() => {
+    if (!showNewConv) return
+    const token = getToken()
+    if (!token) return
+    setLoadingAccounts(true)
+    api<{ accounts: any[]; channel_accounts: any[] }>("/channels/status", { token })
+      .then((data) => {
+        const accounts: ConnectedAccount[] = []
+        // WhatsApp phone numbers
+        for (const waba of data.accounts || []) {
+          for (const pn of waba.phone_numbers || []) {
+            accounts.push({
+              id: pn.id,
+              type: "whatsapp",
+              label: pn.verified_name || "WhatsApp Business",
+              subLabel: pn.number,
+              phone_number_id: pn.id,
+            })
+          }
+        }
+        // Instagram / Messenger / Telegram channel accounts
+        for (const ch of data.channel_accounts || []) {
+          accounts.push({
+            id: ch.id,
+            type: ch.channel as ConnectedAccount["type"],
+            label: ch.page_name || ch.account_id || ch.channel,
+            channel_account_id: ch.id,
+          })
+        }
+        setConnectedAccounts(accounts)
+      })
+      .catch(() => setConnectedAccounts([]))
+      .finally(() => setLoadingAccounts(false))
+  }, [showNewConv, getToken])
+
+  const openNewConv = () => {
+    setShowNewConv(true)
+    setNewConvStep(1)
+    setSelectedAccount(null)
+    setNewConvPhone("")
+    setNewConvName("")
+    setNewConvText("")
+    setNewConvError("")
+  }
+
+  const closeNewConv = () => {
+    setShowNewConv(false)
+    setNewConvStep(1)
+    setSelectedAccount(null)
+    setNewConvError("")
+  }
+
   // Start new conversation
   const handleStartConversation = async () => {
-    if (!newConvPhone.trim() || !newConvText.trim() || newConvSending) return
+    if (!selectedAccount?.phone_number_id || !newConvPhone.trim() || newConvSending) return
     const token = getToken()
     if (!token) return
 
@@ -210,17 +301,15 @@ export default function InboxPage() {
         body: JSON.stringify({
           phone: newConvPhone.trim(),
           name: newConvName.trim() || null,
-          text: newConvText.trim(),
+          text: newConvText.trim() || undefined,
+          phone_number_id: selectedAccount.phone_number_id,
         }),
       })
-      setShowNewConv(false)
-      setNewConvPhone("")
-      setNewConvName("")
-      setNewConvText("")
+      closeNewConv()
       loadConversations()
       setSelectedConv(conv)
     } catch (err: any) {
-      setNewConvError(err.message || "Mesaj gonderilemedi")
+      setNewConvError(err.message || t("msg_send_error"))
     }
     setNewConvSending(false)
   }
@@ -519,7 +608,7 @@ export default function InboxPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-page-title">{t("inbox")}</h2>
             <button
-              onClick={() => setShowNewConv(true)}
+              onClick={openNewConv}
               className="ds-btn-sm gap-1 bg-[#4995d1] text-white border-0 shadow-sm hover:bg-[#3d82b8] rounded-btn font-bold text-micro px-3 h-btn-h-sm flex items-center"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
@@ -1275,67 +1364,148 @@ export default function InboxPage() {
 
       {/* ===== NEW CONVERSATION MODAL ===== */}
       {showNewConv && (
-        <div className="ds-modal-overlay" onClick={() => setShowNewConv(false)}>
-          <div className="ds-modal w-[440px] max-w-[95vw]" onClick={(e) => e.stopPropagation()}>
+        <div className="ds-modal-overlay" onClick={closeNewConv}>
+          <div className="ds-modal w-[480px] max-w-[95vw]" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
             <div className="px-5 py-4 border-b border-surface-300 flex items-center justify-between">
-              <h3 className="ds-modal-title">{t("new_message") || "Yeni Mesaj"}</h3>
-              <button onClick={() => setShowNewConv(false)} className="text-ink-muted hover:text-ink transition-colors">
+              <div className="flex items-center gap-2">
+                {newConvStep === 2 && (
+                  <button
+                    onClick={() => { setNewConvStep(1); setSelectedAccount(null); setNewConvError("") }}
+                    className="text-ink-muted hover:text-ink transition-colors p-1 -ml-1"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4"><path d="M15 18l-6-6 6-6"/></svg>
+                  </button>
+                )}
+                <div>
+                  <h3 className="ds-modal-title">{t("new_message_btn")}</h3>
+                  {newConvStep === 1 && (
+                    <p className="text-micro text-ink-muted">{t("select_channel_desc")}</p>
+                  )}
+                  {newConvStep === 2 && selectedAccount && (
+                    <p className="text-micro text-ink-muted flex items-center gap-1">
+                      <AccountIcon type={selectedAccount.type} />
+                      {selectedAccount.label}{selectedAccount.subLabel ? ` · ${selectedAccount.subLabel}` : ""}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <button onClick={closeNewConv} className="text-ink-muted hover:text-ink transition-colors">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5"><path d="M18 6L6 18M6 6l12 12" /></svg>
               </button>
             </div>
-            <div className="p-5 space-y-4">
-              <div>
-                <label className="text-caption font-bold text-ink-secondary block mb-1.5">{t("phone") || "Telefon"} *</label>
-                <input
-                  type="tel"
-                  value={newConvPhone}
-                  onChange={(e) => setNewConvPhone(e.target.value)}
-                  placeholder="+905xxxxxxxxx"
-                  className="ds-input w-full"
-                  autoFocus
-                />
-              </div>
-              <div>
-                <label className="text-caption font-bold text-ink-secondary block mb-1.5">{t("contact_name") || "Ad"}</label>
-                <input
-                  type="text"
-                  value={newConvName}
-                  onChange={(e) => setNewConvName(e.target.value)}
-                  placeholder={t("optional") || "Opsiyonel"}
-                  className="ds-input w-full"
-                />
-              </div>
-              <div>
-                <label className="text-caption font-bold text-ink-secondary block mb-1.5">{t("message") || "Mesaj"} *</label>
-                <textarea
-                  value={newConvText}
-                  onChange={(e) => setNewConvText(e.target.value)}
-                  placeholder={t("write_message") || "Mesajinizi yazin..."}
-                  className="ds-input w-full min-h-[80px] resize-none"
-                  rows={3}
-                />
-              </div>
-              {newConvError && (
-                <div className="ds-callout-error text-caption text-accent-red-deep">{newConvError}</div>
-              )}
-            </div>
-            <div className="ds-modal-actions">
-              <button onClick={() => setShowNewConv(false)} className="ds-btn-secondary ds-btn-sm">
-                {t("cancel") || "Iptal"}
-              </button>
-              <button
-                onClick={handleStartConversation}
-                disabled={!newConvPhone.trim() || !newConvText.trim() || newConvSending}
-                className="ds-btn-primary ds-btn-sm gap-1"
-              >
-                {newConvSending ? (
-                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+
+            {/* Step 1 — Channel selection */}
+            {newConvStep === 1 && (
+              <div className="p-5">
+                {loadingAccounts ? (
+                  <div className="text-center py-8 text-ink-tertiary text-caption">{t("loading")}</div>
+                ) : connectedAccounts.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-ink-tertiary text-caption">{t("no_channels_connected")}</p>
+                  </div>
                 ) : (
-                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" /></svg>
+                  <div className="space-y-2">
+                    {connectedAccounts.map((acc) => (
+                      <button
+                        key={acc.id}
+                        onClick={() => { setSelectedAccount(acc); setNewConvStep(2) }}
+                        className="w-full flex items-center gap-3 p-3.5 rounded-[8px] border border-surface-300 hover:border-primary hover:bg-primary/5 transition-colors text-left"
+                      >
+                        <span className={`w-9 h-9 rounded-full flex items-center justify-center text-white shrink-0 ${
+                          acc.type === "whatsapp" ? "bg-[#25D366]" :
+                          acc.type === "instagram" ? "bg-gradient-to-br from-[#E1306C] to-[#833AB4]" :
+                          acc.type === "facebook" ? "bg-[#0084FF]" :
+                          "bg-[#229ED9]"
+                        }`}>
+                          <AccountIcon type={acc.type} />
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-ui font-bold text-ink truncate">{acc.label}</p>
+                          {acc.subLabel && <p className="text-micro text-ink-muted">{acc.subLabel}</p>}
+                        </div>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4 text-ink-muted shrink-0"><path d="M9 18l6-6-6-6"/></svg>
+                      </button>
+                    ))}
+                  </div>
                 )}
-                {t("send") || "Gonder"}
-              </button>
-            </div>
+              </div>
+            )}
+
+            {/* Step 2 — WhatsApp form */}
+            {newConvStep === 2 && selectedAccount?.type === "whatsapp" && (
+              <div className="p-5 space-y-4">
+                <div className="ds-callout-info text-caption text-ink-secondary">
+                  {t("whatsapp_new_conv_desc")}
+                </div>
+                <div>
+                  <label className="text-caption font-bold text-ink-secondary block mb-1.5">{t("phone")} *</label>
+                  <input
+                    type="tel"
+                    value={newConvPhone}
+                    onChange={(e) => setNewConvPhone(e.target.value)}
+                    placeholder="+905xxxxxxxxx"
+                    className="ds-input w-full"
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label className="text-caption font-bold text-ink-secondary block mb-1.5">{t("contact_name")}</label>
+                  <input
+                    type="text"
+                    value={newConvName}
+                    onChange={(e) => setNewConvName(e.target.value)}
+                    placeholder={t("optional")}
+                    className="ds-input w-full"
+                  />
+                </div>
+                <div>
+                  <label className="text-caption font-bold text-ink-secondary block mb-1.5">{t("message")}</label>
+                  <textarea
+                    value={newConvText}
+                    onChange={(e) => setNewConvText(e.target.value)}
+                    placeholder={t("write_message")}
+                    className="ds-input w-full min-h-[80px] resize-none"
+                    rows={3}
+                  />
+                </div>
+                {newConvError && (
+                  <div className="ds-callout-error text-caption text-accent-red-deep">{newConvError}</div>
+                )}
+              </div>
+            )}
+
+            {/* Step 2 — Non-WhatsApp info */}
+            {newConvStep === 2 && selectedAccount && selectedAccount.type !== "whatsapp" && (
+              <div className="p-5">
+                <div className="ds-callout-info">
+                  <p className="text-caption text-ink-secondary">{t("channel_reply_only")}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Footer */}
+            {newConvStep === 2 && (
+              <div className="ds-modal-actions">
+                <button onClick={closeNewConv} className="ds-btn-secondary ds-btn-sm">
+                  {t("cancel")}
+                </button>
+                {selectedAccount?.type === "whatsapp" && (
+                  <button
+                    onClick={handleStartConversation}
+                    disabled={!newConvPhone.trim() || newConvSending}
+                    className="ds-btn-primary ds-btn-sm gap-1"
+                  >
+                    {newConvSending ? (
+                      <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" /></svg>
+                    )}
+                    {newConvText.trim() ? t("send") : t("create")}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -619,6 +619,13 @@ const translations: Record<string, Record<Lang, string>> = {
   "webhook_events": { tr: "Olaylar", en: "Events" },
   "no_webhooks": { tr: "Henüz webhook yok", en: "No webhooks yet" },
 
+  // New conversation modal
+  "select_channel": { tr: "Kanal Seçin", en: "Select Channel" },
+  "select_channel_desc": { tr: "Mesajı hangi hesaptan göndereceğinizi seçin", en: "Select which account to send from" },
+  "no_channels_connected": { tr: "Bağlı kanal bulunamadı. Kanallar sayfasından hesap ekleyin.", en: "No connected channels found. Add an account from the Channels page." },
+  "channel_reply_only": { tr: "Bu kanal üzerinden sadece size yazan kişilere yanıt verebilirsiniz.", en: "You can only reply to contacts who message you first on this channel." },
+  "whatsapp_new_conv_desc": { tr: "WhatsApp numarasını girerek yeni bir konuşma başlatın. (Onaylanmış şablon gerektirmeden 24 saat içinde mesaj gönderilebilir.)", en: "Enter a WhatsApp number to start a new conversation. (Messages within 24h window don't require approved templates.)" },
+
   // Activity Log
   "activity_log": { tr: "Aktivite Geçmişi", en: "Activity History" },
   "no_activity": { tr: "Henüz aktivite yok", en: "No activity yet" },
