@@ -188,6 +188,9 @@ export default function InboxPage() {
   const [newConvText, setNewConvText] = useState("")
   const [newConvSending, setNewConvSending] = useState(false)
   const [newConvError, setNewConvError] = useState("")
+  const [channelConvs, setChannelConvs] = useState<Conversation[]>([])
+  const [channelConvSearch, setChannelConvSearch] = useState("")
+  const [loadingChannelConvs, setLoadingChannelConvs] = useState(false)
 
   // Delete conversation
   const [deleteTarget, setDeleteTarget] = useState<Conversation | null>(null)
@@ -276,6 +279,8 @@ export default function InboxPage() {
     setNewConvName("")
     setNewConvText("")
     setNewConvError("")
+    setChannelConvs([])
+    setChannelConvSearch("")
   }
 
   const closeNewConv = () => {
@@ -283,6 +288,23 @@ export default function InboxPage() {
     setNewConvStep(1)
     setSelectedAccount(null)
     setNewConvError("")
+    setChannelConvs([])
+    setChannelConvSearch("")
+  }
+
+  const selectAccount = (acc: ConnectedAccount) => {
+    setSelectedAccount(acc)
+    setNewConvStep(2)
+    setNewConvError("")
+    if (acc.type !== "whatsapp" && acc.channel_account_id) {
+      const token = getToken()
+      if (!token) return
+      setLoadingChannelConvs(true)
+      api<Conversation[]>(`/conversations?channel=${acc.type}`, { token })
+        .then(setChannelConvs)
+        .catch(() => setChannelConvs([]))
+        .finally(() => setLoadingChannelConvs(false))
+    }
   }
 
   // Start new conversation
@@ -1409,7 +1431,7 @@ export default function InboxPage() {
                     {connectedAccounts.map((acc) => (
                       <button
                         key={acc.id}
-                        onClick={() => { setSelectedAccount(acc); setNewConvStep(2) }}
+                        onClick={() => selectAccount(acc)}
                         className="w-full flex items-center gap-3 p-3.5 rounded-[8px] border border-surface-300 hover:border-primary hover:bg-primary/5 transition-colors text-left"
                       >
                         <span className={`w-9 h-9 rounded-full flex items-center justify-center text-white shrink-0 ${
@@ -1475,12 +1497,56 @@ export default function InboxPage() {
               </div>
             )}
 
-            {/* Step 2 — Non-WhatsApp info */}
+            {/* Step 2 — Non-WhatsApp: search existing contacts */}
             {newConvStep === 2 && selectedAccount && selectedAccount.type !== "whatsapp" && (
-              <div className="p-5">
+              <div className="p-5 space-y-3">
                 <div className="ds-callout-info">
                   <p className="text-caption text-ink-secondary">{t("channel_reply_only")}</p>
                 </div>
+                <input
+                  type="text"
+                  value={channelConvSearch}
+                  onChange={(e) => setChannelConvSearch(e.target.value)}
+                  placeholder={t("search")}
+                  className="ds-input w-full"
+                  autoFocus
+                />
+                {loadingChannelConvs ? (
+                  <div className="text-center py-4 text-ink-tertiary text-caption">{t("loading")}</div>
+                ) : (
+                  <div className="space-y-1 max-h-[240px] overflow-y-auto">
+                    {channelConvs
+                      .filter((c) => {
+                        const q = channelConvSearch.toLowerCase()
+                        return !q || (c.contact_name || "").toLowerCase().includes(q) || (c.contact_phone || "").toLowerCase().includes(q)
+                      })
+                      .map((c) => (
+                        <button
+                          key={c.id}
+                          onClick={() => {
+                            closeNewConv()
+                            setSelectedConv(c)
+                          }}
+                          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-[6px] hover:bg-surface-100 transition-colors text-left"
+                        >
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-caption font-bold shrink-0 ${getAvatarColor(c.contact_name || "?")}`}>
+                            {(c.contact_name || "?")[0].toUpperCase()}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-ui font-bold text-ink truncate">{c.contact_name || t("unknown")}</p>
+                            {c.contact_phone && <p className="text-micro text-ink-muted">{c.contact_phone}</p>}
+                          </div>
+                        </button>
+                      ))
+                    }
+                    {!loadingChannelConvs && channelConvs.filter((c) => {
+                      const q = channelConvSearch.toLowerCase()
+                      return !q || (c.contact_name || "").toLowerCase().includes(q) || (c.contact_phone || "").toLowerCase().includes(q)
+                    }).length === 0 && (
+                      <p className="text-center text-ink-muted text-caption py-4">{t("no_results")}</p>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
