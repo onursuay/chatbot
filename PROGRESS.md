@@ -2,6 +2,17 @@
 
 ---
 
+## 2026-04-25
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- **404 hataları düzeltildi (Companies, Leads, Tasks, Activity Log)** — Sayfa dizinleri Türkçe isimlerle (`sirketler`, `leadler`, `gorevler`, `aktivite` vb.) kaydedilmişti; İngilizce arayüzde route bulunamıyordu. Tüm dizinler İngilizce slug'a yeniden adlandırıldı (`companies`, `leads`, `tasks`, `activity-log`, `team`, `web-forms`, `webhooks`)
+- **Middleware güncellendi** — `TR_TO_EN` map'ine eksik tüm slug'lar eklendi (leadler→leads, sirketler→companies, gorevler→tasks, aktivite→activity-log vb.). Dinamik route sub-path desteği de düzeltildi (`/tr/leadler/[id]` → `/tr/leads/[id]`)
+- **AI Chatbot API oluşturuldu** — `/api/chatbot/route.ts` yoktu; `chatbot_configs` tablosu var ama endpoint eksikti. GET (config yükle) + PATCH (config güncelle) eklendi. "Chatbot ayarları yüklenemedi" hatası giderildi
+- **Chatbot sayfası tamamen i18n'e çevrildi** — Tüm hardcoded Türkçe metinler `t()` ile değiştirildi; `i18n.ts`'e 30+ yeni key eklendi (`chatbot_settings_load_error`, `chatbot_tab_*`, `model_*`, `kb_*` vb.)
+- **i18n kuralı CLAUDE.md'ye kaydedildi** — Sayfa route'larının İngilizce slug ile adlandırılması ve SLUG_MAP + TR_TO_EN güncelleme zorunluluğu artık kalıcı proje talimatı
+
+---
+
 ## 2026-04-24 (Lead API JOIN Düzeltmesi)
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler

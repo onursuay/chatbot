@@ -10,11 +10,21 @@ const TR_TO_EN: Record<string, string> = {
   "sohbet-botu": "chatbot",
   "otomasyon": "automation",
   "akis-olusturucu": "flow-builder",
+  "bilgi-bankasi": "knowledge-base",
   "kanallar": "channels",
   "entegrasyonlar": "integrations",
+  "web-formlari": "web-forms",
+  "webhooklar": "webhooks",
   "raporlar": "analytics",
+  "aktivite": "activity-log",
   "abonelik": "billing",
   "ayarlar": "settings",
+  "ekip": "team",
+  // CRM
+  "leadler": "leads",
+  "sirketler": "companies",
+  "gorevler": "tasks",
+  "pipeline": "pipeline",
 }
 
 const SUPPORTED_LANGS = ["tr", "en"]
@@ -71,8 +81,9 @@ export function middleware(request: NextRequest) {
     const enSlug = lang === "tr" ? (TR_TO_EN[slug] || slug) : slug
 
     // Rewrite: /tr/otomasyon -> /[lang]/automation (iç sayfa yolu)
+    const remainingPath = parts.slice(2).join("/")
     const url = request.nextUrl.clone()
-    url.pathname = `/${lang}/${enSlug}`
+    url.pathname = remainingPath ? `/${lang}/${enSlug}/${remainingPath}` : `/${lang}/${enSlug}`
     return NextResponse.rewrite(url)
   }
 
