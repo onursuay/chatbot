@@ -47,7 +47,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Root "/" -> landing page
+  // Root "/" -> TR landing page
   if (pathname === "/") {
     return NextResponse.rewrite(new URL("/landing", request.url))
   }
@@ -63,12 +63,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/tr/gelen-kutusu", request.url))
   }
 
-  // /tr veya /en (dil root) -> inbox'a yönlendir
+  // /tr veya /en (dil root) -> dilin landing sayfasını göster
   if (pathname === "/tr") {
-    return NextResponse.redirect(new URL("/tr/gelen-kutusu", request.url))
+    return NextResponse.rewrite(new URL("/landing?lang=tr", request.url))
   }
   if (pathname === "/en") {
-    return NextResponse.redirect(new URL("/en/inbox", request.url))
+    return NextResponse.rewrite(new URL("/landing?lang=en", request.url))
   }
 
   // /tr/otomasyon veya /en/automation -> iç rewrite

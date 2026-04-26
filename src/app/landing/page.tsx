@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import Image from "next/image"
 import {
   MessageSquare,
@@ -739,11 +739,27 @@ const T = {
    ════════════════════════════════════════════ */
 export default function LandingPage() {
   const router = useRouter()
+  const pathname = usePathname()
   const [mobileMenu, setMobileMenu] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [activePlan, setActivePlan] = useState<"6ay" | "1yil" | "2yil">("1yil")
   const [compareOpen, setCompareOpen] = useState(false)
-  const [lang, setLang] = useState<"tr" | "en">("tr")
+
+  // URL pathname'i dilin tek kaynağı: /en* → en, diğerleri → tr
+  const urlLang: "tr" | "en" = pathname?.startsWith("/en") ? "en" : "tr"
+  const [lang, setLangState] = useState<"tr" | "en">(urlLang)
+
+  // URL değişince dil de değişsin + localStorage'a kaydet
+  useEffect(() => {
+    setLangState(urlLang)
+    if (typeof window !== "undefined") localStorage.setItem("lang", urlLang)
+  }, [urlLang])
+
+  const setLang = (newLang: "tr" | "en") => {
+    if (typeof window !== "undefined") localStorage.setItem("lang", newLang)
+    router.push(newLang === "en" ? "/en" : "/")
+  }
+
   const [dropOpen, setDropOpen] = useState(false)
 
   const t = T[lang]
@@ -792,8 +808,8 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
-  const goLogin = () => router.push("/auth/login")
-  const goRegister = () => router.push("/auth/register")
+  const goLogin = () => router.push(`/${lang}/login`)
+  const goRegister = () => router.push(`/${lang}/register`)
 
   return (
     <div className="min-h-screen bg-[#060609] text-white font-sans antialiased overflow-x-hidden">
@@ -802,7 +818,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-3">
 
           {/* Logo */}
-          <a href="/" className="shrink-0">
+          <a href={lang === "en" ? "/en" : "/"} className="shrink-0">
             <Image src="/yoai-logo.png" alt="YO Dijital" width={56} height={22} className="object-contain brightness-0 invert" />
           </a>
 

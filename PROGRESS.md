@@ -2,6 +2,16 @@
 
 ---
 
+## 2026-04-25 (Landing Page Dil Routing)
+
+### Çözülen Sorunlar / Yapılan İyileştirmeler
+- **Landing page artık `/en` URL'ini destekliyor** — Daha önce `/en` direkt `/en/inbox`'a yönlendiriliyordu, İngilizce landing yoktu. Middleware artık `/en` → `/landing?lang=en` rewrite ediyor (`/tr` da `/landing?lang=tr`)
+- **Refresh ettiğinde dil bozulması düzeltildi** — Dil artık URL'den okunuyor (`usePathname`). Önceden sadece React state'inde tutuluyordu, refresh edince Türkçe'ye dönüyordu. Artık URL → state → localStorage akışı var, dil her zaman korunuyor
+- **Dil değiştirici URL'i değiştiriyor** — Tıklayınca `router.push("/en")` veya `router.push("/")` yapıyor, böylece adres çubuğu da senkron oluyor
+- **Login/Register/Logo linkleri dil-uyumlu** — `goLogin`, `goRegister` ve logo href'i artık aktif dile göre `/{lang}/...` yönlendirmesi yapıyor
+
+---
+
 ## 2026-04-25 (New Message Modal — Kanal Seçimi)
 
 ### Çözülen Sorunlar / Yapılan İyileştirmeler
